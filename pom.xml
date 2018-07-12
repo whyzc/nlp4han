@@ -45,5 +45,6 @@
 		<module>nlp4han-constituent</module>
 		<module>nlp4han-srl</module>
 		<module>nlp4han-csc</module>
+	<module>nlp4han-coref</module>
 	</modules>
 </project>
