@@ -263,13 +263,12 @@ public class TreeNode implements Cloneable
 	{
 		if (this.children.size() == 0)
 		{
-			return " " + this.nodename;
+			return " "+BracketConvert(this.getNodeName());
 		}
 		else
 		{
 			String treestr = "";
 			treestr = "(" + this.nodename;
-
 			for (TreeNode node : this.children)
 			{
 				treestr += node.toString();
@@ -290,7 +289,7 @@ public class TreeNode implements Cloneable
 	{
 		if (this.children.size() == 0)
 		{
-			return " " + this.nodename + "[" + this.wordindex + "]";
+			return " " +BracketConvert(this.getNodeName())+ "[" + this.wordindex + "]";
 		}
 		else
 		{
@@ -315,7 +314,7 @@ public class TreeNode implements Cloneable
 	{
 		if (this.children.size() == 0 && this.flag == true)
 		{
-			return " " + this.nodename;
+            return " "+BracketConvert(this.getNodeName());
 		}
 		else
 		{
@@ -369,7 +368,7 @@ public class TreeNode implements Cloneable
 	{
 		if (this.children.size() == 0 && this.flag == true)
 		{
-			return " " + this.nodename + "[" + this.wordindex + "]";
+			return " " + BracketConvert(this.getNodeName()) + "[" + this.wordindex + "]";
 		}
 		else
 		{
@@ -404,20 +403,20 @@ public class TreeNode implements Cloneable
 	{
 		if (tree.getChildrenNum() == 1 && tree.getFirstChild().getChildrenNum() == 0)
 		{
-			return "(" + tree.getNodeName() + " " + tree.getFirstChild().getNodeName() + ")";
+			return "(" + tree.getNodeName() + " " + BracketConvert(tree.getFirstChild().getNodeName()) + ")";
 		}
 		else if (tree.getChildrenNum() == 1 && tree.getFirstChild().getChildrenNum() == 1
 				&& tree.getFirstChild().getFirstChild().getChildrenNum() == 0)
 		{
 			return "(" + tree.getNodeName() + " " + "(" + tree.getFirstChild().getNodeName() + " "
-					+ tree.getFirstChild().getFirstChild().getNodeName() + ")" + ")";
+					+BracketConvert(tree.getFirstChild().getFirstChild().getNodeName())+ ")" + ")";
 		}
 		else if (tree.getChildrenNum() > 1 && firstChildIsPosAndWord(tree))
 		{
 			String str = "";
 			str += "(" + tree.getNodeName();
 			str += " " + "(" + tree.getFirstChild().getNodeName() + " "
-					+ tree.getFirstChild().getFirstChild().getNodeName() + ")" + "\n";
+					+BracketConvert(tree.getFirstChild().getFirstChild().getNodeName())+ ")" + "\n";
 			String s = "";
 			for (int i = 1; i < tree.getChildrenNum(); i++)
 			{
@@ -449,13 +448,13 @@ public class TreeNode implements Cloneable
 					if (i == tree.getChildrenNum() - 1)
 					{
 						str += " " + "(" + tree.getChild(i).getNodeName() + " "
-								+ tree.getChild(i).getFirstChild().getNodeName() + ")" + ")";
+								+ BracketConvert(tree.getChild(i).getFirstChild().getNodeName()) + ")" + ")";
 						return str;
 					}
 					else
 					{
 						str += " " + "(" + tree.getChild(i).getNodeName() + " "
-								+ tree.getChild(i).getFirstChild().getNodeName() + ")";
+								+ BracketConvert(tree.getChild(i).getFirstChild().getNodeName()) + ")";
 					}
 				}
 			}
@@ -528,5 +527,19 @@ public class TreeNode implements Cloneable
 			}
 		}
 		return false;
+	}
+	/*
+	 * 若节点的名称为"("或者")",则将其输出为"-LRB"或者"-RRB-"
+	 */
+	public static String BracketConvert(String nodeName) {
+		String treestr = "";
+		if(nodeName=="(") {
+			treestr = "-LRB-";
+		}else if(nodeName==")") {
+			treestr = "-RRB-";
+		}else {
+			treestr = nodeName;
+		}
+		return treestr;
 	}
 }
