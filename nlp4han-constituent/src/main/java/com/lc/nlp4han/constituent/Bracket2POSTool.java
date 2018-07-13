@@ -62,9 +62,14 @@ public class Bracket2POSTool
 			{
 				if (!stack.isEmpty())
 				{
-					String pos = stack.pop();
 					String word = stack.pop();
-					result += word + sep + pos + " ";
+					String pos= stack.pop();
+					if(word.equals("-RRB-")) {
+						word=")";
+					}else if(word.equals("-LRB-")) {
+						word="(";
+					}
+					result += pos + sep + word + " ";
 				}
 				stack.clear();
 				;

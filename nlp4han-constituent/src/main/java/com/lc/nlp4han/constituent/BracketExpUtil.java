@@ -25,7 +25,7 @@ public class BracketExpUtil {
 		
         Stack<TreeNode> tree = new Stack<TreeNode>();
         int wordindex = 0;
-        for (int i = 0; i < parts.size(); i++) {
+        for (int i = 0; i < parts.size(); i++) {//将表达式中的-LRB-和-RRB-转换为"(",")"
 			if(!parts.get(i).equals(")") && !parts.get(i).equals(" ")){
 				TreeNode tn = new TreeNode(parts.get(i));
 				tn.setFlag(true);
@@ -54,11 +54,28 @@ public class BracketExpUtil {
 				tree.push(node);
 			}
 		}
-        
+        TraverseTreeConvertRRBAndLRB(tree.peek());
         TreeNode treeStruct = tree.pop();
         return treeStruct;
 	}
-	
+    /**
+     * 遍历树，将树中的-RRB-和-LRB-转换为左右括号
+     * @param 根节点
+     * @return
+     */
+	public static void TraverseTreeConvertRRBAndLRB(TreeNode node) {
+		if(node.getChildrenNum()==0) {
+			if(node.getNodeName().equals("-LRB-")) {
+				   node.setNewName("(");
+				}else if(node.getNodeName().equals("-RRB-")) {
+				   node.setNewName(")");
+				}
+			return;
+		}
+		for(TreeNode childNode:node.getChildren()) {
+			TraverseTreeConvertRRBAndLRB(childNode);
+		}
+	}
 	/**
 	 * 将括号表达式去掉空格转成列表的形式
 	 * 
