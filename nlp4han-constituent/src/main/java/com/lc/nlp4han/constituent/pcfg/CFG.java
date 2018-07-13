@@ -152,7 +152,7 @@ public class CFG {
 	@Override
 	public String toString()  {
 		StringBuilder stb=new StringBuilder();
-		Iterator itr1=nonTerminalSet.iterator();
+		Iterator<String> itr1=nonTerminalSet.iterator();
 		stb.append("非终结符集： "+'\n');
 		int count=0;
 		while(itr1.hasNext()) {
@@ -165,7 +165,7 @@ public class CFG {
 		stb.append('\n');
 		stb.append("-----------------------"+'\n');
 		
-		Iterator itr2=terminalSet.iterator();
+		Iterator<String> itr2=terminalSet.iterator();
 		stb.append("终结符集： "+'\n');
 		count=0;
 		while(itr2.hasNext()) {
@@ -182,7 +182,7 @@ public class CFG {
 		Set<String> set=ruleMapStartWithlhs.keySet();
 		for(String string : set) {
 			HashSet<RewriteRule> ruleSet=ruleMapStartWithlhs.get(string);
-			Iterator itr3=ruleSet.iterator();
+			Iterator<RewriteRule> itr3=ruleSet.iterator();
 			while(itr3.hasNext()) {
 				stb.append(itr3.next()+" ");
 			}

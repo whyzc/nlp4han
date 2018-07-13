@@ -1,13 +1,8 @@
 package com.lc.nlp4han.constituent.pcfg;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.PlainTextByTreeStream;
@@ -31,7 +26,7 @@ public class ExtractGrammar {
 	/*
 	 * 生成文法集
 	 */
-	public void CreateGrammar(String fileName,String enCoding,String type) throws UnsupportedOperationException, FileNotFoundException, IOException {
+	public void CreateGrammar(String fileName,String enCoding,String type) throws IOException {
 		  //括号表达式树拼接成括号表达式String数组
 		  PlainTextByTreeStream ptbt=new PlainTextByTreeStream(new FileInputStreamFactory(new File(fileName)), enCoding);
 	  	  String bracketStr=ptbt.read();
