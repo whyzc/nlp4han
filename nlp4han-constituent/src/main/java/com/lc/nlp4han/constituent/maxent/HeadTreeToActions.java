@@ -62,7 +62,6 @@ public class HeadTreeToActions
 	 *            第一步POS后得到的若干子树
 	 * @throws CloneNotSupportedException
 	 */
-	// XXX: subTree参数在方法中没有使用
 	private static void getActionCHUNK(HeadTreeNode tree, List<HeadTreeNode> subTree) throws CloneNotSupportedException
 	{
 		// 为了防止原来的tree被修改
@@ -100,6 +99,7 @@ public class HeadTreeToActions
 						break;
 					}
 				}
+				
 				// 当前节点的父节点的所有子树满足flat结构
 				if (record == -1)
 				{

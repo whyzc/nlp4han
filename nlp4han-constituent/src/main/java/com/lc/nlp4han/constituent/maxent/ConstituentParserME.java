@@ -12,6 +12,10 @@ import com.lc.nlp4han.ml.util.ModelWrapper;
 /**
  * 成分树分析器
  * 
+ * 参考文献:
+ * Ratnaparkhi A. Learning to Parse Natural Language with Maximum Entropy Models[J]. Machine Learning, 1999: 151-175.
+ * 
+ * @author 刘小峰
  * @author 王馨苇
  *
  */
