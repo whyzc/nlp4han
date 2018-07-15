@@ -21,14 +21,40 @@ import com.lc.nlp4han.ml.util.TrainingParameters;
 public class SentimentAnalyzerEvalTool {
 	
 	public static void main(String[] args) throws FileNotFoundException, IOException {
-		String testDataPath = "zh-sentiment.test";
-		String modelPath = "zh-sentiment.model";
+		
+		if (args.length<1) {
+			usage();
+			return;
+		}
+		
+		String testDataPath = "";
+		String modelPath = "";
 		String encoding = "gbk";
+		String algorithm = "NAIVEBAYES";
+		
+		for(int i=0; i<args.length; i++) {
+			if (args[i].equals("-data")) {
+				testDataPath = args[i+1];
+				i++;
+			}
+			if (args[i].equals("-model")) {
+				modelPath = args[i+1];
+				i++;
+			}
+			if(args[i].equals("-encoding")) {
+				encoding = args[i+1];
+				i++;
+			}
+			if (args[i].equals("-algorithm")) {
+				algorithm = args[i+1];
+				i++;
+			}
+		}
 		
 		File testFile = new File(testDataPath);
 		
 		TrainingParameters params = TrainingParameters.defaultParams();
-		params.put(TrainingParameters.ALGORITHM_PARAM,"NAIVEBAYES");
+		params.put(TrainingParameters.ALGORITHM_PARAM,algorithm);
 		
 		ObjectStream<String> testLineStream = new PlainTextByLineStream(
 				new MarkableFileInputStreamFactory(testFile),encoding);
@@ -38,7 +64,7 @@ public class SentimentAnalyzerEvalTool {
 		InputStream modelFile = new FileInputStream(modelPath);
 		ModelWrapper model = new ModelWrapper(modelFile);
 		
-		FeatureGenerator featureGen = new NGramFeatureGenerator(2);//
+		FeatureGenerator featureGen = new NGramFeatureGenerator(2);
 		SentimentAnalyzerContextGenerator contextGen =
 				new SentimentAnalyzerContextGeneratorConf(featureGen);
 		
@@ -52,6 +78,11 @@ public class SentimentAnalyzerEvalTool {
 		double accuracy =  evaluator.getAccuracy();
 		System.out.println(accuracy);
 		System.out.println("共耗时："+(System.currentTimeMillis() - startTime));
+	}
+	
+	private static void usage() {
+		System.out.println(SentimentAnalyzerEvalTool.class.getName()
+				+"-data <testDataPath> -model <modelPath> -encoding <encoding> -algorithm <algorithm>");
 	}
 
 }

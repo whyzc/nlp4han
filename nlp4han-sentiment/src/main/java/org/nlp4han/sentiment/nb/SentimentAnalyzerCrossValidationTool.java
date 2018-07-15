@@ -19,16 +19,40 @@ import com.lc.nlp4han.ml.util.TrainingParameters;
 public class SentimentAnalyzerCrossValidationTool {
 	
 	public static void main(String[] args) throws FileNotFoundException, IOException {
-		String dataPath="zh-sentiment.train";
-		String encoding = "gbk";
-		//String iter = null;
-		//String cutoff = null;
-		int folds = 10;
 		
+		if (args.length<1) {
+			usage();
+			return;
+		}
+		
+		String dataPath="";
+		String n = "10";
+		String encoding = "gbk";
+		String algorithm = "NAIVEBAYES";
+		
+		for (int i=0;i<args.length;i++) {
+			if (args[i].equals("-data")) {
+				dataPath = args[i+1];
+				i++;
+			}
+			if (args[i].equals("-n")) {
+				n = args[i+1];
+				i++;
+			}
+			if (args[i].equals("-encoding")) {
+				encoding = args[i+1];
+				i++;
+			}
+			if (args[i].equals("-algorithm")) {
+				algorithm = args[i+1];
+			}			
+		}
+		
+		int folds = Integer.parseInt(n);
 		File dataFile = new File(dataPath);
 		
 		TrainingParameters params = TrainingParameters.defaultParams();
-		params.put(TrainingParameters.ALGORITHM_PARAM, "NAIVEBAYES");
+		params.put(TrainingParameters.ALGORITHM_PARAM, algorithm);
 		
 		ObjectStream<String> lineStream = new PlainTextByLineStream(
 				new MarkableFileInputStreamFactory(dataFile),encoding);
@@ -44,5 +68,10 @@ public class SentimentAnalyzerCrossValidationTool {
 		crossVal.evaluate(sampleStream, folds, contextGen);
 		double theAccuracy = crossVal.getTextAccuracy();
 		System.out.println(theAccuracy);
+	}
+	
+	private static void usage() {
+		System.out.println(SentimentAnalyzerCrossValidationTool.class.getName()
+				+"-data <dataPath> -n <n-folds> -encoding <encoding> -algorithm <algorithm>");
 	}
 }

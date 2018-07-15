@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ModelWrapper;
 import com.lc.nlp4han.ml.util.ObjectStream;
@@ -17,9 +16,36 @@ public class SentimentAnalyzerTrainTool {
 	
 	public static void main(String[] args) {
 		
-		String dataIn = "zh-sentiment.train";
-		String modelFile = "zh-sentiment.model";
+		if (args.length<1) {
+			usage();
+			return;
+		}			
+		
+		String dataIn = "";
+		String modelFile = "";
 		String encoding = "GBK";
+		String algrithm = "NAIVEBAYES";
+		
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equals("-data")) {
+				dataIn = args[i+1];
+				i++;
+			}
+			if (args[i].equals("-model")) {
+				modelFile = args[i+1];
+				i++;
+			}
+			if(args[i].equals("-encoding")) {
+				encoding = args[i+1];
+				i++;
+			}
+			if(args[i].equals("-algorithm")) {
+				algrithm = args[i+1];
+				i++;
+			}
+		}		
+		
+		
 		try {
 			File corpusFile = new File(dataIn);
 			OutputStream modelOut = new BufferedOutputStream(new FileOutputStream(modelFile));
@@ -29,7 +55,7 @@ public class SentimentAnalyzerTrainTool {
 					new SentimentTextSampleStream(lineStream);
 			
 			TrainingParameters params  = TrainingParameters.defaultParams();
-			params.put(TrainingParameters.ALGORITHM_PARAM, "NAIVEBAYES");
+			params.put(TrainingParameters.ALGORITHM_PARAM, algrithm);
 			
 			FeatureGenerator fg = new NGramFeatureGenerator(2);
 			SentimentAnalyzerContextGenerator contextGen = 
@@ -39,8 +65,13 @@ public class SentimentAnalyzerTrainTool {
 			model.serialize(modelOut);
 			modelOut.close();
 		}catch(IOException e) {
-			//异常处理
-		}
+			e.printStackTrace();
+		}			
+	}
+	
+	private static void usage() {
+		System.out.println(SentimentAnalyzerTrainTool.class.getName()
+				+"-data <tarinData> -model <modelOutPath> -encoding <encoding> -algorithm <algorithm>");
 	}
 
 }

@@ -1,11 +1,8 @@
 package org.nlp4han.sentiment.nb;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Properties;
 
 
 public class SentimentAnalyzerContextGeneratorConf implements SentimentAnalyzerContextGenerator{
