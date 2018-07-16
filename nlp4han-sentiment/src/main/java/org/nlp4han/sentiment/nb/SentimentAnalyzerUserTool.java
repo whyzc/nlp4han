@@ -1,27 +1,51 @@
 package org.nlp4han.sentiment.nb;
 
-import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 
 import com.lc.nlp4han.ml.util.ModelWrapper;
-
+/**
+ * 情感分析器用户使用接口
+ * @author lim
+ *
+ */
 public class SentimentAnalyzerUserTool {
 	
 	public static void main(String[] args) throws IOException {
-		String modelPath = "E:\\codeprac\\zh-sentiment.model";
+		
+		if (args.length<1) {
+			usage();
+			return;
+		}
+		
+		String modelPath = "";
+		String inputText ="";
+		
+		for (int i=0; i<args.length; i++) {
+			if (args[i].equals("-model")) {
+				modelPath = args[i+1];
+				i++;
+			}
+			if(args[i].equals("-text")) {
+				inputText = args[i+1];
+				i++;
+			}
+		}
+		
 		File modelFile = new File(modelPath);
-		ModelWrapper model = null;
+		ModelWrapper model = new ModelWrapper(modelFile);		
 		
-		model = new ModelWrapper(modelFile);
-		
-		String inputText ="酒店根本没有服务。所有服务人员态度很差，根本不像一家度假酒店";
 		FeatureGenerator fg = new NGramFeatureGenerator(2);
 		SentimentAnalyzerContextGenerator contextGen = new SentimentAnalyzerContextGeneratorConf(fg);
 		
 		SentimentAnalyzerNB myAnalyzer = new SentimentAnalyzerNB(model,contextGen);
 		SentimentPolarity sp = myAnalyzer.analyze(inputText);
 		System.out.println(sp);
+	}
+	
+	private static void usage() {
+		System.out.println(SentimentAnalyzerUserTool.class.getName()
+				+"-model <modelPath> -text <textToBeAnalyzed>");
 	}
 
 }
