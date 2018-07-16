@@ -153,6 +153,8 @@ public class CFG {
 	public String toString()  {
 		StringBuilder stb=new StringBuilder();
 		Iterator<String> itr1=nonTerminalSet.iterator();
+		stb.append("起始符: "+this.getStartSymbol()+'\n');
+		stb.append("-----------------------"+'\n');
 		stb.append("非终结符集： "+'\n');
 		int count=0;
 		while(itr1.hasNext()) {
@@ -183,8 +185,13 @@ public class CFG {
 		for(String string : set) {
 			HashSet<RewriteRule> ruleSet=ruleMapStartWithlhs.get(string);
 			Iterator<RewriteRule> itr3=ruleSet.iterator();
+			count=0;
 			while(itr3.hasNext()) {
 				stb.append(itr3.next()+" ");
+				count++;
+				if(count%10==0) {
+					stb.append('\n');
+				}
 			}
 			stb.append('\n');
 		}
