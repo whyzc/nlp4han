@@ -153,47 +153,28 @@ public class CFG {
 	public String toString()  {
 		StringBuilder stb=new StringBuilder();
 		Iterator<String> itr1=nonTerminalSet.iterator();
-		stb.append("起始符: "+this.getStartSymbol()+'\n');
-		stb.append("-----------------------"+'\n');
-		stb.append("非终结符集： "+'\n');
-		int count=0;
+		stb.append("--起始符--"+'\n');
+		stb.append(this.getStartSymbol()+'\n');
+		
+		stb.append("--非终结符集--"+'\n');
 		while(itr1.hasNext()) {
-			stb.append(itr1.next()+" ");
-			count++;
-			if(count%25==0) {
-				stb.append('\n');
-			}
+			stb.append(itr1.next()+'\n');
 		}
-		stb.append('\n');
-		stb.append("-----------------------"+'\n');
 		
 		Iterator<String> itr2=terminalSet.iterator();
-		stb.append("终结符集： "+'\n');
-		count=0;
+		stb.append("--终结符集--"+'\n');
 		while(itr2.hasNext()) {
-			stb.append(itr2.next()+" ");
-			count++;
-			if(count%25==0) {
-				stb.append('\n');
-			}
+			stb.append(itr2.next()+'\n');
 		}
-		stb.append('\n');
-		stb.append("-----------------------"+'\n');
 		
-		stb.append("规则集： "+'\n');
+		stb.append("--规则集--"+'\n');
 		Set<String> set=ruleMapStartWithlhs.keySet();
 		for(String string : set) {
 			HashSet<RewriteRule> ruleSet=ruleMapStartWithlhs.get(string);
 			Iterator<RewriteRule> itr3=ruleSet.iterator();
-			count=0;
 			while(itr3.hasNext()) {
-				stb.append(itr3.next()+" ");
-				count++;
-				if(count%10==0) {
-					stb.append('\n');
-				}
+				stb.append(itr3.next().toString()+'\n');
 			}
-			stb.append('\n');
 		}
 		return stb.toString();
 	}
