@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class ConvertCFGToCNF {
 	 private CFG cnf;
-	 
+	 private Set<RewriteRule> set=new HashSet<RewriteRule>();
      public CFG convertToCNF(CFG cfg) {
     	 cnf=new CFG();
 		 cnf.setNonTerminalSet(cfg.getNonTerminalSet());
@@ -74,7 +74,7 @@ public class ConvertCFGToCNF {
     	 HashSet<RewriteRule> deleteRuleSet=new HashSet<RewriteRule>();
     	 /*
     	  * 因为此时，原始数据cfg中右侧字符串的个数为1的规则并未处理
-    	  * 而在前期操作中添加的右侧只有一个字符串的规则不需要，所以可以调用cfg来遍历
+    	  * 而在前期操作中添加的右侧只有一个字符串的规则不需要转换，所以可以调用cfg来遍历
     	  */
     	 for(RewriteRule rule :cfg.getRuleSet()) {
     		 if(rule.getRhs().size()==1) {
@@ -111,18 +111,25 @@ public class ConvertCFGToCNF {
       * 遍历消除Unit Production
       */
      private void removeUnitProduction(RewriteRule rule) {
-    	 Set<RewriteRule> ruleSet=cnf.getRuleBylhs(rule.getRhs().get(0));
+    	 if(set.contains(rule)) {
+    		 return;
+    	 }
+    	 set.add(rule);
+    	 Set<RewriteRule> ruleSet=new HashSet<RewriteRule>();
+    	 //需要将其重新装入一个HashSet中，否则在遍历时set的迭代器会报错
+    	 for(RewriteRule rule4: cnf.getRuleBylhs(rule.getRhs().get(0))){
+    		 ruleSet.add(rule4);
+    	 }
     	 for(RewriteRule rule1: ruleSet) {
     		 RewriteRule rule2=new RewriteRule(rule.getLhs(),rule1.getRhs());
     		 if(rule1.getRhs().size()==1&&rule1.getLhs().equals(rule1.getRhs().get(0))) {
     			 continue;//左右侧相同的跳过不添加
     		 }
     		if(rule1.getRhs().size()==1&&cnf.getNonTerminalSet().contains(rule1.getRhs().get(0))) {
-    			 removeUnitProduction(rule2); 
+    			removeUnitProduction(rule2); 
     		} else {
-        		 cnf.add(rule2); 
+    			cnf.add(rule2); 
     		 }
-
     	 }
      }
      /*
@@ -156,8 +163,8 @@ public class ConvertCFGToCNF {
      private void deleteRules(HashSet<RewriteRule> ruleSet) {
     	 for(RewriteRule rule: ruleSet) {
     		 cnf.getRuleSet().remove(rule);
-    		 cnf.getRuleMapStartWithlhs().get(rule.getLhs()).remove(rule);
-    		 cnf.getRuleMapStartWithrhs().get(rule.getRhs()).remove(rule);
+    		 cnf.getRuleBylhs(rule.getLhs()).remove(rule);
+    		 cnf.getRuleByrhs(rule.getRhs()).remove(rule);
     	 }
     	 
      }
