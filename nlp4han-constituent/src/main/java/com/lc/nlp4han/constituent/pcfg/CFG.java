@@ -85,18 +85,6 @@ public class CFG {
 	public void setTerminalSet(Set<String> terminalSet) {
 		this.terminalSet = terminalSet;
 	}
-	 public HashMap<String, HashSet<RewriteRule>> getRuleMapStartWithlhs() {
-			return ruleMapStartWithlhs;
-		}
-		public void setRuleMapStartWithlhs(HashMap<String, HashSet<RewriteRule>> ruleMapStartWithlhs) {
-			this.ruleMapStartWithlhs = ruleMapStartWithlhs;
-		}
-		public HashMap<ArrayList<String>,HashSet<RewriteRule>> getRuleMapStartWithrhs() {
-			return ruleMapStartWithrhs;
-		}
-		public void setRuleMapStartWithrhs(HashMap<ArrayList<String>,HashSet<RewriteRule>> ruleMapStartWithrhs) {
-			this.ruleMapStartWithrhs = ruleMapStartWithrhs;
-		}
 		/*
 		 * 添加单个规则
 		 */
@@ -142,12 +130,62 @@ public class CFG {
 	/*
 	 * 根据规则右部得到所有对应规则
 	 */
-	public Set<RewriteRule> getRuleByrhs(String ...args){
-		ArrayList<String> rhsVector=new ArrayList<String>();
-		for(String string : args) {
-			rhsVector.add(string);
-		}
-		return ruleMapStartWithrhs.get(rhsVector);
+	public Set<RewriteRule> getRuleByrhs(ArrayList<String> rhsList){
+		return ruleMapStartWithrhs.get(rhsList);
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((nonTerminalSet == null) ? 0 : nonTerminalSet.hashCode());
+		result = prime * result + ((ruleMapStartWithlhs == null) ? 0 : ruleMapStartWithlhs.hashCode());
+		result = prime * result + ((ruleMapStartWithrhs == null) ? 0 : ruleMapStartWithrhs.hashCode());
+		result = prime * result + ((ruleSet == null) ? 0 : ruleSet.hashCode());
+		result = prime * result + ((startSymbol == null) ? 0 : startSymbol.hashCode());
+		result = prime * result + ((terminalSet == null) ? 0 : terminalSet.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CFG other = (CFG) obj;
+		if (nonTerminalSet == null) {
+			if (other.nonTerminalSet != null)
+				return false;
+		} else if (!nonTerminalSet.equals(other.nonTerminalSet))
+			return false;
+		if (ruleMapStartWithlhs == null) {
+			if (other.ruleMapStartWithlhs != null)
+				return false;
+		} else if (!ruleMapStartWithlhs.equals(other.ruleMapStartWithlhs))
+			return false;
+		if (ruleMapStartWithrhs == null) {
+			if (other.ruleMapStartWithrhs != null)
+				return false;
+		} else if (!ruleMapStartWithrhs.equals(other.ruleMapStartWithrhs))
+			return false;
+		if (ruleSet == null) {
+			if (other.ruleSet != null)
+				return false;
+		} else if (!ruleSet.equals(other.ruleSet))
+			return false;
+		if (startSymbol == null) {
+			if (other.startSymbol != null)
+				return false;
+		} else if (!startSymbol.equals(other.startSymbol))
+			return false;
+		if (terminalSet == null) {
+			if (other.terminalSet != null)
+				return false;
+		} else if (!terminalSet.equals(other.terminalSet))
+			return false;
+		return true;
 	}
 	@Override
 	public String toString()  {

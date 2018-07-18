@@ -63,13 +63,15 @@ public class GrammarTest {
     	rules.add(new RewriteRule("NP","NN","NN","NN","NN"));
     	
     	rules3.add(new RewriteRule("Aux-VP","会","VP"));
-    	
+    	ArrayList<String> strList=new ArrayList<String>();
+    	strList.add("会");
+    	strList.add("VP");
     	//判别是否为CNF的测试
     	Assert.assertFalse(cfg.IsCNF());
     	//测试由规则左侧得到的集合是否准确完整
     	Assert.assertTrue(cfg.getRuleBylhs("NP").containsAll(rules)&&rules.containsAll(cfg.getRuleBylhs("NP")));
     	//规则右侧集的测试
-    	Assert.assertEquals(cfg.getRuleByrhs("会","VP"),rules3);
+    	Assert.assertEquals(cfg.getRuleByrhs(strList),rules3);
     	//起始符测试
     	Assert.assertEquals(startSymbol,cfg.getStartSymbol());
     	//非终结符集的测试
