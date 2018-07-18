@@ -27,6 +27,22 @@ public class NGramFeatureGenerator implements FeatureGenerator {
 		this.tokenizeFlag = tokenize;
 	}
 	
+	public NGramFeatureGenerator(String n, String flag) {
+		init(n,flag);
+	}
+	
+	private void init(String n, String flag) {
+		this.n = Integer.parseInt(n);
+		
+		if (flag.equals("word")) {
+			this.tokenizeFlag = true;
+		}
+		if (flag.equals("character")) {
+			this.tokenizeFlag = false;
+		}
+		
+	}
+	
 
 	@Override
 	public Collection<String> extractFeatures(String text, Map<String, Object> extraInformation) {
