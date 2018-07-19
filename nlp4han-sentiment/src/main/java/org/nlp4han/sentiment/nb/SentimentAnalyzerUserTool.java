@@ -19,7 +19,10 @@ public class SentimentAnalyzerUserTool {
 		}
 		
 		String modelPath = "";
+		String nGram = "2";
+		String xBase = "character";
 		String inputText ="";
+		
 		
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equals("-model")) {
@@ -30,12 +33,20 @@ public class SentimentAnalyzerUserTool {
 				inputText = args[i+1];
 				i++;
 			}
+			if (args[i].equals("-ng")) {
+				nGram = args[i+1];
+				i++;
+			}
+			if (args[i].equals("-flag")) {
+				xBase = args[i+1];
+				i++;
+			}
 		}
 		
 		File modelFile = new File(modelPath);
 		ModelWrapper model = new ModelWrapper(modelFile);		
 		
-		FeatureGenerator fg = new NGramFeatureGenerator(2);
+		FeatureGenerator fg = new NGramFeatureGenerator(nGram, xBase);
 		SentimentAnalyzerContextGenerator contextGen = new SentimentAnalyzerContextGeneratorConf(fg);
 		
 		SentimentAnalyzerNB myAnalyzer = new SentimentAnalyzerNB(model,contextGen);
@@ -45,7 +56,7 @@ public class SentimentAnalyzerUserTool {
 	
 	private static void usage() {
 		System.out.println(SentimentAnalyzerUserTool.class.getName()
-				+"-model <modelPath> -text <textToBeAnalyzed>");
+				+"-model <modelPath> -text <textToBeAnalyzed> -ng <nGramFeature> -flag <wordOrCharacter>");
 	}
 
 }

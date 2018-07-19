@@ -29,6 +29,8 @@ public class SentimentAnalyzerCrossValidationTool {
 		String n = "10";
 		String encoding = "gbk";
 		String algorithm = "NAIVEBAYES";
+		String nGram = "2";
+		String xBase = "character";//character,word
 		
 		for (int i=0;i<args.length;i++) {
 			if (args[i].equals("-data")) {
@@ -37,6 +39,14 @@ public class SentimentAnalyzerCrossValidationTool {
 			}
 			if (args[i].equals("-n")) {
 				n = args[i+1];
+				i++;
+			}
+			if (args[i].equals("-ng")) {
+				nGram = args[i+1];
+				i++;
+			}
+			if (args[i].equals("-flag")) {
+				xBase = args[i+1];
 				i++;
 			}
 			if (args[i].equals("-encoding")) {
@@ -59,7 +69,7 @@ public class SentimentAnalyzerCrossValidationTool {
 		ObjectStream<SentimentTextSample> sampleStream = 
 				new SentimentTextSampleStream(lineStream);
 		
-		FeatureGenerator featureGen = new NGramFeatureGenerator(2);//基于字的二元
+		FeatureGenerator featureGen = new NGramFeatureGenerator(nGram, xBase);//基于字的二元
 		SentimentAnalyzerContextGenerator contextGen = 
 				new SentimentAnalyzerContextGeneratorConf(featureGen);
 		
@@ -72,6 +82,6 @@ public class SentimentAnalyzerCrossValidationTool {
 	
 	private static void usage() {
 		System.out.println(SentimentAnalyzerCrossValidationTool.class.getName()
-				+"-data <dataPath> -n <n-folds> -encoding <encoding> -algorithm <algorithm>");
+				+"-data <dataPath> -n <n-folds> -ng <nGramFeature> -flag <wordOrCharacter> -encoding <encoding> -algorithm <algorithm>");
 	}
 }
