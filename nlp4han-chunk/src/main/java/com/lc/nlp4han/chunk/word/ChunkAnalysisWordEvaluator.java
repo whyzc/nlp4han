@@ -69,7 +69,7 @@ public class ChunkAnalysisWordEvaluator extends Evaluator<AbstractChunkAnalysisS
 		
 		//将结果进行解析，用于评估
 		AbstractChunkAnalysisSample prediction = new ChunkAnalysisWordSample(wordsRef, chunkTagsPre);
-		prediction.setLabel(sample.getLabel());
+		prediction.setTagScheme(sample.getTagScheme());
 		measure.update(wordsRef, chunkTagsRef, chunkTagsPre);
 //		measure.add(sample, prediction);
 		return prediction;

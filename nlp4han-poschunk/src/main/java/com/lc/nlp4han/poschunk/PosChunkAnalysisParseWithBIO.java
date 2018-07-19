@@ -3,7 +3,7 @@ package com.lc.nlp4han.poschunk;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.lc.nlp4han.chunk.AbstractChunkAnalysisParse;
+import com.lc.nlp4han.chunk.AbstractChunkSampleParser;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 
 /**
@@ -14,7 +14,7 @@ import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class PosChunkAnalysisParseWithBIO extends AbstractChunkAnalysisParse {
+public class PosChunkAnalysisParseWithBIO extends AbstractChunkSampleParser {
 	
 	private final String ChunkBegin = "_B";	//当前词在组块开始
 	private final String InChunk = "_I";	//当前词在组块中
@@ -31,8 +31,8 @@ public class PosChunkAnalysisParseWithBIO extends AbstractChunkAnalysisParse {
 	}
 	
 	@Override
-	protected void setLabel() {
-		this.label = "BIO";
+	protected void setTagScheme() {
+		this.scheme = "BIO";
 	}
 	
 	public AbstractChunkAnalysisSample parse(String sentence) {
@@ -84,7 +84,7 @@ public class PosChunkAnalysisParseWithBIO extends AbstractChunkAnalysisParse {
 			processChunk(wordsInChunk, posesInChunk, chunk);
 		
 		PosChunkAnalysisBasedWordSample sample = new PosChunkAnalysisBasedWordSample(words, posChunkTags);
-		sample.setLabel(label);
+		sample.setTagScheme(scheme);
 		
 		return sample;
 	}

@@ -38,9 +38,9 @@ public class ChunkAnalysisWordPosSample extends AbstractChunkAnalysisSample {
 	}
 	
 	public Chunk[] toChunk() { 
-    	if(label.equals("BIEOS"))
+    	if(scheme.equals("BIEOS"))
     		return toChunkFromBIEOS();
-    	else if(label.equals("BIEO"))
+    	else if(scheme.equals("BIEO"))
     		return toChunkFromBIEO();
     	else
     		return toChunkFromBIO();

@@ -6,7 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.lc.nlp4han.chunk.AbstractChunkAnalysisParse;
+import com.lc.nlp4han.chunk.AbstractChunkSampleParser;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.ml.util.FilterObjectStream;
 import com.lc.nlp4han.ml.util.ObjectStream;
@@ -22,7 +22,7 @@ public class ChunkAnalysisWordPosSampleStream extends FilterObjectStream<String,
 
 	private static Logger logger = Logger.getLogger(ChunkAnalysisWordPosSampleStream.class.getName());
 	
-	private AbstractChunkAnalysisParse parse;
+	private AbstractChunkSampleParser parse;
 	private String label;
 		
 	/**
@@ -31,7 +31,7 @@ public class ChunkAnalysisWordPosSampleStream extends FilterObjectStream<String,
 	 * @throws FileNotFoundException 
 	 * @throws UnsupportedEncodingException 
 	 */
-	public ChunkAnalysisWordPosSampleStream(ObjectStream<String> samples, AbstractChunkAnalysisParse parse, String label) throws FileNotFoundException, UnsupportedEncodingException {
+	public ChunkAnalysisWordPosSampleStream(ObjectStream<String> samples, AbstractChunkSampleParser parse, String label) throws FileNotFoundException, UnsupportedEncodingException {
 		super(samples);
 		
 		this.parse = parse;

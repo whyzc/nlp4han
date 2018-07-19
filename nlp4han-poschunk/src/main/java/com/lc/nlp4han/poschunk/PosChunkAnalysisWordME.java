@@ -181,7 +181,7 @@ public class PosChunkAnalysisWordME implements Chunker {
 		String[] posChunkTypes = tag(words);
 		
 		AbstractChunkAnalysisSample sample = new PosChunkAnalysisBasedWordSample(words, posChunkTypes);
-		sample.setLabel(label);
+		sample.setTagScheme(label);
 		
 		return sample.toChunk();
    	}
@@ -196,7 +196,7 @@ public class PosChunkAnalysisWordME implements Chunker {
 			String[] chunkSequences = chunkTypes[i];
 						
 			AbstractChunkAnalysisSample sample = new PosChunkAnalysisBasedWordSample(words, chunkSequences);
-			sample.setLabel(label);
+			sample.setTagScheme(label);
 			chunks[i] = sample.toChunk();
 		}
 		

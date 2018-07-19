@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisMeasure;
-import com.lc.nlp4han.chunk.AbstractChunkAnalysisParse;
+import com.lc.nlp4han.chunk.AbstractChunkSampleParser;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.chunk.ChunkAnalysisContextGenerator;
 import com.lc.nlp4han.chunk.ChunkAnalysisMeasureWithBIEO;
@@ -78,7 +78,7 @@ public class PosChunkAnalysisCrossValidatorTool {
 
 		ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(corpusFile),
 				encoding);
-		AbstractChunkAnalysisParse parse = null;
+		AbstractChunkSampleParser parse = null;
 		AbstractChunkAnalysisMeasure measure = null;
 		SequenceValidator<String> sequenceValidator = null;
 

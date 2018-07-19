@@ -79,7 +79,7 @@ public class PosChunkAnalysisEvaluator extends Evaluator<AbstractChunkAnalysisSa
 		
 		//将结果进行解析，用于评估
 		PosChunkAnalysisBasedWordSample prediction = new PosChunkAnalysisBasedWordSample(wordsRef, posChunksPre);
-		prediction.setLabel(sample.getLabel());
+		prediction.setTagScheme(sample.getTagScheme());
 		String[] chunksPre = new String[posChunksPre.length];
 		String[] chunksRef = new String[posChunksPre.length];
 		String[] posRef = new String[posChunksRef.length];

@@ -3,7 +3,7 @@ package com.lc.nlp4han.chunk.word;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.lc.nlp4han.chunk.AbstractChunkAnalysisParse;
+import com.lc.nlp4han.chunk.AbstractChunkSampleParser;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 
 
@@ -15,7 +15,7 @@ import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisWordParseWithBIO extends AbstractChunkAnalysisParse {
+public class ChunkAnalysisWordParseWithBIO extends AbstractChunkSampleParser {
 	
 	private final String ChunkBegin = "_B";
 	private final String InChunk = "_I";
@@ -32,8 +32,8 @@ public class ChunkAnalysisWordParseWithBIO extends AbstractChunkAnalysisParse {
 	}
 	
 	@Override
-	protected void setLabel() {
-		this.label = "BIO";
+	protected void setTagScheme() {
+		this.scheme = "BIO";
 	}
 	
 	public AbstractChunkAnalysisSample parse(String sentence){
@@ -78,7 +78,7 @@ public class ChunkAnalysisWordParseWithBIO extends AbstractChunkAnalysisParse {
 			processChunk(wordTagsInChunk, chunk);
 		
 		ChunkAnalysisWordSample sample = new ChunkAnalysisWordSample(words, chunkTags);
-		sample.setLabel(label);
+		sample.setTagScheme(scheme);
 		
 		return sample;
 	}

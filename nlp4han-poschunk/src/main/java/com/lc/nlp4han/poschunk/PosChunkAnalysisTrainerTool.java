@@ -6,7 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import com.lc.nlp4han.chunk.AbstractChunkAnalysisParse;
+import com.lc.nlp4han.chunk.AbstractChunkSampleParser;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.chunk.ChunkAnalysisContextGenerator;
 import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
@@ -81,7 +81,7 @@ public class PosChunkAnalysisTrainerTool {
 		ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(corpusFile),
 				encoding);
 		OutputStream modelOut = new BufferedOutputStream(new FileOutputStream(modelFile));
-		AbstractChunkAnalysisParse parse = null;
+		AbstractChunkSampleParser parse = null;
 
 		if (label.equals("BIEOS"))
 			parse = new PosChunkAnalysisParseWithBIEOS();

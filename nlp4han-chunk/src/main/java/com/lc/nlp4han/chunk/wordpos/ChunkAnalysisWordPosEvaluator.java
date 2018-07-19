@@ -77,7 +77,7 @@ public class ChunkAnalysisWordPosEvaluator extends Evaluator<AbstractChunkAnalys
 		
 		//将结果进行解析，用于评估
 		ChunkAnalysisWordPosSample prediction = new ChunkAnalysisWordPosSample(wordsRef, posesRef, chunkTagsPre);
-		prediction.setLabel(sample.getLabel());
+		prediction.setTagScheme(sample.getTagScheme());
 		
 		measure.update(wordsRef, chunkTagsRef, chunkTagsPre);
 //		measure.add(wordAndPOSSample, prediction);

@@ -198,7 +198,7 @@ public class ChunkAnalysisWordME implements Chunker {
 		String[] chunkTypes = tag(words);
 
 		AbstractChunkAnalysisSample sample = new ChunkAnalysisWordSample(words, chunkTypes);
-		sample.setLabel(label);
+		sample.setTagScheme(label);
 
 		return sample.toChunk();
 	}
@@ -213,7 +213,7 @@ public class ChunkAnalysisWordME implements Chunker {
 			String[] chunkSequences = chunkTypes[i];
 
 			AbstractChunkAnalysisSample sample = new ChunkAnalysisWordSample(words, chunkSequences);
-			sample.setLabel(label);
+			sample.setTagScheme(label);
 			chunks[i] = sample.toChunk();
 		}
 

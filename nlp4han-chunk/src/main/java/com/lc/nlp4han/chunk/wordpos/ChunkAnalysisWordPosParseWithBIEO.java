@@ -3,7 +3,7 @@ package com.lc.nlp4han.chunk.wordpos;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.lc.nlp4han.chunk.AbstractChunkAnalysisParse;
+import com.lc.nlp4han.chunk.AbstractChunkSampleParser;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 
 
@@ -15,7 +15,7 @@ import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisWordPosParseWithBIEO extends AbstractChunkAnalysisParse {
+public class ChunkAnalysisWordPosParseWithBIEO extends AbstractChunkSampleParser {
 	
 	private final String ChunkBegin = "_B";
 	private final String InChunk = "_I";
@@ -34,8 +34,8 @@ public class ChunkAnalysisWordPosParseWithBIEO extends AbstractChunkAnalysisPars
 	}
 	
 	@Override
-	protected void setLabel() {
-		this.label = "BIEO";
+	protected void setTagScheme() {
+		this.scheme = "BIEO";
 	}
 	
 	public AbstractChunkAnalysisSample parse(String sentence){
@@ -83,7 +83,7 @@ public class ChunkAnalysisWordPosParseWithBIEO extends AbstractChunkAnalysisPars
 			processChunk(wordTagsInChunk, chunk);
 		
 		ChunkAnalysisWordPosSample sample = new ChunkAnalysisWordPosSample(words, poses, chunkTags);
-		sample.setLabel(label);
+		sample.setTagScheme(scheme);
 		
 		return sample;
 	}

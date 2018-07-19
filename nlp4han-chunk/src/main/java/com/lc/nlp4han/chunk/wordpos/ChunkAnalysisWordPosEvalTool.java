@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisMeasure;
-import com.lc.nlp4han.chunk.AbstractChunkAnalysisParse;
+import com.lc.nlp4han.chunk.AbstractChunkSampleParser;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.chunk.ChunkAnalysisContextGenerator;
 import com.lc.nlp4han.chunk.ChunkAnalysisErrorPrinter;
@@ -49,7 +49,7 @@ public class ChunkAnalysisWordPosEvalTool {
 	 * @throws IOException
 	 */
 	public static void eval(File modelFile, File goldFile, String encoding, File errorFile,
-			AbstractChunkAnalysisParse parse, 
+			AbstractChunkSampleParser parse, 
 			SequenceValidator<String> sequenceValidator, 
 			AbstractChunkAnalysisMeasure measure,
 			String label)
@@ -140,7 +140,7 @@ public class ChunkAnalysisWordPosEvalTool {
 		params.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(iters));
 		params.put(TrainingParameters.ALGORITHM_PARAM, type);
 		
-		AbstractChunkAnalysisParse parse;
+		AbstractChunkSampleParser parse;
 		SequenceValidator<String> sequenceValidator;
 		AbstractChunkAnalysisMeasure measure;
 
