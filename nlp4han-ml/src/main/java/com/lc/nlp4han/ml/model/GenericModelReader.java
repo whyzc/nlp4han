@@ -6,6 +6,7 @@ import java.io.InputStream;
 
 import com.lc.nlp4han.ml.maxent.gis.GISModelReader;
 import com.lc.nlp4han.ml.maxent.quasinewton.QNModelReader;
+import com.lc.nlp4han.ml.naivebayes.NaiveBayesModelReader;
 import com.lc.nlp4han.ml.perceptron.PerceptronModelReader;
 
 public class GenericModelReader extends AbstractModelReader {
@@ -41,9 +42,9 @@ public class GenericModelReader extends AbstractModelReader {
       case "QN":
         delegateModelReader = new QNModelReader(this.dataReader);
         break;
-//      case "NaiveBayes":
-//        delegateModelReader = new NaiveBayesModelReader(this.dataReader);
-//        break;
+      case "NaiveBayes":
+        delegateModelReader = new NaiveBayesModelReader(this.dataReader);
+        break;
       default:
         throw new IOException("Unknown model format: " + modelType);
     }
