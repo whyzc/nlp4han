@@ -65,10 +65,10 @@ public class ChunkAnalysisMeasureWithBIEOS extends AbstractChunkAnalysisMeasure 
 					else
 						refChunk = refChunkTag.split("_")[0];
 					
-					if(referenceChunkTagMap.containsKey(refChunk))
-						referenceChunkTagMap.put(refChunk, referenceChunkTagMap.get(refChunk) + 1);
+					if(referenceChunk2Count.containsKey(refChunk))
+						referenceChunk2Count.put(refChunk, referenceChunk2Count.get(refChunk) + 1);
 					else
-						referenceChunkTagMap.put(refChunk, 1L);
+						referenceChunk2Count.put(refChunk, 1L);
 					
 					String preChunk = "";
 					if(preChunkTag.equals("O"))
@@ -77,10 +77,10 @@ public class ChunkAnalysisMeasureWithBIEOS extends AbstractChunkAnalysisMeasure 
 						preChunk = preChunkTag.split("_")[0];
 					
 					if(preChunk.equals(refChunk)) {//非组块被预测正确，进行统计						
-						if(correctTaggedChunkTagMap.containsKey(preChunk))
-							correctTaggedChunkTagMap.put(preChunk, correctTaggedChunkTagMap.get(preChunk) + 1);
+						if(correctTag2Count.containsKey(preChunk))
+							correctTag2Count.put(preChunk, correctTag2Count.get(preChunk) + 1);
 						else
-							correctTaggedChunkTagMap.put(preChunk, 1L);
+							correctTag2Count.put(preChunk, 1L);
 						
 						if(!dict.contains(tokens[i]))//被预测正确的非组块为未登录词
 							correctTaggedOOVs++;
@@ -102,10 +102,10 @@ public class ChunkAnalysisMeasureWithBIEOS extends AbstractChunkAnalysisMeasure 
 			if(preChunkTag.equals("O") || preChunkTag.split("_")[1].equals("B") || preChunkTag.split("_")[1].equals("S")) {
 				if(tempPreChunk.size() != 0) {//存在未处理的预测组块, 进行统计
 					String chunk = tempPreChunk.get(0).split("_")[0];
-					if(predictChunkTagMap.containsKey(chunk))
-						predictChunkTagMap.put(chunk, predictChunkTagMap.get(chunk) + 1);
+					if(predictChunk2Count.containsKey(chunk))
+						predictChunk2Count.put(chunk, predictChunk2Count.get(chunk) + 1);
 					else
-						predictChunkTagMap.put(chunk, 1L);
+						predictChunk2Count.put(chunk, 1L);
 					
 					tempPreChunk = new ArrayList<>();
 				}
@@ -117,10 +117,10 @@ public class ChunkAnalysisMeasureWithBIEOS extends AbstractChunkAnalysisMeasure 
 					else
 						preChunk = preChunkTag.split("_")[0];
 					
-					if(predictChunkTagMap.containsKey(preChunk))
-						predictChunkTagMap.put(preChunk, predictChunkTagMap.get(preChunk) + 1);
+					if(predictChunk2Count.containsKey(preChunk))
+						predictChunk2Count.put(preChunk, predictChunk2Count.get(preChunk) + 1);
 					else
-						predictChunkTagMap.put(preChunk, 1L);
+						predictChunk2Count.put(preChunk, 1L);
 				}else//当前词的组块预测标记为*_B
 					tempPreChunk.add(preChunkTag);
 			}else//当前词的组块预测标记为*_I || *_E
@@ -132,10 +132,10 @@ public class ChunkAnalysisMeasureWithBIEOS extends AbstractChunkAnalysisMeasure 
 	
 		if(tempPreChunk.size() != 0) {//存在未处理的预测组块, 进行统计
 			String chunk = tempPreChunk.get(0).split("_")[0];
-			if(predictChunkTagMap.containsKey(chunk))
-				predictChunkTagMap.put(chunk, predictChunkTagMap.get(chunk) + 1);
+			if(predictChunk2Count.containsKey(chunk))
+				predictChunk2Count.put(chunk, predictChunk2Count.get(chunk) + 1);
 			else
-				predictChunkTagMap.put(chunk, 1L);
+				predictChunk2Count.put(chunk, 1L);
 		}
 	}
 	
@@ -147,16 +147,16 @@ public class ChunkAnalysisMeasureWithBIEOS extends AbstractChunkAnalysisMeasure 
 	 */
 	private void processChunk(List<String> tempRefChunk, List<String> correctPreChunk, List<String> tokensInChunk) {
 		String chunk = tempRefChunk.get(0).split("_")[0];
-		if(referenceChunkTagMap.containsKey(chunk))
-			referenceChunkTagMap.put(chunk, referenceChunkTagMap.get(chunk) + 1);
+		if(referenceChunk2Count.containsKey(chunk))
+			referenceChunk2Count.put(chunk, referenceChunk2Count.get(chunk) + 1);
 		else
-			referenceChunkTagMap.put(chunk, 1L);
+			referenceChunk2Count.put(chunk, 1L);
 		
 		if(tempRefChunk.equals(correctPreChunk)) {//未处理的组块被预测正确，进行统计
-			if(correctTaggedChunkTagMap.containsKey(chunk))
-				correctTaggedChunkTagMap.put(chunk, correctTaggedChunkTagMap.get(chunk) + 1);
+			if(correctTag2Count.containsKey(chunk))
+				correctTag2Count.put(chunk, correctTag2Count.get(chunk) + 1);
 			else
-				correctTaggedChunkTagMap.put(chunk, 1L);
+				correctTag2Count.put(chunk, 1L);
 		
 			for(String token : tokensInChunk) {//遍历被正确预测的组块的所有词，统计未登录词
 				if(!dict.contains(token))
