@@ -7,9 +7,9 @@ import com.lc.nlp4han.chunk.AbstractChunkAnalysisMeasure;
 import com.lc.nlp4han.chunk.AbstractChunkSampleParser;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.chunk.ChunkAnalysisContextGenerator;
-import com.lc.nlp4han.chunk.ChunkAnalysisMeasureWithBIEO;
-import com.lc.nlp4han.chunk.ChunkAnalysisMeasureWithBIEOS;
-import com.lc.nlp4han.chunk.ChunkAnalysisMeasureWithBIO;
+import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIEO;
+import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIEOS;
+import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIO;
 import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 import com.lc.nlp4han.ml.util.PlainTextByLineStream;
@@ -83,17 +83,17 @@ public class ChunkAnalysisWordCrossValidatorTool {
 		SequenceValidator<String> sequenceValidator = null;
 
 		if (label.equals("BIEOS")) {
-			parse = new ChunkAnalysisWordParseWithBIEOS();
-			measure = new ChunkAnalysisMeasureWithBIEOS();
-			sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIEOS();
+			parse = new ChunkAnalysisWordSampleParserBIEOS();
+			measure = new ChunkAnalysisMeasureBIEOS();
+			sequenceValidator = new ChunkAnalysisSequenceValidatorBIEOS();
 		} else if (label.equals("BIEO")) {
-			parse = new ChunkAnalysisWordParseWithBIEO();
-			measure = new ChunkAnalysisMeasureWithBIEO();
-			sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIEO();
+			parse = new ChunkAnalysisWordSampleParserBIEO();
+			measure = new ChunkAnalysisMeasureBIEO();
+			sequenceValidator = new ChunkAnalysisSequenceValidatorBIEO();
 		} else {
-			parse = new ChunkAnalysisWordParseWithBIO();
-			measure = new ChunkAnalysisMeasureWithBIO();
-			sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIO();
+			parse = new ChunkAnalysisWordSampleParserBIO();
+			measure = new ChunkAnalysisMeasureBIO();
+			sequenceValidator = new ChunkAnalysisSequenceValidatorBIO();
 		}
 		
 		ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisWordContextGeneratorConf();

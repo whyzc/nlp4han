@@ -7,15 +7,15 @@ import java.util.List;
 /**
  * BIEOS组块分析模型评价
  */
-public class ChunkAnalysisMeasureWithBIEOS extends AbstractChunkAnalysisMeasure
+public class ChunkAnalysisMeasureBIEOS extends AbstractChunkAnalysisMeasure
 {
 
-	public ChunkAnalysisMeasureWithBIEOS()
+	public ChunkAnalysisMeasureBIEOS()
 	{
 		this(new HashSet<>());
 	}
 
-	public ChunkAnalysisMeasureWithBIEOS(HashSet<String> dict)
+	public ChunkAnalysisMeasureBIEOS(HashSet<String> dict)
 	{
 		super(dict);
 	}

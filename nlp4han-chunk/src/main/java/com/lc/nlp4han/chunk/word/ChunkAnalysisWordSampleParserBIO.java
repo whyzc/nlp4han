@@ -9,7 +9,7 @@ import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 /**
  * 基于词组块分析的BIEO样本解析（组块最小长度为2）
  */
-public class ChunkAnalysisWordParseWithBIO extends AbstractChunkSampleParser
+public class ChunkAnalysisWordSampleParserBIO extends AbstractChunkSampleParser
 {
 
 	private final String ChunkBegin = "_B";
@@ -22,7 +22,7 @@ public class ChunkAnalysisWordParseWithBIO extends AbstractChunkSampleParser
 	/**
 	 * 构造方法
 	 */
-	public ChunkAnalysisWordParseWithBIO()
+	public ChunkAnalysisWordSampleParserBIO()
 	{
 		this.scheme = "BIO";
 	}

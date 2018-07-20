@@ -5,17 +5,17 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
- * BIO组块分析模型评价
+ * BIEO组块分析模型评价
  */
-public class ChunkAnalysisMeasureWithBIO extends AbstractChunkAnalysisMeasure
+public class ChunkAnalysisMeasureBIEO extends AbstractChunkAnalysisMeasure
 {
 
-	public ChunkAnalysisMeasureWithBIO()
+	public ChunkAnalysisMeasureBIEO()
 	{
 		this(new HashSet<>());
 	}
 
-	public ChunkAnalysisMeasureWithBIO(HashSet<String> dict)
+	public ChunkAnalysisMeasureBIEO(HashSet<String> dict)
 	{
 		super(dict);
 	}
@@ -42,8 +42,7 @@ public class ChunkAnalysisMeasureWithBIO extends AbstractChunkAnalysisMeasure
 
 		List<String> tempRefChunk = new ArrayList<>(); // 临时存放参考样本中的组块
 		List<String> tempPreChunk = new ArrayList<>(); // 临时存放预测样本中的组块
-		List<String> correctPreChunk = new ArrayList<>(); // 临时存放预测组块
-		boolean chunkOver = false; // 临时存放的预测组块是否完整
+		List<String> correctPreChunk = new ArrayList<>(); // 临时存放预测正确的组块
 		List<String> tokensInChunk = new ArrayList<>(); // 临时存放组块中的词组
 
 		for (int i = 0; i < tokens.length; i++)
@@ -56,18 +55,17 @@ public class ChunkAnalysisMeasureWithBIO extends AbstractChunkAnalysisMeasure
 			refChunkTag = refChunkTags[i];
 			preChunkTag = preChunkTags[i];
 			if (refChunkTag.equals("O") || refChunkTag.split("_")[1].equals("B"))
-			{
+			{// 统计参考样本中各个组块数量，及预测正确的数量
 				if (tempRefChunk.size() != 0)
 				{// 存在未处理的参考组块, 进行统计
-					processChunk(tempRefChunk, correctPreChunk, tokensInChunk, chunkOver);
+					processChunk(tempRefChunk, correctPreChunk, tokensInChunk);
 					tempRefChunk = new ArrayList<>();
 					correctPreChunk = new ArrayList<>();
 					tokensInChunk = new ArrayList<>();
-					chunkOver = false;
 				}
 
 				if (refChunkTag.equals("O"))
-				{
+				{// 当前词的组块标记为O
 					if (referenceChunk2Count.containsKey(refChunkTag))
 						referenceChunk2Count.put(refChunkTag, referenceChunk2Count.get(refChunkTag) + 1);
 					else
@@ -94,16 +92,10 @@ public class ChunkAnalysisMeasureWithBIO extends AbstractChunkAnalysisMeasure
 				}
 			}
 			else
-			{// 当前词的组块标记为*_I
+			{// 当前词的组块标记为*_I || *_E
 				tempRefChunk.add(refChunkTag);
 				correctPreChunk.add(preChunkTag);
 				tokensInChunk.add(tokens[i]);
-
-				if (i + 1 < tokens.length)
-				{
-					if (preChunkTags[i + 1].equals("O") || preChunkTags[i + 1].split("_")[1].equals("B"))
-						chunkOver = true;
-				}
 			}
 
 			// 统计预测结果中各个组块数量
@@ -135,7 +127,7 @@ public class ChunkAnalysisMeasureWithBIO extends AbstractChunkAnalysisMeasure
 		}
 
 		if (tempRefChunk.size() != 0) // 存在未处理的参考组块, 进行统计
-			processChunk(tempRefChunk, correctPreChunk, tokensInChunk, chunkOver);
+			processChunk(tempRefChunk, correctPreChunk, tokensInChunk);
 
 		if (tempPreChunk.size() != 0)
 		{// 存在未处理的预测组块, 进行统计
@@ -157,8 +149,7 @@ public class ChunkAnalysisMeasureWithBIO extends AbstractChunkAnalysisMeasure
 	 * @param wordsInChunk
 	 *            组块对应的词
 	 */
-	private void processChunk(List<String> tempRefChunk, List<String> correctPreChunk, List<String> tokensInChunk,
-			boolean chunkOver)
+	private void processChunk(List<String> tempRefChunk, List<String> correctPreChunk, List<String> tokensInChunk)
 	{
 		String chunk = tempRefChunk.get(0).split("_")[0];
 		if (referenceChunk2Count.containsKey(chunk))
@@ -166,7 +157,7 @@ public class ChunkAnalysisMeasureWithBIO extends AbstractChunkAnalysisMeasure
 		else
 			referenceChunk2Count.put(chunk, 1L);
 
-		if (tempRefChunk.equals(correctPreChunk) && chunkOver)
+		if (tempRefChunk.equals(correctPreChunk))
 		{// 未处理的组块被预测正确，进行统计
 			if (correctTag2Count.containsKey(chunk))
 				correctTag2Count.put(chunk, correctTag2Count.get(chunk) + 1);

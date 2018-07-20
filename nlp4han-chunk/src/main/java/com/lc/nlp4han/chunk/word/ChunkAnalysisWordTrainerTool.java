@@ -84,11 +84,11 @@ public class ChunkAnalysisWordTrainerTool {
 		AbstractChunkSampleParser parse = null;
 
 		if (label.equals("BIEOS"))
-			parse = new ChunkAnalysisWordParseWithBIEOS();
+			parse = new ChunkAnalysisWordSampleParserBIEOS();
 		else if (label.equals("BIEO"))
-			parse = new ChunkAnalysisWordParseWithBIEO();
+			parse = new ChunkAnalysisWordSampleParserBIEO();
 		else
-			parse = new ChunkAnalysisWordParseWithBIO();
+			parse = new ChunkAnalysisWordSampleParserBIO();
 
 		ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisWordSampleStream(lineStream,
 				parse, label);

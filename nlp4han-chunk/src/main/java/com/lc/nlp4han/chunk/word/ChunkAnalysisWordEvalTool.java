@@ -12,9 +12,9 @@ import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.chunk.ChunkAnalysisContextGenerator;
 import com.lc.nlp4han.chunk.ChunkAnalysisErrorPrinter;
 import com.lc.nlp4han.chunk.ChunkAnalysisEvaluateMonitor;
-import com.lc.nlp4han.chunk.ChunkAnalysisMeasureWithBIEO;
-import com.lc.nlp4han.chunk.ChunkAnalysisMeasureWithBIEOS;
-import com.lc.nlp4han.chunk.ChunkAnalysisMeasureWithBIO;
+import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIEO;
+import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIEOS;
+import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIO;
 import com.lc.nlp4han.ml.util.ModelWrapper;
 import com.lc.nlp4han.ml.util.ObjectStream;
 import com.lc.nlp4han.ml.util.SequenceValidator;
@@ -140,17 +140,17 @@ public class ChunkAnalysisWordEvalTool {
 		AbstractChunkAnalysisMeasure measure;
 
 		if (label.equals("BIEOS")) {
-			sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIEOS();
-			parse = new ChunkAnalysisWordParseWithBIEOS();
-			measure = new ChunkAnalysisMeasureWithBIEOS();
+			sequenceValidator = new ChunkAnalysisSequenceValidatorBIEOS();
+			parse = new ChunkAnalysisWordSampleParserBIEOS();
+			measure = new ChunkAnalysisMeasureBIEOS();
 		} else if (label.equals("BIEO")) {
-			sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIEO();
-			parse = new ChunkAnalysisWordParseWithBIEO();
-			measure = new ChunkAnalysisMeasureWithBIEO();
+			sequenceValidator = new ChunkAnalysisSequenceValidatorBIEO();
+			parse = new ChunkAnalysisWordSampleParserBIEO();
+			measure = new ChunkAnalysisMeasureBIEO();
 		} else {
-			sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIO();
-			parse = new ChunkAnalysisWordParseWithBIO();
-			measure = new ChunkAnalysisMeasureWithBIO();
+			sequenceValidator = new ChunkAnalysisSequenceValidatorBIO();
+			parse = new ChunkAnalysisWordSampleParserBIO();
+			measure = new ChunkAnalysisMeasureBIO();
 		}
 
 		if (errorFile != null)

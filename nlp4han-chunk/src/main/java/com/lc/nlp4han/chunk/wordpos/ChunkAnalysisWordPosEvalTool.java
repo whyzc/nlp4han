@@ -12,12 +12,12 @@ import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.chunk.ChunkAnalysisContextGenerator;
 import com.lc.nlp4han.chunk.ChunkAnalysisErrorPrinter;
 import com.lc.nlp4han.chunk.ChunkAnalysisEvaluateMonitor;
-import com.lc.nlp4han.chunk.ChunkAnalysisMeasureWithBIEO;
-import com.lc.nlp4han.chunk.ChunkAnalysisMeasureWithBIEOS;
-import com.lc.nlp4han.chunk.ChunkAnalysisMeasureWithBIO;
-import com.lc.nlp4han.chunk.word.ChunkAnalysisSequenceValidatorWithBIEO;
-import com.lc.nlp4han.chunk.word.ChunkAnalysisSequenceValidatorWithBIEOS;
-import com.lc.nlp4han.chunk.word.ChunkAnalysisSequenceValidatorWithBIO;
+import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIEO;
+import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIEOS;
+import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIO;
+import com.lc.nlp4han.chunk.word.ChunkAnalysisSequenceValidatorBIEO;
+import com.lc.nlp4han.chunk.word.ChunkAnalysisSequenceValidatorBIEOS;
+import com.lc.nlp4han.chunk.word.ChunkAnalysisSequenceValidatorBIO;
 import com.lc.nlp4han.ml.util.ModelWrapper;
 import com.lc.nlp4han.ml.util.ObjectStream;
 import com.lc.nlp4han.ml.util.SequenceValidator;
@@ -145,17 +145,17 @@ public class ChunkAnalysisWordPosEvalTool {
 		AbstractChunkAnalysisMeasure measure;
 
 		if (label.equals("BIEOS")) {
-			sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIEOS();
+			sequenceValidator = new ChunkAnalysisSequenceValidatorBIEOS();
 			parse = new ChunkAnalysisWordPosParseWithBIEOS();
-			measure = new ChunkAnalysisMeasureWithBIEOS();
+			measure = new ChunkAnalysisMeasureBIEOS();
 		} else if (label.equals("BIEO")) {
-			sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIEO();
+			sequenceValidator = new ChunkAnalysisSequenceValidatorBIEO();
 			parse = new ChunkAnalysisWordPosParseWithBIEO();
-			measure = new ChunkAnalysisMeasureWithBIEO();
+			measure = new ChunkAnalysisMeasureBIEO();
 		} else {
-			sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIO();
+			sequenceValidator = new ChunkAnalysisSequenceValidatorBIO();
 			parse = new ChunkAnalysisWordPosParseWithBIO();
-			measure = new ChunkAnalysisMeasureWithBIO();
+			measure = new ChunkAnalysisMeasureBIO();
 		}
 
 		if (errorFile != null)

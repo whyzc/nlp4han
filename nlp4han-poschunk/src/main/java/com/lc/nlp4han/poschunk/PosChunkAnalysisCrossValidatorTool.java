@@ -7,9 +7,9 @@ import com.lc.nlp4han.chunk.AbstractChunkAnalysisMeasure;
 import com.lc.nlp4han.chunk.AbstractChunkSampleParser;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.chunk.ChunkAnalysisContextGenerator;
-import com.lc.nlp4han.chunk.ChunkAnalysisMeasureWithBIEO;
-import com.lc.nlp4han.chunk.ChunkAnalysisMeasureWithBIEOS;
-import com.lc.nlp4han.chunk.ChunkAnalysisMeasureWithBIO;
+import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIEO;
+import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIEOS;
+import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIO;
 import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 import com.lc.nlp4han.ml.util.PlainTextByLineStream;
@@ -84,15 +84,15 @@ public class PosChunkAnalysisCrossValidatorTool {
 
 		if (label.equals("BIEOS")) {
 			parse = new PosChunkAnalysisParseWithBIEOS();
-			measure = new ChunkAnalysisMeasureWithBIEOS();
+			measure = new ChunkAnalysisMeasureBIEOS();
 			sequenceValidator = new PosChunkAnalysisSequenceValidatorWithBIEOS();
 		} else if (label.equals("BIEO")) {
 			parse = new PosChunkAnalysisParseWithBIEO();
-			measure = new ChunkAnalysisMeasureWithBIEO();
+			measure = new ChunkAnalysisMeasureBIEO();
 			sequenceValidator = new PosChunkAnalysisSequenceValidatorWithBIEO();
 		} else {
 			parse = new PosChunkAnalysisParseWithBIO();
-			measure = new ChunkAnalysisMeasureWithBIO();
+			measure = new ChunkAnalysisMeasureBIO();
 			sequenceValidator = new PosChunkAnalysisSequenceValidatorWithBIO();
 		}
 
