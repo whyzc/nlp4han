@@ -28,11 +28,6 @@ public class PosChunkAnalysisParseWithBIEO extends AbstractChunkSampleParser {
 	 * 构造方法
 	 */
 	public PosChunkAnalysisParseWithBIEO() {
-
-	}
-	
-	@Override
-	protected void setTagScheme() {
 		this.scheme = "BIEO";
 	}
 	

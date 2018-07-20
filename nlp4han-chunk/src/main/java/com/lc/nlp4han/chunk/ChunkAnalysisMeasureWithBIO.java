@@ -56,7 +56,7 @@ public class ChunkAnalysisMeasureWithBIO extends AbstractChunkAnalysisMeasure
 			refChunkTag = refChunkTags[i];
 			preChunkTag = preChunkTags[i];
 			if (refChunkTag.equals("O") || refChunkTag.split("_")[1].equals("B"))
-			{// 统计参考样本中各个组块数量，及预测正确的数量
+			{
 				if (tempRefChunk.size() != 0)
 				{// 存在未处理的参考组块, 进行统计
 					processChunk(tempRefChunk, correctPreChunk, tokensInChunk, chunkOver);
@@ -67,7 +67,7 @@ public class ChunkAnalysisMeasureWithBIO extends AbstractChunkAnalysisMeasure
 				}
 
 				if (refChunkTag.equals("O"))
-				{// 当前词的组块标记为O
+				{
 					if (referenceChunk2Count.containsKey(refChunkTag))
 						referenceChunk2Count.put(refChunkTag, referenceChunk2Count.get(refChunkTag) + 1);
 					else

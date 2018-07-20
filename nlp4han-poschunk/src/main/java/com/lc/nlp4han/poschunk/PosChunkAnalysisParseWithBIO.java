@@ -27,11 +27,6 @@ public class PosChunkAnalysisParseWithBIO extends AbstractChunkSampleParser {
 	 * 构造方法
 	 */
 	public PosChunkAnalysisParseWithBIO() {
-
-	}
-	
-	@Override
-	protected void setTagScheme() {
 		this.scheme = "BIO";
 	}
 	

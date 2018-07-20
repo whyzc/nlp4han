@@ -31,11 +31,6 @@ public class ChunkAnalysisWordPosParseWithBIEOS extends AbstractChunkSampleParse
 	 * 构造方法
 	 */
 	public ChunkAnalysisWordPosParseWithBIEOS() {
-
-	}
-	
-	@Override
-	protected void setTagScheme() {
 		this.scheme = "BIEOS";
 	}
 	

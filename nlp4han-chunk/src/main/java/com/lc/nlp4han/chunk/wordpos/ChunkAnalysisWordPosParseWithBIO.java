@@ -28,11 +28,6 @@ public class ChunkAnalysisWordPosParseWithBIO extends AbstractChunkSampleParser 
 	 * 构造方法
 	 */
 	public ChunkAnalysisWordPosParseWithBIO() {
-
-	}
-	
-	@Override
-	protected void setTagScheme() {
 		this.scheme = "BIO";
 	}
 	

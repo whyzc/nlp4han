@@ -30,13 +30,9 @@ public class ChunkAnalysisWordPosParseWithBIEO extends AbstractChunkSampleParser
 	 * 构造方法
 	 */
 	public ChunkAnalysisWordPosParseWithBIEO() {
-
-	}
-	
-	@Override
-	protected void setTagScheme() {
 		this.scheme = "BIEO";
 	}
+
 	
 	public AbstractChunkAnalysisSample parse(String sentence){
 		chunkTags = new ArrayList<>();

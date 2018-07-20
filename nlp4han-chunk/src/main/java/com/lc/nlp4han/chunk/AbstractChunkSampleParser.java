@@ -10,15 +10,12 @@ public abstract class AbstractChunkSampleParser
 
 	public AbstractChunkSampleParser()
 	{
-		setTagScheme();
 	}
 
 	public String getTagScheme()
 	{
 		return scheme;
 	}
-
-	protected abstract void setTagScheme();
 
 	/**
 	 * 返回由字符串句子解析而成的样本
