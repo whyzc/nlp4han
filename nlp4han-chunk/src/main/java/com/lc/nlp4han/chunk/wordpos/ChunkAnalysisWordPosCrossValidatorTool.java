@@ -20,23 +20,22 @@ import com.lc.nlp4han.ml.util.SequenceValidator;
 import com.lc.nlp4han.ml.util.TrainingParameters;
 
 /**
- * <ul>
- * <li>Description: 交叉验证工具类
- * <li>Company: HUST
- * <li>@author Sonly
- * <li>Date: 2017年12月18日
- * </ul>
+ * 交叉验证工具类
  */
-public class ChunkAnalysisWordPosCrossValidatorTool {
+public class ChunkAnalysisWordPosCrossValidatorTool
+{
 
-	private static void usage() {
+	private static void usage()
+	{
 		System.out.println(ChunkAnalysisWordPosCrossValidatorTool.class.getName()
 				+ " -data <corpusFile> -type <type> -label <label> -encoding <encoding> [-folds <nFolds>] [-cutoff <num>] [-iters <num>]");
 	}
 
 	public static void main(String[] args)
-			throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
-		if (args.length < 1) {
+			throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException
+	{
+		if (args.length < 1)
+		{
 			usage();
 			return;
 		}
@@ -46,29 +45,43 @@ public class ChunkAnalysisWordPosCrossValidatorTool {
 		int folds = 10;
 		// Maxent, Perceptron, MaxentQn, NaiveBayes
 		String type = "Maxent";
-		String label = "BIEO";
+		String scheme = "BIEO";
 		File corpusFile = null;
 		String encoding = "UTF-8";
-		for (int i = 0; i < args.length; i++) {
-			if (args[i].equals("-data")) {
+		for (int i = 0; i < args.length; i++)
+		{
+			if (args[i].equals("-data"))
+			{
 				corpusFile = new File(args[i + 1]);
 				i++;
-			} else if (args[i].equals("-type")) {
+			}
+			else if (args[i].equals("-type"))
+			{
 				type = args[i + 1];
 				i++;
-			} else if (args[i].equals("-label")) {
-				label = args[i + 1];
+			}
+			else if (args[i].equals("-label"))
+			{
+				scheme = args[i + 1];
 				i++;
-			} else if (args[i].equals("-encoding")) {
+			}
+			else if (args[i].equals("-encoding"))
+			{
 				encoding = args[i + 1];
 				i++;
-			} else if (args[i].equals("-cutoff")) {
+			}
+			else if (args[i].equals("-cutoff"))
+			{
 				cutoff = Integer.parseInt(args[i + 1]);
 				i++;
-			} else if (args[i].equals("-iters")) {
+			}
+			else if (args[i].equals("-iters"))
+			{
 				iters = Integer.parseInt(args[i + 1]);
 				i++;
-			} else if (args[i].equals("-folds")) {
+			}
+			else if (args[i].equals("-folds"))
+			{
 				folds = Integer.parseInt(args[i + 1]);
 				i++;
 			}
@@ -85,25 +98,29 @@ public class ChunkAnalysisWordPosCrossValidatorTool {
 		AbstractChunkAnalysisMeasure measure = null;
 		SequenceValidator<String> sequenceValidator = null;
 
-		if (label.equals("BIEOS")) {
+		if (scheme.equals("BIEOS"))
+		{
 			parse = new ChunkAnalysisWordPosParseWithBIEOS();
 			measure = new ChunkAnalysisMeasureBIEOS();
 			sequenceValidator = new ChunkAnalysisSequenceValidatorBIEOS();
-		} else if (label.equals("BIEO")) {
+		}
+		else if (scheme.equals("BIEO"))
+		{
 			parse = new ChunkAnalysisWordPosParseWithBIEO();
 			measure = new ChunkAnalysisMeasureBIEO();
 			sequenceValidator = new ChunkAnalysisSequenceValidatorBIEO();
-		} else {
+		}
+		else
+		{
 			parse = new ChunkAnalysisWordPosParseWithBIO();
 			measure = new ChunkAnalysisMeasureBIO();
 			sequenceValidator = new ChunkAnalysisSequenceValidatorBIO();
 		}
 
 		ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisWordPosContextGeneratorConf();
-		ChunkAnalysisWordPosCrossValidation crossValidator = new ChunkAnalysisWordPosCrossValidation(
-				params);
-		ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisWordPosSampleStream(
-				lineStream, parse, label);
+		ChunkAnalysisWordPosCrossValidation crossValidator = new ChunkAnalysisWordPosCrossValidation(params);
+		ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisWordPosSampleStream(lineStream, parse,
+				scheme);
 
 		crossValidator.evaluate(sampleStream, folds, contextGen, measure, sequenceValidator);
 

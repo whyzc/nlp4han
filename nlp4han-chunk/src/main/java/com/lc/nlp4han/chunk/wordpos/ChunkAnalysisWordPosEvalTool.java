@@ -26,14 +26,10 @@ import com.lc.nlp4han.ml.util.PlainTextByLineStream;
 import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
 
 /**
- * <ul>
- * <li>Description: 模型评估工具类
- * <li>Company: HUST
- * <li>@author Sonly
- * <li>Date: 2017年12月18日
- * </ul>
+ * 模型评估工具类
  */
-public class ChunkAnalysisWordPosEvalTool {
+public class ChunkAnalysisWordPosEvalTool
+{
 
 	/**
 	 * 依据黄金标准评价基于词和词性的标注效果, 各种评价指标结果会输出到控制台，错误的结果会输出到指定文件
@@ -49,33 +45,32 @@ public class ChunkAnalysisWordPosEvalTool {
 	 * @throws IOException
 	 */
 	public static void eval(File modelFile, File goldFile, String encoding, File errorFile,
-			AbstractChunkSampleParser parse, 
-			SequenceValidator<String> sequenceValidator, 
-			AbstractChunkAnalysisMeasure measure,
-			String label)
-			throws IOException {
+			AbstractChunkSampleParser parse, SequenceValidator<String> sequenceValidator,
+			AbstractChunkAnalysisMeasure measure, String label) throws IOException
+	{
 		long start = System.currentTimeMillis();
 
 		InputStream modelIn = new FileInputStream(modelFile);
-        ModelWrapper model = new ModelWrapper(modelIn);
-        
+		ModelWrapper model = new ModelWrapper(modelIn);
+
 		ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisWordPosContextGeneratorConf();
-		ChunkAnalysisWordPosME tagger = new ChunkAnalysisWordPosME(model, sequenceValidator, contextGen,
-				label);
+		ChunkAnalysisWordPosME tagger = new ChunkAnalysisWordPosME(model, sequenceValidator, contextGen, label);
 		ChunkAnalysisWordPosEvaluator evaluator = null;
 
-		if (errorFile != null) {
+		if (errorFile != null)
+		{
 			ChunkAnalysisEvaluateMonitor errorMonitor = new ChunkAnalysisErrorPrinter(new FileOutputStream(errorFile));
 			evaluator = new ChunkAnalysisWordPosEvaluator(tagger, measure, errorMonitor);
-		} else
+		}
+		else
 			evaluator = new ChunkAnalysisWordPosEvaluator(tagger);
 
 		evaluator.setMeasure(measure);
 
 		ObjectStream<String> goldStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(goldFile),
 				encoding);
-		ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkAnalysisWordPosSampleStream(goldStream,
-				parse, label);
+		ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkAnalysisWordPosSampleStream(goldStream, parse,
+				label);
 
 		start = System.currentTimeMillis();
 		evaluator.evaluate(testStream);
@@ -84,22 +79,24 @@ public class ChunkAnalysisWordPosEvalTool {
 		System.out.println(evaluator.getMeasure());
 	}
 
-
-	private static void usage() {
+	private static void usage()
+	{
 		System.out.println(ChunkAnalysisWordPosEvalTool.class.getName()
 				+ " -model <modelFile> -type <type> -method <method> -label <label> -gold <goldFile> -encoding <encoding> [-error <errorFile>]");
 	}
 
 	public static void main(String[] args)
-			throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-		if (args.length < 1) {
+			throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException
+	{
+		if (args.length < 1)
+		{
 			usage();
 			return;
 		}
 
 		// Maxent,Perceptron,MaxentQn,NaiveBayes
 		String type = "Maxent";
-		String label = "BIEO";
+		String scheme = "BIEO";
 		String modelFile = null;
 		String goldFile = null;
 		String errorFile = null;
@@ -107,29 +104,45 @@ public class ChunkAnalysisWordPosEvalTool {
 
 		int cutoff = 3;
 		int iters = 100;
-		for (int i = 0; i < args.length; i++) {
-			if (args[i].equals("-model")) {
+		for (int i = 0; i < args.length; i++)
+		{
+			if (args[i].equals("-model"))
+			{
 				modelFile = args[i + 1];
 				i++;
-			} else if (args[i].equals("-type")) {
+			}
+			else if (args[i].equals("-type"))
+			{
 				type = args[i + 1];
 				i++;
-			} else if (args[i].equals("-label")) {
-				label = args[i + 1];
+			}
+			else if (args[i].equals("-label"))
+			{
+				scheme = args[i + 1];
 				i++;
-			} else if (args[i].equals("-gold")) {
+			}
+			else if (args[i].equals("-gold"))
+			{
 				goldFile = args[i + 1];
 				i++;
-			} else if (args[i].equals("-error")) {
+			}
+			else if (args[i].equals("-error"))
+			{
 				errorFile = args[i + 1];
 				i++;
-			} else if (args[i].equals("-encoding")) {
+			}
+			else if (args[i].equals("-encoding"))
+			{
 				encoding = args[i + 1];
 				i++;
-			} else if (args[i].equals("-cutoff")) {
+			}
+			else if (args[i].equals("-cutoff"))
+			{
 				cutoff = Integer.parseInt(args[i + 1]);
 				i++;
-			} else if (args[i].equals("-iters")) {
+			}
+			else if (args[i].equals("-iters"))
+			{
 				iters = Integer.parseInt(args[i + 1]);
 				i++;
 			}
@@ -139,29 +152,35 @@ public class ChunkAnalysisWordPosEvalTool {
 		params.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(cutoff));
 		params.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(iters));
 		params.put(TrainingParameters.ALGORITHM_PARAM, type);
-		
+
 		AbstractChunkSampleParser parse;
 		SequenceValidator<String> sequenceValidator;
 		AbstractChunkAnalysisMeasure measure;
 
-		if (label.equals("BIEOS")) {
+		if (scheme.equals("BIEOS"))
+		{
 			sequenceValidator = new ChunkAnalysisSequenceValidatorBIEOS();
 			parse = new ChunkAnalysisWordPosParseWithBIEOS();
 			measure = new ChunkAnalysisMeasureBIEOS();
-		} else if (label.equals("BIEO")) {
+		}
+		else if (scheme.equals("BIEO"))
+		{
 			sequenceValidator = new ChunkAnalysisSequenceValidatorBIEO();
 			parse = new ChunkAnalysisWordPosParseWithBIEO();
 			measure = new ChunkAnalysisMeasureBIEO();
-		} else {
+		}
+		else
+		{
 			sequenceValidator = new ChunkAnalysisSequenceValidatorBIO();
 			parse = new ChunkAnalysisWordPosParseWithBIO();
 			measure = new ChunkAnalysisMeasureBIO();
 		}
 
 		if (errorFile != null)
-			eval(new File(modelFile), new File(goldFile), encoding, new File(errorFile), parse, sequenceValidator, measure, label);
+			eval(new File(modelFile), new File(goldFile), encoding, new File(errorFile), parse, sequenceValidator,
+					measure, scheme);
 		else
-			eval(new File(modelFile), new File(goldFile), encoding, null, parse, sequenceValidator, measure, label);
+			eval(new File(modelFile), new File(goldFile), encoding, null, parse, sequenceValidator, measure, scheme);
 
 	}
 }
