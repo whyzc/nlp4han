@@ -160,19 +160,19 @@ public class ChunkAnalysisWordPosEvalTool
 		if (scheme.equals("BIEOS"))
 		{
 			sequenceValidator = new ChunkAnalysisSequenceValidatorBIEOS();
-			parse = new ChunkAnalysisWordPosParseWithBIEOS();
+			parse = new ChunkAnalysisWordPosParserBIEOS();
 			measure = new ChunkAnalysisMeasureBIEOS();
 		}
 		else if (scheme.equals("BIEO"))
 		{
 			sequenceValidator = new ChunkAnalysisSequenceValidatorBIEO();
-			parse = new ChunkAnalysisWordPosParseWithBIEO();
+			parse = new ChunkAnalysisWordPosParserBIEO();
 			measure = new ChunkAnalysisMeasureBIEO();
 		}
 		else
 		{
 			sequenceValidator = new ChunkAnalysisSequenceValidatorBIO();
-			parse = new ChunkAnalysisWordPosParseWithBIO();
+			parse = new ChunkAnalysisWordPosParserBIO();
 			measure = new ChunkAnalysisMeasureBIO();
 		}
 

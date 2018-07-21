@@ -100,19 +100,19 @@ public class ChunkAnalysisWordPosCrossValidatorTool
 
 		if (scheme.equals("BIEOS"))
 		{
-			parse = new ChunkAnalysisWordPosParseWithBIEOS();
+			parse = new ChunkAnalysisWordPosParserBIEOS();
 			measure = new ChunkAnalysisMeasureBIEOS();
 			sequenceValidator = new ChunkAnalysisSequenceValidatorBIEOS();
 		}
 		else if (scheme.equals("BIEO"))
 		{
-			parse = new ChunkAnalysisWordPosParseWithBIEO();
+			parse = new ChunkAnalysisWordPosParserBIEO();
 			measure = new ChunkAnalysisMeasureBIEO();
 			sequenceValidator = new ChunkAnalysisSequenceValidatorBIEO();
 		}
 		else
 		{
-			parse = new ChunkAnalysisWordPosParseWithBIO();
+			parse = new ChunkAnalysisWordPosParserBIO();
 			measure = new ChunkAnalysisMeasureBIO();
 			sequenceValidator = new ChunkAnalysisSequenceValidatorBIO();
 		}

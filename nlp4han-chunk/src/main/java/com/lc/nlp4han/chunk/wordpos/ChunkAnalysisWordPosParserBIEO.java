@@ -7,16 +7,15 @@ import com.lc.nlp4han.chunk.AbstractChunkSampleParser;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 
 /**
- * 基于词和词性组块分析的BIEOS样本解析（组块最小长度为1）
+ * 基于词和词性组块分析的BIEO样本解析（组块最小长度为2）
  */
-public class ChunkAnalysisWordPosParseWithBIEOS extends AbstractChunkSampleParser
+public class ChunkAnalysisWordPosParserBIEO extends AbstractChunkSampleParser
 {
 
 	private final String ChunkBegin = "_B";
 	private final String InChunk = "_I";
 	private final String OutChunk = "O";
 	private final String ChunkEnd = "_E";
-	private final String SingleChunk = "_S";
 
 	private List<String> chunkTags;
 	private List<String> words;
@@ -25,9 +24,9 @@ public class ChunkAnalysisWordPosParseWithBIEOS extends AbstractChunkSampleParse
 	/**
 	 * 构造方法
 	 */
-	public ChunkAnalysisWordPosParseWithBIEOS()
+	public ChunkAnalysisWordPosParserBIEO()
 	{
-		this.scheme = "BIEOS";
+		this.scheme = "BIEO";
 	}
 
 	public AbstractChunkAnalysisSample parse(String sentence)
@@ -68,19 +67,8 @@ public class ChunkAnalysisWordPosParseWithBIEOS extends AbstractChunkSampleParse
 
 				if (string.startsWith("["))
 				{
-					string = string.replace("[", "");
-
-					if (string.contains("]"))
-					{// 只有一个词的组块
-						words.add(string.split("]")[0].split("/")[0]);
-						poses.add(string.split("]")[0].split("/")[1]);
-						chunkTags.add(string.split("]")[1] + SingleChunk);
-					}
-					else
-					{
-						wordTagsInChunk.add(string);
-						isInChunk = true;
-					}
+					wordTagsInChunk.add(string.replace("[", ""));
+					isInChunk = true;
 				}
 				else
 				{

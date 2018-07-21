@@ -23,14 +23,10 @@ import com.lc.nlp4han.ml.util.PlainTextByLineStream;
 import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
 
 /**
- * <ul>
- * <li>Description: 模型评估工具类
- * <li>Company: HUST
- * <li>@author Sonly
- * <li>Date: 2017年12月18日
- * </ul>
+ * 模型评估工具类
  */
-public class PosChunkAnalysisEvalTool {
+public class PosChunkAnalysisEvalTool
+{
 
 	/**
 	 * 依据黄金标准评价基于词的词性标注和组块分析效果, 各种评价指标结果会输出到控制台，错误的结果会输出到指定文件
@@ -46,34 +42,33 @@ public class PosChunkAnalysisEvalTool {
 	 * @throws IOException
 	 */
 	public static void eval(File modelFile, File goldFile, String encoding, File errorFile,
-			AbstractChunkSampleParser parse, 
-			SequenceValidator<String> sequenceValidator, 
-			AbstractChunkAnalysisMeasure measure,
-			String label)
-			throws IOException {
+			AbstractChunkSampleParser parse, SequenceValidator<String> sequenceValidator,
+			AbstractChunkAnalysisMeasure measure, String label) throws IOException
+	{
 		long start = System.currentTimeMillis();
 
 		InputStream modelIn = new FileInputStream(modelFile);
-        ModelWrapper model = new ModelWrapper(modelIn);
+		ModelWrapper model = new ModelWrapper(modelIn);
 
 		System.out.println("评价模型...");
 		ChunkAnalysisContextGenerator contextGen = new PosChunkAnalysisContextGeneratorConf();
-		PosChunkAnalysisWordME tagger = new PosChunkAnalysisWordME(model, sequenceValidator, contextGen,
-				label);
+		PosChunkAnalysisWordME tagger = new PosChunkAnalysisWordME(model, sequenceValidator, contextGen, label);
 		PosChunkAnalysisEvaluator evaluator = null;
 
-		if (errorFile != null) {
+		if (errorFile != null)
+		{
 			ChunkAnalysisEvaluateMonitor errorMonitor = new ChunkAnalysisErrorPrinter(new FileOutputStream(errorFile));
 			evaluator = new PosChunkAnalysisEvaluator(tagger, measure, errorMonitor);
-		} else
+		}
+		else
 			evaluator = new PosChunkAnalysisEvaluator(tagger);
 
 		evaluator.setMeasure(measure);
 
 		ObjectStream<String> goldStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(goldFile),
 				encoding);
-		ObjectStream<AbstractChunkAnalysisSample> testStream = new PosChunkAnalysisBasedWordSampleStream(goldStream,
-				parse, label);
+		ObjectStream<AbstractChunkAnalysisSample> testStream = new PosChunkAnalysisSampleStream(goldStream, parse,
+				label);
 
 		start = System.currentTimeMillis();
 		evaluator.evaluate(testStream);
@@ -82,21 +77,24 @@ public class PosChunkAnalysisEvalTool {
 		System.out.println(evaluator.getMeasure());
 	}
 
-	private static void usage() {
+	private static void usage()
+	{
 		System.out.println(PosChunkAnalysisEvalTool.class.getName()
 				+ " -model <modelFile> -type <type> -label <label> -gold <goldFile> -encoding <encoding> [-error <errorFile>]");
 	}
 
 	public static void main(String[] args)
-			throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-		if (args.length < 1) {
+			throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException
+	{
+		if (args.length < 1)
+		{
 			usage();
 			return;
 		}
 
 		// Maxent,Perceptron,MaxentQn,NaiveBayes
 		String type = "Maxent";
-		String label = "BIEO";
+		String scheme = "BIEO";
 		String modelFile = null;
 		String goldFile = null;
 		String errorFile = null;
@@ -104,29 +102,45 @@ public class PosChunkAnalysisEvalTool {
 
 		int cutoff = 3;
 		int iters = 100;
-		for (int i = 0; i < args.length; i++) {
-			if (args[i].equals("-model")) {
+		for (int i = 0; i < args.length; i++)
+		{
+			if (args[i].equals("-model"))
+			{
 				modelFile = args[i + 1];
 				i++;
-			} else if (args[i].equals("-type")) {
+			}
+			else if (args[i].equals("-type"))
+			{
 				type = args[i + 1];
 				i++;
-			} else if (args[i].equals("-label")) {
-				label = args[i + 1];
+			}
+			else if (args[i].equals("-label"))
+			{
+				scheme = args[i + 1];
 				i++;
-			} else if (args[i].equals("-gold")) {
+			}
+			else if (args[i].equals("-gold"))
+			{
 				goldFile = args[i + 1];
 				i++;
-			} else if (args[i].equals("-error")) {
+			}
+			else if (args[i].equals("-error"))
+			{
 				errorFile = args[i + 1];
 				i++;
-			} else if (args[i].equals("-encoding")) {
+			}
+			else if (args[i].equals("-encoding"))
+			{
 				encoding = args[i + 1];
 				i++;
-			} else if (args[i].equals("-cutoff")) {
+			}
+			else if (args[i].equals("-cutoff"))
+			{
 				cutoff = Integer.parseInt(args[i + 1]);
 				i++;
-			} else if (args[i].equals("-iters")) {
+			}
+			else if (args[i].equals("-iters"))
+			{
 				iters = Integer.parseInt(args[i + 1]);
 				i++;
 			}
@@ -136,29 +150,35 @@ public class PosChunkAnalysisEvalTool {
 		params.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(cutoff));
 		params.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(iters));
 		params.put(TrainingParameters.ALGORITHM_PARAM, type);
-		
+
 		AbstractChunkSampleParser parse;
 		SequenceValidator<String> sequenceValidator;
 		AbstractChunkAnalysisMeasure measure;
 
-		if (label.equals("BIEOS")) {
-			sequenceValidator = new PosChunkAnalysisSequenceValidatorWithBIEOS();
-			parse = new PosChunkAnalysisParseWithBIEOS();
+		if (scheme.equals("BIEOS"))
+		{
+			sequenceValidator = new PosChunkAnalysisSequenceValidatorBIEOS();
+			parse = new PosChunkSampleParserBIEOS();
 			measure = new ChunkAnalysisMeasureBIEOS();
-		} else if (label.equals("BIEO")) {
-			sequenceValidator = new PosChunkAnalysisSequenceValidatorWithBIEO();
-			parse = new PosChunkAnalysisParseWithBIEO();
+		}
+		else if (scheme.equals("BIEO"))
+		{
+			sequenceValidator = new PosChunkAnalysisSequenceValidatorBIEO();
+			parse = new PosChunkSampleParserBIEO();
 			measure = new ChunkAnalysisMeasureBIEO();
-		} else {
-			sequenceValidator = new PosChunkAnalysisSequenceValidatorWithBIO();
-			parse = new PosChunkAnalysisParseWithBIO();
+		}
+		else
+		{
+			sequenceValidator = new PosChunkAnalysisSequenceValidatorBIO();
+			parse = new PosChunkSampleParserBIO();
 			measure = new ChunkAnalysisMeasureBIO();
 		}
 
 		if (errorFile != null)
-			eval(new File(modelFile), new File(goldFile), encoding, new File(errorFile), parse, sequenceValidator, measure, label);
+			eval(new File(modelFile), new File(goldFile), encoding, new File(errorFile), parse, sequenceValidator,
+					measure, scheme);
 		else
-			eval(new File(modelFile), new File(goldFile), encoding, null, parse, sequenceValidator, measure, label);
+			eval(new File(modelFile), new File(goldFile), encoding, null, parse, sequenceValidator, measure, scheme);
 
 	}
 }

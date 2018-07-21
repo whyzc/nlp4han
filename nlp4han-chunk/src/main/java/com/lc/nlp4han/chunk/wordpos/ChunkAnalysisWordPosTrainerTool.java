@@ -97,11 +97,11 @@ public class ChunkAnalysisWordPosTrainerTool
 		AbstractChunkSampleParser parse = null;
 
 		if (scheme.equals("BIEOS"))
-			parse = new ChunkAnalysisWordPosParseWithBIEOS();
+			parse = new ChunkAnalysisWordPosParserBIEOS();
 		else if (scheme.equals("BIEO"))
-			parse = new ChunkAnalysisWordPosParseWithBIEO();
+			parse = new ChunkAnalysisWordPosParserBIEO();
 		else
-			parse = new ChunkAnalysisWordPosParseWithBIO();
+			parse = new ChunkAnalysisWordPosParserBIO();
 
 		ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisWordPosSampleStream(lineStream, parse,
 				scheme);
