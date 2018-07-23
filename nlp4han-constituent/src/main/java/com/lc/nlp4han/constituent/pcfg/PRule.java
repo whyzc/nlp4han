@@ -1,6 +1,6 @@
 package com.lc.nlp4han.constituent.pcfg;
 
-
+import java.util.ArrayList;
 
 public class PRule extends RewriteRule {
     private double proOfRule;
@@ -9,6 +9,10 @@ public class PRule extends RewriteRule {
     }
     public PRule(double pro,String ...args) {
     	super(args);
+    	this.proOfRule=pro;
+    }
+    public PRule(double pro,String lhs,ArrayList<String> rhs) {
+    	super(lhs,rhs);
     	this.proOfRule=pro;
     }
     public PRule(RewriteRule rule, double pro) {
@@ -23,7 +27,7 @@ public class PRule extends RewriteRule {
 		this.proOfRule = proOfRule;
 	}
 	
-	@Override
+/*	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
@@ -44,7 +48,7 @@ public class PRule extends RewriteRule {
 		if (Double.doubleToLongBits(proOfRule) != Double.doubleToLongBits(other.proOfRule))
 			return false;
 		return true;
-	}
+	}*/
 	@Override
 	public String toString() {
 		StringBuilder strb=new StringBuilder();

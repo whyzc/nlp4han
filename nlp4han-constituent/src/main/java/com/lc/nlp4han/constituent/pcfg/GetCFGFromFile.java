@@ -11,10 +11,9 @@ import java.util.StringTokenizer;
 /*
  * 从文件中将CFG文法读取出来
  */
-public class GetCFGFromFile {
-	 private CFG cfg;
-     public CFG getCFGFromFile(String fileName,String encoding) throws IOException {
-    	cfg=new CFG();
+public class GetCFGFromFile { 
+     public static CFG getCFGFromFile(String fileName,String encoding) throws IOException {
+    	CFG cfg=new CFG();
     	InputStream file=new FileInputStream(new File(fileName));
 		BufferedReader in = new BufferedReader(new InputStreamReader(file,encoding));
 		String str=in.readLine().trim();

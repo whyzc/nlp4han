@@ -47,8 +47,7 @@ public class ExtractGrammarTool {
     * 从树库中提取文法，然后存入文件指定中
     */
    private static void ExtractGrammarToFile(String fromPath,String toPath,String inCoding) throws UnsupportedOperationException, IOException {
-	   BufferedWriter bw=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(toPath),inCoding));
-	   
+	   BufferedWriter bw=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(toPath),inCoding));   
 	   Extract ext=new Extract(fromPath,inCoding);
 	   CFG  cfg=ext.getCFG();
 	   bw.append(cfg.toString());

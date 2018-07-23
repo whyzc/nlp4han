@@ -17,4 +17,8 @@ public class Extract {
          eg.CreateGrammar(fileName, enCoding,"CFG");
          return eg.getGrammar();
      }
+     public PCFG getPCFG() throws UnsupportedOperationException, FileNotFoundException, IOException {
+         ExtractPCFG ext=new ExtractPCFG();
+         return ext.CreatePCFG(fileName, enCoding);
+     }
 }
