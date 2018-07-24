@@ -1,12 +1,11 @@
 package org.nlp4han.sentiment.nb;
 
 import com.lc.nlp4han.ml.util.Evaluator;
-import com.lc.nlp4han.ml.util.Mean;
 
 public class SentimentAnalyzerEvaluator extends Evaluator<SentimentTextSample>{
 
 	private SentimentAnalyzerNB analyzer;
-	private Mean accuracy = new Mean();
+	private SentimentAnalyzerMeasure measure = new SentimentAnalyzerMeasure();
 	
 	public SentimentAnalyzerEvaluator(SentimentAnalyzerNB analyzer) {
 		this.analyzer = analyzer;
@@ -24,32 +23,17 @@ public class SentimentAnalyzerEvaluator extends Evaluator<SentimentTextSample>{
 	    
 	    SentimentPolarity sp = analyzer.analyze(text);
 	    
-	    if (sample.getCategory().equals(sp.getPolarity())) {
-	    	accuracy.add(1);
-	    }
-	    else {
-	    	accuracy.add(0);
-	    }
+	    measure.updateScores(sample.getCategory(), sp.getPolarity());
 
 	    return new SentimentTextSample(sp.getPolarity(), sample.getText());
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
-	 public double getAccuracy() {
-	    return accuracy.mean();
-	  }
-
-	  public long getTextCount() {
-	    return accuracy.count();
-	  }
-
-	  @Override
-	  public String toString() {
-	    return "Accuracy: " + accuracy.mean() + "\n" +
-	        "Number of documents: " + accuracy.count();
-	  }
+	public void setMeasure(SentimentAnalyzerMeasure measure) {
+		this.measure = measure;
+	}
+	
+	public SentimentAnalyzerMeasure getMeasure() {
+		return measure;
+	}
 
 }

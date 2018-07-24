@@ -84,9 +84,11 @@ public class SentimentAnalyzerEvalTool {
 				new SentimentAnalyzerEvaluator(analyzer);
 		
 		long startTime = System.currentTimeMillis();
+		
 		evaluator.evaluate(testSampleStream);
-		double accuracy =  evaluator.getAccuracy();
-		System.out.println(accuracy);
+		SentimentAnalyzerMeasure measure = evaluator.getMeasure();
+		
+		System.out.println(measure);
 		System.out.println("共耗时："+(System.currentTimeMillis() - startTime));
 	}
 	
