@@ -133,6 +133,13 @@ public class CFG {
 	public Set<RewriteRule> getRuleByrhs(ArrayList<String> rhsList){
 		return ruleMapStartWithrhs.get(rhsList);
 	}
+	public Set<RewriteRule> getRuleByrhs(String ...args){
+		ArrayList<String> list=new ArrayList<String>();
+		for(String string: args) {
+			list.add(string);
+		}
+		return ruleMapStartWithrhs.get(list);
+	}
 	
 	@Override
 	public int hashCode() {

@@ -35,7 +35,7 @@ public class CFGConvertToCNFTool
 	}
     private static void readCFGAndConvertToCNF(String CFGpath,String CNFpath,String encoding) throws IOException {
     	BufferedWriter bw=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(CNFpath),encoding));
-    	CFG cfg=new GetCFGFromFile().getCFGFromFile(CFGpath, encoding);
+		CFG cfg=GetCFGFromFile.getCFGFromFile(CFGpath, encoding);
     	bw.append(new ConvertCFGToCNF().convertToCNF(cfg).toString());
  	    bw.close();
     }

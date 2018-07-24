@@ -112,6 +112,7 @@ public class ConvertCFGToCNF {
       */
      private void removeUnitProduction(RewriteRule rule) {
     	 if(set.contains(rule)) {
+    		 System.out.println("rule "+rule);
     		 return;
     	 }
     	 set.add(rule);
@@ -122,7 +123,7 @@ public class ConvertCFGToCNF {
     	 }
     	 for(RewriteRule rule1: ruleSet) {
     		 RewriteRule rule2=new RewriteRule(rule.getLhs(),rule1.getRhs());
-    		 if(rule1.getRhs().size()==1&&rule1.getLhs().equals(rule1.getRhs().get(0))) {
+    		 if(rule1.getRhs().size()==1&&rule.getLhs().equals(rule1.getRhs().get(0))) {
     			 continue;//左右侧相同的跳过不添加
     		 }
     		if(rule1.getRhs().size()==1&&cnf.getNonTerminalSet().contains(rule1.getRhs().get(0))) {
