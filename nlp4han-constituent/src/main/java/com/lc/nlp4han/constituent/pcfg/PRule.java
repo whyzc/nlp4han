@@ -27,7 +27,7 @@ public class PRule extends RewriteRule {
 		this.proOfRule = proOfRule;
 	}
 	
-/*	@Override
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
@@ -48,7 +48,7 @@ public class PRule extends RewriteRule {
 		if (Double.doubleToLongBits(proOfRule) != Double.doubleToLongBits(other.proOfRule))
 			return false;
 		return true;
-	}*/
+	}
 	@Override
 	public String toString() {
 		StringBuilder strb=new StringBuilder();
@@ -57,7 +57,7 @@ public class PRule extends RewriteRule {
 			strb.append(st);
 			strb.append(" ");
 		}
-		strb.append(" "+proOfRule);
+		strb.append(" -概率- "+" "+proOfRule);
 		return strb.toString();
 	}
 }
