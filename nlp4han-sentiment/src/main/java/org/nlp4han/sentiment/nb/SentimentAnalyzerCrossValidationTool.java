@@ -72,12 +72,11 @@ public class SentimentAnalyzerCrossValidationTool {
 		FeatureGenerator featureGen = new NGramFeatureGenerator(nGram, xBase);//基于字的二元
 		SentimentAnalyzerContextGenerator contextGen = 
 				new SentimentAnalyzerContextGeneratorConf(featureGen);
+		SentimentAnalyzerMeasure measure = new SentimentAnalyzerMeasure();
 		
 		SentimentAnalyzerCrossValidation crossVal = 
 				new SentimentAnalyzerCrossValidation(params);
-		crossVal.evaluate(sampleStream, folds, contextGen);
-		double theAccuracy = crossVal.getTextAccuracy();
-		System.out.println(theAccuracy);
+		crossVal.evaluate(sampleStream, folds, contextGen, measure);
 	}
 	
 	private static void usage() {
