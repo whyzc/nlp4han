@@ -8,10 +8,10 @@ public class NodeNameFilter implements Filter
 {
 	private List<TreeNode> treeNodes;
 	private String[] treeNodeName;
-	
+
 	public NodeNameFilter()
 	{
-		
+
 	}
 
 	public NodeNameFilter(List<TreeNode> treeNodes)
@@ -53,7 +53,7 @@ public class NodeNameFilter implements Filter
 					}
 				}
 				if (flag)
-					break;
+					continue;
 				treeNodes.remove(i);
 				i--;
 			}
@@ -65,7 +65,7 @@ public class NodeNameFilter implements Filter
 	public void setUp(List<TreeNode> treeNodes)
 	{
 		this.treeNodes = treeNodes;
-		
+
 	}
 
 }

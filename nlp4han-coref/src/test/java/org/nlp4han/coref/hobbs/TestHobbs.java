@@ -19,10 +19,10 @@ public class TestHobbs {
 	
 	String str;
 	//句一：小明的妈妈是一名教师。
-	str = "(IP(NP(DNP(NP(NN 小明))(DEG 的))(NP(NN 妈妈)))(VP(VC 是)(NP(QP(CD 一)(CLP(M 名)))(NP(NN 教师))))(PU 。))";
+	str = "((IP(NP(DNP(NP(NN 小明))(DEG 的))(NP(NN 妈妈)))(VP(VC 是)(NP(QP(CD 一)(CLP(M 名)))(NP(NN 教师))))(PU 。)))";
 	TreeNode s1 = BracketExpUtil.generateTree(str);
 	//句二：家长们都很喜欢她。
-	str = "(IP(IP(NP(NN 家长们))(VP(ADVP(AD 都))(ADVP(AD 很))(VP(VV 喜欢)(NP(PN 她)))))(PU 。))";
+	str = "((IP(IP(NP(NN 家长们))(VP(ADVP(AD 都))(ADVP(AD 很))(VP(VV 喜欢)(NP(PN 她)))))(PU 。)))";
 	TreeNode s2 = BracketExpUtil.generateTree(str);
 	
 	List<TreeNode> constituentTrees = new ArrayList<TreeNode>();
@@ -30,7 +30,7 @@ public class TestHobbs {
 	constituentTrees.add(s2);
 	
 	TreeNode pronoun =  s2.getChild(0).getChild(1).getChild(2).getChild(1).getChild(0);
-	TreeNode goal = BracketExpUtil.generateTree("(NP(DNP(NP(NN 小明))(DEG 的))(NP(NN 妈妈)))");
+	TreeNode goal = BracketExpUtil.generateTree("((NP(DNP(NP(NN 小明))(DEG 的))(NP(NN 妈妈))))");
 	
 	AttributeFilter attributeFilter = new AttributeFilter(new NodeNameFilter());	//组合过滤器
 	attributeFilter.setAttributeGenerator(null);	//装入属性生成器
@@ -43,10 +43,10 @@ public class TestHobbs {
     public void testHobbs_2() {
 	String str;
 	//句一：小明的妈妈是一名教师。
-	str = "(IP(NP(DNP(NP(NN 小明))(DEG 的))(NP(NN 妈妈)))(VP(VC 是)(NP(QP(CD 一)(CLP(M 名)))(NP(NN 教师))))(PU 。))";
+	str = "((IP(NP(DNP(NP(NN 小明))(DEG 的))(NP(NN 妈妈)))(VP(VC 是)(NP(QP(CD 一)(CLP(M 名)))(NP(NN 教师))))(PU 。)))";
 	TreeNode s1 = BracketExpUtil.generateTree(str);
 	//句二：张三的妈妈都很喜欢她。
-	str = "(IP(IP(NP(DNP(NP(NR 张三))(DEG 的))(NP(NN 妈妈)))(VP(ADVP(AD 很))(VP(VV 喜欢)(NP(PN 她)))))(PU 。))";
+	str = "((IP(IP(NP(DNP(NP(NR 张三))(DEG 的))(NP(NN 妈妈)))(VP(ADVP(AD 很))(VP(VV 喜欢)(NP(PN 她)))))(PU 。)))";
 	TreeNode s2 = BracketExpUtil.generateTree(str);
 	
 	List<TreeNode> constituentTrees = new ArrayList<TreeNode>();
@@ -54,7 +54,7 @@ public class TestHobbs {
 	constituentTrees.add(s2);
 	
 	TreeNode pronoun =  s2.getChild(0).getChild(1).getChild(1).getChild(1).getChild(0);
-	TreeNode goal = BracketExpUtil.generateTree("(NP(DNP(NP(NN 小明))(DEG 的))(NP(NN 妈妈)))");
+	TreeNode goal = BracketExpUtil.generateTree("((NP(DNP(NP(NN 小明))(DEG 的))(NP(NN 妈妈))))");
 	
 	AttributeFilter attributeFilter = new AttributeFilter(new NodeNameFilter());	//组合过滤器
 	attributeFilter.setAttributeGenerator(null);	//装入属性生成器
