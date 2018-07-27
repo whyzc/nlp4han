@@ -46,11 +46,13 @@ public class Hobbs
 		}
 		else
 			x = tmp;
-		while (index > 0)
+		while (index >= 0)
 		{
 			if (x == null || x.getParent() == null)
 			{// 若结点x为最顶层IP结点，则在最近的前树中查找候选结点
 				index--;
+				if (index < 0)
+					break;
 				x = constituentTrees.get(index);
 				candidateNodes = getNPNodes(x);
 				filter.setUp(candidateNodes);

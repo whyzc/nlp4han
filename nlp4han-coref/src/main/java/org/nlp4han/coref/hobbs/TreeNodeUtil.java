@@ -2,8 +2,6 @@ package org.nlp4han.coref.hobbs;
 
 import java.util.*;
 
-import org.nlp4han.coref.hobbs.Path.Direction;
-
 import com.lc.nlp4han.constituent.TreeNode;
 
 /**
@@ -281,7 +279,7 @@ public class TreeNodeUtil
 	}
 
 	/**
-	 * 获取中心词
+	 * 获取NP结点的中心词
 	 * 
 	 * @param nPNode
 	 * @return
@@ -299,30 +297,12 @@ public class TreeNodeUtil
 		{
 			List<TreeNode> childrenNodes = (List<TreeNode>) nPNode.getChildren();
 
+			if (isParataxisNP(result))
+				return result;
 			if (allNodeNames(childrenNodes, POSTAGS))
 			{
-				if (allNodeNames(childrenNodes, new String[] { "NN", "NR", "CC", "PU" }))
+				if (allNodeNames(childrenNodes, new String[] { "NN", "NR" }) || childrenNodes.size() < 4)
 				{
-					if (childrenNodes.size() < 3 || hasNodeName(childrenNodes, "CC"))
-						return result;
-					if (hasNodeName(childrenNodes, "PU"))
-					{
-						List<TreeNode> tmp = getNodesWithSpecified(nPNode, new String[] { "PU" });
-						boolean flag = true;
-						for (TreeNode node : tmp)
-						{
-							if (!node.getChild(0).getNodeName().equals("、"))
-							{
-								flag = false;
-							}
-						}
-						if (flag)
-							return result;
-					}
-				}
-				else
-				{
-					result = getLastNodeWithSpecifiedName(childrenNodes, new String[] { "NN", "NR" });
 					return result;
 				}
 			}
@@ -340,6 +320,28 @@ public class TreeNodeUtil
 
 		}
 		return result;
+	}
+	
+	public static boolean isParataxisNP(TreeNode treeNode)
+	{
+		if (treeNode == null || !treeNode.getNodeName().equals("NP"))
+		{
+			throw new RuntimeException("NPNode错误！");
+		}
+		List<TreeNode> childrenNodes = (List<TreeNode>) treeNode.getChildren();
+
+		
+		if (allNodeNames(childrenNodes, new String[] { "NN", "NR", "CC", "PU", "NP" }))
+		{
+			List<TreeNode> pus = getNodesWithSpecified(treeNode, new String[] { "、" });
+			List<TreeNode> ccs = getNodesWithSpecified(treeNode, new String[] { "CC" });
+			int num = pus.size() + ccs.size();
+			if (num >= childrenNodes.size()*0.3)
+				return true;
+		}
+		
+		return false;
+		
 	}
 
 	/**
@@ -392,6 +394,13 @@ public class TreeNodeUtil
 		return false;
 	}
 
+	/**
+	 * 获取treeNodes中，结点名在nodesNames中的最后一个结点
+	 * 
+	 * @param treeNodes
+	 * @param nodeNames
+	 * @return
+	 */
 	public static TreeNode getLastNodeWithSpecifiedName(List<TreeNode> treeNodes, String[] nodeNames)
 	{
 		TreeNode result;
@@ -441,7 +450,7 @@ public class TreeNodeUtil
 
 		while (!buffer.isEmpty())
 		{
-			TreeNode tmp = buffer.remove(0);
+			TreeNode tmp = buffer.remove(buffer.size() - 1);
 
 			if (tmp.getChildrenNum() == 0)
 			{
@@ -449,7 +458,7 @@ public class TreeNodeUtil
 			}
 			else
 			{
-				for (int i = 0; i < tmp.getChildrenNum(); i++)
+				for (int i = tmp.getChildrenNum() - 1; i >= 0; i--)
 				{
 					buffer.add(tmp.getChild(i));
 				}

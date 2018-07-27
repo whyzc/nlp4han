@@ -170,7 +170,7 @@ public class Path
 			if (dir == Direction.DOWN)
 			{
 				index = path.indexOf(treeNode) + 1;
-				if (index > 0 && index < path.size())
+				if (index >= 0 && index < path.size())
 				{
 					result = path.get(index);
 					return result;
@@ -179,7 +179,7 @@ public class Path
 			else if (dir == Direction.UP)
 			{
 				index = path.indexOf(treeNode) - 1;
-				if (index > 0 && index < path.size())
+				if (index >= 0 && index < path.size())
 				{
 					result = path.get(index);
 					return result;

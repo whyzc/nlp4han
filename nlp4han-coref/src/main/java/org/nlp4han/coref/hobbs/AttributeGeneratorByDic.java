@@ -2,6 +2,7 @@ package org.nlp4han.coref.hobbs;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -21,26 +22,18 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 	public MentionAttribute extractAttributes(TreeNode treeNode)
 	{
 		MentionAttribute result = new MentionAttribute();
-		TreeNode head = TreeNodeUtil.getHead(treeNode);
-		return null;
-	}
-
-	private Properties loadProperties(String fileName) throws IOException
-	{
-		Properties result = new Properties();
-		InputStream stream = AttributeGeneratorByDic.class.getClassLoader()
-				.getResourceAsStream("com/lc/nlp4han/coref/" + fileName);
-		result.load(stream);
-
+		result.setAni(getAnimacy(treeNode));
+		result.setGen(getGender(treeNode));
+		result.setNum(getNumber(treeNode));
 		return result;
 	}
 
-	private Set<String> loadTxt(String fileName) throws IOException
+	public Properties loadProperties(String fileName, String encoding) throws IOException
 	{
-		Set<String> result = null;
-		InputStream dictIn = AttributeGeneratorByDic.class.getClassLoader()
-				.getResourceAsStream("com/lc/nlp4han/segment/" + fileName);
-		result = DictionaryLoader.getWords(dictIn, "UTF-8");
+		Properties result = new Properties();
+		InputStream stream = AttributeGeneratorByDic.class.getClassLoader()
+				.getResourceAsStream(fileName);
+		result.load(new InputStreamReader(stream, encoding));
 
 		return result;
 	}
@@ -53,23 +46,24 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 	 */
 	public Gender getGender(TreeNode treeNode)
 	{
-		TreeNode head = TreeNodeUtil.getHead(treeNode);
+		
 		try
 		{
 			String value;
 			if (treeNode.getNodeName().equals("PN"))
 			{
-				Properties genderDic = loadProperties("gender_PN.properties");
+				Properties genderDic = loadProperties("gender_PN.properties", "utf-8");
 				value = genderDic.getProperty(TreeNodeUtil.getString(treeNode));
 			}
 			else
 			{
-				Properties genderDic = loadProperties("gender.properties");
+				TreeNode head = TreeNodeUtil.getHead(treeNode);
+				Properties genderDic = loadProperties("gender.properties", "utf-8");
 				value = genderDic.getProperty(TreeNodeUtil.getString(head));
 			}
-			if (value.equalsIgnoreCase("female"))
+			if (value != null && value.equalsIgnoreCase("female"))
 				return Gender.FEMALE;
-			else if (value.equalsIgnoreCase("male"))
+			else if (value != null && value.equalsIgnoreCase("male"))
 				return Gender.MALE;
 			else
 				return Gender.UNKNOWN;
@@ -92,15 +86,17 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 
 		if (treeNode.getNodeName().equals("PN"))
 		{
+			
+			
 			String value;
 			Properties numberDic;
 			try
 			{
-				numberDic = loadProperties("number_PN.properties");
+				numberDic = loadProperties("number_PN.properties", "utf-8");
 				value = numberDic.getProperty(treeNode.getChildName(0));
-				if (value.equalsIgnoreCase("singular"))
+				if (value != null && value.equalsIgnoreCase("singular"))
 					return Number.SINGULAR;
-				else if (value.equalsIgnoreCase("plural"))
+				else if (value != null && value.equalsIgnoreCase("plural"))
 					return Number.PLURAL;
 				else
 					return Number.UNKNOWN;
@@ -113,6 +109,17 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 		}
 		else
 		{
+			if (treeNode.getNodeName().equals("NP"))
+			{
+				TreeNode head = TreeNodeUtil.getHead(treeNode);
+				String stringOfHead = TreeNodeUtil.getString(head);
+				if (stringOfHead.contains("们"))
+					return Number.PLURAL;
+				if (TreeNodeUtil.isParataxisNP(head))
+				{
+					return Number.PLURAL;
+				}
+			}
 			String stringOfLeafNodes;
 			if (TreeNodeUtil.hasNodeName((List<TreeNode>) treeNode.getChildren(), "DP"))
 			{// 含有DP结点，则查表number_DP.properties
@@ -122,7 +129,7 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 				Properties numberDicDP;
 				try
 				{
-					numberDicDP = loadProperties("number_DP.properties");
+					numberDicDP = loadProperties("number_DP.properties", "utf-8");
 					Set keys = numberDicDP.keySet();
 					Iterator it = keys.iterator();
 					while (it.hasNext())
@@ -131,9 +138,9 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 						if (stringOfLeafNodes.contains(key))
 						{
 							String value = numberDicDP.getProperty(key);
-							if (value.equalsIgnoreCase("singular"))
+							if (value != null && value.equalsIgnoreCase("singular"))
 								return Number.SINGULAR;
-							else if (value.equalsIgnoreCase("plural"))
+							else if (value != null && value.equalsIgnoreCase("plural"))
 								return Number.PLURAL;
 							else
 								return Number.UNKNOWN;
@@ -152,8 +159,8 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 				TreeNode qpNode = qpNodes.get(0);
 				if (TreeNodeUtil.hasNodeName((List<TreeNode>) qpNode.getChildren(), "CD"))
 				{
-					List<TreeNode> cdNodes = TreeNodeUtil.getChildNodeWithSpecifiedName(treeNode,
-							new String[] { "cd" });
+					List<TreeNode> cdNodes = TreeNodeUtil.getNodesWithSpecified(treeNode,
+							new String[] { "CD" });
 					TreeNode cdNode = cdNodes.get(0);
 					if (cdNode.getChild(0).getNodeName().equals("一") || cdNode.getChild(0).getNodeName().equals("1"))
 					{
@@ -175,23 +182,35 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 	 */
 	public Animacy getAnimacy(TreeNode treeNode)
 	{
-		TreeNode head = TreeNodeUtil.getHead(treeNode);
+		
 		try
 		{
-			String value;
+			String value = null;
 			if (treeNode.getNodeName().equals("PN"))
 			{
-				Properties animacyDic = loadProperties("animacy_PN.properties");
+				Properties animacyDic = loadProperties("animacy_PN.properties", "utf-8");
 				value = animacyDic.getProperty(TreeNodeUtil.getString(treeNode));
 			}
 			else
 			{
-				Properties animacyDic = loadProperties("animacy.properties");
-				value = animacyDic.getProperty(TreeNodeUtil.getString(head));
+				TreeNode head = TreeNodeUtil.getHead(treeNode);
+				Properties animacyDic = loadProperties("animacy.properties", "utf-8");
+				Set keys = animacyDic.keySet();
+				Iterator it = keys.iterator();
+				String strOfHead = TreeNodeUtil.getString(head);
+				while (it.hasNext())
+				{
+					String key = (String)it.next();
+					if (strOfHead.contains(key))
+					{
+						value = animacyDic.getProperty(key);
+						break;
+					}
+				}
 			}
-			if (value.equalsIgnoreCase("true"))
+			if (value != null && value.equalsIgnoreCase("true"))
 				return Animacy.TRUE;
-			else if (value.equalsIgnoreCase("false"))
+			else if (value != null && value.equalsIgnoreCase("false"))
 				return Animacy.FALSE;
 			else
 				return Animacy.UNKNOWN;
@@ -202,5 +221,5 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 		}
 		return Animacy.UNKNOWN;
 	}
-
+	
 }

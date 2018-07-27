@@ -26,17 +26,5 @@
     	<artifactId>junit</artifactId>
     	<version>4.12</version>
     </dependency>
-    <dependency>
-  		<groupId>com.googlecode.jmockit</groupId>
-  		<artifactId>jmockit</artifactId>
-  		<version>1.7</version>
-  		<scope>test</scope>
-  	</dependency>
-  	<dependency>
-  		<groupId>com.googlecode.jmockit</groupId>
-  		<artifactId>jmockit-coverage</artifactId>
-  		<version>0.999.26</version>
-  		<scope>test</scope>
-  	</dependency>
   </dependencies>
 </project>
