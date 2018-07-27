@@ -1,24 +1,16 @@
 package com.lc.nlp4han.constituent.pcfg;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 
 
 public class Extract {
-	 private String fileName;
-	 private String enCoding;
-	 private ExtractGrammar eg=new ExtractGrammar();
-     public Extract(String fileName,String enCoding) {
-    	 this.fileName=fileName;
-    	 this.enCoding=enCoding;
+     public static CFG getCFG(String fileName,String enCoding) throws IOException {
+        
+    	 return new ExtractCFG().CreateCFG(fileName, enCoding);
      }
-     public CFG getCFG() throws UnsupportedOperationException, FileNotFoundException, IOException {
-         eg.CreateGrammar(fileName, enCoding,"CFG");
-         return eg.getGrammar();
-     }
-     public PCFG getPCFG() throws UnsupportedOperationException, FileNotFoundException, IOException {
-         ExtractPCFG ext=new ExtractPCFG();
-         return ext.CreatePCFG(fileName, enCoding);
+     public static PCFG getPCFG(String fileName,String enCoding) throws IOException {
+
+         return new ExtractPCFG().CreatePCFG(fileName, enCoding);
      }
 }

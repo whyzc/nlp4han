@@ -11,22 +11,21 @@ import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 
 
 
-public class ExtractGrammar {
+public class ExtractCFG {
    /*
      * 定义文法的变量
     */
 	private CFG cfg;
 	/*
-	 * 得到文法集
+	 * 返回文法集，便于测试
 	 */
-	public CFG getGrammar() {
-		
+	public CFG getCFG() {
 		return this.cfg;
 	}
 	/*
 	 * 生成文法集
 	 */
-	public void CreateGrammar(String fileName,String enCoding,String type) throws IOException {
+	public CFG CreateCFG(String fileName,String enCoding) throws IOException {
 		  //括号表达式树拼接成括号表达式String数组
 		  PlainTextByTreeStream ptbt=new PlainTextByTreeStream(new FileInputStreamFactory(new File(fileName)), enCoding);
 	  	  String bracketStr=ptbt.read();
@@ -37,20 +36,21 @@ public class ExtractGrammar {
 	  	  }
 	  	  ptbt.close();
 	  	  //括号表达式生成文法
-	      bracketStrListConvertToGrammar(bracketStrList,type);
+	      bracketStrListConvertToGrammar(bracketStrList);
+	      return cfg;
 	}
 	//由括号表达式的list得到对应的文法集合
-	public void bracketStrListConvertToGrammar(ArrayList<String> bracketStrList,String type) throws IOException {
+	public void bracketStrListConvertToGrammar(ArrayList<String> bracketStrList) throws IOException {
 		  cfg=new CFG();  
 		  for(String bracketStr:bracketStrList) {
 	  		  TreeNode rootNode1=BracketExpUtil.generateTree(bracketStr);
-	  		  traverseTree(rootNode1,type);
+	  		  traverseTree(rootNode1);
 	  	  }
 	}
     /*
      * 遍历树得到CFG
      */
-    public void traverseTree(TreeNode node,String type) {
+    public void traverseTree(TreeNode node) {
     	  if(cfg.getStartSymbol()==null) {//起始符提取
     		  cfg.setStartSymbol(node.getNodeName()); 
     	  }
@@ -64,7 +64,7 @@ public class ExtractGrammar {
     		  RewriteRule rule=new RewriteRule(node.getNodeName(),node.getChildren());
     		  cfg.add(rule);;//添加规则
     	  	  for(TreeNode node1:node.getChildren()) {//深度优先遍历
-    	   			traverseTree(node1, type);
+    	   			traverseTree(node1);
     	   		 } 
     	  }  
     } 

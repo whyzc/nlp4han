@@ -12,10 +12,10 @@ import org.junit.Test;
 
 public class GrammarTest {
     private ArrayList<String> sentences;
-    private ExtractGrammar extractGrammar;
+    private ExtractCFG extractGrammar;
     @Before
     public void BeforeTest() throws FileNotFoundException {
-    	extractGrammar=new ExtractGrammar();
+    	extractGrammar=new ExtractCFG();
     	sentences=new ArrayList<String>();
     	sentences.add("(ROOT(IP(NP(Det (NN 市长)(的))(NP (NN 幕僚)))(VP(Aux-VP (会)(VP(VV 整理)(NP(Det (NN 产业整合)(的)(NN 详细报告))))))(PU 。)))");
     	sentences.add("(ROOT(IP(NP(NP (NR 中国))(NP (NN 篮球) (NN 协会)))(VP(PP (P 在)(NP(NP (NR 北京市) (NR 通州区) (NR 张家湾镇))"
@@ -24,8 +24,8 @@ public class GrammarTest {
     
     @Test
     public void getCFGTest() throws UnsupportedOperationException, FileNotFoundException, IOException {
-    	extractGrammar.bracketStrListConvertToGrammar(sentences, "CFG");
-    	CFG cfg=extractGrammar.getGrammar();
+    	extractGrammar.bracketStrListConvertToGrammar(sentences);
+    	CFG cfg=extractGrammar.getCFG();
     	Set<RewriteRule> rules=new HashSet<RewriteRule>();//规则左侧为NP的集合
     	Set<RewriteRule> ruleMix=new HashSet<RewriteRule>();//测试一些特殊的规则
     	Set<RewriteRule> rules3=new HashSet<RewriteRule>();//测试规则右侧的集合
