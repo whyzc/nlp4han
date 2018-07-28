@@ -112,7 +112,6 @@ public class ConvertCFGToCNF {
       */
      private void removeUnitProduction(RewriteRule rule) {
     	 if(set.contains(rule)) {
-    		 System.out.println("rule "+rule);
     		 return;
     	 }
     	 set.add(rule);

@@ -5,7 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
-public class CFGConvertToCNFTool
+public class ConvertCFGToCNFTool
 {
 
 	public static void main(String[] args) throws IOException
@@ -35,7 +35,7 @@ public class CFGConvertToCNFTool
 	}
     private static void readCFGAndConvertToCNF(String CFGpath,String CNFpath,String encoding) throws IOException {
     	BufferedWriter bw=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(CNFpath),encoding));
-		CFG cfg=GetCFGFromFile.getCFGFromFile(CFGpath, encoding);
+		CFG cfg=GetGrammarFromFile.getCFGFromFile(CFGpath, encoding);
     	bw.append(new ConvertCFGToCNF().convertToCNF(cfg).toString());
  	    bw.close();
     }

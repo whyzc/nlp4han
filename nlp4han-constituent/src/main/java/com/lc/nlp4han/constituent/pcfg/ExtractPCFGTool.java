@@ -41,7 +41,7 @@ public static void main(String[] args) throws IOException{
 		 */
 		ExtractPCFGToFile(frompath,topath,incoding);
 	}else {
-		System.out.println(new Extract(frompath,incoding).getPCFG().toString());	    
+		System.out.println(Extract.getPCFG(frompath,incoding).toString());	    
 	}
 }
 /*
@@ -49,9 +49,7 @@ public static void main(String[] args) throws IOException{
 */
 private static void ExtractPCFGToFile(String fromPath,String toPath,String inCoding) throws UnsupportedOperationException, IOException {
    BufferedWriter bw=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(toPath),inCoding));   
-   Extract ext=new Extract(fromPath,inCoding);
-   CFG  cfg=ext.getPCFG();
-   bw.append(cfg.toString());
+   bw.append(Extract.getPCFG(fromPath,inCoding).toString());
    bw.close();
 }
 }

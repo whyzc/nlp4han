@@ -10,8 +10,8 @@ public class ConvertPCFGToPCNF
 {
 	private PCFG pcnf;
 	private PCFG pcfg;
-	private Set<RewriteRule> set=new HashSet<RewriteRule>();
-	private HashMap<ArrayList<String>,PRule> repeatRuleMap=new HashMap<ArrayList<String>,PRule>();
+	private Set<RewriteRule> multipleUPRule=new HashSet<RewriteRule>();//单位产品规则的rhs扩展又产生单位产品规则
+	private HashMap<RewriteRule,PRule> duplicateRuleMap=new HashMap<RewriteRule,PRule>();
     public PCFG convertToCNF(PCFG pcfg) {
      this.pcfg=pcfg;
    	 pcnf=new PCFG();
@@ -22,7 +22,7 @@ public class ConvertPCFGToPCNF
    	 //前期处理，遍历pcfg将规则加入pcnf
    	 priorDisposal(pcfg);
    	 //消除Unit Production
-   	 RemoveUnitProduction(pcfg);
+   	 removeUnitProduction(pcfg);
    	 return pcnf;
     }
     /*
@@ -72,7 +72,7 @@ public class ConvertPCFGToPCNF
     /*
      * 遍历PCFG消除Unit Production
      */
-    private void RemoveUnitProduction(PCFG pcfg) {
+    private void removeUnitProduction(PCFG pcfg) {
    	 HashSet<RewriteRule> deleteRuleSet=new HashSet<RewriteRule>();
    	 /*
    	  * 因为此时，原始数据pcfg中右侧字符串的个数为1的规则并未处理
@@ -81,15 +81,14 @@ public class ConvertPCFGToPCNF
    	 for(PRule rule :pcfg.getPRuleSet()) {
    		 if(rule.getRhs().size()==1) {
        		 if(pcnf.getNonTerminalSet().containsAll(rule.getRhs())) {
-       			 //System.out.println("测试--"+rule);
        			 deleteRuleSet.add(rule);
-       			 removeUnitProduction(rule);
+       			 addNewRuleWhileRemoveUP(rule);
        		 }
    		 }
    	 }
    	 //删除右侧为一个非终结符的规则
    	 deleteRules(deleteRuleSet);
-     addRepeatRulePro();
+     addDuplicateRulePro();
     }
     /*
      * 将右侧全部转换为非终结符，并添加新的非终结符，新的规则
@@ -111,23 +110,26 @@ public class ConvertPCFGToPCNF
     /*
      * 遍历消除Unit Production
      */
-    private void removeUnitProduction(PRule rule) {
+    private void addNewRuleWhileRemoveUP(PRule rule) {
+    	/*
+    	 * 因为pcfg中其前期处理中，不管是3个rhs以上还是非终结符与终结符混合的规则都同pcnf一样经过处理
+    	 * 只是没有添加新的规则，非终结符集同样添加完全，所以此处可以用pcfg代替pcnf
+    	 */
      Set<PRule> ruleSet=pcfg.getPRuleBylhs(rule.getRhs().get(0));
    	 for(PRule rule1: ruleSet) {
    		 PRule rule2=new PRule(rule.getProOfRule()*rule1.getProOfRule(),rule.getLhs(),rule1.getRhs());
-   			if(!(rule1.getRhs().size()==1&&pcfg.getNonTerminalSet().contains(rule1.getRhs().get(0)))) {
+   			if(!(rule2.getRhs().size()==1&&pcfg.getNonTerminalSet().containsAll(rule2.getRhs()))) {
    			    if(pcnf.getPRuleSet().contains(rule2)) {
    			       addRulePro(rule2);
    			    }else {
    	   				pcnf.add(rule2);   			    	
    			    }
    			}else {
-   				if(SetContains(rule2)) {
-   					addReaptRule(rule2);
-   					continue;
+   				if(multipleUPRule.contains(rule2)) {
+   					addDuplicateRule(rule2);
    				}else {
-   			   	    set.add(rule);
-   	   				removeUnitProduction(rule2);  					
+   					multipleUPRule.add(rule);
+   					addNewRuleWhileRemoveUP(rule2);  					
    				}
    			}
    	 }
@@ -188,14 +190,13 @@ public class ConvertPCFGToPCNF
     /*
      *添加在消除Unit Production时重复规则的概率
      */    
-    private void addRepeatRulePro() {
-   	for(PRule rule:repeatRuleMap.values()) {
+    private void addDuplicateRulePro() {
+   	for(PRule rule:duplicateRuleMap.values()) {
     	for(PRule prule:pcnf.getPRuleBylhs(rule.getRhs().get(0))) {
     			PRule rule1=pcnf.getPRuleByLHSAndRHS(rule.getLhs(), prule.getRhs());
-    			double pro=prule.getProOfRule();
-    			double pro23=pro*rule.getProOfRule()+rule1.getProOfRule();
+    			double pro=prule.getProOfRule()*rule.getProOfRule()+rule1.getProOfRule();
     			deleteRule(rule1);
-      			PRule prule2=new PRule(pro23,rule.getLhs(),prule.getRhs());
+      			PRule prule2=new PRule(pro,rule.getLhs(),prule.getRhs());
     			pcnf.add(prule2);
     			
     		}
@@ -204,27 +205,15 @@ public class ConvertPCFGToPCNF
     /*
      * 添加重复规则，并将重复的规则进行概率相加
      */
-    private void addReaptRule(PRule rule) {
-    	ArrayList<String> list=new ArrayList<String>();
-    	list.add(rule.getLhs());
-    	list.add(rule.getRhs().get(0));
-        if(repeatRuleMap.containsKey(list)) {
-        	double temp=repeatRuleMap.get(list).getProOfRule()+rule.getProOfRule();
-        	repeatRuleMap.get(list).setProOfRule(temp);
+    private void addDuplicateRule(PRule rule) {
+        //重复规则概率相加
+        if(duplicateRuleMap.containsKey(rule)) {
+        	double temp=duplicateRuleMap.get(rule).getProOfRule()+rule.getProOfRule();
+        	duplicateRuleMap.get(rule).setProOfRule(temp);
         }else {
-        	repeatRuleMap.put(list, rule);       	
+        //保持原始概率不变，所以需要新创建一个对象
+        	duplicateRuleMap.put(rule, new PRule(rule.getProOfRule(),rule.getLhs(),rule.getRhs()));       	
         }
 
-    }
-    /*
-     * 查看有无重复规则的
-     */
-    private boolean SetContains(PRule prule) {
-    	for(RewriteRule rule:set) {
-    		if(rule.getLhs().equals(prule.getLhs())&&rule.getRhs().equals(prule.getRhs())) {
-    			return true;
-    		}
-    	}
-    	return false;
     }
 }
