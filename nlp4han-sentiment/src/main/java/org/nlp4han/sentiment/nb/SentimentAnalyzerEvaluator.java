@@ -4,14 +4,14 @@ import com.lc.nlp4han.ml.util.Evaluator;
 
 public class SentimentAnalyzerEvaluator extends Evaluator<SentimentTextSample>{
 
-	private SentimentAnalyzerNB analyzer;
+	private SentimentAnalyzer analyzer;
 	private SentimentAnalyzerMeasure measure = new SentimentAnalyzerMeasure();
 	
-	public SentimentAnalyzerEvaluator(SentimentAnalyzerNB analyzer) {
+	public SentimentAnalyzerEvaluator(SentimentAnalyzer analyzer) {
 		this.analyzer = analyzer;
 	}
 	
-	public SentimentAnalyzerEvaluator(SentimentAnalyzerNB analyzer,
+	public SentimentAnalyzerEvaluator(SentimentAnalyzer analyzer,
 			SentimentAnalyzerEvaluationMonitor...evaluateMonitors) {
 		super(evaluateMonitors);
 		this.analyzer=analyzer;

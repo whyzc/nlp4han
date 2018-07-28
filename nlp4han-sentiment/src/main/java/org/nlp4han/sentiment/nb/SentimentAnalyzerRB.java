@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.TreeNode;
@@ -17,11 +18,11 @@ import com.lc.nlp4han.constituent.TreeNode;
  * @author lim
  *
  */
-public class SentimentTreeParser
+public class SentimentAnalyzerRB implements SentimentAnalyzer
 {
 	private Map<String, String> dictionary = new HashMap<>();
 
-	public SentimentTreeParser(String dicPath, String encoding)
+	public SentimentAnalyzerRB(String dicPath, String encoding)
 	{
 		init(dicPath, encoding);
 	}
@@ -100,26 +101,28 @@ public class SentimentTreeParser
 			{
 				int numPositive = 0;
 				int numNegative = 0;
+				
+				//boolean privative = false;
 
 				if (phraseTree.getFlag())
 				{
 					for (int i = 0; i < num; i++)
 					{
 						String childPolarity = phraseTree.getChildName(i);
-						if ("+".equals(childPolarity))
+						if ("+1".equals(childPolarity))
 						{
 							numPositive++;
 						}
-						if ("-".equals(childPolarity))
+						if ("-1".equals(childPolarity))
 						{
 							numNegative++;
-						}
+						}						
 
 					}
 
 					if (numPositive > numNegative)
 					{
-						phraseTree.setNewName("+");
+						phraseTree.setNewName("+1");
 						phraseTree.setFlag(false);
 					}
 					else if (numPositive == numNegative)
@@ -129,9 +132,11 @@ public class SentimentTreeParser
 					}
 					else
 					{
-						phraseTree.setNewName("-");
+						phraseTree.setNewName("-1");
 						phraseTree.setFlag(false);
 					}
+					
+					
 				}
 			}
 
@@ -141,8 +146,29 @@ public class SentimentTreeParser
 
 	private String getNodePolarity(String content)
 	{
-		String nodePola = dictionary.get(content);
+		Set<String> key = dictionary.keySet();
+		String nodePola = "0";
+		if (key.contains(content)) 
+		{
+			nodePola = dictionary.get(content);
+		}
 		return nodePola;
+	}
+
+	@Override
+	public SentimentPolarity analyze(String text, Map<String, Object> extraInformation)
+	{
+		TreeNode tn = this.parse(text);
+		String polarity = tn.getNodeName();
+		
+		return new SentimentPolarity(polarity);
+	}
+
+	@Override
+	public SentimentPolarity analyze(String text)
+	{
+		Map<String, Object> extraInfo = new HashMap<>();
+		return this.analyze(text, extraInfo);
 	}
 
 }

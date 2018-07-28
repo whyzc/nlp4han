@@ -53,11 +53,6 @@ public class SentimentAnalyzerNB implements SentimentAnalyzer {
 		return this.analyze(text,Collections.emptyMap());
 	}	
 
-	@Override
-	public int getNumberOfCategories() {
-		return model.getModel().getNumOutcomes();
-	}
-	
 	private String getBestResult(double[] outcome) {
 		return model.getModel().getBestOutcome(outcome);
 	}
