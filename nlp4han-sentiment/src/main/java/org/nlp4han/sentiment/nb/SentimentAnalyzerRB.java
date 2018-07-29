@@ -42,7 +42,7 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 			String str = "";
 			while ((str = br.readLine()) != null)
 			{
-				String[] items = str.split(",");
+				String[] items = str.trim().split(",");
 				dictionary.put(items[0], items[1]);
 			}
 			br.close();
@@ -102,7 +102,7 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 				int numPositive = 0;
 				int numNegative = 0;
 				
-				//boolean privative = false;
+				boolean privative = false;
 
 				if (phraseTree.getFlag())
 				{
@@ -116,7 +116,12 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 						if ("-1".equals(childPolarity))
 						{
 							numNegative++;
-						}						
+						}
+						//表否定
+						if ("p".equals(childPolarity))
+						{
+							privative = true;
+						}
 
 					}
 
@@ -136,7 +141,25 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 						phraseTree.setFlag(false);
 					}
 					
-					
+					//处理否定
+					if (privative)
+					{
+						if (num==1 )
+						{
+							phraseTree.setNewName("p");
+						}
+						else
+						{
+							if ("-1".equals(phraseTree.getNodeName()))
+							{
+								phraseTree.setNewName("+1");
+							}
+							else
+							{
+								phraseTree.setNewName("-1");
+							}
+						}
+					}
 				}
 			}
 
