@@ -5,9 +5,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import org.nlp4han.sentiment.SentimentAnalyzer;
+import org.nlp4han.sentiment.SentimentPolarity;
 
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.TreeNode;
@@ -22,7 +26,7 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 {
 	private Map<String, String> dictionary = new HashMap<>();
 
-	public SentimentAnalyzerRB(String dicPath, String encoding)
+	public SentimentAnalyzerRB(String dicPath, String encoding) throws IOException
 	{
 		init(dicPath, encoding);
 	}
@@ -32,11 +36,10 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 	 * 
 	 * @param dicPath
 	 * @param encoding
+	 * @throws IOException 
 	 */
-	private void init(String dicPath, String encoding)
+	private void init(String dicPath, String encoding) throws IOException
 	{
-		try
-		{
 			FileInputStream fr = new FileInputStream(dicPath);
 			BufferedReader br = new BufferedReader(new InputStreamReader(fr,encoding));
 			String str = "";
@@ -46,15 +49,6 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 				dictionary.put(items[0], items[1]);
 			}
 			br.close();
-		}
-		catch (FileNotFoundException e)
-		{
-			e.printStackTrace();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
 	}
 
 	/**
