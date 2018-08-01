@@ -291,4 +291,10 @@ public class CFG
 		}
 		return stb.toString();
 	}
+
+	public void add()
+	{
+		// TODO Auto-generated method stub
+
+	}
 }

@@ -11,7 +11,7 @@ public class ConvertPCFGToPCNF
 	private PCFG pcnf;
 	private PCFG pcfg;
 	private Set<RewriteRule> multipleUPRule = new HashSet<RewriteRule>();// 单位产品规则的rhs扩展又产生单位产品规则
-	private HashMap<RewriteRule, PRule> duplicateRuleMap = new HashMap<RewriteRule, PRule>();
+	private HashMap<RewriteRule, PRule> duplicateRuleMap = new HashMap<RewriteRule, PRule>();// 重复的multipleUPRule
 
 	public PCFG convertToCNF(PCFG pcfg)
 	{
@@ -28,7 +28,7 @@ public class ConvertPCFGToPCNF
 		return pcnf;
 	}
 
-	/*
+	/**
 	 * 添加新的起始符DuIP,新规则，DuIP->IP,因为我是在最后处理Unit
 	 * Production,集合的遍历和修改不能同时进行，故将这个规则同时放入pcfg中
 	 */
@@ -42,12 +42,12 @@ public class ConvertPCFGToPCNF
 		pcfg.add(new PRule(1.0, newStartSymbol, oldStartSymbol));// 添加新的规则
 	}
 
-	/*
+	/**
 	 * 前期处理，遍历的将规则加入pcnf 将字符串个数多于两个的递归的减为两个 将终结符和非终结符混合转换为两个非终结符 直接添加右侧只有一个字符串的规则
 	 */
 	private void priorDisposal(PCFG pcfg)
 	{
-		for (PRule rule : pcfg.getPRuleSet())
+		for (RewriteRule rule : pcfg.getRuleSet())
 		{
 			if (rule.getRhs().size() >= 3)
 			{
@@ -80,7 +80,7 @@ public class ConvertPCFGToPCNF
 		}
 	}
 
-	/*
+	/**
 	 * 遍历PCFG消除Unit Production
 	 */
 	private void removeUnitProduction(PCFG pcfg)
@@ -89,14 +89,15 @@ public class ConvertPCFGToPCNF
 		/*
 		 * 因为此时，原始数据pcfg中右侧字符串的个数为1的规则并未处理 而在前期操作中添加的右侧只有一个字符串的规则不需要转换，所以可以调用pcfg来遍历
 		 */
-		for (PRule rule : pcfg.getPRuleSet())
+		for (RewriteRule rule : pcfg.getRuleSet())
 		{
 			if (rule.getRhs().size() == 1)
 			{
 				if (pcnf.getNonTerminalSet().containsAll(rule.getRhs()))
 				{
+					PRule prule = (PRule) rule;
 					deleteRuleSet.add(rule);
-					addNewRuleWhileRemoveUP(rule);
+					addNewRuleWhileRemoveUP(prule);
 				}
 			}
 		}
@@ -105,7 +106,7 @@ public class ConvertPCFGToPCNF
 		addDuplicateRulePro();
 	}
 
-	/*
+	/**
 	 * 将右侧全部转换为非终结符，并添加新的非终结符，新的规则
 	 */
 	private void ConvertToNonTerRHS(RewriteRule rule)
@@ -128,7 +129,7 @@ public class ConvertPCFGToPCNF
 		rule.setRhs(rhs);
 	}
 
-	/*
+	/**
 	 * 遍历消除Unit Production
 	 */
 	private void addNewRuleWhileRemoveUP(PRule rule)
@@ -137,13 +138,13 @@ public class ConvertPCFGToPCNF
 		 * 因为pcfg中其前期处理中，不管是3个rhs以上还是非终结符与终结符混合的规则都同pcnf一样经过处理
 		 * 只是没有添加新的规则，非终结符集同样添加完全，所以此处可以用pcfg代替pcnf
 		 */
-		Set<PRule> ruleSet = pcfg.getPRuleBylhs(rule.getRhs().get(0));
+		Set<PRule> ruleSet = PCFG.convertRewriteRuleSetToPRuleSet(pcfg.getRuleBylhs(rule.getRhs().get(0)));
 		for (PRule rule1 : ruleSet)
 		{
 			PRule rule2 = new PRule(rule.getProOfRule() * rule1.getProOfRule(), rule.getLhs(), rule1.getRhs());
 			if (!(rule2.getRhs().size() == 1 && pcfg.getNonTerminalSet().containsAll(rule2.getRhs())))
 			{
-				if (pcnf.getPRuleSet().contains(rule2))
+				if (pcnf.getRuleSet().contains(rule2))
 				{
 					addRulePro(rule2);
 				}
@@ -167,10 +168,10 @@ public class ConvertPCFGToPCNF
 		}
 	}
 
-	/*
+	/**
 	 * 每次选择最右侧字符串的两个为新的规则的右侧字符串
 	 */
-	private void reduceRHSNum(PRule rule)
+	private void reduceRHSNum(RewriteRule rule)
 	{
 		if (rule.getRhs().size() == 2)
 		{
@@ -195,7 +196,7 @@ public class ConvertPCFGToPCNF
 		reduceRHSNum(rule);
 	}
 
-	/*
+	/**
 	 * 删除右侧为一个非终结符的规则，需要同时在RuleSet,ruleMapStartWithlhs,ruleMapStartWithrhs中删除
 	 */
 	private void deleteRules(HashSet<RewriteRule> ruleSet)
@@ -208,19 +209,19 @@ public class ConvertPCFGToPCNF
 		}
 	}
 
-	/*
+	/**
 	 * 当pcnf中已经存在该规则时，则添加概率
 	 */
 	private void addRulePro(PRule rule)
 	{
-		PRule rule1 = pcnf.getPRuleByLHSAndRHS(rule.getLhs(), rule.getRhs());
+		PRule rule1 = pcnf.getPRuleByLHSAndRHS(rule);
 		double pro = rule1.getProOfRule();
 		deleteRule(rule1);
 		rule.setProOfRule(rule.getProOfRule() + pro);
 		pcnf.add(rule);
 	}
 
-	/*
+	/**
 	 * 删除规则
 	 */
 	private void deleteRule(PRule rule)
@@ -230,16 +231,17 @@ public class ConvertPCFGToPCNF
 		pcnf.getRuleByrhs(rule.getRhs()).remove(rule);
 	}
 
-	/*
+	/**
 	 * 添加在消除Unit Production时重复规则的概率
 	 */
 	private void addDuplicateRulePro()
 	{
 		for (PRule rule : duplicateRuleMap.values())
 		{
-			for (PRule prule : pcnf.getPRuleBylhs(rule.getRhs().get(0)))
+			Set<PRule> pruleSet = PCFG.convertRewriteRuleSetToPRuleSet(pcnf.getRuleBylhs(rule.getRhs().get(0)));
+			for (PRule prule : pruleSet)
 			{
-				PRule rule1 = pcnf.getPRuleByLHSAndRHS(rule.getLhs(), prule.getRhs());
+				PRule rule1 = pcnf.getPRuleByLHSAndRHS(new PRule(0.0, rule.getLhs(), prule.getRhs()));
 				double pro = prule.getProOfRule() * rule.getProOfRule() + rule1.getProOfRule();
 				deleteRule(rule1);
 				PRule prule2 = new PRule(pro, rule.getLhs(), prule.getRhs());
@@ -249,7 +251,7 @@ public class ConvertPCFGToPCNF
 		}
 	}
 
-	/*
+	/**
 	 * 添加重复规则，并将重复的规则进行概率相加
 	 */
 	private void addDuplicateRule(PRule rule)

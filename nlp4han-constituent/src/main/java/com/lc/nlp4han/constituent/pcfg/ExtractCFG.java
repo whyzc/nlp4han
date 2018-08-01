@@ -36,6 +36,7 @@ public class ExtractCFG
 		ArrayList<String> bracketStrList = new ArrayList<String>();
 		while (bracketStr.length() != 0)
 		{
+			bracketStr = "(" + bracketStr + ")";
 			bracketStrList.add(bracketStr);
 			bracketStr = ptbt.read();
 		}

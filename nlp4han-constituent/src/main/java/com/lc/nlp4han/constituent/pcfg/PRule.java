@@ -11,7 +11,7 @@ public class PRule extends RewriteRule
 		super();
 	}
 
-	/*
+	/**
 	 * 初始化PRule
 	 * 
 	 * @param 规则的概率，以及终结符和非终结符的字符串形式
@@ -62,19 +62,6 @@ public class PRule extends RewriteRule
 		this.proOfRule = proOfRule;
 	}
 
-	/*
-	 * @Override public int hashCode() { final int prime = 31; int result =
-	 * super.hashCode(); long temp; temp = Double.doubleToLongBits(proOfRule);
-	 * result = prime * result + (int) (temp ^ (temp >>> 32)); return result; }
-	 * 
-	 * 重写equals规则 在RewriteRule的基础上添加proOfRule
-	 * 
-	 * @Override public boolean equals(Object obj) { if (this == obj) return true;
-	 * if (!super.equals(obj)) return false; if (getClass() != obj.getClass())
-	 * return false; PRule other = (PRule) obj; if
-	 * (Double.doubleToLongBits(proOfRule) !=
-	 * Double.doubleToLongBits(other.proOfRule)) return false; return true; }
-	 */
 	@Override
 	public String toString()
 	{

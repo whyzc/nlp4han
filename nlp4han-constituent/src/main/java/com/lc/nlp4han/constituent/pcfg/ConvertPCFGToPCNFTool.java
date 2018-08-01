@@ -7,11 +7,10 @@ import java.io.OutputStreamWriter;
 
 public class ConvertPCFGToPCNFTool
 {
-	/*
+	/**
 	 * 由PCFG提取PCNF的命令行应用程序
 	 */
-	public static void main(String[] args) throws IOException
-	{
+	public static void main(String[] args) throws IOException{
 		if (args.length < 1)
 		{
 			return;
@@ -31,35 +30,28 @@ public class ConvertPCFGToPCNFTool
 				topath = args[i + 1];
 				i++;
 			}
-			if (args[i].equals("-incoding"))
-			{
-				incoding = args[i + 1];
+			if(args[i].equals("-incoding")) {
+				incoding=args[i+1];
 				i++;
 			}
 		}
-		if (topath != null)
-		{
+		if(topath!=null) {
 			/*
 			 * 存储文法和提取文法格式一般相同
 			 */
-			ExtractPCFGToFile(frompath, topath, incoding);
-		}
-		else
-		{
-			PCFG pcfg = GetGrammarFromFile.getPCFGFromFile(frompath, incoding);
+			ExtractPCFGToFile(frompath,topath,incoding);
+		}else {
+			PCFG pcfg=GetGrammarFromFile.getPCFGFromFile(frompath, incoding);
 			System.out.println(new ConvertPCFGToPCNF().convertToCNF(pcfg).toString());
-		}
+       }
 	}
-
-	/*
-	 * 从树库中提取文法，然后存入文件指定中
-	 */
-	private static void ExtractPCFGToFile(String fromPath, String toPath, String inCoding)
-			throws UnsupportedOperationException, IOException
-	{
-		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(toPath), inCoding));
-		PCFG pcfg = GetGrammarFromFile.getPCFGFromFile(fromPath, inCoding);
-		bw.append(new ConvertPCFGToPCNF().convertToCNF(pcfg).toString());
-		bw.close();
+	/**
+	* 从树库中提取文法，然后存入文件指定中
+	*/
+	private static void ExtractPCFGToFile(String fromPath,String toPath,String inCoding) throws UnsupportedOperationException, IOException {
+	   BufferedWriter bw=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(toPath),inCoding));   
+	   PCFG pcfg=GetGrammarFromFile.getPCFGFromFile(fromPath, inCoding);
+	   bw.append(new ConvertPCFGToPCNF().convertToCNF(pcfg).toString());
+	   bw.close();
 	}
 }
