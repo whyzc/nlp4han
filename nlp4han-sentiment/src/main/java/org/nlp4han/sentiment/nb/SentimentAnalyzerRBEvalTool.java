@@ -21,6 +21,7 @@ public class SentimentAnalyzerRBEvalTool
 		
 		String dataPath = "";
 		String dicPath ="";
+		//String modelPath = "";
 		String encoding="gbk";
 		
 		for (int i=0; i<args.length; i++)
@@ -50,7 +51,8 @@ public class SentimentAnalyzerRBEvalTool
 		ObjectStream<SentimentTextSample> sampleStream = 
 				new SentimentTextSampleStream(lineStream); 
 		
-		SentimentAnalyzerRB analyzer = new SentimentAnalyzerRB(dicPath, encoding);
+		TreeGenerator treeGen = new TreeGenerator();
+		SentimentAnalyzerRB analyzer = new SentimentAnalyzerRB(dicPath, treeGen, encoding);
 		SentimentAnalyzerEvaluator evaluator = 
 				new SentimentAnalyzerEvaluator(analyzer);
 		

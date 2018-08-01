@@ -2,10 +2,8 @@ package org.nlp4han.sentiment.nb;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -25,9 +23,11 @@ import com.lc.nlp4han.constituent.TreeNode;
 public class SentimentAnalyzerRB implements SentimentAnalyzer
 {
 	private Map<String, String> dictionary = new HashMap<>();
+	private TreeGenerator treeGen;
 
-	public SentimentAnalyzerRB(String dicPath, String encoding) throws IOException
+	public SentimentAnalyzerRB(String dicPath, TreeGenerator treeGen, String encoding) throws IOException
 	{
+		this.treeGen = treeGen;
 		init(dicPath, encoding);
 	}
 
@@ -58,9 +58,12 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 	 *            括号表达式
 	 * @return
 	 */
-	public TreeNode parse(String bracketStr)
+	public TreeNode parse(String text)
 	{
-		TreeNode tree = BracketExpUtil.generateTree(bracketStr);
+		String bracketStr="";
+		TreeNode tree=null;
+		bracketStr = treeGen.getTree(text);
+		tree = BracketExpUtil.generateTree(bracketStr);
 		return this.parse(tree);
 	}
 
