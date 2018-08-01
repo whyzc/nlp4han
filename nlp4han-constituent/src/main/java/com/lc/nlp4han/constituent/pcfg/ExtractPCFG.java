@@ -33,6 +33,7 @@ public class ExtractPCFG
 		ArrayList<String> bracketStrList = new ArrayList<String>();
 		while (bracketStr.length() != 0)
 		{
+			bracketStr = "(" + bracketStr + ")";
 			bracketStrList.add(bracketStr);
 			bracketStr = ptbt.read();
 		}
@@ -104,7 +105,7 @@ public class ExtractPCFG
 	{
 		for (String nonTer : pcfg.getNonTerminalSet())
 		{
-			Set<PRule> set = pcfg.getPRuleBylhs(nonTer);
+			Set<PRule> set = PCFG.convertRewriteRuleSetToPRuleSet(pcfg.getRuleBylhs(nonTer));
 			int allNum = 0;
 			for (PRule rule : set)
 			{

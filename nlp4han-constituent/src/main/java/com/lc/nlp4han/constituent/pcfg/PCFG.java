@@ -8,39 +8,24 @@ import java.util.Set;
 
 public class PCFG extends CFG
 {
+	private HashMap<RewriteRule, PRule> pruleMap = new HashMap<RewriteRule, PRule>();// 规则集map
+
 	public PCFG()
 	{
 
 	}
 
-	/*
-	 * 得到概率规则集
-	 */
-	public Set<PRule> getPRuleSet()
+	@Override
+	public void add(RewriteRule rule)
 	{
-		return convertRewriteRuleSetToPRuleSet(super.getRuleSet());
-	}
-
-	/*
-	 * 根据规则左部得到所有对应概率规则集
-	 */
-	public Set<PRule> getPRuleBylhs(String lhs)
-	{
-		return convertRewriteRuleSetToPRuleSet(super.getRuleBylhs(lhs));
-	}
-
-	/*
-	 * 根据规则右部得到所有概率对应规则
-	 */
-	public Set<PRule> getPRuleByrhs(ArrayList<String> rhsList)
-	{
-		return convertRewriteRuleSetToPRuleSet(super.getRuleByrhs(rhsList));
+		super.add(rule);
+		pruleMap.put(rule, (PRule) rule);
 	}
 
 	/*
 	 * 由RewriteRule集转换为PRule规则集
 	 */
-	private Set<PRule> convertRewriteRuleSetToPRuleSet(Set<RewriteRule> ruleset)
+	public static Set<PRule> convertRewriteRuleSetToPRuleSet(Set<RewriteRule> ruleset)
 	{
 		Iterator<RewriteRule> itr = ruleset.iterator();
 		Set<PRule> pruleSet = new HashSet<PRule>();
@@ -52,20 +37,9 @@ public class PCFG extends CFG
 	}
 
 	// 根据规则中的终结符和非终结符获取概率
-	public PRule getPRuleByLHSAndRHS(String lhs, ArrayList<String> rhs)
+	public PRule getPRuleByLHSAndRHS(RewriteRule rule)
 	{
-		Set<PRule> set = this.getPRuleBylhs(lhs);
-		if (set != null)
-		{
-			for (PRule prule : set)
-			{
-				if (prule.getRhs().equals(rhs))
-				{
-					return prule;
-				}
-			}
-		}
-		return null;
+		return pruleMap.get(rule);
 	}
 
 	/*
@@ -76,7 +50,7 @@ public class PCFG extends CFG
 		double MaxErrorOfPCNF = 0;
 		for (String string : super.getNonTerminalSet())
 		{
-			Set<PRule> pruleSet = this.getPRuleBylhs(string);
+			Set<PRule> pruleSet = convertRewriteRuleSetToPRuleSet(getRuleBylhs(string));
 			double pro = 0;
 			for (PRule rule : pruleSet)
 			{
@@ -94,30 +68,27 @@ public class PCFG extends CFG
 	public PRule getHighestProRule(Set<RewriteRule> ruleSet)
 	{
 		Iterator<RewriteRule> itr = ruleSet.iterator();
-		return getHighestProRuleByItr(itr, null, 1).get(0);
+		return getHighestProRuleByItr(itr, 1).get(0);
 	}
 
-	// 从映射中得到左侧为nonTer的概率最大的K个规则
-	public ArrayList<PRule> getHighestProRuleFromMap(HashMap<String, RewriteRule> ruleMap, String nonTer, int k)
+	// 从映射中得到概率最大的K个规则
+	public ArrayList<PRule> getHighestProRuleFromMap(HashMap<RewriteRule, Integer> ruleMap, int k)
 	{
-		Iterator<RewriteRule> itr = ruleMap.values().iterator();
-		return getHighestProRuleByItr(itr, nonTer, k);
+		Iterator<RewriteRule> itr = ruleMap.keySet().iterator();
+		return getHighestProRuleByItr(itr, k);
 	}
 
-	// 从规则迭代器中获取概率最高的k个规则,若没有nonTer参数则根据规则集合直接搜索最大概率值
-	public ArrayList<PRule> getHighestProRuleByItr(Iterator<RewriteRule> itr, String nonTer, int k)
+	// 从规则迭代器中获取概率最高的k个规则
+	public ArrayList<PRule> getHighestProRuleByItr(Iterator<RewriteRule> itr, int k)
 	{
 		PRule bestPRule = new PRule(-1.0, "FSA", "FDS");
 		ArrayList<PRule> pruleList = new ArrayList<PRule>();
 		while (itr.hasNext())
 		{
 			PRule prule = (PRule) itr.next();
-			if (nonTer != null)
-			{// 根据规则左侧搜索规则
-				if (prule.getLhs().equals(nonTer))
-				{
-					pruleList.add(prule);
-				}
+			if (k > 1)
+			{// 直接将规则添加进pruleList
+				pruleList.add(prule);
 			}
 			else
 			{// 根据规则集合直接搜索最大概率规则
@@ -127,7 +98,7 @@ public class PCFG extends CFG
 				}
 			}
 		}
-		if (nonTer == null)
+		if (k == 1)
 		{
 			pruleList.add(bestPRule);
 		}

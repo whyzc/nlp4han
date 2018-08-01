@@ -24,7 +24,7 @@ public class ConvertCFGToCNF
 		return cnf;
 	}
 
-	/*
+	/**
 	 * 添加新的起始符DuIP,新规则，DuIP->IP,因为我是在最后处理Unit
 	 * Production,集合的遍历和修改不能同时进行，故将这个规则同时放入cfg中
 	 */
@@ -38,7 +38,7 @@ public class ConvertCFGToCNF
 		cfg.add(new RewriteRule(newStartSymbol, oldStartSymbol));// 添加新的规则
 	}
 
-	/*
+	/**
 	 * 前期处理，遍历的将规则加入cnf 将字符串个数多于两个的递归的减为两个 将终结符和非终结符混合转换为两个非终结符 直接添加右侧只有一个字符串的规则
 	 */
 	private void priorDisposal(CFG cfg)
@@ -80,7 +80,7 @@ public class ConvertCFGToCNF
 		}
 	}
 
-	/*
+	/**
 	 * 遍历CFG消除Unit Production
 	 */
 	private void RemoveUnitProduction(CFG cfg)
@@ -108,7 +108,7 @@ public class ConvertCFGToCNF
 		deleteRules(deleteRuleSet);
 	}
 
-	/*
+	/**
 	 * 将右侧全部转换为非终结符，并添加新的非终结符，新的规则
 	 */
 	private void ConvertToNonTerRHS(RewriteRule rule)
@@ -131,7 +131,7 @@ public class ConvertCFGToCNF
 		rule.setRhs(rhs);
 	}
 
-	/*
+	/**
 	 * 遍历消除Unit Production
 	 */
 	private void removeUnitProduction(RewriteRule rule)
@@ -165,7 +165,7 @@ public class ConvertCFGToCNF
 		}
 	}
 
-	/*
+	/**
 	 * 每次选择最右侧字符串的两个为新的规则的右侧字符串
 	 */
 	private void reduceRHSNum(RewriteRule rule)
@@ -193,7 +193,7 @@ public class ConvertCFGToCNF
 		reduceRHSNum(rule);
 	}
 
-	/*
+	/**
 	 * 删除右侧为一个非终结符的规则，需要同时在RuleSet,ruleMapStartWithlhs,ruleMapStartWithrhs中删除
 	 */
 	private void deleteRules(HashSet<RewriteRule> ruleSet)
