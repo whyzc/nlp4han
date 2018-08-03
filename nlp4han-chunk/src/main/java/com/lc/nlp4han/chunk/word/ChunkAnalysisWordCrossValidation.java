@@ -71,12 +71,18 @@ public class ChunkAnalysisWordCrossValidation
 			measure.setDictionary(dict);
 
 			ChunkAnalysisWordME me = new ChunkAnalysisWordME();
+			
+			long start = System.currentTimeMillis();
 			ModelWrapper model = me.train(trainingSampleStream, params, contextGenerator);
+			System.out.println("训练时间： " + (System.currentTimeMillis()-start));
+			
 			ChunkAnalysisWordEvaluator evaluator = new ChunkAnalysisWordEvaluator(
 					new ChunkAnalysisWordME(model, sequenceValidator, contextGenerator, scheme), measure);
 			evaluator.setMeasure(measure);
-			// 设置测试集（在测试集上进行评价）
+
+			start = System.currentTimeMillis();
 			evaluator.evaluate(trainingSampleStream.getTestSampleStream());
+			System.out.println("标注时间： " + (System.currentTimeMillis()-start));
 
 			System.out.println(measure);
 			run++;
