@@ -6,6 +6,7 @@ import java.util.List;
 public class ConvertPCFGToP2NF
 {
 	private PCFG pcnf;
+
 	public PCFG convertToCNF(PCFG pcfg)
 	{
 		pcnf = new PCFG();
@@ -69,6 +70,7 @@ public class ConvertPCFGToP2NF
 			}
 		}
 	}
+
 	/**
 	 * 将右侧全部转换为非终结符，并添加新的非终结符，新的规则
 	 */
@@ -79,7 +81,7 @@ public class ConvertPCFGToP2NF
 		{
 			if (!pcnf.getNonTerminalSet().contains(string))
 			{
-				String newString = "$" + string+"$";
+				String newString = "$" + string + "$";
 				pcnf.addNonTerminal(newString);// 添加新非终结符
 				pcnf.add(new PRule(1.0, newString, string));// 添加新规则
 				rhs.add(newString);
@@ -91,6 +93,7 @@ public class ConvertPCFGToP2NF
 		}
 		rule.setRhs(rhs);
 	}
+
 	/**
 	 * 每次选择最右侧字符串的两个为新的规则的右侧字符串
 	 */
@@ -103,7 +106,7 @@ public class ConvertPCFGToP2NF
 		}
 		List<String> list = rule.getRhs();
 		int size = list.size();
-		String str = list.get(size - 2) + "&"+list.get(size - 1);// 新规则的左侧
+		String str = list.get(size - 2) + "&" + list.get(size - 1);// 新规则的左侧
 
 		// 最右侧的两个非终结符合成一个，并形成新的规则
 		PRule rule1 = new PRule(1.0, str, list.get(size - 2), list.get(size - 1));
@@ -119,4 +122,3 @@ public class ConvertPCFGToP2NF
 		reduceRHSNum(rule);
 	}
 }
-

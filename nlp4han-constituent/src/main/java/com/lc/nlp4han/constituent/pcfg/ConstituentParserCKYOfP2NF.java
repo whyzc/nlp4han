@@ -135,7 +135,7 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 				{
 					table[i][j] = new CKYTreeNode(new HashMap<String, RewriteRule>(), false);
 					back[i][j] = new BackMap(new HashMap<String, Integer>());
-				}//对角线上的点的flag需要标记为true作为区别
+				} // 对角线上的点的flag需要标记为true作为区别
 				else if (j == i + 1)
 				{
 					table[i][j] = new CKYTreeNode(new HashMap<String, RewriteRule>(), true);
@@ -252,21 +252,22 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 		}
 	}
 
-    /**
-     * 更新对角线上的点
-     * @param rule
-     *            由ik点和kj点结合的rhs逆推得到的规则
-     * @param ruleMap
-     *              本节点，也就是ij点的规则映射
-     * @param lhs
-     *              映射的key值
-     * @param lhsAndProMap
-     *              记录映射中作为key值的非终结符及其概率，作为过滤掉重复规则的基础
-     * @param i
-     *              table表和back表横坐标
-     * @param j
-     *              table表和back表纵坐标
-     */
+	/**
+	 * 更新对角线上的点
+	 * 
+	 * @param rule
+	 *            由ik点和kj点结合的rhs逆推得到的规则
+	 * @param ruleMap
+	 *            本节点，也就是ij点的规则映射
+	 * @param lhs
+	 *            映射的key值
+	 * @param lhsAndProMap
+	 *            记录映射中作为key值的非终结符及其概率，作为过滤掉重复规则的基础
+	 * @param i
+	 *            table表和back表横坐标
+	 * @param j
+	 *            table表和back表纵坐标
+	 */
 	private void updateRuleMapOfDiagonal(PRule rule, HashMap<String, RewriteRule> ruleMap, String lhs,
 			HashMap<String, Double> lhsAndProMap, int i, int j)
 	{
@@ -294,25 +295,27 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 			}
 		}
 	}
-    /**
-     * 更新table和back表中的数据
-     * @param rule
-     *            由ik点和kj点结合的rhs逆推得到的规则
-     * @param ruleMap
-     *              本节点，也就是ij点的规则映射
-     * @param pro  
-     *              ik点和kj点的概率相乘，在后序遍历中赋值为1.0   
-     * @param lhs
-     *              映射的key值
-     * @param lhsAndProMap
-     *              记录映射中作为key值的非终结符及其概率，作为过滤掉重复规则的基础
-     * @param i
-     *              table表和back表横坐标
-     * @param j
-     *              table表和back表纵坐标
-     * @param k   
-     *              存储规则的右侧点的位置，ij->ik kj           
-     */
+
+	/**
+	 * 更新table和back表中的数据
+	 * 
+	 * @param rule
+	 *            由ik点和kj点结合的rhs逆推得到的规则
+	 * @param ruleMap
+	 *            本节点，也就是ij点的规则映射
+	 * @param pro
+	 *            ik点和kj点的概率相乘，在后序遍历中赋值为1.0
+	 * @param lhs
+	 *            映射的key值
+	 * @param lhsAndProMap
+	 *            记录映射中作为key值的非终结符及其概率，作为过滤掉重复规则的基础
+	 * @param i
+	 *            table表和back表横坐标
+	 * @param j
+	 *            table表和back表纵坐标
+	 * @param k
+	 *            存储规则的右侧点的位置，ij->ik kj
+	 */
 	private void updateRuleMapOfTable(PRule rule, HashMap<String, RewriteRule> ruleMap, double pro, String lhs,
 			HashMap<String, Double> lhsAndProMap, int i, int j, int k)
 	{
@@ -346,21 +349,23 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 			}
 		}
 	}
-    /**
-     * 更新结果集的数据
-     * @param rule
-     *            当前rule
-     * @param resultMap
-     *            结果规则集
-     * @param lhs
-     *            映射表中规则的key值
-     * @param lhsAndProMap
-     *            存储映射表中规则的key值及其概率
-     * @param pro
-     *            由上层函数调用时赋值为ik点和kj点的概率相乘，在后序遍历中赋值为1.0    
-     * @param k
-     *            存储规则的右侧点的位置，ij->ik kj 
-     */
+
+	/**
+	 * 更新结果集的数据
+	 * 
+	 * @param rule
+	 *            当前rule
+	 * @param resultMap
+	 *            结果规则集
+	 * @param lhs
+	 *            映射表中规则的key值
+	 * @param lhsAndProMap
+	 *            存储映射表中规则的key值及其概率
+	 * @param pro
+	 *            由上层函数调用时赋值为ik点和kj点的概率相乘，在后序遍历中赋值为1.0
+	 * @param k
+	 *            存储规则的右侧点的位置，ij->ik kj
+	 */
 	private void updateResultMap(PRule rule, HashMap<RewriteRule, Integer> resultMap, String lhs,
 			HashMap<String, Double> lhsAndProMap, double pro, int k)
 	{
@@ -421,35 +426,43 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 	// 递归table和back生成StringBuilder
 	private void CreateStringBuilder(int i, int k, int j, PRule prule, StringBuilder strBuilder)
 	{
-		int count=1;
-		String lhs=prule.getLhs();
-		if(prule.getLhs().contains("@")) {
+		int count = 1;
+		String lhs = prule.getLhs();
+		if (prule.getLhs().contains("@"))
+		{
 			strBuilder.append("(");
-			String[] strArray=lhs.split("@");
-			count+=strArray.length;
-			for(String lhs1:strArray) {
-				//含有起始符或者为词性标注则跳过
-				if(lhs1.equals(pcnf.getStartSymbol())||lhs1.contains("$")) {
+			String[] strArray = lhs.split("@");
+			count += strArray.length;
+			for (String lhs1 : strArray)
+			{
+				// 含有起始符或者为词性标注则跳过
+				if (lhs1.equals(pcnf.getStartSymbol()) || lhs1.contains("$"))
+				{
 					count--;
 					continue;
 				}
 				strBuilder.append("(");
 				strBuilder.append(lhs1);
-			}	
+			}
 			/*
 			 * 当含有&符号时，不处理此非终结符，直接跳过
 			 */
-		}else if(prule.getLhs().contains("&")) {
+		}
+		else if (prule.getLhs().contains("&"))
+		{
 			AddString(i, k, prule, 0, strBuilder);
 			AddString(k, j, prule, 1, strBuilder);
 			return;
-		}else {
+		}
+		else
+		{
 			strBuilder.append("(");
-			strBuilder.append(lhs);			
+			strBuilder.append(lhs);
 		}
 		AddString(i, k, prule, 0, strBuilder);
 		AddString(k, j, prule, 1, strBuilder);
-		while(count>0) {
+		while (count > 0)
+		{
 			strBuilder.append(")");
 			count--;
 		}
@@ -462,26 +475,32 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 	{
 		if (table[n][m].isFlag())
 		{// 叶子结点
-			int count=1;
-			String DuPos=prule.getRhs().get(i);
+			int count = 1;
+			String DuPos = prule.getRhs().get(i);
 			String pos = table[n][m].getPruleMap().get(DuPos).getLhs();
 			strBuilder.append("(");
-			if(pos.contains("$")) {
-				
+			if (pos.contains("$"))
+			{
+
 			}
-			else if(pos.contains("@")) {
-				String[] strArray=pos.split("@");
-				count+=strArray.length;
-				for(String pos1:strArray) {
+			else if (pos.contains("@"))
+			{
+				String[] strArray = pos.split("@");
+				count += strArray.length;
+				for (String pos1 : strArray)
+				{
 					strBuilder.append("(");
 					strBuilder.append(pos1);
 				}
-			}else {
+			}
+			else
+			{
 				strBuilder.append(pos);// 词性标注
 			}
 			strBuilder.append(" ");
 			strBuilder.append(table[n][m].getPruleMap().get(DuPos).getRhs().get(0));// 词
-			while(count>0) {
+			while (count > 0)
+			{
 				strBuilder.append(")");
 				count--;
 			}
