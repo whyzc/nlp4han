@@ -11,6 +11,14 @@ public class RewriteRule
 	private String lhs;// 规则左部
 	private ArrayList<String> rhs = new ArrayList<String>();// 规则右部
 
+	
+	/**
+	 * 初始化RewriteRule
+	 * @param lhs
+	 *          规则左侧字符串
+	 * @param list
+	 *          规则右侧字符串列表
+	 */
 	public RewriteRule(String lhs, ArrayList<String> list)
 	{
 		this.lhs = lhs;
@@ -20,6 +28,11 @@ public class RewriteRule
 		}
 	}
 
+	/**
+	 * 初始化RewriteRule
+	 * @param args
+	 *          规则左侧和右侧string
+	 */
 	public RewriteRule(String... args)
 	{
 		this.lhs = args[0];
@@ -29,6 +42,11 @@ public class RewriteRule
 		}
 	}
 
+	/**
+	 * 由树结构中的节点值和子节点初始化RewriteRule
+	 * @param lhs
+	 * @param children
+	 */
 	public RewriteRule(String lhs, List<? extends TreeNode> children)
 	{
 		super();

@@ -5,10 +5,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
-public class ConvertPCFGToPCNFTool
+public class ConvertPCFGToP2NFTool
 {
 	/**
-	 * 由PCFG提取PCNF的命令行应用程序
+	 * 由PCFG提取P2CNF的命令行应用程序
 	 */
 	public static void main(String[] args) throws IOException{
 		if (args.length < 1)
@@ -42,16 +42,16 @@ public class ConvertPCFGToPCNFTool
 			ConvertPCFGToPCNFToFile(frompath,topath,incoding);
 		}else {
 			PCFG pcfg=GetGrammarFromFile.getPCFGFromFile(frompath, incoding);
-			System.out.println(new ConvertPCFGToPCNF().convertToCNF(pcfg).toString());
+			System.out.println(new ConvertPCFGToP2NF().convertToCNF(pcfg).toString());
        }
 	}
 	/**
-	* 从树库中提取PCFG文法，转换为PCNF然后存入指定文件中
+	* 从树库中提取PCFG文法，转换为P2NF然后存入指定文件中
 	*/
 	private static void ConvertPCFGToPCNFToFile(String fromPath,String toPath,String inCoding) throws UnsupportedOperationException, IOException {
 	   BufferedWriter bw=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(toPath),inCoding));   
 	   PCFG pcfg=GetGrammarFromFile.getPCFGFromFile(fromPath, inCoding);
-	   bw.append(new ConvertPCFGToPCNF().convertToCNF(pcfg).toString());
+	   bw.append(new ConvertPCFGToP2NF().convertToCNF(pcfg).toString());
 	   bw.close();
 	}
 }

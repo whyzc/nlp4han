@@ -8,15 +8,29 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
-/*
+/**
  * 从文件中将CFG文法读取出来
  */
 public class GetGrammarFromFile { 
+	/**
+	 * 从文件中读取PCFG文法
+	 * @param fileName
+	 * @param enCoding
+	 * @return
+	 * @throws IOException
+	 */
      public static PCFG getPCFGFromFile(String fileName,String enCoding) throws IOException {
     	PCFG pcfg=new PCFG();
 		return (PCFG) ExtractGrammarFromFile(pcfg,fileName,enCoding,"PCFG"); 
      }
-     public static CFG getCFGFromFile(String fileName,String enCoding) throws IOException {
+     /**
+      * 从文件中读取CFG文法
+     * @param fileName
+     * @param enCoding
+     * @return
+     * @throws IOException
+     */
+    public static CFG getCFGFromFile(String fileName,String enCoding) throws IOException {
     	CFG cfg=new CFG();
 		return  ExtractGrammarFromFile(cfg,fileName,enCoding,"CFG");	 
      }

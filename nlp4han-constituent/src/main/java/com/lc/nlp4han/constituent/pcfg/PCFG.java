@@ -22,8 +22,10 @@ public class PCFG extends CFG
 		pruleMap.put(rule, (PRule) rule);
 	}
 
-	/*
+	/**
 	 * 由RewriteRule集转换为PRule规则集
+	 * @param ruleset
+	 * @return pruleSet
 	 */
 	public static Set<PRule> convertRewriteRuleSetToPRuleSet(Set<RewriteRule> ruleset)
 	{
@@ -36,13 +38,17 @@ public class PCFG extends CFG
 		return pruleSet;
 	}
 
-	// 根据规则中的终结符和非终结符获取概率
+	/**
+	 * 根据规则中的终结符和非终结符获取概率
+	 * @param rule
+	 * @return
+	 */
 	public PRule getPRuleByLHSAndRHS(RewriteRule rule)
 	{
 		return pruleMap.get(rule);
 	}
 
-	/*
+	/**
 	 * 获取PCFG中所有非终结符扩展出的规则概率之和与1.0的误差，取其中最大的
 	 */
 	public double getProMaxErrorOfNonTer()
@@ -64,21 +70,35 @@ public class PCFG extends CFG
 		return MaxErrorOfPCNF;
 	}
 
-	// 获取集合中概率最高的那个规则
+	/**
+	 * 获取集合中概率最高的那个规则
+	 * @param ruleSet
+	 * @return
+	 */
 	public PRule getHighestProRule(Set<RewriteRule> ruleSet)
 	{
 		Iterator<RewriteRule> itr = ruleSet.iterator();
 		return getHighestProRuleByItr(itr, 1).get(0);
 	}
 
-	// 从映射中得到概率最大的K个规则
+	/**
+	 * 从映射中得到概率最大的K个规则
+	 * @param ruleMap
+	 * @param k
+	 * @return
+	 */
 	public ArrayList<PRule> getHighestProRuleFromMap(HashMap<RewriteRule, Integer> ruleMap, int k)
 	{
 		Iterator<RewriteRule> itr = ruleMap.keySet().iterator();
 		return getHighestProRuleByItr(itr, k);
 	}
 
-	// 从规则迭代器中获取概率最高的k个规则
+	/**
+	 * 从规则迭代器中获取概率最高的k个规则
+	 * @param itr
+	 * @param k
+	 * @return
+	 */
 	public ArrayList<PRule> getHighestProRuleByItr(Iterator<RewriteRule> itr, int k)
 	{
 		PRule bestPRule = new PRule(-1.0, "FSA", "FDS");
@@ -121,7 +141,7 @@ public class PCFG extends CFG
 		return pruleList;
 	}
 
-	/*
+	/**
 	 * 快速排序
 	 */
 	public static void SortPRuleList(ArrayList<PRule> pruleList, int low, int high)

@@ -7,7 +7,7 @@ import java.io.OutputStreamWriter;
 
 public class ExtractPCFGTool
 {
-	/*
+	/**
 	 * 提取CFG的命令行应用程序
 	 */
 	public static void main(String[] args) throws IOException
@@ -50,8 +50,8 @@ public class ExtractPCFGTool
 		}
 	}
 
-	/*
-	 * 从树库中提取文法，然后存入文件指定中
+	/**
+	 * 从树库中提取PCFG文法，然后存入文件指定中
 	 */
 	private static void ExtractPCFGToFile(String fromPath, String toPath, String inCoding)
 			throws UnsupportedOperationException, IOException

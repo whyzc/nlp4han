@@ -149,6 +149,7 @@ public class ConstituentParserCKY implements ConstituentParser
 			{
 				ArrayList<String> rhs = new ArrayList<String>();
 				rhs.add(words[j - 1]);
+				System.out.println(rhs);
 				Set<PRule> ruleSet = PCFG.convertRewriteRuleSetToPRuleSet(pcnf.getRuleByrhs(rhs));
 				HashMap<String, RewriteRule> map = table[j - 1][j].getPruleMap();
 				for (PRule rule : ruleSet)
@@ -216,7 +217,7 @@ public class ConstituentParserCKY implements ConstituentParser
 						while (itr.hasNext())
 						{
 							if (i == 0 && j == n)
-							{
+							{//在最终节点
 								PRule prule = (PRule) itr.next();
 								if (prule.getLhs().equals(pcnf.getStartSymbol()))
 								{
@@ -246,8 +247,12 @@ public class ConstituentParserCKY implements ConstituentParser
 		}
 	}
 
-	/*
+	/**
 	 * 生成括号表达式的列表
+	 * @param n
+	 *        句子长度
+	 * @param numOfResulets
+	 *                 需要获得的句子分析结果个数
 	 */
 	private void CreatBracketStringList(int n, int numOfResulets)
 	{
@@ -278,7 +283,7 @@ public class ConstituentParserCKY implements ConstituentParser
 		strBuilder.append(")");
 	}
 
-	/*
+	/**
 	 * 添加左右括号和终结符与非终结符，i记录prule右侧的非终结符序号
 	 */
 	private void AddString(int n, int m, PRule prule, int i, StringBuilder strBuilder)
@@ -300,7 +305,7 @@ public class ConstituentParserCKY implements ConstituentParser
 		}
 	}
 
-	/*
+	/**
 	 * 内部类,table存储类,记录在table[i][j]点中的映射规则表，以及用于判断是否为对角线上点的flag
 	 */
 	class CKYTreeNode
@@ -336,7 +341,7 @@ public class ConstituentParserCKY implements ConstituentParser
 		}
 	}
 
-	/*
+	/**
 	 * 内部类,back存储类,包含非终结符，以及对应该非终结符的k值，将[i,j]分裂为[i,k][k,j]
 	 */
 	class BackMap

@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-/*
+/**
  * 文法包含包含重写规则，非终结符集，终结符集
  */
 public class CFG
@@ -17,7 +17,7 @@ public class CFG
 	private Set<RewriteRule> ruleSet = new HashSet<RewriteRule>();// 规则集
 	private HashMap<String, HashSet<RewriteRule>> ruleMapStartWithlhs = new HashMap<String, HashSet<RewriteRule>>();// 以左部为key值的规则集map
 	private HashMap<ArrayList<String>, HashSet<RewriteRule>> ruleMapStartWithrhs = new HashMap<ArrayList<String>, HashSet<RewriteRule>>();// 以规则右部为key值的规则集map
-	/*
+	/**
 	 * 构造函数,一步创建
 	 */
 
@@ -35,7 +35,7 @@ public class CFG
 		}
 	}
 
-	/*
+	/**
 	 * 通过一步一步添加rule来实现规则集，终结符/非终结符的更新
 	 */
 	public CFG()
@@ -43,7 +43,7 @@ public class CFG
 
 	}
 
-	/*
+	/**
 	 * 判断是否为CNF
 	 */
 	public boolean IsCNF()
@@ -113,7 +113,7 @@ public class CFG
 		this.terminalSet = terminalSet;
 	}
 
-	/*
+	/**
 	 * 添加单个规则
 	 */
 	public void add(RewriteRule rule)
@@ -141,7 +141,7 @@ public class CFG
 		}
 	}
 
-	/*
+	/**
 	 * 得到规则集
 	 */
 	public Set<RewriteRule> getRuleSet()
@@ -149,35 +149,49 @@ public class CFG
 		return ruleSet;
 	}
 
-	/*
-	 * 单独添加非中介符与非终结符
+	/**
+	 * 添加非中介符
 	 */
 	public void addNonTerminal(String nonTer)
 	{
 		nonTerminalSet.add(nonTer);
 	}
-
+	/**
+	 * 添加终结符
+	 * @param terminal
+	 *               终结符
+	 */
 	public void addTerminal(String terminal)
 	{
 		terminalSet.add(terminal);
 	}
 
-	/*
+	/**
 	 * 根据规则左部得到所有对应规则
+	 * @param lhs
+	 *          左侧字符串
 	 */
 	public Set<RewriteRule> getRuleBylhs(String lhs)
 	{
 		return ruleMapStartWithlhs.get(lhs);
 	}
 
-	/*
+	/**
 	 * 根据规则右部得到所有对应规则
+	 * @param rhsList
+	 *             右部字符串列表
+	 * @return 字符串集合
 	 */
 	public Set<RewriteRule> getRuleByrhs(ArrayList<String> rhsList)
 	{
 		return ruleMapStartWithrhs.get(rhsList);
 	}
-
+	/**
+	 * 根据规则右部得到所有对应规则
+	 * @param args
+	 *           右部字符串
+	 * @return 字符串集合
+	 */
 	public Set<RewriteRule> getRuleByrhs(String... args)
 	{
 		ArrayList<String> list = new ArrayList<String>();

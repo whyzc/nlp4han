@@ -22,10 +22,11 @@ public class PRule extends RewriteRule
 		this.proOfRule = pro;
 	}
 
-	/*
+	/**
 	 * 初始化PRule
-	 * 
-	 * @param 规则的概率，以及终结符和非终结符的列表
+	 * @param pro
+	 * @param lhs
+	 * @param rhs
 	 */
 	public PRule(double pro, String lhs, ArrayList<String> rhs)
 	{
@@ -33,10 +34,10 @@ public class PRule extends RewriteRule
 		this.proOfRule = pro;
 	}
 
-	/*
+	/**
 	 * 初始化PRule
-	 * 
-	 * @param RewriteRule形式的规则，概率
+	 * @param rule
+	 * @param pro
 	 */
 	public PRule(RewriteRule rule, double pro)
 	{
@@ -44,18 +45,18 @@ public class PRule extends RewriteRule
 		this.proOfRule = pro;
 	}
 
-	/*
+	/**
 	 * 得到该规则的概率
-	 * 
-	 * @return 规则概率proOfRule
+	 * @return proOfRule
 	 */
 	public double getProOfRule()
 	{
 		return proOfRule;
 	}
 
-	/*
+	/**
 	 * 设置该规则的概率
+	 * @param proOfRule
 	 */
 	public void setProOfRule(double proOfRule)
 	{
