@@ -10,7 +10,7 @@ import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
 
-public class ConstituentParserCKY implements ConstituentParser
+public class ConstituentParserCKYOfP2NF implements ConstituentParser
 {
 	private BackMap back[][];// 回溯使用，需要记住k和非终结符
 	private CKYTreeNode[][] table;// 存储在该点的映射表
@@ -18,7 +18,7 @@ public class ConstituentParserCKY implements ConstituentParser
 	private ArrayList<String> resultList;
 	private HashMap<RewriteRule, Integer> resultMap;
 
-	public ConstituentParserCKY(PCFG pcnf)
+	public ConstituentParserCKYOfP2NF(PCFG pcnf)
 	{
 		this.pcnf = pcnf;
 	}
@@ -111,13 +111,13 @@ public class ConstituentParserCKY implements ConstituentParser
 	 * CKY算法的具体函数
 	 * 
 	 * @param words
-	 *           分词序列
+	 *            分词序列
 	 * 
 	 * @param pse
-	 *           词性标注
+	 *            词性标注
 	 * 
 	 * @param numOfResulets
-	 *           需要求的结果数
+	 *            需要求的结果数
 	 * 
 	 * @return 输出k个句子解析结果
 	 */
@@ -131,7 +131,12 @@ public class ConstituentParserCKY implements ConstituentParser
 			for (int j = 1; j <= n; j++)
 			{
 				// 矩阵的上三角才会用于存储数据
-				if (j >= i + 1)
+				if (j > i + 1)
+				{
+					table[i][j] = new CKYTreeNode(new HashMap<String, RewriteRule>(), false);
+					back[i][j] = new BackMap(new HashMap<String, Integer>());
+				} // 对角线上的点的flag需要标记为true作为区别
+				else if (j == i + 1)
 				{
 					table[i][j] = new CKYTreeNode(new HashMap<String, RewriteRule>(), true);
 					back[i][j] = new BackMap(new HashMap<String, Integer>());
@@ -149,17 +154,17 @@ public class ConstituentParserCKY implements ConstituentParser
 			{
 				ArrayList<String> rhs = new ArrayList<String>();
 				rhs.add(words[j - 1]);
-				System.out.println(rhs);
 				Set<PRule> ruleSet = PCFG.convertRewriteRuleSetToPRuleSet(pcnf.getRuleByrhs(rhs));
 				HashMap<String, RewriteRule> map = table[j - 1][j].getPruleMap();
 				for (PRule rule : ruleSet)
 				{
-					map.put(rule.getLhs(), rule);
+					HashMap<String, Double> lhsAndProMap = new HashMap<String, Double>();
+					updateRuleMapOfDiagonal(rule, map, rule.getLhs(), lhsAndProMap, j - 1, j);
 				}
 			}
 			else
 			{
-				// 根据分词和词性标注的结果进行table表对角线的初始化
+				// 根据分词和词性标注的结果进行table表对角线的j初始化
 				table[j - 1][j].getPruleMap().put(pos[j - 1], new PRule(1.0, pos[j - 1], words[j - 1]));
 			}
 			if (j <= 1)
@@ -174,6 +179,17 @@ public class ConstituentParserCKY implements ConstituentParser
 				}
 			}
 		}
+		for (int i = 0; i <= n; i++)
+		{
+			for (int j = 1; j <= n; j++)
+			{
+				// 矩阵的上三角才会用于存储数据
+				if (j >= i + 1)
+				{
+					System.out.println("i==" + i + " j==" + j + " " + table[i][j].getPruleMap().toString());
+				}
+			}
+		}
 		// 回溯并生成括号表达式列表
 		CreatBracketStringList(n, numOfResulets);
 		return resultList;
@@ -181,13 +197,13 @@ public class ConstituentParserCKY implements ConstituentParser
 
 	/**
 	 * @param i
-	 *        table表横坐标点
+	 *            table表横坐标点
 	 * @param k
-	 *        分裂的值
+	 *            分裂的值
 	 * @param j
-	 *        table表纵坐标点
+	 *            table表纵坐标点
 	 * @param n
-	 *        words的长度
+	 *            words的长度
 	 */
 	private void updateTableAndBack(int i, int k, int j, int n)
 	{
@@ -216,29 +232,18 @@ public class ConstituentParserCKY implements ConstituentParser
 					{
 						while (itr.hasNext())
 						{
+							double pro = ikPro * kjPro;
+							PRule prule = (PRule) itr.next();
 							if (i == 0 && j == n)
-							{//在最终节点
-								PRule prule = (PRule) itr.next();
-								if (prule.getLhs().equals(pcnf.getStartSymbol()))
-								{
-									PRule newPrule = new PRule(prule.getProOfRule() * ikPro * kjPro, prule.getLhs(),
-											prule.getRhs());
-									resultMap.put(newPrule, k);
-								}
+							{// 若为最终节点，则选择左侧为起始符的添加，不管概率大小是多少
+								HashMap<String, Double> lhsAndProMap = new HashMap<String, Double>();
+								updateResultMap(prule, resultMap, prule.getLhs(), lhsAndProMap, pro, k);
 							}
 							else
 							{
-								PRule prule = (PRule) itr.next();
-								PRule oldPRule = (PRule) table[i][j].getPruleMap().get(prule.getLhs());
-								PRule newPrule = new PRule(prule.getProOfRule() * ikPro * kjPro, prule.getLhs(),
-										prule.getRhs());
-								if ((oldPRule != null && newPrule.getProOfRule() > oldPRule.getProOfRule())
-										|| oldPRule == null)
-								{
-									table[i][j].getPruleMap().put(newPrule.getLhs(), newPrule);
-									table[i][j].setFlag(false);
-									back[i][j].getBackMap().put(newPrule.getLhs(), k);
-								}
+								HashMap<String, Double> lhsAndProMap = new HashMap<String, Double>();
+								HashMap<String, RewriteRule> ruleMap = table[i][j].getPruleMap();
+								updateRuleMapOfTable(prule, ruleMap, pro, prule.getLhs(), lhsAndProMap, i, j, k);
 							}
 						}
 					}
@@ -248,15 +253,160 @@ public class ConstituentParserCKY implements ConstituentParser
 	}
 
 	/**
+	 * 更新对角线上的点
+	 * 
+	 * @param rule
+	 *            由ik点和kj点结合的rhs逆推得到的规则
+	 * @param ruleMap
+	 *            本节点，也就是ij点的规则映射
+	 * @param lhs
+	 *            映射的key值
+	 * @param lhsAndProMap
+	 *            记录映射中作为key值的非终结符及其概率，作为过滤掉重复规则的基础
+	 * @param i
+	 *            table表和back表横坐标
+	 * @param j
+	 *            table表和back表纵坐标
+	 */
+	private void updateRuleMapOfDiagonal(PRule rule, HashMap<String, RewriteRule> ruleMap, String lhs,
+			HashMap<String, Double> lhsAndProMap, int i, int j)
+	{
+		PRule oldPRule = (PRule) ruleMap.get(lhs);
+		lhsAndProMap.put(lhs, rule.getProOfRule());
+		if ((oldPRule != null && rule.getProOfRule() > oldPRule.getProOfRule()) || oldPRule == null)
+		{
+			ruleMap.put(lhs, new PRule(rule.getProOfRule(), rule.getLhs(), rule.getRhs()));
+		}
+		Set<RewriteRule> ruleSet = pcnf.getRuleByrhs(lhs);
+		if (ruleSet != null)
+		{
+			for (PRule prule : PCFG.convertRewriteRuleSetToPRuleSet(ruleSet))
+			{
+				double pro1 = rule.getProOfRule() * prule.getProOfRule();
+				if (lhsAndProMap.containsKey(prule.getLhs()))
+				{
+					if (lhsAndProMap.get(prule.getLhs()) >= pro1)
+					{
+						continue;
+					}
+				}
+				PRule prule1 = new PRule(pro1, prule.getLhs() + "@" + rule.getLhs(), rule.getRhs());
+				updateRuleMapOfDiagonal(prule1, ruleMap, prule.getLhs(), lhsAndProMap, i, j);
+			}
+		}
+	}
+
+	/**
+	 * 更新table和back表中的数据
+	 * 
+	 * @param rule
+	 *            由ik点和kj点结合的rhs逆推得到的规则
+	 * @param ruleMap
+	 *            本节点，也就是ij点的规则映射
+	 * @param pro
+	 *            ik点和kj点的概率相乘，在后序遍历中赋值为1.0
+	 * @param lhs
+	 *            映射的key值
+	 * @param lhsAndProMap
+	 *            记录映射中作为key值的非终结符及其概率，作为过滤掉重复规则的基础
+	 * @param i
+	 *            table表和back表横坐标
+	 * @param j
+	 *            table表和back表纵坐标
+	 * @param k
+	 *            存储规则的右侧点的位置，ij->ik kj
+	 */
+	private void updateRuleMapOfTable(PRule rule, HashMap<String, RewriteRule> ruleMap, double pro, String lhs,
+			HashMap<String, Double> lhsAndProMap, int i, int j, int k)
+	{
+		PRule oldPRule = (PRule) ruleMap.get(lhs);
+		if (pro != 1.0)
+		{
+			pro = pro * rule.getProOfRule();
+			rule = new PRule(pro, rule.getLhs(), rule.getRhs());
+		}
+		lhsAndProMap.put(lhs, rule.getProOfRule());
+		if ((oldPRule != null && rule.getProOfRule() > oldPRule.getProOfRule()) || oldPRule == null)
+		{
+			ruleMap.put(lhs, rule);
+			back[i][j].getBackMap().put(lhs, k);
+		}
+		Set<RewriteRule> ruleSet = pcnf.getRuleByrhs(lhs);
+		if (ruleSet != null)
+		{
+			for (PRule prule : PCFG.convertRewriteRuleSetToPRuleSet(ruleSet))
+			{
+				double pro1 = rule.getProOfRule() * prule.getProOfRule();
+				if (lhsAndProMap.containsKey(prule.getLhs()))
+				{
+					if (lhsAndProMap.get(prule.getLhs()) >= pro1)
+					{
+						continue;
+					}
+				}
+				PRule prule1 = new PRule(pro1, prule.getLhs() + "@" + rule.getLhs(), rule.getRhs());
+				updateRuleMapOfTable(prule1, ruleMap, 1.0, prule.getLhs(), lhsAndProMap, i, j, k);
+			}
+		}
+	}
+
+	/**
+	 * 更新结果集的数据
+	 * 
+	 * @param rule
+	 *            当前rule
+	 * @param resultMap
+	 *            结果规则集
+	 * @param lhs
+	 *            映射表中规则的key值
+	 * @param lhsAndProMap
+	 *            存储映射表中规则的key值及其概率
+	 * @param pro
+	 *            由上层函数调用时赋值为ik点和kj点的概率相乘，在后序遍历中赋值为1.0
+	 * @param k
+	 *            存储规则的右侧点的位置，ij->ik kj
+	 */
+	private void updateResultMap(PRule rule, HashMap<RewriteRule, Integer> resultMap, String lhs,
+			HashMap<String, Double> lhsAndProMap, double pro, int k)
+	{
+		pro = pro * rule.getProOfRule();
+		if (rule.getLhs().contains(pcnf.getStartSymbol()))
+		{
+			resultMap.put(new PRule(pro, rule.getLhs(), rule.getRhs()), k);
+		}
+		lhsAndProMap.put(lhs, pro);
+		Set<RewriteRule> ruleSet = pcnf.getRuleByrhs(lhs);
+		if (ruleSet != null)
+		{
+			for (PRule prule : PCFG.convertRewriteRuleSetToPRuleSet(ruleSet))
+			{
+				double pro1 = pro * prule.getProOfRule();
+				if (lhsAndProMap.containsKey(prule.getLhs()))
+				{
+					if (lhsAndProMap.get(prule.getLhs()) >= pro1)
+					{
+						continue;
+					}
+				}
+				PRule prule1 = new PRule(pro1, prule.getLhs() + "@" + rule.getLhs(), rule.getRhs());
+				updateResultMap(prule1, resultMap, prule.getLhs(), lhsAndProMap, 1.0, k);
+			}
+		}
+
+	}
+
+	/**
 	 * 生成括号表达式的列表
+	 * 
 	 * @param n
-	 *        句子长度
+	 *            句子长度
 	 * @param numOfResulets
-	 *                 需要获得的句子分析结果个数
+	 *            需要获得的句子分析结果个数
 	 */
 	private void CreatBracketStringList(int n, int numOfResulets)
 	{
 		// 查找概率最大的n个结果
+		System.out.println("结果集合" + resultMap.toString());
 		ArrayList<PRule> resultRuleList = new PCFG().getHighestProRuleFromMap(resultMap, numOfResulets);
 		System.out.println(resultRuleList.toString());
 		resultList = new ArrayList<String>();
@@ -276,11 +426,46 @@ public class ConstituentParserCKY implements ConstituentParser
 	// 递归table和back生成StringBuilder
 	private void CreateStringBuilder(int i, int k, int j, PRule prule, StringBuilder strBuilder)
 	{
-		strBuilder.append("(");
-		strBuilder.append(prule.getLhs());
+		int count = 1;
+		String lhs = prule.getLhs();
+		if (prule.getLhs().contains("@"))
+		{
+			strBuilder.append("(");
+			String[] strArray = lhs.split("@");
+			count += strArray.length;
+			for (String lhs1 : strArray)
+			{
+				// 含有起始符或者为词性标注则跳过
+				if (lhs1.equals(pcnf.getStartSymbol()) || lhs1.contains("$"))
+				{
+					count--;
+					continue;
+				}
+				strBuilder.append("(");
+				strBuilder.append(lhs1);
+			}
+			/*
+			 * 当含有&符号时，不处理此非终结符，直接跳过
+			 */
+		}
+		else if (prule.getLhs().contains("&"))
+		{
+			AddString(i, k, prule, 0, strBuilder);
+			AddString(k, j, prule, 1, strBuilder);
+			return;
+		}
+		else
+		{
+			strBuilder.append("(");
+			strBuilder.append(lhs);
+		}
 		AddString(i, k, prule, 0, strBuilder);
 		AddString(k, j, prule, 1, strBuilder);
-		strBuilder.append(")");
+		while (count > 0)
+		{
+			strBuilder.append(")");
+			count--;
+		}
 	}
 
 	/**
@@ -288,14 +473,37 @@ public class ConstituentParserCKY implements ConstituentParser
 	 */
 	private void AddString(int n, int m, PRule prule, int i, StringBuilder strBuilder)
 	{
-		if (back[n][m].getBackMap().size() == 0)
+		if (table[n][m].isFlag())
 		{// 叶子结点
-			String pos = prule.getRhs().get(i);
+			int count = 1;
+			String DuPos = prule.getRhs().get(i);
+			String pos = table[n][m].getPruleMap().get(DuPos).getLhs();
 			strBuilder.append("(");
-			strBuilder.append(pos);// 词性标注
+			if (pos.contains("$"))
+			{
+
+			}
+			else if (pos.contains("@"))
+			{
+				String[] strArray = pos.split("@");
+				count += strArray.length;
+				for (String pos1 : strArray)
+				{
+					strBuilder.append("(");
+					strBuilder.append(pos1);
+				}
+			}
+			else
+			{
+				strBuilder.append(pos);// 词性标注
+			}
 			strBuilder.append(" ");
-			strBuilder.append(table[n][m].getPruleMap().get(pos).getRhs().get(0));// 词
-			strBuilder.append(")");
+			strBuilder.append(table[n][m].getPruleMap().get(DuPos).getRhs().get(0));// 词
+			while (count > 0)
+			{
+				strBuilder.append(")");
+				count--;
+			}
 		}
 		else
 		{

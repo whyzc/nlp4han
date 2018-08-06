@@ -57,7 +57,7 @@ public class CFGConvertToCNFTest
 
 	}
 
-	/*
+	/**
 	 * 添加新的起始符DuS,新的规则DuS->S(该规则在消除Unit Production时删除)
 	 */
 	@Test
@@ -70,7 +70,7 @@ public class CFGConvertToCNFTest
 		Assert.assertTrue(cnf.getNonTerminalSet().contains("Du" + "S"));
 	}
 
-	/*
+	/**
 	 * 如果规则右侧的字符串个数大于或等于三个则递归减少至两个，在递归前将右侧的终结符转换为非终结符
 	 */
 	@Test
@@ -101,7 +101,7 @@ public class CFGConvertToCNFTest
 		Assert.assertTrue(cnf.getRuleSet().containsAll(set));
 	}
 
-	/*
+	/**
 	 * 右侧有两个，且为终结符与非终结符混合，则将终结转换为非终结符
 	 */
 	@Test
@@ -118,7 +118,7 @@ public class CFGConvertToCNFTest
 		Assert.assertTrue(cnf.getRuleSet().containsAll(set));
 	}
 
-	/*
+	/**
 	 * 消除Unit Production 测试点：1.S->S，DuS->S的移除 2.类似A->B的移除 3.类似A->b的添加(原为B->b)
 	 * 4.类似A->Duc B的添加 5.类似A->C D的添加(原为B->C D)
 	 * 6.类似A->A,BDucDDueDug的添加(原为A->S,S->A,BDucDDueDug的)

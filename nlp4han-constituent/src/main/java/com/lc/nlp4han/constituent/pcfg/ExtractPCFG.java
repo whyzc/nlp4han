@@ -13,13 +13,13 @@ import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 
 public class ExtractPCFG
 {
-	/*
+	/**
 	 * 定义文法的变量
 	 */
 	private PCFG pcfg;
 	private HashMap<PRule, Integer> ruleCounter;
 
-	/*
+	/**
 	 * 生成文法集
 	 */
 	public PCFG CreatePCFG(String fileName, String enCoding) throws IOException
@@ -54,7 +54,7 @@ public class ExtractPCFG
 		}
 	}
 
-	/*
+	/**
 	 * 遍历树得到基本文法
 	 */
 	private void traverseTree(TreeNode node)
@@ -83,7 +83,7 @@ public class ExtractPCFG
 		}
 	}
 
-	/*
+	/**
 	 * 添加规则的计数
 	 */
 	private void addRuleCount(PRule rule)
@@ -98,7 +98,7 @@ public class ExtractPCFG
 		}
 	}
 
-	/*
+	/**
 	 * 计算规则概率
 	 */
 	private void ComputeProOfRule()
@@ -118,7 +118,7 @@ public class ExtractPCFG
 		}
 	}
 
-	/*
+	/**
 	 * 获得计数器
 	 */
 	public HashMap<PRule, Integer> getRuleCounter()

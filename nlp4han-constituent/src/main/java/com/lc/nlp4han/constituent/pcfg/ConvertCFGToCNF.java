@@ -109,7 +109,7 @@ public class ConvertCFGToCNF
 	}
 
 	/**
-	 * 将右侧全部转换为非终结符，并添加新的非终结符，新的规则
+	 * 将规则右侧全部转换为非终结符，并添加该过程产生的新的非终结符，新的规则
 	 */
 	private void ConvertToNonTerRHS(RewriteRule rule)
 	{

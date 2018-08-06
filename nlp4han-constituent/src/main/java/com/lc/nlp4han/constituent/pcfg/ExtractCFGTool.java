@@ -7,7 +7,7 @@ import java.io.OutputStreamWriter;
 
 public class ExtractCFGTool
 {
-	/*
+	/**
 	 * 提取CFG的命令行应用程序
 	 */
 	public static void main(String[] args) throws IOException
@@ -50,7 +50,7 @@ public class ExtractCFGTool
 		}
 	}
 
-	/*
+	/**
 	 * 从树库中提取文法，然后存入文件指定中
 	 */
 	private static void ExtractGrammarToFile(String fromPath, String toPath, String inCoding) throws IOException

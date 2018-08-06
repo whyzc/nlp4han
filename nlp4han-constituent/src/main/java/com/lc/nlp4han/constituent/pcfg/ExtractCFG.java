@@ -11,12 +11,12 @@ import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 
 public class ExtractCFG
 {
-	/*
+	/**
 	 * 定义文法的变量
 	 */
 	private CFG cfg;
 
-	/*
+	/**
 	 * 返回文法集，便于测试
 	 */
 	public CFG getCFG()
@@ -24,7 +24,7 @@ public class ExtractCFG
 		return this.cfg;
 	}
 
-	/*
+	/**
 	 * 生成文法集
 	 */
 	public CFG CreateCFG(String fileName, String enCoding) throws IOException
@@ -46,19 +46,27 @@ public class ExtractCFG
 		return cfg;
 	}
 
-	// 由括号表达式的list得到对应的文法集合
+	/**
+	 * 由括号表达式的list得到对应的文法集合
+	 * @param bracketStrList
+	 * @throws IOException
+	 */
 	public void bracketStrListConvertToGrammar(ArrayList<String> bracketStrList) throws IOException
 	{
 		cfg = new CFG();
 		for (String bracketStr : bracketStrList)
 		{
 			TreeNode rootNode1 = BracketExpUtil.generateTree(bracketStr);
+			System.out.println("测试"+rootNode1.toString());
 			traverseTree(rootNode1);
 		}
 	}
 
-	/*
+	/**
 	 * 遍历树得到CFG
+	 */
+	/**
+	 * @param node
 	 */
 	public void traverseTree(TreeNode node)
 	{

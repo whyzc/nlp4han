@@ -28,6 +28,7 @@ public class BracketTest {
 	    treeNode=BracketExpUtil.generateTree(string);
 	    TraverseTree(treeNode);    
 	}
+	@SuppressWarnings("static-access")
 	@Test
 	public void BracketConvertTest() throws IOException {
 		//System.out.println(headTreeNode.toString());

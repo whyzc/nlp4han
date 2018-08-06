@@ -5,6 +5,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
+/**
+ * @author qyl
+ *
+ */
 public class ConvertCFGToCNFTool
 {
 
@@ -39,6 +43,13 @@ public class ConvertCFGToCNFTool
 
 	}
 
+	/**
+	 * 从文档中读取CFG,然后转为CNF并存储到指定文件
+	 * @param CFGpath
+	 * @param CNFpath
+	 * @param encoding
+	 * @throws IOException
+	 */
 	private static void readCFGAndConvertToCNF(String CFGpath, String CNFpath, String encoding) throws IOException
 	{
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(CNFpath), encoding));
