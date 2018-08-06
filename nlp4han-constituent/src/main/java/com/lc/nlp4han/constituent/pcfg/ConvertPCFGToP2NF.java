@@ -95,7 +95,7 @@ public class ConvertPCFGToP2NF
 	}
 
 	/**
-	 * 每次选择最右侧字符串的两个为新的规则的右侧字符串
+	 * 每次选择最右侧字符串的两个为新的规则的右侧字符串，以&联接两个非终结符，如此，方便在P2NF转回为CFG
 	 */
 	private void reduceRHSNum(RewriteRule rule)
 	{

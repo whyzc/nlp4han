@@ -36,7 +36,6 @@ public class ExtractCFG
 		ArrayList<String> bracketStrList = new ArrayList<String>();
 		while (bracketStr.length() != 0)
 		{
-			bracketStr = "(" + bracketStr + ")";
 			bracketStrList.add(bracketStr);
 			bracketStr = ptbt.read();
 		}
@@ -56,8 +55,7 @@ public class ExtractCFG
 		cfg = new CFG();
 		for (String bracketStr : bracketStrList)
 		{
-			TreeNode rootNode1 = BracketExpUtil.generateTree(bracketStr);
-			System.out.println("测试"+rootNode1.toString());
+			TreeNode rootNode1 = BracketExpUtil.generateTreeNotDeleteBracket(bracketStr);
 			traverseTree(rootNode1);
 		}
 	}

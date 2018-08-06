@@ -21,6 +21,7 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 	public ConstituentParserCKYOfP2NF(PCFG pcnf)
 	{
 		this.pcnf = pcnf;
+
 	}
 
 	/**
@@ -101,7 +102,7 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 		int i = 0;
 		for (String bracketString : bracketList)
 		{
-			TreeNode rootNode = BracketExpUtil.generateTree(bracketString);
+			TreeNode rootNode = BracketExpUtil.generateTreeNotDeleteBracket(bracketString);
 			treeArray[i++] = new ConstituentTree(rootNode);
 		}
 		return treeArray;
@@ -113,7 +114,7 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 	 * @param words
 	 *            分词序列
 	 * 
-	 * @param pse
+	 * @param pos
 	 *            词性标注
 	 * 
 	 * @param numOfResulets
@@ -235,9 +236,9 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 							double pro = ikPro * kjPro;
 							PRule prule = (PRule) itr.next();
 							if (i == 0 && j == n)
-							{// 若为最终节点，则选择左侧为起始符的添加，不管概率大小是多少
-								HashMap<String, Double> lhsAndProMap = new HashMap<String, Double>();
-								updateResultMap(prule, resultMap, prule.getLhs(), lhsAndProMap, pro, k);
+							{// 若为最终节点，则添加左侧为起始符的规则
+
+								updateResultMap(prule, resultMap, prule.getLhs(), pro, k);
 							}
 							else
 							{
@@ -253,7 +254,9 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 	}
 
 	/**
-	 * 更新对角线上的点
+	 * 更新对角线上的点 在遇到单位产品时，新建规则，pro=P1*P2,LHS=prule.getLhs() + "@" +
+	 * rule.getLhs()，RHS=rule.getRhs()。并在Map中以prule.getLhs()作为key值，
+	 * 取出时通过ruleMap中规则左侧获取整个消除过程，例如：A->B->S将赋值为 A@B@S
 	 * 
 	 * @param rule
 	 *            由ik点和kj点结合的rhs逆推得到的规则
@@ -314,14 +317,14 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 	 * @param j
 	 *            table表和back表纵坐标
 	 * @param k
-	 *            存储规则的右侧点的位置，ij->ik kj
+	 *            存储规则的右侧点的分裂位置，ij->ik kj
 	 */
 	private void updateRuleMapOfTable(PRule rule, HashMap<String, RewriteRule> ruleMap, double pro, String lhs,
 			HashMap<String, Double> lhsAndProMap, int i, int j, int k)
 	{
 		PRule oldPRule = (PRule) ruleMap.get(lhs);
 		if (pro != 1.0)
-		{
+		{// 递归的第一层
 			pro = pro * rule.getProOfRule();
 			rule = new PRule(pro, rule.getLhs(), rule.getRhs());
 		}
@@ -366,37 +369,31 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 	 * @param k
 	 *            存储规则的右侧点的位置，ij->ik kj
 	 */
-	private void updateResultMap(PRule rule, HashMap<RewriteRule, Integer> resultMap, String lhs,
-			HashMap<String, Double> lhsAndProMap, double pro, int k)
+	private void updateResultMap(PRule rule, HashMap<RewriteRule, Integer> resultMap, String lhs, double pro, int k)
 	{
 		pro = pro * rule.getProOfRule();
 		if (rule.getLhs().contains(pcnf.getStartSymbol()))
 		{
-			resultMap.put(new PRule(pro, rule.getLhs(), rule.getRhs()), k);
+			resultMap.put(rule, k);
 		}
-		lhsAndProMap.put(lhs, pro);
 		Set<RewriteRule> ruleSet = pcnf.getRuleByrhs(lhs);
 		if (ruleSet != null)
 		{
 			for (PRule prule : PCFG.convertRewriteRuleSetToPRuleSet(ruleSet))
 			{
 				double pro1 = pro * prule.getProOfRule();
-				if (lhsAndProMap.containsKey(prule.getLhs()))
+				if (rule.getLhs().contains(prule.getLhs()))
 				{
-					if (lhsAndProMap.get(prule.getLhs()) >= pro1)
-					{
-						continue;
-					}
+					continue;
 				}
 				PRule prule1 = new PRule(pro1, prule.getLhs() + "@" + rule.getLhs(), rule.getRhs());
-				updateResultMap(prule1, resultMap, prule.getLhs(), lhsAndProMap, 1.0, k);
+				updateResultMap(prule1, resultMap, prule.getLhs(), 1.0, k);
 			}
 		}
-
 	}
 
 	/**
-	 * 生成括号表达式的列表
+	 * 生成结果括号表达式的列表
 	 * 
 	 * @param n
 	 *            句子长度
@@ -406,19 +403,15 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 	private void CreatBracketStringList(int n, int numOfResulets)
 	{
 		// 查找概率最大的n个结果
-		System.out.println("结果集合" + resultMap.toString());
+		System.out.println(resultMap.toString());
 		ArrayList<PRule> resultRuleList = new PCFG().getHighestProRuleFromMap(resultMap, numOfResulets);
-		System.out.println(resultRuleList.toString());
 		resultList = new ArrayList<String>();
 		for (PRule prule : resultRuleList)
 		{
 			StringBuilder strBuilder = new StringBuilder();
-			// 从最后一个节点开始回溯
+			// 从最后一个节点[0,n]开始回溯
 			int k = resultMap.get(prule);
-			strBuilder.append("(");
-			strBuilder.append("ROOT");
 			CreateStringBuilder(0, k, n, prule, strBuilder);
-			strBuilder.append(")");
 			resultList.add(strBuilder.toString());
 		}
 	}
@@ -429,13 +422,13 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 		int count = 1;
 		String lhs = prule.getLhs();
 		if (prule.getLhs().contains("@"))
-		{
+		{// 存在单位产品则恢复
 			strBuilder.append("(");
 			String[] strArray = lhs.split("@");
 			count += strArray.length;
 			for (String lhs1 : strArray)
 			{
-				// 含有起始符或者为词性标注则跳过
+				// 含有起始符或者为伪词性标注则跳过
 				if (lhs1.equals(pcnf.getStartSymbol()) || lhs1.contains("$"))
 				{
 					count--;
@@ -445,7 +438,7 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 				strBuilder.append(lhs1);
 			}
 			/*
-			 * 当含有&符号时，不处理此非终结符，直接跳过
+			 * 当含有&符号时，则为两个非终结符在中间过程合成的，故不处理此非终结符，直接跳过
 			 */
 		}
 		else if (prule.getLhs().contains("&"))
@@ -479,17 +472,19 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 			String DuPos = prule.getRhs().get(i);
 			String pos = table[n][m].getPruleMap().get(DuPos).getLhs();
 			strBuilder.append("(");
+			// 为终结符，类似"$中国$"，直接跳过
 			if (pos.contains("$"))
 			{
 
 			}
+			// 恢复单位产品
 			else if (pos.contains("@"))
 			{
 				String[] strArray = pos.split("@");
 				count += strArray.length;
 				for (String pos1 : strArray)
 				{
-					strBuilder.append("(");
+					strBuilder.append("(");// 此处多打一个括号没有关系，因为在生成树的时候会格式化，去掉空的括号表达式
 					strBuilder.append(pos1);
 				}
 			}

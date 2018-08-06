@@ -101,7 +101,7 @@ public class ConstituentParserCKY implements ConstituentParser
 		int i = 0;
 		for (String bracketString : bracketList)
 		{
-			TreeNode rootNode = BracketExpUtil.generateTree(bracketString);
+			TreeNode rootNode = BracketExpUtil.generateTreeNotDeleteBracket(bracketString);
 			treeArray[i++] = new ConstituentTree(rootNode);
 		}
 		return treeArray;
@@ -265,10 +265,7 @@ public class ConstituentParserCKY implements ConstituentParser
 			StringBuilder strBuilder = new StringBuilder();
 			// 从最后一个节点开始回溯
 			int k = resultMap.get(prule);
-			strBuilder.append("(");
-			strBuilder.append("ROOT");
 			CreateStringBuilder(0, k, n, prule, strBuilder);
-			strBuilder.append(")");
 			resultList.add(strBuilder.toString());
 		}
 	}
