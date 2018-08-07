@@ -33,7 +33,6 @@ public class ExtractPCFG
 		ArrayList<String> bracketStrList = new ArrayList<String>();
 		while (bracketStr.length() != 0)
 		{
-			bracketStr = "(" + bracketStr + ")";
 			bracketStrList.add(bracketStr);
 			bracketStr = ptbt.read();
 		}
@@ -49,7 +48,7 @@ public class ExtractPCFG
 	{
 		for (String bracketStr : bracketStrList)
 		{
-			TreeNode rootNode1 = BracketExpUtil.generateTree(bracketStr);
+			TreeNode rootNode1 = BracketExpUtil.generateTreeNotDeleteBracket(bracketStr);
 			traverseTree(rootNode1);
 		}
 	}
