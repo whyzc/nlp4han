@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.nlp4han.sentiment.SentimentAnalyzer;
+import org.nlp4han.sentiment.SentimentPolarity;
+
 import com.lc.nlp4han.ml.model.ClassificationModel;
 import com.lc.nlp4han.ml.model.Event;
 import com.lc.nlp4han.ml.util.EventTrainer;

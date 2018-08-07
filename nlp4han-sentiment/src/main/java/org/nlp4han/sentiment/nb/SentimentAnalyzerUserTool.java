@@ -3,6 +3,8 @@ package org.nlp4han.sentiment.nb;
 import java.io.File;
 import java.io.IOException;
 
+import org.nlp4han.sentiment.SentimentPolarity;
+
 import com.lc.nlp4han.ml.util.ModelWrapper;
 /**
  * 情感分析器用户使用接口

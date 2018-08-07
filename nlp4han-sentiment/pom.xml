@@ -37,5 +37,16 @@
   		<artifactId>nlp4han-constituent</artifactId>
   		<version>0.1</version>
   	</dependency>
+  	<dependency>
+			<groupId>edu.stanford.nlp</groupId>
+			<artifactId>stanford-corenlp</artifactId>
+			<version>3.9.1</version>
+		</dependency>
+  	<dependency>
+			<groupId>edu.stanford.nlp</groupId>
+			<artifactId>stanford-corenlp</artifactId>
+			<version>3.9.1</version>
+			<classifier>models-chinese</classifier>
+		</dependency>
   </dependencies>
 </project>
