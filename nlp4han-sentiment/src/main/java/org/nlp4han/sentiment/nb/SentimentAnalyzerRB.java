@@ -25,10 +25,10 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 	private Map<String, String> dictionary = new HashMap<>();
 	private TreeGenerator treeGen;
 
-	public SentimentAnalyzerRB(String dicPath, TreeGenerator treeGen, String encoding) throws IOException
+	public SentimentAnalyzerRB( TreeGenerator treeGen) throws IOException
 	{
 		this.treeGen = treeGen;
-		init(dicPath, encoding);
+		init();
 	}
 
 	/**
@@ -38,10 +38,10 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 	 * @param encoding
 	 * @throws IOException 
 	 */
-	private void init(String dicPath, String encoding) throws IOException
+	private void init() throws IOException
 	{
-			FileInputStream fr = new FileInputStream(dicPath);
-			BufferedReader br = new BufferedReader(new InputStreamReader(fr,encoding));
+			FileInputStream fr = new FileInputStream("./resources/dictionary.text");
+			BufferedReader br = new BufferedReader(new InputStreamReader(fr,"GBK"));
 			String str = "";
 			while ((str = br.readLine()) != null)
 			{

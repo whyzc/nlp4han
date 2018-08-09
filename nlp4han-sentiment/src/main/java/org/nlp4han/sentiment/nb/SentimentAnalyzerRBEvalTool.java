@@ -20,8 +20,6 @@ public class SentimentAnalyzerRBEvalTool
 		}
 		
 		String dataPath = "";
-		String dicPath ="";
-		//String modelPath = "";
 		String encoding="gbk";
 		
 		for (int i=0; i<args.length; i++)
@@ -31,19 +29,15 @@ public class SentimentAnalyzerRBEvalTool
 				dataPath = args[i+1];
 				i++;
 			}
-			if (args[i].equals("-dic"))
-			{
-				dicPath = args[i+1];
-				i++;
-			}
 			if (args[i].equals("-encoding"))
 			{
 				encoding = args[i+1];
 				i++;
 			}
 			
-		}		
+		}
 		
+		long startTime = System.currentTimeMillis();
 		File dataFile = new File(dataPath);
 		
 		ObjectStream<String> lineStream =new PlainTextByLineStream(
@@ -52,13 +46,12 @@ public class SentimentAnalyzerRBEvalTool
 				new SentimentTextSampleStream(lineStream); 
 		
 		TreeGenerator treeGen = new TreeGenerator();
-		SentimentAnalyzerRB analyzer = new SentimentAnalyzerRB(dicPath, treeGen, encoding);
+		SentimentAnalyzerRB analyzer = new SentimentAnalyzerRB( treeGen);
 		SentimentAnalyzerEvaluator evaluator = 
 				new SentimentAnalyzerEvaluator(analyzer);
 		
-		evaluator.evaluate(sampleStream);
+		evaluator.evaluate(sampleStream);		
 		
-		long startTime = System.currentTimeMillis();
 		SentimentAnalyzerMeasure measure = evaluator.getMeasure();
 		System.out.println(measure);
 		System.out.println("评估时间："+(System.currentTimeMillis()-startTime));
@@ -67,7 +60,7 @@ public class SentimentAnalyzerRBEvalTool
 	private static void usage()
 	{
 		System.out.println(SentimentAnalyzerRBEvalTool.class.getName()
-				+ "-data <testDataPath> -dic <dictionaryPath> -encoding <encoding>");
+				+ "-data <testDataPath>  -encoding <encoding>");
 	}
 	
 
