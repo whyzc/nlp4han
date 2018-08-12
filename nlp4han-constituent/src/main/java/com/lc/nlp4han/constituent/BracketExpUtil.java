@@ -28,7 +28,7 @@ public class BracketExpUtil
 		bracketStr = formatNotDeleteBracket(bracketStr);
 		return generateProcess(bracketStr);
 	}
-    
+
 	/**
 	 * 遍历树，将树中的-RRB-和-LRB-转换为左右括号
 	 * 
@@ -88,31 +88,40 @@ public class BracketExpUtil
 	}
 
 	/**
-	 * 格式化为形如：(A(B1(C1 d1)(C2 d2))(B2 d3)) 的括号表达式。叶子及其父节点用一个空格分割，其他字符紧密相连。
+	 * 格式化为形如：A(B1(C1 d1)(C2 d2))(B2 d3) 的括号表达式。叶子及其父节点用一个空格分割，其他字符紧密相连。
+	 * 
+	 * 去掉最外围的一对括号。
 	 * 
 	 * @param bracketStr
-	 *            从训练语料拼接出的一棵树
+	 *            括号表达式
 	 */
 	public static String format(String bracketStr)
 	{
+		bracketStr = bracketStr.trim();
+		
 		// 去除最外围的括号
 		bracketStr = bracketStr.substring(1, bracketStr.length() - 1).trim();
+
 		return formatProcess(bracketStr);
 	}
 
 	/**
-	 * 格式化为形如：(A(B1(C1 d1)(C2 d2))(B2 d3)) 的括号表达式。叶子及其父节点用一个空格分割，其他字符紧密相连。，但是不去掉最外层括号表达式
+	 * 格式化为形如：(A(B1(C1 d1)(C2 d2))(B2 d3)) 的括号表达式。叶子及其父节点用一个空格分割，其他字符紧密相连.
+	 * 
+	 * 不去掉最外层括号表达式
+	 * 
 	 * @param bracketStr
-	 *                 从训练语料拼接出的一棵树
+	 *            括号表达式
 	 * @return
 	 */
 	public static String formatNotDeleteBracket(String bracketStr)
 	{
-		// 不去除最外围的括号
 		bracketStr = bracketStr.trim();
 		return formatProcess(bracketStr);
 	}
-	private static String formatProcess(String bracketStr) {
+
+	private static String formatProcess(String bracketStr)
+	{
 		// 所有空白符替换成一位空格
 		bracketStr = bracketStr.replaceAll("\\s+", " ");
 
@@ -122,6 +131,7 @@ public class BracketExpUtil
 		{
 			if (bracketStr.charAt(c) == ' ' && (bracketStr.charAt(c + 1) == '(' || bracketStr.charAt(c + 1) == ')'))
 			{
+				// 跳过空格
 				continue;
 			}
 			else
@@ -132,7 +142,9 @@ public class BracketExpUtil
 
 		return newTree;
 	}
-	private static TreeNode generateProcess(String bracketStr) {
+
+	private static TreeNode generateProcess(String bracketStr)
+	{
 		List<String> parts = stringToList(bracketStr);
 
 		Stack<TreeNode> tree = new Stack<TreeNode>();
