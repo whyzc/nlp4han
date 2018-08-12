@@ -1,5 +1,8 @@
 package com.lc.nlp4han.constituent;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -13,7 +16,58 @@ import java.util.Stack;
  */
 public class BracketExpUtil
 {
+	/**
+	 * 从字符串中读取一个或多个括号表达式
+	 * 
+	 * 一行最多只能有一个完整的括号表达式
+	 * 
+	 * @param str
+	 * @return 括号表达式列表
+	 * @throws IOException
+	 */
+	public static ArrayList<String> readBrackets(String str) throws IOException
+	{
+		BufferedReader in = new BufferedReader(new StringReader(str));
+		ArrayList<String> brackets = new ArrayList<String>();
+		String line = "";
+		String bracketStr = "";
+		int left = 0;
+		int right = 0;
+		while ((line = in.readLine()) != null)
+		{
+			if (line != "" && !line.equals(""))
+			{
+				line = line.replaceAll("\n", "");
+				char[] chars = line.trim().toCharArray();
+				
+				bracketStr += line.trim();
+				
+				for (int i = 0; i < chars.length; i++)
+				{
+					if (chars[i] == '(')
+					{
+						left++;
+					}
+					else if (chars[i] == ')')
+					{
+						right++;
+					}
+				}
 
+				if (left == right && left>0)
+				{
+					brackets.add(bracketStr);
+					
+					bracketStr = "";
+					left = right = 0;
+				}
+			}
+		}
+
+		return brackets;
+	}
+
+	// 去掉最外围一层的括号和文法符号
 	public static TreeNode generateTree(String bracketStr)
 	{
 		bracketStr = format(bracketStr);
@@ -28,7 +82,7 @@ public class BracketExpUtil
 		bracketStr = formatNotDeleteBracket(bracketStr);
 		return generateProcess(bracketStr);
 	}
-    
+
 	/**
 	 * 遍历树，将树中的-RRB-和-LRB-转换为左右括号
 	 * 
@@ -49,6 +103,7 @@ public class BracketExpUtil
 			}
 			return;
 		}
+		
 		for (TreeNode childNode : node.getChildren())
 		{
 			TraverseTreeConvertRRBAndLRB(childNode);
@@ -57,6 +112,8 @@ public class BracketExpUtil
 
 	/**
 	 * 将括号表达式去掉空格转成列表的形式
+	 * 
+	 * 列表中含: 括号、空格和终结符、非终结符
 	 * 
 	 * @param bracketStr
 	 *            括号表达式
@@ -67,15 +124,17 @@ public class BracketExpUtil
 		List<String> parts = new ArrayList<String>();
 		for (int index = 0; index < bracketStr.length(); ++index)
 		{
-			if (bracketStr.charAt(index) == '(' || bracketStr.charAt(index) == ')' || bracketStr.charAt(index) == ' ')
+			char c = bracketStr.charAt(index);
+			if (c == '(' || c == ')' || c == ' ')
 			{
-				parts.add(Character.toString(bracketStr.charAt(index)));
+				parts.add(Character.toString(c));
 			}
 			else
 			{
 				for (int i = index + 1; i < bracketStr.length(); ++i)
 				{
-					if (bracketStr.charAt(i) == '(' || bracketStr.charAt(i) == ')' || bracketStr.charAt(i) == ' ')
+					char c2 = bracketStr.charAt(i);
+					if (c2 == '(' || c2 == ')' || c2 == ' ')
 					{
 						parts.add(bracketStr.substring(index, i));
 						index = i - 1;
@@ -88,31 +147,40 @@ public class BracketExpUtil
 	}
 
 	/**
-	 * 格式化为形如：(A(B1(C1 d1)(C2 d2))(B2 d3)) 的括号表达式。叶子及其父节点用一个空格分割，其他字符紧密相连。
+	 * 格式化为形如：A(B1(C1 d1)(C2 d2))(B2 d3) 的括号表达式。叶子及其父节点用一个空格分割，其他字符紧密相连。
+	 * 
+	 * 去掉最外围的一对括号。
 	 * 
 	 * @param bracketStr
-	 *            从训练语料拼接出的一棵树
+	 *            括号表达式
 	 */
 	public static String format(String bracketStr)
 	{
+		bracketStr = bracketStr.trim();
+		
 		// 去除最外围的括号
 		bracketStr = bracketStr.substring(1, bracketStr.length() - 1).trim();
+
 		return formatProcess(bracketStr);
 	}
 
 	/**
-	 * 格式化为形如：(A(B1(C1 d1)(C2 d2))(B2 d3)) 的括号表达式。叶子及其父节点用一个空格分割，其他字符紧密相连。，但是不去掉最外层括号表达式
+	 * 格式化为形如：(A(B1(C1 d1)(C2 d2))(B2 d3)) 的括号表达式。叶子及其父节点用一个空格分割，其他字符紧密相连.
+	 * 
+	 * 不去掉最外层括号表达式
+	 * 
 	 * @param bracketStr
-	 *                 从训练语料拼接出的一棵树
+	 *            括号表达式
 	 * @return
 	 */
 	public static String formatNotDeleteBracket(String bracketStr)
 	{
-		// 不去除最外围的括号
 		bracketStr = bracketStr.trim();
 		return formatProcess(bracketStr);
 	}
-	private static String formatProcess(String bracketStr) {
+
+	private static String formatProcess(String bracketStr)
+	{
 		// 所有空白符替换成一位空格
 		bracketStr = bracketStr.replaceAll("\\s+", " ");
 
@@ -122,6 +190,7 @@ public class BracketExpUtil
 		{
 			if (bracketStr.charAt(c) == ' ' && (bracketStr.charAt(c + 1) == '(' || bracketStr.charAt(c + 1) == ')'))
 			{
+				// 跳过空格
 				continue;
 			}
 			else
@@ -132,24 +201,27 @@ public class BracketExpUtil
 
 		return newTree;
 	}
-	private static TreeNode generateProcess(String bracketStr) {
+
+	private static TreeNode generateProcess(String bracketStr)
+	{
 		List<String> parts = stringToList(bracketStr);
 
 		Stack<TreeNode> tree = new Stack<TreeNode>();
 		int wordindex = 0;
 		for (int i = 0; i < parts.size(); i++)
-		{// 将表达式中的-LRB-和-RRB-转换为"(",")"
-			if (!parts.get(i).equals(")") && !parts.get(i).equals(" "))
+		{
+			String str = parts.get(i);
+			if (!str.equals(")") && !str.equals(" ")) // 左括号或文法符号
 			{
-				TreeNode tn = new TreeNode(parts.get(i));
+				TreeNode tn = new TreeNode(str);
 				tn.setFlag(true);
 				tree.push(tn);
 			}
-			else if (parts.get(i).equals(" "))
+			else if (str.equals(" "))
 			{
 
 			}
-			else if (parts.get(i).equals(")"))
+			else if (str.equals(")"))
 			{
 				Stack<TreeNode> temp = new Stack<TreeNode>();
 				while (!tree.peek().getNodeName().equals("("))
@@ -159,6 +231,7 @@ public class BracketExpUtil
 						temp.push(tree.pop());
 					}
 				}
+				
 				tree.pop();
 				TreeNode node = temp.pop();
 				while (!temp.isEmpty())
@@ -175,11 +248,14 @@ public class BracketExpUtil
 						node.addChild(temp.pop());
 					}
 				}
+				
 				tree.push(node);
 			}
 		}
-		TraverseTreeConvertRRBAndLRB(tree.peek());
+		
+		// 将表达式中的-LRB-和-RRB-转换为"(",")"
 		TreeNode treeStruct = tree.pop();
+		TraverseTreeConvertRRBAndLRB(treeStruct);
 		return treeStruct;
 	}
 }
