@@ -2,6 +2,7 @@ package com.lc.nlp4han.constituent;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -16,14 +17,17 @@ import java.util.Stack;
 public class BracketExpUtil
 {
 	/**
-	 * 从流中读取一个或多个括号表达式
+	 * 从字符串中读取一个或多个括号表达式
 	 * 
-	 * @param in
+	 * 一行最多只能有一个完整的括号表达式
+	 * 
+	 * @param str
 	 * @return 括号表达式列表
 	 * @throws IOException
 	 */
-	public static ArrayList<String> readBrackets(BufferedReader in) throws IOException
+	public static ArrayList<String> readBrackets(String str) throws IOException
 	{
+		BufferedReader in = new BufferedReader(new StringReader(str));
 		ArrayList<String> brackets = new ArrayList<String>();
 		String line = "";
 		String bracketStr = "";

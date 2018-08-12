@@ -1,6 +1,8 @@
 package com.lc.nlp4han.constituent;
 
 import java.io.IOException;
+import java.util.ArrayList;
+
 import static org.junit.Assert.*;
 
 import org.junit.Assert;
@@ -131,5 +133,23 @@ public class BracketTest
 		String s2 = tree2.toString();
 		String formatStr2 = BracketExpUtil.format(s2);	
 		assertEquals(expectStr2, formatStr2);
+	}
+	
+	@Test
+	public void readBrackesTest() throws IOException
+	{
+		String bracketStr1 = "(A (B1(C1 d1)(C2 d2)) \r\n (D3 d3)) ";
+		String bracketStr2 = "(A \n (B1(C1 d1)(C2 d2)) (D3 d3)) \n (A (B1 b1)) ";
+		String bstr2 = "(A(B1 b1))";
+		
+		ArrayList<String> brackets = BracketExpUtil.readBrackets(bracketStr1);		
+		assertEquals(1, brackets.size());
+		
+		brackets = BracketExpUtil.readBrackets(bracketStr2);	
+		assertEquals(2, brackets.size());
+		
+		String bstr = brackets.get(1);
+		String fstr = BracketExpUtil.formatNotDeleteBracket(bstr);	
+		assertEquals(bstr2, fstr);
 	}
 }
