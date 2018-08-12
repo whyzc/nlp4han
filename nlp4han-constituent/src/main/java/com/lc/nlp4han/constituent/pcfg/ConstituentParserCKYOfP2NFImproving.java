@@ -142,19 +142,18 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 		// 开始剖析
 		for (int j = 1; j <= n; j++)
 		{// 从第一列开始，由左往右
-			/*
-			 * 由分词结果反推得到规则，并进行table表对角线的初始化
-			 */
+			//由分词结果反推得到规则，并进行table表对角线的初始化
+			HashMap<String, ArrayList<CKYPRule>> ruleMap = table[j - 1][j].getPruleMap();
 			if (pos == null)
 			{
 				ArrayList<String> rhs = new ArrayList<String>();
 				rhs.add(words[j - 1]);
 				Set<PRule> ruleSet = PCFG.convertRewriteRuleSetToPRuleSet(pcnf.getRuleByrhs(rhs));
-				HashMap<String, ArrayList<CKYPRule>> ruleMap = table[j - 1][j].getPruleMap();
 				for (PRule rule : ruleSet)
 				{
 					ArrayList<CKYPRule> ckyPRulList = new ArrayList<CKYPRule>();
-					ckyPRulList.add(new CKYPRule(1.0, rule.getLhs(), words[j - 1], 0, 0, 0));
+					//此处延迟概率初始化至updateRuleMapOfTable
+					ckyPRulList.add(new CKYPRule(1.0, rule.getLhs(),rule.getRhs(), 0, 0, 0));
 					HashMap<String, Double> lhsAndProMap = new HashMap<String, Double>();
 					updateRuleMapOfTable(rule, ruleMap, rule.getLhs(), ckyPRulList, numOfResulets, lhsAndProMap);
 				}
@@ -164,7 +163,9 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 				// 根据分词和词性标注的结果进行table表对角线的j初始化
 				ArrayList<CKYPRule> ckyPRulList = new ArrayList<CKYPRule>();
 				ckyPRulList.add(new CKYPRule(1.0, pos[j - 1], words[j - 1], 0, 0, 0));
-				table[j - 1][j].getPruleMap().put(pos[j - 1], ckyPRulList);
+				PRule rule=new PRule(1.0,pos[j - 1],words[j - 1]);
+				HashMap<String, Double> lhsAndProMap = new HashMap<String, Double>();
+				updateRuleMapOfTable(rule, ruleMap, rule.getLhs(), ckyPRulList, numOfResulets, lhsAndProMap);
 			}
 			if (j <= 1)
 			{
