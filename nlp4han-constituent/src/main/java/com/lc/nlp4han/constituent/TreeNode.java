@@ -26,8 +26,7 @@ public class TreeNode implements Cloneable
 	private int index;
 
 	/**
-	 * 在句法分析的去除空节点的预处理步骤中：用来标记当前节点是否是空节点 ，是false
-	 * 在语义分析的去除空节点的预处理步骤中：用来标记当前节点是否是空节点
+	 * 在句法分析的去除空节点的预处理步骤中：用来标记当前节点是否是空节点 ，是false 在语义分析的去除空节点的预处理步骤中：用来标记当前节点是否是空节点
 	 * 在语义分析的剪枝的预处理步骤中：用来标记当前节点是否已被剪枝
 	 */
 	// XXX: 是否需要？是否在子类中引入？
@@ -69,9 +68,10 @@ public class TreeNode implements Cloneable
 	}
 
 	/**
-	 *  添加子节点
-	 *  
-	 * @param children 子节点名字
+	 * 添加子节点
+	 * 
+	 * @param children
+	 *            子节点名字
 	 */
 	public void addChild(String children)
 	{
@@ -84,8 +84,8 @@ public class TreeNode implements Cloneable
 	}
 
 	/**
-	 *  添加数个孩子
-	 *  
+	 * 添加数个孩子
+	 * 
 	 * @param children
 	 */
 	public void addChild(TreeNode[] children)
@@ -115,7 +115,8 @@ public class TreeNode implements Cloneable
 	}
 
 	/**
-	 *  判断是否为叶子节点
+	 * 判断是否为叶子节点
+	 * 
 	 * @return
 	 */
 	public boolean isLeaf()
@@ -189,6 +190,7 @@ public class TreeNode implements Cloneable
 
 	/**
 	 * 子节点的个数
+	 * 
 	 * @return
 	 */
 	public int getChildrenNum()
@@ -198,6 +200,7 @@ public class TreeNode implements Cloneable
 
 	/**
 	 * 节点名称
+	 * 
 	 * @return
 	 */
 	public String getNodeName()
@@ -229,6 +232,7 @@ public class TreeNode implements Cloneable
 
 	/**
 	 * 返回父节点
+	 * 
 	 * @return
 	 */
 	public TreeNode getParent()
@@ -238,6 +242,7 @@ public class TreeNode implements Cloneable
 
 	/**
 	 * 返回子节点列表
+	 * 
 	 * @return
 	 */
 	public List<? extends TreeNode> getChildren()
@@ -263,7 +268,7 @@ public class TreeNode implements Cloneable
 	{
 		if (this.children.size() == 0)
 		{
-			return " "+BracketConvert(this.getNodeName());
+			return " " + BracketConvert(this.getNodeName());
 		}
 		else
 		{
@@ -289,7 +294,7 @@ public class TreeNode implements Cloneable
 	{
 		if (this.children.size() == 0)
 		{
-			return " " +BracketConvert(this.getNodeName())+ "[" + this.wordindex + "]";
+			return " " + BracketConvert(this.getNodeName()) + "[" + this.wordindex + "]";
 		}
 		else
 		{
@@ -314,7 +319,7 @@ public class TreeNode implements Cloneable
 	{
 		if (this.children.size() == 0 && this.flag == true)
 		{
-            return " "+BracketConvert(this.getNodeName());
+			return " " + BracketConvert(this.getNodeName());
 		}
 		else
 		{
@@ -323,13 +328,13 @@ public class TreeNode implements Cloneable
 			{
 				treestr = "(" + this.nodename;
 			}
-			
+
 			for (TreeNode node : this.children)
 			{
 
 				treestr += node.toStringNoNone();
 			}
-			
+
 			if (this.flag == true)
 			{
 				treestr += ")";
@@ -377,13 +382,13 @@ public class TreeNode implements Cloneable
 			{
 				treestr = "(" + this.nodename;
 			}
-			
+
 			for (TreeNode node : this.children)
 			{
 
 				treestr += node.toStringWordIndexNoNone();
 			}
-			
+
 			if (this.flag == true)
 			{
 				treestr += ")";
@@ -409,14 +414,14 @@ public class TreeNode implements Cloneable
 				&& tree.getFirstChild().getFirstChild().getChildrenNum() == 0)
 		{
 			return "(" + tree.getNodeName() + " " + "(" + tree.getFirstChild().getNodeName() + " "
-					+BracketConvert(tree.getFirstChild().getFirstChild().getNodeName())+ ")" + ")";
+					+ BracketConvert(tree.getFirstChild().getFirstChild().getNodeName()) + ")" + ")";
 		}
 		else if (tree.getChildrenNum() > 1 && firstChildIsPosAndWord(tree))
 		{
 			String str = "";
 			str += "(" + tree.getNodeName();
 			str += " " + "(" + tree.getFirstChild().getNodeName() + " "
-					+BracketConvert(tree.getFirstChild().getFirstChild().getNodeName())+ ")" + "\n";
+					+ BracketConvert(tree.getFirstChild().getFirstChild().getNodeName()) + ")" + "\n";
 			String s = "";
 			for (int i = 1; i < tree.getChildrenNum(); i++)
 			{
@@ -528,16 +533,23 @@ public class TreeNode implements Cloneable
 		}
 		return false;
 	}
+
 	/*
 	 * 若节点的名称为"("或者")",则将其输出为"-LRB"或者"-RRB-"
 	 */
-	public static String BracketConvert(String nodeName) {
+	public static String BracketConvert(String nodeName)
+	{
 		String treestr = "";
-		if(nodeName=="(") {
+		if (nodeName == "(")
+		{
 			treestr = "-LRB-";
-		}else if(nodeName==")") {
+		}
+		else if (nodeName == ")")
+		{
 			treestr = "-RRB-";
-		}else {
+		}
+		else
+		{
 			treestr = nodeName;
 		}
 		return treestr;

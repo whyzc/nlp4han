@@ -49,6 +49,7 @@ public class BracketExpUtil
 			}
 			return;
 		}
+		
 		for (TreeNode childNode : node.getChildren())
 		{
 			TraverseTreeConvertRRBAndLRB(childNode);
@@ -58,7 +59,7 @@ public class BracketExpUtil
 	/**
 	 * 将括号表达式去掉空格转成列表的形式
 	 * 
-	 * 列表中含括号、空格和终结符、非终结符
+	 * 列表中含: 括号、空格和终结符、非终结符
 	 * 
 	 * @param bracketStr
 	 *            括号表达式
@@ -154,18 +155,19 @@ public class BracketExpUtil
 		Stack<TreeNode> tree = new Stack<TreeNode>();
 		int wordindex = 0;
 		for (int i = 0; i < parts.size(); i++)
-		{// 将表达式中的-LRB-和-RRB-转换为"(",")"
-			if (!parts.get(i).equals(")") && !parts.get(i).equals(" "))
+		{
+			String str = parts.get(i);
+			if (!str.equals(")") && !str.equals(" ")) // 左括号或文法符号
 			{
-				TreeNode tn = new TreeNode(parts.get(i));
+				TreeNode tn = new TreeNode(str);
 				tn.setFlag(true);
 				tree.push(tn);
 			}
-			else if (parts.get(i).equals(" "))
+			else if (str.equals(" "))
 			{
 
 			}
-			else if (parts.get(i).equals(")"))
+			else if (str.equals(")"))
 			{
 				Stack<TreeNode> temp = new Stack<TreeNode>();
 				while (!tree.peek().getNodeName().equals("("))
@@ -175,6 +177,7 @@ public class BracketExpUtil
 						temp.push(tree.pop());
 					}
 				}
+				
 				tree.pop();
 				TreeNode node = temp.pop();
 				while (!temp.isEmpty())
@@ -191,11 +194,15 @@ public class BracketExpUtil
 						node.addChild(temp.pop());
 					}
 				}
+				
 				tree.push(node);
 			}
 		}
+		
+		// 将表达式中的-LRB-和-RRB-转换为"(",")"
 		TraverseTreeConvertRRBAndLRB(tree.peek());
 		TreeNode treeStruct = tree.pop();
+	
 		return treeStruct;
 	}
 }

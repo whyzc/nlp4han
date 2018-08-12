@@ -112,4 +112,24 @@ public class BracketTest
 		String formatStr2 = BracketExpUtil.formatNotDeleteBracket(bracketStr);	
 		assertEquals(expectStr2, formatStr2);
 	}
+	
+	@Test
+	public void generateTest()
+	{
+		String bracketStr = "(A (B1(C1 d1)(C2 d2)) (D3 d3))  ";
+		String expectStr1 = "(A(B1(C1 d1)(C2 d2))(D3 d3))";
+		
+		TreeNode tree1 = BracketExpUtil.generateTreeNotDeleteBracket(bracketStr);
+		String s1 = tree1.toString();
+		String formatStr1 = BracketExpUtil.formatNotDeleteBracket(s1);	
+		assertEquals(expectStr1, formatStr1);
+		
+		String bracketStr2 = "(A (B1(C1 d1)  (C2 d2)) ) ";
+		String expectStr2 = "B1(C1 d1)(C2 d2)";
+		
+		TreeNode tree2 = BracketExpUtil.generateTree(bracketStr2);
+		String s2 = tree2.toString();
+		String formatStr2 = BracketExpUtil.format(s2);	
+		assertEquals(expectStr2, formatStr2);
+	}
 }
