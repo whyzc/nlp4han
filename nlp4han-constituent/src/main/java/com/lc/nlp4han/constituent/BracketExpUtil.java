@@ -14,6 +14,7 @@ import java.util.Stack;
 public class BracketExpUtil
 {
 
+	// 去掉最外围的一层
 	public static TreeNode generateTree(String bracketStr)
 	{
 		bracketStr = format(bracketStr);
@@ -200,9 +201,8 @@ public class BracketExpUtil
 		}
 		
 		// 将表达式中的-LRB-和-RRB-转换为"(",")"
-		TraverseTreeConvertRRBAndLRB(tree.peek());
 		TreeNode treeStruct = tree.pop();
-	
+		TraverseTreeConvertRRBAndLRB(treeStruct);
 		return treeStruct;
 	}
 }
