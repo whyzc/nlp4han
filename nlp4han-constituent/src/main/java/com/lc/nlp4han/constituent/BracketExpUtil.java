@@ -58,6 +58,8 @@ public class BracketExpUtil
 	/**
 	 * 将括号表达式去掉空格转成列表的形式
 	 * 
+	 * 列表中含括号、空格和终结符、非终结符
+	 * 
 	 * @param bracketStr
 	 *            括号表达式
 	 * @return
@@ -67,15 +69,17 @@ public class BracketExpUtil
 		List<String> parts = new ArrayList<String>();
 		for (int index = 0; index < bracketStr.length(); ++index)
 		{
-			if (bracketStr.charAt(index) == '(' || bracketStr.charAt(index) == ')' || bracketStr.charAt(index) == ' ')
+			char c = bracketStr.charAt(index);
+			if (c == '(' || c == ')' || c == ' ')
 			{
-				parts.add(Character.toString(bracketStr.charAt(index)));
+				parts.add(Character.toString(c));
 			}
 			else
 			{
 				for (int i = index + 1; i < bracketStr.length(); ++i)
 				{
-					if (bracketStr.charAt(i) == '(' || bracketStr.charAt(i) == ')' || bracketStr.charAt(i) == ' ')
+					char c2 = bracketStr.charAt(i);
+					if (c2 == '(' || c2 == ')' || c2 == ' ')
 					{
 						parts.add(bracketStr.substring(index, i));
 						index = i - 1;
