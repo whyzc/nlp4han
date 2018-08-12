@@ -1,5 +1,7 @@
 package com.lc.nlp4han.constituent;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -13,8 +15,55 @@ import java.util.Stack;
  */
 public class BracketExpUtil
 {
+	/**
+	 * 从流中读取一个或多个括号表达式
+	 * 
+	 * @param in
+	 * @return 括号表达式列表
+	 * @throws IOException
+	 */
+	public static ArrayList<String> readBrackets(BufferedReader in) throws IOException
+	{
+		ArrayList<String> brackets = new ArrayList<String>();
+		String line = "";
+		String bracketStr = "";
+		int left = 0;
+		int right = 0;
+		while ((line = in.readLine()) != null)
+		{
+			if (line != "" && !line.equals(""))
+			{
+				line = line.replaceAll("\n", "");
+				char[] chars = line.trim().toCharArray();
+				
+				bracketStr += line.trim();
+				
+				for (int i = 0; i < chars.length; i++)
+				{
+					if (chars[i] == '(')
+					{
+						left++;
+					}
+					else if (chars[i] == ')')
+					{
+						right++;
+					}
+				}
 
-	// 去掉最外围的一层
+				if (left == right && left>0)
+				{
+					brackets.add(bracketStr);
+					
+					bracketStr = "";
+					left = right = 0;
+				}
+			}
+		}
+
+		return brackets;
+	}
+
+	// 去掉最外围一层的括号和文法符号
 	public static TreeNode generateTree(String bracketStr)
 	{
 		bracketStr = format(bracketStr);
