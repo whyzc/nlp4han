@@ -175,6 +175,11 @@ public class TreeNode implements Cloneable
 	{
 		return this.children.get(i);
 	}
+	
+	public void setChild(int i, TreeNode c)
+	{
+		this.children.set(i, c);
+	}
 
 	/**
 	 * 获取第i个儿子名字
