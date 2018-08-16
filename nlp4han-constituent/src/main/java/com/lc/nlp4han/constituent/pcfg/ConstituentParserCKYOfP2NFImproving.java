@@ -1,6 +1,7 @@
 package com.lc.nlp4han.constituent.pcfg;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -260,7 +261,7 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 		{
 			ArrayList<CKYPRule> tempList = makeNewArrayList(ckyPRuleList, rule);
 			tempList.addAll(ruleMap.get(lhs));
-			CKYPRule.SortCKYPRuleList(tempList, 0, tempList.size() - 1);
+			Collections.sort(tempList);
 			/*
 			 * 若结果集中多余k个，则截取其中的前k个
 			 */
@@ -330,7 +331,7 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 						i, j));
 			}
 		}
-		CKYPRule.SortCKYPRuleList(tempList, 0, tempList.size() - 1);
+		Collections.sort(tempList);
 		/*
 		 * 若结果集中多余k个，则截取其中的前k个
 		 */

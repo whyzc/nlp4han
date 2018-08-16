@@ -41,7 +41,15 @@ public class RewriteRule
 			this.rhs.add(args[i]);
 		}
 	}
-
+	public static RewriteRule getRewriteRule(String ruleStr) {
+		String[] strArray=ruleStr.split("->");
+		String lhs=strArray[0];
+		ArrayList<String> rhs=new ArrayList<String>();
+		for(String string:strArray[0].split(" ")) {
+			rhs.add(string);
+		}
+		return new RewriteRule(lhs,rhs);
+	}
 	/**
 	 * 由树结构中的节点值和子节点初始化RewriteRule
 	 * @param lhs

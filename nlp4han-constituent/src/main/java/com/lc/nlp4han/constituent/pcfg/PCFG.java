@@ -1,6 +1,7 @@
 package com.lc.nlp4han.constituent.pcfg;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -124,7 +125,7 @@ public class PCFG extends CFG
 		}
 		else
 		{
-			SortPRuleList(pruleList, 0, pruleList.size() - 1);
+			Collections.sort(pruleList);;
 		}
 		/*
 		 * 若结果集中多余k个，则截取其中的前k个
@@ -139,39 +140,5 @@ public class PCFG extends CFG
 			return subPruleList;
 		}
 		return pruleList;
-	}
-
-	/**
-	 * 快速排序
-	 */
-	public static void SortPRuleList(ArrayList<PRule> pruleList, int low, int high)
-	{
-		if (low >= high)
-		{
-			return;
-		}
-		int first = low;
-		int last = high;
-		PRule key = pruleList.get(first);/* 用规则表的第一个记录作为枢轴 */
-
-		while (first < last)
-		{
-			while (first < last && pruleList.get(last).getProOfRule() <= key.getProOfRule())
-			{
-				--last;
-			}
-
-			pruleList.set(first, pruleList.get(last));/* 将比第一个小的移到低端 */
-
-			while (first < last && pruleList.get(first).getProOfRule() >= key.getProOfRule())
-			{
-				++first;
-			}
-
-			pruleList.set(last, pruleList.get(first)); /* 将比第一个大的移到高端 */
-		}
-		pruleList.set(first, key);/* 枢轴记录到位 */
-		SortPRuleList(pruleList, low, first - 1);
-		SortPRuleList(pruleList, first + 1, high);
 	}
 }

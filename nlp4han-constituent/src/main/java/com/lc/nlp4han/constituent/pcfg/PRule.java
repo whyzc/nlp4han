@@ -2,7 +2,7 @@ package com.lc.nlp4han.constituent.pcfg;
 
 import java.util.ArrayList;
 
-public class PRule extends RewriteRule
+public class PRule extends RewriteRule implements Comparable<PRule> 
 {
 	private double proOfRule;
 
@@ -67,13 +67,20 @@ public class PRule extends RewriteRule
 	public String toString()
 	{
 		StringBuilder strb = new StringBuilder();
-		strb.append(super.getLhs() + "->");
-		for (String st : super.getRhs())
-		{
-			strb.append(st);
-			strb.append(" ");
-		}
+		strb.append(super.toString());
 		strb.append(" ---- " + " " + proOfRule);
 		return strb.toString();
+	}
+
+	@Override
+	public int compareTo(PRule o)
+	{//排序由大到小
+		if(proOfRule<o.getProOfRule()) {
+			return 1;
+		}
+		if(proOfRule>o.getProOfRule()){
+			return-1;
+		}
+		return 0;
 	}
 }
