@@ -11,21 +11,37 @@ import com.lc.nlp4han.constituent.PlainTextByTreeStream;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 
-public class ExtractPCFG
+public class GrammarExtractor
 {
 	/**
 	 * 定义文法的变量
 	 */
-	private PCFG pcfg;
-	private HashMap<PRule, Integer> ruleCounter;
+	private CFG grammar = null;
+	private HashMap<PRule, Integer> ruleCounter = null;
 
+	public static CFG getCFG(String fileName, String enCoding) throws IOException
+	{
+
+		return new GrammarExtractor().CreateGrammar(fileName, enCoding,"CFG");
+	}
+
+	public static PCFG getPCFG(String fileName, String enCoding) throws IOException
+	{
+
+		return (PCFG)new GrammarExtractor().CreateGrammar(fileName, enCoding,"PCFG");
+	}
+	/**
+	 * 返回文法集，便于测试
+	 */
+	public CFG getCFG()
+	{
+		return this.grammar;
+	}
 	/**
 	 * 生成文法集
 	 */
-	public PCFG CreatePCFG(String fileName, String enCoding) throws IOException
+	public CFG CreateGrammar(String fileName, String enCoding, String type) throws IOException
 	{
-		pcfg = new PCFG();
-		ruleCounter = new HashMap<PRule, Integer>();
 		// 括号表达式树拼接成括号表达式String数组
 		PlainTextByTreeStream ptbt = new PlainTextByTreeStream(new FileInputStreamFactory(new File(fileName)),
 				enCoding);
@@ -38,46 +54,61 @@ public class ExtractPCFG
 		}
 		ptbt.close();
 		// 括号表达式生成文法
-		bracketStrListConvertToGrammar(bracketStrList);
-		ComputeProOfRule();
-		return pcfg;
+		bracketStrListConvertToGrammar(bracketStrList,type);
+		if(type.contains("P")) {
+			ComputeProOfRule();
+		}
+		return grammar;
+
 	}
 
 	// 由括号表达式的list得到对应的文法集合
-	private void bracketStrListConvertToGrammar(ArrayList<String> bracketStrList) throws IOException
+	public void bracketStrListConvertToGrammar(ArrayList<String> bracketStrList,String type) throws IOException
 	{
+		if (type.contains("P"))
+		{
+			grammar = new PCFG();
+			ruleCounter = new HashMap<PRule, Integer>();
+		}
+		else
+		{
+			grammar = new CFG();
+		}
 		for (String bracketStr : bracketStrList)
 		{
 			TreeNode rootNode1 = BracketExpUtil.generateTreeNotDeleteBracket(bracketStr);
-			traverseTree(rootNode1);
+			traverseTree(rootNode1,type);
 		}
 	}
 
 	/**
 	 * 遍历树得到基本文法
 	 */
-	private void traverseTree(TreeNode node)
+	private void traverseTree(TreeNode node,String type)
 	{
-		if (pcfg.getStartSymbol() == null)
+		if (grammar.getStartSymbol() == null)
 		{// 起始符提取
-			pcfg.setStartSymbol(node.getNodeName());
+			grammar.setStartSymbol(node.getNodeName());
 		}
 		if (node.getChildren().size() == 0)
 		{
-			pcfg.addTerminal(node.getNodeName());// 终结符提取
+			grammar.addTerminal(node.getNodeName());// 终结符提取
 			return;
 		}
-		pcfg.addNonTerminal(node.getNodeName());// 非终结符提取
+		grammar.addNonTerminal(node.getNodeName());// 非终结符提取
 
 		if (node.getChildren() != null && node.getChildren().size() > 0)
 		{
-			PRule rule = new PRule(new RewriteRule(node.getNodeName(), node.getChildren()), 0);
-			addRuleCount(rule);
-			pcfg.add(rule);
+			RewriteRule rule = new RewriteRule(node.getNodeName(), node.getChildren());
+			if(type.contains("P")) {
+				rule = new PRule(rule,0);
+				addRuleCount((PRule)rule);
+			}
+			grammar.add(rule);
 			;// 添加规则
 			for (TreeNode node1 : node.getChildren())
 			{// 深度优先遍历
-				traverseTree(node1);
+				traverseTree(node1,type);
 			}
 		}
 	}
@@ -102,9 +133,9 @@ public class ExtractPCFG
 	 */
 	private void ComputeProOfRule()
 	{
-		for (String nonTer : pcfg.getNonTerminalSet())
+		for (String nonTer : grammar.getNonTerminalSet())
 		{
-			Set<PRule> set = PCFG.convertRewriteRuleSetToPRuleSet(pcfg.getRuleBylhs(nonTer));
+			Set<PRule> set = PCFG.convertRewriteRuleSetToPRuleSet(grammar.getRuleBylhs(nonTer));
 			int allNum = 0;
 			for (PRule rule : set)
 			{
@@ -116,7 +147,18 @@ public class ExtractPCFG
 			}
 		}
 	}
-
+	/**
+	 * @throws IOException
+	 * 由括号表达式列表直接得到PCFG
+	 */
+	public PCFG getPCFG(ArrayList<String> bracketStrList) throws IOException
+	{
+		grammar = new PCFG();
+		ruleCounter = new HashMap<PRule, Integer>();
+		bracketStrListConvertToGrammar(bracketStrList,"PCFG");
+		ComputeProOfRule();
+		return (PCFG)grammar;
+	}
 	/**
 	 * 获得计数器
 	 */

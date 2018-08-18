@@ -9,7 +9,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 /**
- * 从文件中将CFG文法读取出来
+ * 从文件中将文法读取出来
  */
 public class GetGrammarFromFile { 
 	/**

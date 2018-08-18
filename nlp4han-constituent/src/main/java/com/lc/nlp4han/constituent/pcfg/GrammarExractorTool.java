@@ -5,10 +5,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
-public class ExtractPCFGTool
+public class GrammarExractorTool
 {
 	/**
-	 * 提取CFG的命令行应用程序
+	 * 提取Grammar的命令行应用程序
 	 */
 	public static void main(String[] args) throws IOException
 	{
@@ -19,6 +19,7 @@ public class ExtractPCFGTool
 		String frompath = null;
 		String topath = null;
 		String incoding = null;
+		String type=null;
 		for (int i = 0; i < args.length; i++)
 		{
 			if (args[i].equals("-frompath"))
@@ -29,6 +30,11 @@ public class ExtractPCFGTool
 			if (args[i].equals("-topath"))
 			{
 				topath = args[i + 1];
+				i++;
+			}
+			if (args[i].equals("-type"))
+			{
+				type = args[i + 1];
 				i++;
 			}
 			if (args[i].equals("-incoding"))
@@ -42,22 +48,29 @@ public class ExtractPCFGTool
 			/*
 			 * 存储文法和提取文法格式一般相同
 			 */
-			ExtractPCFGToFile(frompath, topath, incoding);
+			ExtractGrammarToFile(frompath, topath, incoding,type);
 		}
 		else
 		{
-			System.out.println(Extract.getPCFG(frompath, incoding).toString());
+			if(type.contains("P")) {
+				System.out.println(GrammarExtractor.getPCFG(frompath, incoding).toString());
+			}else {
+				System.out.println(GrammarExtractor.getCFG(frompath, incoding).toString());
+			}
 		}
 	}
 
 	/**
-	 * 从树库中提取PCFG文法，然后存入文件指定中
+	 * 从树库中提取文法，然后存入文件指定中
 	 */
-	private static void ExtractPCFGToFile(String fromPath, String toPath, String inCoding)
-			throws UnsupportedOperationException, IOException
+	private static void ExtractGrammarToFile(String fromPath, String toPath, String inCoding,String type) throws IOException
 	{
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(toPath), inCoding));
-		bw.append(Extract.getPCFG(fromPath, inCoding).toString());
+		if(type.contains("P")) {
+			bw.append(GrammarExtractor.getPCFG(fromPath, inCoding).toString());
+		}else {
+			bw.append(GrammarExtractor.getCFG(fromPath, inCoding).toString());
+		}
 		bw.close();
 	}
 }

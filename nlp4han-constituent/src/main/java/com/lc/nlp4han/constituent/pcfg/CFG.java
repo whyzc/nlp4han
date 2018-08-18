@@ -208,8 +208,6 @@ public class CFG
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((nonTerminalSet == null) ? 0 : nonTerminalSet.hashCode());
-		result = prime * result + ((ruleMapStartWithlhs == null) ? 0 : ruleMapStartWithlhs.hashCode());
-		result = prime * result + ((ruleMapStartWithrhs == null) ? 0 : ruleMapStartWithrhs.hashCode());
 		result = prime * result + ((ruleSet == null) ? 0 : ruleSet.hashCode());
 		result = prime * result + ((startSymbol == null) ? 0 : startSymbol.hashCode());
 		result = prime * result + ((terminalSet == null) ? 0 : terminalSet.hashCode());
@@ -232,20 +230,6 @@ public class CFG
 				return false;
 		}
 		else if (!nonTerminalSet.equals(other.nonTerminalSet))
-			return false;
-		if (ruleMapStartWithlhs == null)
-		{
-			if (other.ruleMapStartWithlhs != null)
-				return false;
-		}
-		else if (!ruleMapStartWithlhs.equals(other.ruleMapStartWithlhs))
-			return false;
-		if (ruleMapStartWithrhs == null)
-		{
-			if (other.ruleMapStartWithrhs != null)
-				return false;
-		}
-		else if (!ruleMapStartWithrhs.equals(other.ruleMapStartWithrhs))
 			return false;
 		if (ruleSet == null)
 		{
