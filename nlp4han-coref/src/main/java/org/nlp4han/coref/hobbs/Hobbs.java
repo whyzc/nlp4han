@@ -47,12 +47,12 @@ public class Hobbs
 		List<TreeNode> candidateNodes;
 		int index = constituentTrees.size() - 1;
 
-		tmp = getFirstNPNodeUp(pronoun);
-		x = getFirstNPNodeUp(tmp);
+		tmp = TreeNodeUtil.getFirstNPNodeUp(pronoun);
+		x = TreeNodeUtil.getFirstNPNodeUp(tmp);
 		if (x != null)
 		{
 			path.getPath(x, tmp);
-			candidateNodes = getNPNodeOnLeftOfPath(x, path);
+			candidateNodes = TreeNodeUtil.getNPNodeOnLeftOfPath(x, path);
 			filter.setUp(candidateNodes);
 			filter.filtering();
 
@@ -73,7 +73,7 @@ public class Hobbs
 				if (index < 0)
 					break;
 				x = constituentTrees.get(index);
-				candidateNodes = getNPNodes(x);
+				candidateNodes = TreeNodeUtil.getNPNodes(x);
 				filter.setUp(candidateNodes);
 				filter.filtering();
 				if (!candidateNodes.isEmpty())
@@ -81,19 +81,19 @@ public class Hobbs
 			}
 			else
 			{
-				tmp = getFirstNPOrIPNodeUp(x);
+				tmp = TreeNodeUtil.getFirstNPOrIPNodeUp(x);
 				path.getPath(x, tmp);
 				x = tmp;
-				if (isNPNode(x) && !dominateNNode(x, path))
+				if (TreeNodeUtil.isNPNode(x) && !dominateNNode(x, path))
 				{// 若结点x为NP结点，且path没有穿过x直接支配的Nominal结点,则返回x
 					return x;
 				}
-				candidateNodes = getNPNodeOnLeftOfPath(x, path);
+				candidateNodes = TreeNodeUtil.getNPNodeOnLeftOfPath(x, path);
 				filter.setUp(candidateNodes);
 				filter.filtering();
 				if (!candidateNodes.isEmpty())
 					return candidateNodes.get(0);
-				if (isIPNode(x))
+				if (TreeNodeUtil.isIPNode(x))
 				{
 					candidateNodes = getNPNodeOnRightOfPath(x, path);
 					filter.setUp(candidateNodes);
@@ -140,17 +140,7 @@ public class Hobbs
 		return result;
 	}
 
-	/**
-	 * 获得根节点rootNode下的所有NP结点
-	 * 
-	 * @param rootNode
-	 *            根结点
-	 * @return 根节点rootNode下的所有NP结点
-	 */
-	private List<TreeNode> getNPNodes(TreeNode rootNode)
-	{
-		return TreeNodeUtil.getNodesWithSpecified(rootNode, new String[] { "NP" });
-	}
+	
 
 	/**
 	 * 获得candidateNodes中与结点treeNode间存在NP或IP结点的结点
@@ -175,19 +165,7 @@ public class Hobbs
 		return result;
 	}
 
-	/**
-	 * 根结点rootNode下，路径path左侧，从左至右，广度优先遍历得到的所有NP结点
-	 * 
-	 * @param rootNode
-	 * @param path
-	 * @return
-	 */
-	private List<TreeNode> getNPNodeOnLeftOfPath(TreeNode rootNode, Path path)
-	{
-		List<TreeNode> result = TreeNodeUtil.getNodesWithSpecifiedNameOnLeftOrRightOfPath(rootNode, path, "Left",
-				new String[] { "NP" });
-		return result;
-	}
+	
 
 	/**
 	 * 路径path是否穿过结点treeNode直接支配的一个Nominal结点
@@ -198,60 +176,13 @@ public class Hobbs
 	 */
 	private boolean dominateNNode(TreeNode treeNode, Path path)
 	{
-		List<TreeNode> candidates = TreeNodeUtil.getChildNodeWithSpecifiedName(treeNode, new String[] { "NP" });
+		List<TreeNode> candidates = TreeNodeUtil.getChildNodeWithSpecifiedName(treeNode, new String[] { "NP", "NN", "NR" });
 		for (TreeNode tn : candidates)
 		{
 			if (path.contains(tn))
 				return true;
 		}
 		return false;
-	}
-
-	/**
-	 * 结点treeNode是否为NP结点
-	 * 
-	 * @param treeNode
-	 *            被验证的结点
-	 * @return 若存在，若该节点是NP结点，返回true；否则，返回false
-	 */
-	private boolean isNPNode(TreeNode treeNode)
-	{
-		return TreeNodeUtil.isNodeWithSpecifiedName(treeNode, new String[] { "NP" });
-	}
-
-	/**
-	 * 结点treeNode是否为IP结点
-	 * 
-	 * @param treeNode
-	 *            被验证的结点
-	 * @return 若该节点是IP结点，返回true；否则，返回false
-	 */
-	private boolean isIPNode(TreeNode treeNode)
-	{
-		return TreeNodeUtil.isNodeWithSpecifiedName(treeNode, new String[] { "IP" });
-	}
-
-	/**
-	 * 从treeNode开始，向上遍历，找到第一个NP或IP结点
-	 * 
-	 * @param treeNode
-	 * @return 若存在，返回符合的NP结点；若不存在，则返回null
-	 */
-	private TreeNode getFirstNPOrIPNodeUp(TreeNode treeNode)
-	{
-		return TreeNodeUtil.getFirstNodeUpWithSpecifiedName(treeNode, new String[] { "NP", "IP" });
-	}
-
-	/**
-	 * 从treeNode开始，向上遍历，找到第一个NP结点
-	 * 
-	 * @param treeNode
-	 *            起始结点
-	 * @return 若存在，返回符合的NP结点；若不存在，则返回null
-	 */
-	private TreeNode getFirstNPNodeUp(TreeNode treeNode)
-	{
-		return TreeNodeUtil.getFirstNodeUpWithSpecifiedName(treeNode, "NP");
 	}
 
 }

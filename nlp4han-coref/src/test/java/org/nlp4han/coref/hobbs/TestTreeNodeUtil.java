@@ -61,4 +61,38 @@ public class TestTreeNodeUtil
 		assertEquals(goal, result);
 	}
 	
+	@Test
+	public void testGetString()
+	{
+		String str;
+		TreeNode tree;
+		String goal;
+		String result;
+		
+		str = "((IP(IP(NP(NN 家长们))(VP(ADVP(AD 都))(ADVP(AD 很))(VP(VV 喜欢)(NP(PN 她)))))(PU 。)))";
+		tree = BracketExpUtil.generateTree(str);
+		goal = "家长们都很喜欢她。";
+		result = TreeNodeUtil.getString(tree);
+		assertEquals(goal, result);
+		
+		str = "((IP(NP(NR 萨曼))(VP(VP(VV 不得已))(PU ，)(IP(NP(CP(IP(VP(BA 把)(IP(NP(PN 他))(VP(VV 看到)))))(DEC 的))(NP(NN 情景)))(VP(ADVP(AD 一一))(VP(VV 讲出)))))(PU 。)))";
+		tree = BracketExpUtil.generateTree(str);
+		goal = "萨曼不得已，把他看到的情景一一讲出。";
+		result = TreeNodeUtil.getString(tree);
+		assertEquals(goal, result);
+		
+		str = "((IP(NP(NR 乔治))(VP(VV 雕刻)(AS 了)(NP(DNP(NP(QP(CD 一)(CLP(M 个)))(NP(NR 赫耳墨斯)))(DEG 的))(NP(NN 木像))))(PU 。)))";
+		tree = BracketExpUtil.generateTree(str);
+		goal = "乔治雕刻了一个赫耳墨斯的木像。";
+		result = TreeNodeUtil.getString(tree);
+		assertEquals(goal, result);
+		
+		str = "((IP(NP(NN 渔夫们))(VP(VP(VV 出去)(VP(VV 捕鱼)))(PU ，)(VP(ADVP(AD 辛苦))(VP(VV 劳累)(AS 了)(ADVP(AD 很久))))(PU ，)(VP(ADVP(AD 却))(VP(VV 一无所获))))(PU 。)))";
+		tree = BracketExpUtil.generateTree(str);
+		goal = "渔夫们出去捕鱼，辛苦劳累了很久，却一无所获。";
+		result = TreeNodeUtil.getString(tree);
+		assertEquals(goal, result);
+		
+	}
+	
 }

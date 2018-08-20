@@ -1,8 +1,9 @@
 package org.nlp4han.coref.hobbs;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,22 +27,65 @@ public class Evaluation
 
 	public static void main(String[] args)
 	{
+		String[] path_encoding = parseArgs(args);
+		
 		Evaluation eva = new Evaluation();
-		eva.readFileByLines("语料.txt", "utf-8");
+		eva.readFileByLines(path_encoding[0], path_encoding[1]);
+	}
+	
+	private static String[] parseArgs(String[] args)
+	{
+		String usage = "org.nlp4han.coref.Evaluation [-path DOC_PATH] [-encoding ENCODING]\n\n";
+
+		String encoding = "utf-8";
+
+		String docPath = null;
+
+		for (int i = 0; i < args.length; i++)
+		{
+			if ("-encoding".equals(args[i]))
+			{
+				encoding = args[i + 1];
+				i++;
+			}
+			else if ("-path".equals(args[i]))
+			{
+				docPath = args[i + 1];
+				i++;
+			}
+		}
+
+		if (docPath == null)
+		{
+			System.err.println("Usage: " + usage);
+			System.exit(1);
+		}
+
+		final java.nio.file.Path docDir = java.nio.file.Paths.get(docPath);
+
+		if (!java.nio.file.Files.isReadable(docDir))
+		{
+			System.out.println("Document directory '" + docDir.toAbsolutePath()
+					+ "' does not exist or is not readable, please check the path");
+			System.exit(1);
+		}
+		
+		String[] result = new String[2];
+		result[0] = docPath;
+		result[1] = encoding;
+		return result;
 	}
 
-	private void readFileByLines(String fileName, String encoding)
+	private void readFileByLines(String path, String encoding)
 	{
-
-		InputStream is = null;
-
+		FileInputStream fis = null;
 		BufferedReader reader = null;
 
 		try
 		{
-			is = Evaluation.class.getClassLoader().getResourceAsStream(fileName);
+			fis = new FileInputStream(new File(path));
 
-			reader = new BufferedReader(new InputStreamReader(is, encoding));
+			reader = new BufferedReader(new InputStreamReader(fis, encoding));
 
 			String tempString = null;
 
@@ -49,7 +93,6 @@ public class Evaluation
 			while ((tempString = reader.readLine()) != null)
 			{
 				processingData(tempString);
-
 			}
 
 			System.out.println("成功：" + count + "/" + total);
@@ -70,7 +113,6 @@ public class Evaluation
 
 				try
 				{
-
 					reader.close();
 				}
 				catch (IOException e1)
@@ -107,7 +149,8 @@ public class Evaluation
 			String strOfGoal = TreeNodeUtil.getString(goal);
 			String strOfResult = TreeNodeUtil.getString(result);
 			String headStrOfGoal = TreeNodeUtil.getString(TreeNodeUtil.getHead(goal, NPHeadRuleSetPTB.getNPRuleSet()));
-			String headStrOfResult = TreeNodeUtil.getString(TreeNodeUtil.getHead(result, NPHeadRuleSetPTB.getNPRuleSet()));
+			String headStrOfResult = TreeNodeUtil
+					.getString(TreeNodeUtil.getHead(result, NPHeadRuleSetPTB.getNPRuleSet()));
 			if (strOfResult.contains(strOfGoal) && headStrOfGoal.equals(headStrOfResult))
 				count++;
 			else

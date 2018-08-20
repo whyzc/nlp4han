@@ -608,5 +608,78 @@ public class TreeNodeUtil
 		}
 		return result;
 	}
+	
+	/**
+	 * 获得根节点rootNode下的所有NP结点
+	 * 
+	 * @param rootNode
+	 *            根结点
+	 * @return 根节点rootNode下的所有NP结点
+	 */
+	public static List<TreeNode> getNPNodes(TreeNode rootNode)
+	{
+		return TreeNodeUtil.getNodesWithSpecified(rootNode, new String[] { "NP" });
+	}
+	
+	/**
+	 * 结点treeNode是否为NP结点
+	 * 
+	 * @param treeNode
+	 *            被验证的结点
+	 * @return 若存在，若该节点是NP结点，返回true；否则，返回false
+	 */
+	public static boolean isNPNode(TreeNode treeNode)
+	{
+		return TreeNodeUtil.isNodeWithSpecifiedName(treeNode, new String[] { "NP" });
+	}
+	
+	/**
+	 * 结点treeNode是否为IP结点
+	 * 
+	 * @param treeNode
+	 *            被验证的结点
+	 * @return 若该节点是IP结点，返回true；否则，返回false
+	 */
+	public static boolean isIPNode(TreeNode treeNode)
+	{
+		return TreeNodeUtil.isNodeWithSpecifiedName(treeNode, new String[] { "IP" });
+	}
+	
+	/**
+	 * 根结点rootNode下，路径path左侧，从左至右，广度优先遍历得到的所有NP结点
+	 * 
+	 * @param rootNode
+	 * @param path
+	 * @return
+	 */
+	public static List<TreeNode> getNPNodeOnLeftOfPath(TreeNode rootNode, Path path)
+	{
+		List<TreeNode> result = TreeNodeUtil.getNodesWithSpecifiedNameOnLeftOrRightOfPath(rootNode, path, "Left",
+				new String[] { "NP" });
+		return result;
+	}
+	
+	/**
+	 * 从treeNode开始，向上遍历，找到第一个NP结点
+	 * 
+	 * @param treeNode
+	 *            起始结点
+	 * @return 若存在，返回符合的NP结点；若不存在，则返回null
+	 */
+	public static TreeNode getFirstNPNodeUp(TreeNode treeNode)
+	{
+		return TreeNodeUtil.getFirstNodeUpWithSpecifiedName(treeNode, "NP");
+	}
+	
+	/**
+	 * 从treeNode开始，向上遍历，找到第一个NP或IP结点
+	 * 
+	 * @param treeNode
+	 * @return 若存在，返回符合的NP结点；若不存在，则返回null
+	 */
+	public static TreeNode getFirstNPOrIPNodeUp(TreeNode treeNode)
+	{
+		return TreeNodeUtil.getFirstNodeUpWithSpecifiedName(treeNode, new String[] { "NP", "IP" });
+	}
 
 }
