@@ -79,7 +79,7 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 		}
 		try
 		{
-			String value;
+			String value = null;
 			if (treeNode.getNodeName().equals("PN"))
 			{
 				Properties genderDic = loadProperties("gender_PN.properties", "utf-8");
@@ -88,8 +88,11 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 			else
 			{
 				TreeNode head = TreeNodeUtil.getHead(treeNode, NPHeadRuleSetPTB.getNPRuleSet());
-				Properties genderDic = loadProperties("gender.properties", "utf-8");
-				value = genderDic.getProperty(TreeNodeUtil.getString(head));
+				if (head != null)
+				{
+					Properties genderDic = loadProperties("gender.properties", "utf-8");
+					value = genderDic.getProperty(TreeNodeUtil.getString(head));
+				}
 			}
 
 			if (value != null)
@@ -154,13 +157,22 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 			if (treeNode.getNodeName().equals("NP"))
 			{
 				TreeNode head = TreeNodeUtil.getHead(treeNode, NPHeadRuleSetPTB.getNPRuleSet());
+				if (head == null)
+				{
+					if (result.size() < 1)
+					{
+						result.add(Number.PLURAL);
+						result.add(Number.SINGULAR);
+						return result;
+					}
+				}
 				String stringOfHead = TreeNodeUtil.getString(head);
 				if (stringOfHead.contains("们"))
 				{
 					result.add(Number.PLURAL);
 					return result;
 				}
-				if (TreeNodeUtil.isParataxisNP(treeNode))
+				if (TreeNodeUtil.isCoordinatingNP(treeNode))
 				{
 					result.add(Number.PLURAL);
 					return result;
@@ -251,17 +263,20 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 			else
 			{
 				TreeNode head = TreeNodeUtil.getHead(treeNode, NPHeadRuleSetPTB.getNPRuleSet());
-				Properties animacyDic = loadProperties("animacy.properties", "utf-8");
-				Set<Object> keys = animacyDic.keySet();
-				Iterator<Object> it = keys.iterator();
-				String strOfHead = TreeNodeUtil.getString(head);
-				while (it.hasNext())
+				if (head != null)
 				{
-					String key = (String) it.next();
-					if (strOfHead.contains(key))
+					Properties animacyDic = loadProperties("animacy.properties", "utf-8");
+					Set<Object> keys = animacyDic.keySet();
+					Iterator<Object> it = keys.iterator();
+					String strOfHead = TreeNodeUtil.getString(head);
+					while (it.hasNext())
 					{
-						value = animacyDic.getProperty(key);
-						break;
+						String key = (String) it.next();
+						if (strOfHead.contains(key))
+						{
+							value = animacyDic.getProperty(key);
+							break;
+						}
 					}
 				}
 			}

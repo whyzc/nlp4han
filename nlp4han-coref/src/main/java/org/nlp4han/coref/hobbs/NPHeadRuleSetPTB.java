@@ -16,7 +16,7 @@ public class NPHeadRuleSetPTB
 	
 	static 
 	{
-		String[] NPStr1 = { "NN", "NR" };
+		String[] NPStr1 = { "NN", "NR", "NT" };
 		for (int i = 0; i < NPStr1.length; i++)
 		{
 			RIGHT2LEFT1.add(NPStr1[i]);

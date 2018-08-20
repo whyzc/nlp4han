@@ -48,11 +48,12 @@ public class PNFilter extends Filtering
 	private boolean isPronoun(String str)
 	{
 		String[] pronouns = { "我", "我们", "你", "你们", "她", "她们", "他", "他们", "它", "它们" };
-		for (String pro : pronouns)
-		{
-			if (str.equals(pro))
-				return true;
-		}
+		if (str != null)
+			for (String pro : pronouns)
+			{
+				if (str.equals(pro))
+					return true;
+			}
 		return false;
 	}
 

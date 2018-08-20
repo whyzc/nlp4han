@@ -11,14 +11,6 @@ import com.lc.nlp4han.constituent.TreeNode;
  */
 public class TreeNodeUtil
 {
-	// private final static String[] POSTAGS = { "AD", "AS", "BA", "CC", "CD", "CS",
-	// "DEC", "DEG", "DER", "DEV", "DT",
-	// "ETC", "FW", "IJ", "JJ", "LB", "LC", "M", "MSP", "NN", "NR", "NT", "OD",
-	// "ON", "P", "PN", "PU", "SB", "SP",
-	// "VA", "VC", "VE", "VV" };
-	// private final static String[] TAGSFORPHRASE = { "ADJP", "ADVP", "CLP", "CP",
-	// "DNP", "DP", "DVP", "FRAG", "IP",
-	// "LCP", "LST", "NP", "PP", "PRN", "QP", "UCP", "VP" };
 
 	/**
 	 * 至结点treeNode向上搜索，返回第一个结点名为treeNodeName的结点；若treeNodeName为null，则返回treeNode的父节点
@@ -468,7 +460,7 @@ public class TreeNodeUtil
 	 * @param treeNode
 	 * @return
 	 */
-	public static boolean isParataxisNP(TreeNode treeNode)
+	public static boolean isCoordinatingNP(TreeNode treeNode)
 	{ // TODO：算法有待改善
 		if (treeNode == null || !treeNode.getNodeName().equals("NP"))
 		{
@@ -481,7 +473,7 @@ public class TreeNodeUtil
 			List<TreeNode> pus = getNodesWithSpecified(treeNode, new String[] { "、" });
 			List<TreeNode> ccs = getNodesWithSpecified(treeNode, new String[] { "CC" });
 			int num = pus.size() + ccs.size();
-			if (num >= childrenNodes.size() * 0.3)
+			if (num >= childrenNodes.size() * 0.2)
 				return true;
 		}
 
@@ -568,13 +560,18 @@ public class TreeNodeUtil
 	 */
 	public static String getString(TreeNode rootNode)
 	{
-		StringBuilder result = new StringBuilder();
-		List<TreeNode> LeafNodes = getAllLeafNodes(rootNode);
-		for (TreeNode node : LeafNodes)
+		if (rootNode != null)
 		{
-			result.append(node.getNodeName());
+			StringBuilder result = new StringBuilder();
+			List<TreeNode> LeafNodes = getAllLeafNodes(rootNode);
+			for (TreeNode node : LeafNodes)
+			{
+				result.append(node.getNodeName());
+			}
+			return result.toString();
 		}
-		return result.toString();
+		return null;
+		
 	}
 
 	/**
