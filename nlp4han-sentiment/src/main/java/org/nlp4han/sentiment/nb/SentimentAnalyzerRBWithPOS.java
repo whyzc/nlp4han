@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,18 +16,14 @@ import org.nlp4han.sentiment.SentimentPolarity;
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.TreeNode;
 
-/**
- * 基于组合规则来判断树的极性
- * 
- * @author lim
- *
- */
-public class SentimentAnalyzerRB implements SentimentAnalyzer
+public class SentimentAnalyzerRBWithPOS implements SentimentAnalyzer
 {
+
 	private Map<String, String> dictionary = new HashMap<>();
 	private TreeGenerator treeGen;
+	private List<String> posList = new ArrayList<>();
 
-	public SentimentAnalyzerRB( TreeGenerator treeGen) throws IOException
+	public SentimentAnalyzerRBWithPOS(TreeGenerator treeGen) throws IOException
 	{
 		this.treeGen = treeGen;
 		init();
@@ -36,19 +34,24 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 	 * 
 	 * @param dicPath
 	 * @param encoding
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	private void init() throws IOException
 	{
-			FileInputStream fr = new FileInputStream("./resources/dictionary.txt");
-			BufferedReader br = new BufferedReader(new InputStreamReader(fr,"GBK"));
-			String str = "";
-			while ((str = br.readLine()) != null)
-			{
-				String[] items = str.trim().split(",");
-				dictionary.put(items[0], items[1]);
-			}
-			br.close();
+		posList.add("VA");
+		posList.add("VV");
+		posList.add("NN");
+		posList.add("JJ");
+
+		FileInputStream fr = new FileInputStream("./resources/dictionary.txt");
+		BufferedReader br = new BufferedReader(new InputStreamReader(fr, "GBK"));
+		String str = "";
+		while ((str = br.readLine()) != null)
+		{
+			String[] items = str.trim().split(",");
+			dictionary.put(items[0], items[1]);
+		}
+		br.close();
 	}
 
 	/**
@@ -57,11 +60,12 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 	 * @param bracketStr
 	 *            括号表达式
 	 * @return
+	 * @throws IOException
 	 */
 	public TreeNode parse(String text)
 	{
-		String bracketStr="";
-		TreeNode tree=null;
+		String bracketStr = "";
+		TreeNode tree = null;
 		bracketStr = treeGen.getTree(text);
 		tree = BracketExpUtil.generateTree(bracketStr);
 		return this.parse(tree);
@@ -87,18 +91,37 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 
 			if (phraseTree.isLeaf())
 			{
-
 				String polarity = getNodePolarity(phraseTree.getNodeName());
-				phraseTree.getParent().setNewName(polarity);// 对于叶子节点，则将其父节点的名称改为其极性
-				phraseTree.setFlag(false);
-				phraseTree.getParent().setFlag(false);// 借助flag变量来标记该节点的极性信息已经被解析了
+				String pos = phraseTree.getParent().getNodeName();
+				
+				if (polarity.equals("p"))//需要对否定词进行特别处理
+				{
+					phraseTree.getParent().setNewName(polarity);
+					phraseTree.getParent().setFlag(false);
+					phraseTree.setFlag(false);
+
+				}
+				else
+				{
+					if (posList.contains(pos))
+					{
+						phraseTree.getParent().setNewName(polarity);
+					}
+					else
+					{
+						polarity = "0";
+						phraseTree.getParent().setNewName(polarity);
+					}
+					phraseTree.getParent().setFlag(false);// 借助flag变量来标记该节点的极性信息已经被解析了
+					phraseTree.setFlag(false);
+				}
 
 			}
 			else
 			{
 				int numPositive = 0;
 				int numNegative = 0;
-				
+
 				boolean privative = false;
 
 				if (phraseTree.getFlag())
@@ -114,7 +137,6 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 						{
 							numNegative++;
 						}
-						//表否定
 						if ("p".equals(childPolarity))
 						{
 							privative = true;
@@ -137,11 +159,10 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 						phraseTree.setNewName("-1");
 						phraseTree.setFlag(false);
 					}
-					
-					//处理否定
+
 					if (privative)
 					{
-						if (num==1 )
+						if (num == 1)
 						{
 							phraseTree.setNewName("p");
 						}
@@ -168,7 +189,7 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 	{
 		Set<String> key = dictionary.keySet();
 		String nodePola = "0";
-		if (key.contains(content)) 
+		if (key.contains(content))
 		{
 			nodePola = dictionary.get(content);
 		}
@@ -180,7 +201,7 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 	{
 		TreeNode tn = this.parse(text);
 		String polarity = tn.getNodeName();
-		
+
 		return new SentimentPolarity(polarity);
 	}
 
