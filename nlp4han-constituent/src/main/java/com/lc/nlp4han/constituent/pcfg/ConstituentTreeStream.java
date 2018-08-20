@@ -13,7 +13,6 @@ public class ConstituentTreeStream extends FilterObjectStream<String, Constituen
 {
 
 	private Logger logger = Logger.getLogger(ConstituentTreeStream.class.getName());
-/*	private AbstractHeadGenerator headGen;*/
 
 	/**
 	 * 构造
@@ -43,7 +42,7 @@ public class ConstituentTreeStream extends FilterObjectStream<String, Constituen
 				try
 				{
 					TreeNode tree = BracketExpUtil.generateTreeNotDeleteBracket(sentence);
-					sample=new ConstituentTree(tree);
+					sample = new ConstituentTree(tree);
 				}
 				catch (Exception e)
 				{

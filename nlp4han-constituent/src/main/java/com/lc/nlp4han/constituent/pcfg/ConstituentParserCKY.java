@@ -111,13 +111,13 @@ public class ConstituentParserCKY implements ConstituentParser
 	 * CKY算法的具体函数
 	 * 
 	 * @param words
-	 *           分词序列
+	 *            分词序列
 	 * 
 	 * @param pse
-	 *           词性标注
+	 *            词性标注
 	 * 
 	 * @param numOfResulets
-	 *           需要求的结果数
+	 *            需要求的结果数
 	 * 
 	 * @return 输出k个句子解析结果
 	 */
@@ -181,13 +181,13 @@ public class ConstituentParserCKY implements ConstituentParser
 
 	/**
 	 * @param i
-	 *        table表横坐标点
+	 *            table表横坐标点
 	 * @param k
-	 *        分裂的值
+	 *            分裂的值
 	 * @param j
-	 *        table表纵坐标点
+	 *            table表纵坐标点
 	 * @param n
-	 *        words的长度
+	 *            words的长度
 	 */
 	private void updateTableAndBack(int i, int k, int j, int n)
 	{
@@ -217,7 +217,7 @@ public class ConstituentParserCKY implements ConstituentParser
 						while (itr.hasNext())
 						{
 							if (i == 0 && j == n)
-							{//在最终节点
+							{// 在最终节点
 								PRule prule = (PRule) itr.next();
 								if (prule.getLhs().equals(pcnf.getStartSymbol()))
 								{
@@ -249,10 +249,11 @@ public class ConstituentParserCKY implements ConstituentParser
 
 	/**
 	 * 生成括号表达式的列表
+	 * 
 	 * @param n
-	 *        句子长度
+	 *            句子长度
 	 * @param numOfResulets
-	 *                 需要获得的句子分析结果个数
+	 *            需要获得的句子分析结果个数
 	 */
 	private void CreatBracketStringList(int n, int numOfResulets)
 	{

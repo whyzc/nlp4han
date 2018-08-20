@@ -69,7 +69,6 @@ public class CrossValidator
 				i++;
 			}
 		}
-		System.out.println(corpusFile.getName());
 		ObjectStream<String> treeStream = new PlainTextByTreeStream(new FileInputStreamFactory(corpusFile),
 				encoding);
 		ObjectStream<ConstituentTree> sampleStream = new ConstituentTreeStream(treeStream);

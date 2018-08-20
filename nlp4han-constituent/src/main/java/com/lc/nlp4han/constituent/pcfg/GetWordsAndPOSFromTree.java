@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.lc.nlp4han.constituent.TreeNode;
 
-public class GetWordsFromTree
+public class GetWordsAndPOSFromTree
 {
        public static String[] getetWordsFromTree(TreeNode tree) {
     	 List<String> words=new ArrayList<String>();
@@ -24,4 +24,17 @@ public class GetWordsFromTree
     		   traverseTree(node1,words);
     	   }
        }
+       public static void getWordsAndPOSFromTree(ArrayList<String> words,ArrayList<String> poses,TreeNode tree) {
+    	   traverseTree(tree,words,poses);
+       }
+       private static  void traverseTree(TreeNode node,List<String> words,ArrayList<String> poses) {
+		   if(node.getChildrenNum()==0) {
+			   poses.add(node.getParent().getNodeName());
+			   words.add(node.getNodeName());
+		   }
+    	   for(TreeNode node1:node.getChildren()) {
+    		   traverseTree(node1,words,poses);
+    	   }
+       }
+       
 }

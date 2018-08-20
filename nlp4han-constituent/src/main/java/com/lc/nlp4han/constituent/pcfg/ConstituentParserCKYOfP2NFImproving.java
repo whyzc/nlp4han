@@ -181,6 +181,7 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 				}
 			}
 		}
+		
 		// 回溯并生成括号表达式列表
 		CreatBracketStringList(n, numOfResulets);
 		return resultList;
@@ -344,7 +345,6 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 			}
 			return subPruleList;
 		}
-		/* System.out.println("返回tempList"); */
 		return tempList;
 
 	}
@@ -362,6 +362,9 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 		// 查找概率最大的n个结果
 		ArrayList<CKYPRule> resultRuleList = table[0][n].getPruleMap().get(pcnf.getStartSymbol());
 		resultList = new ArrayList<String>();
+		if(resultRuleList==null) {
+			return;
+		}
 		for (CKYPRule prule : resultRuleList)
 		{
 			StringBuilder strBuilder = new StringBuilder();
