@@ -12,11 +12,8 @@ import edu.stanford.nlp.util.CoreMap;
 
 public class TreeGenerator
 {
-	//private String model;
 	private StanfordCoreNLP pipeline;
 	private Annotation annotation;
-	//private LexicalizedParser parser;
-	//private String flag;
 	
 	public TreeGenerator() throws IOException {
 		init();

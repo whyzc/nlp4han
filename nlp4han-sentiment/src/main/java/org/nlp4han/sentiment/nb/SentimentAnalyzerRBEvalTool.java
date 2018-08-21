@@ -2,6 +2,7 @@ package org.nlp4han.sentiment.nb;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
@@ -20,6 +21,7 @@ public class SentimentAnalyzerRBEvalTool
 		}
 		
 		String dataPath = "";
+		String errFilePath = "";
 		String encoding="gbk";
 		
 		for (int i=0; i<args.length; i++)
@@ -27,6 +29,11 @@ public class SentimentAnalyzerRBEvalTool
 			if (args[i].equals("-data"))
 			{
 				dataPath = args[i+1];
+				i++;
+			}
+			if (args[i].equals("-err"))
+			{
+				errFilePath = args[i+1];
 				i++;
 			}
 			if (args[i].equals("-encoding"))
@@ -47,20 +54,27 @@ public class SentimentAnalyzerRBEvalTool
 		
 		TreeGenerator treeGen = new TreeGenerator();
 		SentimentAnalyzerRB analyzer = new SentimentAnalyzerRB( treeGen);
-		SentimentAnalyzerEvaluator evaluator = 
-				new SentimentAnalyzerEvaluator(analyzer);
+		
+		SentimentAnalyzerEvaluator evaluator = null;
+		if (!errFilePath.equals("")) {
+			SentimentAnalyzerErrorPrinter errOut = 
+					new SentimentAnalyzerErrorPrinter(new FileOutputStream(new File(errFilePath)));
+			evaluator = new SentimentAnalyzerEvaluator(analyzer, errOut);						
+		}else {
+			evaluator = new SentimentAnalyzerEvaluator(analyzer);
+		}
 		
 		evaluator.evaluate(sampleStream);		
 		
 		SentimentAnalyzerMeasure measure = evaluator.getMeasure();
 		System.out.println(measure);
-		System.out.println("评估时间："+(System.currentTimeMillis()-startTime));
+		System.out.println("评估时间："+(System.currentTimeMillis()-startTime)+"毫秒");
 	}
 	
 	private static void usage()
 	{
 		System.out.println(SentimentAnalyzerRBEvalTool.class.getName()
-				+ "-data <testDataPath>  -encoding <encoding>");
+				+ "-data <testDataPath> -err <errFile>  -encoding <encoding>");
 	}
 	
 
