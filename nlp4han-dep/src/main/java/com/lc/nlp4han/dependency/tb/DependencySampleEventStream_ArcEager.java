@@ -116,7 +116,7 @@ public class DependencySampleEventStream_ArcEager extends AbstractEventStream<De
 		while (!conf_ArcEager.isFinalConf())
 		{// buffer为空是终止配置
 			// System.out.println(conf_ArcEager.toString());
-
+			//因为这个方法不是继承超类的方法，故适用强制转换
 			String[] context = ((DependencyParseContextGeneratorConf_ArcEager)pcg).getContext(conf_ArcEager, priorDecisions, null);
 
 			if (conf_ArcEager.getWordsBuffer().size() == 0 && conf_ArcEager.getStack().size() > 1)
