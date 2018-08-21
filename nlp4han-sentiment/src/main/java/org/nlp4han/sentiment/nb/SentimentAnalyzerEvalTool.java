@@ -3,6 +3,7 @@ package org.nlp4han.sentiment.nb;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -33,6 +34,7 @@ public class SentimentAnalyzerEvalTool {
 		String algorithm = "NAIVEBAYES";
 		String nGram = "2";
 		String xBase = "character";
+		String errFilePath = "";
 		
 		for(int i=0; i<args.length; i++) {
 			if (args[i].equals("-data")) {
@@ -51,6 +53,11 @@ public class SentimentAnalyzerEvalTool {
 				xBase = args[i+1];
 				i++;
 			}
+			if (args[i].equals("-err"))
+			{
+				errFilePath = args[i+1];
+				i++;
+			}
 			if(args[i].equals("-encoding")) {
 				encoding = args[i+1];
 				i++;
@@ -61,6 +68,7 @@ public class SentimentAnalyzerEvalTool {
 			}
 		}
 		
+		long startTime = System.currentTimeMillis();
 		File testFile = new File(testDataPath);
 		
 		TrainingParameters params = TrainingParameters.defaultParams();
@@ -80,21 +88,25 @@ public class SentimentAnalyzerEvalTool {
 		
 		SentimentAnalyzerNB analyzer = new SentimentAnalyzerNB(model,contextGen);
 		
-		SentimentAnalyzerEvaluator evaluator = 
-				new SentimentAnalyzerEvaluator(analyzer);
-		
-		long startTime = System.currentTimeMillis();
+		SentimentAnalyzerEvaluator evaluator = null;
+		if (!errFilePath.equals("")) {
+			SentimentAnalyzerErrorPrinter errOut = 
+					new SentimentAnalyzerErrorPrinter(new FileOutputStream(new File(errFilePath)));
+			evaluator = new SentimentAnalyzerEvaluator(analyzer, errOut);						
+		}else {
+			evaluator = new SentimentAnalyzerEvaluator(analyzer);
+		}
 		
 		evaluator.evaluate(testSampleStream);
 		SentimentAnalyzerMeasure measure = evaluator.getMeasure();
 		
 		System.out.println(measure);
-		System.out.println("共耗时："+(System.currentTimeMillis() - startTime));
+		System.out.println("评估时间："+(System.currentTimeMillis() - startTime)+"毫秒");
 	}
 	
 	private static void usage() {
 		System.out.println(SentimentAnalyzerEvalTool.class.getName()
-				+"-data <testDataPath> -model <modelPath> -flag <wordOrCharacter> -ng <nGramFeature> -encoding <encoding> -algorithm <algorithm>");
+				+"-data <testDataPath> -model <modelPath> -flag <wordOrCharacter> -ng <nGramFeature> -err <errFile> -encoding <encoding> -algorithm <algorithm>");
 	}
 
 }

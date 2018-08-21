@@ -1,8 +1,8 @@
 package org.nlp4han.sentiment.nb;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,12 +40,13 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 	 */
 	private void init() throws IOException
 	{
-			FileInputStream fr = new FileInputStream("./resources/dictionary.txt");
-			BufferedReader br = new BufferedReader(new InputStreamReader(fr,"GBK"));
+			InputStream is = 
+					SentimentAnalyzer.class.getClassLoader().getResourceAsStream("org/nlp4han/sentiment/nb/dictionary.txt");
+			BufferedReader br = new BufferedReader(new InputStreamReader(is,"GBK"));
 			String str = "";
 			while ((str = br.readLine()) != null)
 			{
-				String[] items = str.trim().split(",");
+				String[] items = str.trim().split(":");
 				dictionary.put(items[0], items[1]);
 			}
 			br.close();
@@ -176,19 +177,12 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 	}
 
 	@Override
-	public SentimentPolarity analyze(String text, Map<String, Object> extraInformation)
+	public SentimentPolarity analyze(String text)
 	{
 		TreeNode tn = this.parse(text);
 		String polarity = tn.getNodeName();
 		
 		return new SentimentPolarity(polarity);
-	}
-
-	@Override
-	public SentimentPolarity analyze(String text)
-	{
-		Map<String, Object> extraInfo = new HashMap<>();
-		return this.analyze(text, extraInfo);
 	}
 
 }

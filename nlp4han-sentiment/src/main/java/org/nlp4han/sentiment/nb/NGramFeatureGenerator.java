@@ -31,6 +31,11 @@ public class NGramFeatureGenerator implements FeatureGenerator {
 		init(n,flag);
 	}
 	
+	/**
+	 * 初始化参数
+	 * @param n
+	 * @param flag
+	 */
 	private void init(String n, String flag) {
 		this.n = Integer.parseInt(n);
 		

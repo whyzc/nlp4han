@@ -2,6 +2,7 @@ package org.nlp4han.sentiment.nb;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Scanner;
 
 import org.nlp4han.sentiment.SentimentAnalyzer;
 import org.nlp4han.sentiment.SentimentPolarity;
@@ -30,7 +31,6 @@ public class SentimentAnalyzerUserTool
 		String modelPath = "";
 		String nGram = "2";
 		String xBase = "character";
-		String inputText = "";
 
 		for (int i = 0; i < args.length; i++)
 		{
@@ -52,11 +52,6 @@ public class SentimentAnalyzerUserTool
 			if (args[i].equals("-flag"))
 			{
 				xBase = args[i + 1];
-				i++;
-			}
-			if (args[i].equals("-text"))
-			{
-				inputText = args[i + 1];
 				i++;
 			}
 		}
@@ -82,15 +77,37 @@ public class SentimentAnalyzerUserTool
 			myAnalyzer = new SentimentAnalyzerRB(treeGen);
 
 		}
-
-		SentimentPolarity sp = myAnalyzer.analyze(inputText);
-		System.out.println(sp);
+		
+		Scanner input = new Scanner(System.in);
+		String text = "";
+		while (true)
+		{
+			System.out.println("请输入待分析的文本：");
+			text = input.nextLine();
+			
+			if (text.equals(""))
+			{
+				System.out.println("内容为空，请重新输入！");
+			}
+			else if (text.equals("exit"))
+			{
+				break;
+			}
+			else
+			{
+				SentimentPolarity sp = myAnalyzer.analyze(text);
+				System.out.println(sp);
+			}
+		}
+		
+		input.close();
+		
 	}
 
 	private static void usage()
 	{
 		System.out.println(SentimentAnalyzerUserTool.class.getName()
-				+ "-strategy <strategyForAnalysis> -model <modelPath> -text <textToBeAnalyzed> -ng <nGramFeature> -flag <wordOrCharacter>");
+				+ "-strategy <strategyForAnalysis> -model <modelPath>  -ng <nGramFeature> -flag <wordOrCharacter>");
 	}
 
 }
