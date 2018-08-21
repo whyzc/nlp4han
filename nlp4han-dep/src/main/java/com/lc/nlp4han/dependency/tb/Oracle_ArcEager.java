@@ -15,22 +15,22 @@ import com.lc.nlp4han.ml.util.ModelWrapper;
  * @author 王宁
  *
  */
-public class Oracle
+public class Oracle_ArcEager
 {
 	private ClassificationModel model;
 	private DependencyParseContextGenerator contextGenerator;
 	
-	public Oracle(ClassificationModel model, DependencyParseContextGenerator contextGenerator)
+	public Oracle_ArcEager(ClassificationModel model, DependencyParseContextGenerator contextGenerator)
 	{
 		this.model = model;
 		this.contextGenerator = contextGenerator;
 	}
 
-	public ActionType classify(Configuration currentConf, String[] priorDecisions,
+	public ActionType classify(Configuration_ArcEager currentConf, String[] priorDecisions,
 			Object[] additionalContext)
 	{// 将当前的Configuration分类
 
-		String[] context = ((DependencyParseContextGeneratorConf)contextGenerator).getContext(currentConf,priorDecisions,null);
+		String[] context = ((DependencyParseContextGeneratorConf_ArcEager)contextGenerator).getContext(currentConf,priorDecisions,null);
 		double allPredicates[] = model.eval(context);
 		String tempAllType[] = new String[allPredicates.length];// 存储所有的分类
 

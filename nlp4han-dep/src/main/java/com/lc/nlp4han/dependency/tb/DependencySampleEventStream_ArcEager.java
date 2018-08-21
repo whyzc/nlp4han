@@ -19,7 +19,7 @@ import com.lc.nlp4han.ml.util.ObjectStream;
  * @author hp
  *
  */
-public class DependencySampleEventStreamTB extends AbstractEventStream<DependencySample>
+public class DependencySampleEventStream_ArcEager extends AbstractEventStream<DependencySample>
 {
 
 	// 上下文产生器
@@ -34,11 +34,11 @@ public class DependencySampleEventStreamTB extends AbstractEventStream<Dependenc
 	 * @param pcg
 	 *            特征
 	 */
-	public DependencySampleEventStreamTB(ObjectStream<DependencySample> samples, DependencyParseContextGenerator pcg)
+	public DependencySampleEventStream_ArcEager(ObjectStream<DependencySample> samples, DependencyParseContextGenerator pcg)
 	{
 
 		super(samples);
-		DependencySampleEventStreamTB.pcg = pcg;
+		DependencySampleEventStream_ArcEager.pcg = pcg;
 	}
 
 	/**
@@ -101,7 +101,7 @@ public class DependencySampleEventStreamTB extends AbstractEventStream<Dependenc
 
 		if (words.length == 0)
 			return new ArrayList<Event>(words.length);
-		Configuration conf_ArcEager = Configuration.initialConf(words, pos);
+		Configuration_ArcEager conf_ArcEager = Configuration_ArcEager.initialConf(words, pos);
 		String[] priorDecisions = new String[2 * (words.length - 1) + 1];
 
 		List<Event> events = new ArrayList<Event>();
@@ -116,8 +116,8 @@ public class DependencySampleEventStreamTB extends AbstractEventStream<Dependenc
 		while (!conf_ArcEager.isFinalConf())
 		{// buffer为空是终止配置
 			// System.out.println(conf_ArcEager.toString());
-
-			String[] context = ((DependencyParseContextGeneratorConf)pcg).getContext(conf_ArcEager, priorDecisions, null);
+			//因为这个方法不是继承超类的方法，故适用强制转换
+			String[] context = ((DependencyParseContextGeneratorConf_ArcEager)pcg).getContext(conf_ArcEager, priorDecisions, null);
 
 			if (conf_ArcEager.getWordsBuffer().size() == 0 && conf_ArcEager.getStack().size() > 1)
 			{
@@ -158,7 +158,7 @@ public class DependencySampleEventStreamTB extends AbstractEventStream<Dependenc
 					{
 						if (!conf_ArcEager.getStack().peek().getWord().equals(DependencyParser.RootWord))
 							System.err.println("不是gold句子。");
-						at = new ActionType("核心成分", "RIGHTARC_SHIFT");
+						at = new ActionType(DependencyParser.RootDep, "RIGHTARC_SHIFT");
 					}
 					else
 					{
@@ -167,7 +167,7 @@ public class DependencySampleEventStreamTB extends AbstractEventStream<Dependenc
 //					System.out.println(conf_ArcEager.toString() + "*****" + "goldAction =" + at.typeToString());
 					strOfAType = at.typeToString();
 					conf_ArcEager.addArc(
-							new Arc("核心成分", conf_ArcEager.getStack().peek(), conf_ArcEager.getWordsBuffer().get(0)));
+							new Arc(strOfAType, conf_ArcEager.getStack().peek(), conf_ArcEager.getWordsBuffer().get(0)));
 					conf_ArcEager.shift();
 
 				}

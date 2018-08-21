@@ -17,12 +17,12 @@ import com.lc.nlp4han.ml.util.ObjectStream;
  * @author 王宁
  * @version 创建时间：2018年7月25日 上午2:34:58 样本序列流
  */
-public class DependencySampleSequenceStream implements SequenceStream
+public class DependencySampleSequenceStream_ArcEager implements SequenceStream
 {
 	private DependencyParseContextGenerator contextGenerator;
 	private ObjectStream<DependencySample> samples;
 
-	public DependencySampleSequenceStream(ObjectStream<DependencySample> samples,
+	public DependencySampleSequenceStream_ArcEager(ObjectStream<DependencySample> samples,
 			DependencyParseContextGenerator contextGenerator)
 	{
 		this.contextGenerator = contextGenerator;
@@ -36,7 +36,7 @@ public class DependencySampleSequenceStream implements SequenceStream
 		Sequence<DependencySample> pss = sequence;
 		try
 		{
-			DependencyParserTB parseTB = new DependencyParserTB(new ModelWrapper(model));
+			DependencyParser_ArcEager parseTB = new DependencyParser_ArcEager(new ModelWrapper(model));
 		
 		DependencySample sample = (DependencySample)sequence.getSource();
 		String[] words = sample.getWords();
@@ -47,7 +47,7 @@ public class DependencySampleSequenceStream implements SequenceStream
 		String[] dependency = newSample.getDependency();
 		String[] dependencyWords = newSample.getDependencyWords();
 		String[] dependencyIndices = newSample.getDependencyIndices();
-		List<Event> events =DependencySampleEventStreamTB.generateEvents(words, poses, dependency, dependencyWords, dependencyIndices, ac);
+		List<Event> events =DependencySampleEventStream_ArcEager.generateEvents(words, poses, dependency, dependencyWords, dependencyIndices, ac);
 		Event[] allEvents = new Event[events.size()];
 		allEvents = events.toArray(allEvents);
 		return allEvents;
@@ -65,7 +65,7 @@ public class DependencySampleSequenceStream implements SequenceStream
 		DependencySample sentenceSample = samples.read();
 		if (sentenceSample != null)
 		{
-			DependencySampleEventStreamTB es = new DependencySampleEventStreamTB(samples, contextGenerator);
+			DependencySampleEventStream_ArcEager es = new DependencySampleEventStream_ArcEager(samples, contextGenerator);
 			List<Event> events = es.generateEvents(sentenceSample.getWords(), sentenceSample.getPos(),
 					sentenceSample.getDependency(), sentenceSample.getDependencyWords(),
 					sentenceSample.getDependencyIndices(), sentenceSample.getAditionalContext());

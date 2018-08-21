@@ -4,8 +4,8 @@ public class ActionType
 {
 	// 是对输入产生的结果的分类
 	private String relation;// 包括"EXTRAROOT"、"null"及其他所有训练集中的关系
-	private String baseAction;//// 共四类基本操作RIGHTARC_SHIFT、LEFTARC_REDUCE、SHIFT、REDUCE
-
+	private String baseAction;//  arcEager共四类基本操作RIGHTARC_SHIFT、LEFTARC_REDUCE、SHIFT、REDUCE
+							//  arcStandard共三类基本操作RIGHTARC_REDUCE、LEFTARC_REDUCE、SHIFT
 	public ActionType(String relation, String baseAction)
 	{
 		this.relation = relation;

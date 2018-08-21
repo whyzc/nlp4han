@@ -9,12 +9,12 @@ import com.lc.nlp4han.ml.util.Evaluator;
  * @author 作者
  * @version 创建时间：2018年7月24日 下午8:01:29 类说明
  */
-public class DependencyParseTBEvaluator extends Evaluator<DependencySample>
+public class DependencyParseEvaluator extends Evaluator<DependencySample>
 {
-	private DependencyParserTB tagger;
+	private DependencyParser_ArcEager tagger;
 	private DependencyParseMeasure measure;
 
-	public DependencyParseTBEvaluator(DependencyParserTB tagger, DependencyParseEvaluateMonitor... monitor)
+	public DependencyParseEvaluator(DependencyParser_ArcEager tagger, DependencyParseEvaluateMonitor... monitor)
 	{
 		super(monitor);
 		this.tagger = tagger;
@@ -51,12 +51,12 @@ public class DependencyParseTBEvaluator extends Evaluator<DependencySample>
 		return preSample;
 	}
 
-	public DependencyParserTB getTagger()
+	public DependencyParser_ArcEager getTagger()
 	{
 		return tagger;
 	}
 
-	public void setTagger(DependencyParserTB tagger)
+	public void setTagger(DependencyParser_ArcEager tagger)
 	{
 		this.tagger = tagger;
 	}

@@ -1,9 +1,10 @@
 package com.lc.nlp4han.dependency.tb;
 
+import com.lc.nlp4han.dependency.DependencyParser;
 import com.lc.nlp4han.ml.util.SequenceValidator;
 
 /**
- * @author 作者
+ * @author 王宁
  * @version 创建时间：2018年7月25日 下午10:35:28 类说明
  */
 public class DependencyParseSequenceValidator implements SequenceValidator<String>
@@ -13,7 +14,7 @@ public class DependencyParseSequenceValidator implements SequenceValidator<Strin
 	public boolean validSequence(int indexOfCurrentConf, String[] wordpos, String[] priorOutcomes,
 			String preOutcome)
 	{
-		Configuration conf = Configuration.generateConfByActions(wordpos, priorOutcomes);
+		Configuration_ArcEager conf = new Configuration_ArcEager().generateConfByActions(wordpos, priorOutcomes);
 
 		ActionType preAct = ActionType.toType(preOutcome);
 		if (preAct != null)
@@ -42,7 +43,7 @@ public class DependencyParseSequenceValidator implements SequenceValidator<Strin
 //					System.out.println("因为buffer位空，故不能有RIGHTARC_SHIFT操作");
 					return false;
 				}
-				if (preAct.getRelation().equals("核心成分"))// 分类中只有rightarc才有可能是核心成分
+				if (preAct.getRelation().equals(DependencyParser.RootDep))// 分类中只有rightarc才有可能是核心成分
 				{// 确保“核心”只能作为一个词语的中心词
 					if (conf.getStack().peek().getIndexOfWord() != 0)
 					{
@@ -50,7 +51,7 @@ public class DependencyParseSequenceValidator implements SequenceValidator<Strin
 					}
 					for (Arc arc : conf.getArcs())
 					{
-						if (arc.getRelation().equals("核心成分"))
+						if (arc.getRelation().equals(DependencyParser.RootDep))
 							return false;
 					}
 					return true;

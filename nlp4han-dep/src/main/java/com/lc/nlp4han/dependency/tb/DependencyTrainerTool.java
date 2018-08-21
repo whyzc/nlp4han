@@ -71,9 +71,9 @@ public class DependencyTrainerTool
 		params.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(cutoff));
 		params.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(iters));
 
-		DependencyParseContextGenerator gen = new DependencyParseContextGeneratorConf();
+		DependencyParseContextGenerator gen = new DependencyParseContextGeneratorConf_ArcEager();
 
-		ModelWrapper model = DependencyParserTB.train(corpusFile, params, gen, encoding);
+		ModelWrapper model = DependencyParser_ArcEager.train(corpusFile, params, gen, encoding);
 
 		OutputStream modelOut = new BufferedOutputStream(new FileOutputStream(modelFile));
 		model.serialize(modelOut);

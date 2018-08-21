@@ -180,4 +180,14 @@ public class DependencyParseMeasure
 		return countAllWordsAndDep / countSentence;
 	}
 
+	public String getData()
+	{
+		return "countAllWords=" + String.valueOf(countAllWords) + "\n" + ",countWordsAndDep="
+				+ String.valueOf(countWordsAndDep) + "\n" + ",countWords=" + String.valueOf(countWords) + "\n"
+				+ ",countWordsAndDepNotRoot=" + String.valueOf(countWordsAndDepNotRoot) + "\n"
+				+ ",countAllWordsNotRoot=" + String.valueOf(countAllWordsNotRoot) + "\n" + ",countSentence="
+				+ String.valueOf(countSentence) + "\n" + ",countWordsAndDepRoot=" + String.valueOf(countWordsAndDepRoot)
+				+ "\n" + ",countAllDependency=" + String.valueOf(countAllDependency) + "\n" + ",countAllWordsAndDep="
+				+ String.valueOf(countAllWordsAndDep);
+	}
 }

@@ -28,30 +28,30 @@ public class DependencyEvalTool
 	public static void eval(File trainFile, TrainingParameters params, File goldFile, String encoding, File errorFile)
 			throws IOException
 	{
-		DependencyParseContextGenerator gen = new DependencyParseContextGeneratorConf();
+		DependencyParseContextGenerator gen = new DependencyParseContextGeneratorConf_ArcEager();
 		ModelWrapper model;
 		if (trainFile != null)
-			model = DependencyParserTB.train(trainFile, params, gen, encoding);
+			model = DependencyParser_ArcEager.train(trainFile, params, gen, encoding);
 		else
 		{
 			InputStream inStream = DependencyEvalTool.class.getClassLoader()
-					.getResourceAsStream("com/lc/nlp4han/dependency/tb_cpostag4.model");
+					.getResourceAsStream("com/lc/nlp4han/dependency/tb_cpostag2.model");
 			model = new ModelWrapper(inStream);
 		}
 
-		DependencyParserTB tagger = new DependencyParserTB(model, gen);
+		DependencyParser_ArcEager tagger = new DependencyParser_ArcEager(model, gen);
 
 		DependencyParseMeasure measure = new DependencyParseMeasure();
-		DependencyParseTBEvaluator evaluator = null;
+		DependencyParseEvaluator evaluator = null;
 		DependencyParseErrorPrinter errorPrinter = null;
 		if (errorFile != null)
 		{
 			errorPrinter = new DependencyParseErrorPrinter(new FileOutputStream(errorFile));
-			evaluator = new DependencyParseTBEvaluator(tagger, errorPrinter);
+			evaluator = new DependencyParseEvaluator(tagger, errorPrinter);
 		}
 		else
 		{
-			evaluator = new DependencyParseTBEvaluator(tagger, errorPrinter);
+			evaluator = new DependencyParseEvaluator(tagger, errorPrinter);
 		}
 		evaluator.setMeasure(measure);
 
@@ -61,7 +61,7 @@ public class DependencyEvalTool
 		ObjectStream<DependencySample> sampleStream = new DependencySampleStream(linesStream, sampleParser);
 		evaluator.evaluate(sampleStream);
 		
-//		System.out.println(evaluator.getMeasure().getData());
+		System.out.println(evaluator.getMeasure().getData());
 		System.out.println(evaluator.getMeasure());
 	}
 

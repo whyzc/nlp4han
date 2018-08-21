@@ -1,5 +1,7 @@
 package com.lc.nlp4han.dependency.tb;
 
+import com.lc.nlp4han.dependency.DependencyParser;
+
 /**
  * @author 作者
  * @version 创建时间：2018年7月27日 下午2:38:17 类说明
@@ -13,7 +15,7 @@ public class SimpleValidator
 	 *            基于当前配置的预测结果
 	 * @return 返回预测结果的合法性
 	 */
-	public static boolean validate(Configuration conf, String outCome)
+	public static boolean validate(Configuration_ArcEager conf, String outCome)
 	{
 		// System.out.println("执行了validate方法");
 		ActionType preAct = ActionType.toType(outCome);
@@ -29,7 +31,7 @@ public class SimpleValidator
 				{
 					if (arc.getDependent() == conf.getStack().peek())
 					{
-						System.out.println("因为栈顶单词已经有中心词故不能有LEFTARC_REDUCE操作");
+//						System.out.println("因为栈顶单词已经有中心词故不能有LEFTARC_REDUCE操作");
 						return false;
 					}
 				}
@@ -40,10 +42,10 @@ public class SimpleValidator
 			{
 				if (conf.getWordsBuffer().isEmpty())
 				{
-					System.out.println("因为buffer位空，故不能有RIGHTARC_SHIFT操作");
+//					System.out.println("因为buffer位空，故不能有RIGHTARC_SHIFT操作");
 					return false;
 				}
-				if (preAct.getRelation().equals("核心成分"))// 分类中只有rightarc才有可能是核心成分
+				if (preAct.getRelation().equals(DependencyParser.RootDep))// 分类中只有rightarc才有可能是核心成分
 				{// 确保“核心”只能作为一个词语的中心词
 					if (conf.getStack().peek().getIndexOfWord() != 0)
 					{
@@ -51,7 +53,7 @@ public class SimpleValidator
 					}
 					for (Arc arc : conf.getArcs())
 					{
-						if (arc.getRelation().equals("核心成分"))
+						if (arc.getRelation().equals(DependencyParser.RootDep))
 							return false;
 					}
 					return true;
@@ -66,7 +68,7 @@ public class SimpleValidator
 			{
 				if (conf.getWordsBuffer().isEmpty())
 				{
-					System.out.println("因为buffer位空，故不能有SHIFT操作");
+//					System.out.println("因为buffer位空，故不能有SHIFT操作");
 					return false;
 				}
 				else
@@ -79,7 +81,7 @@ public class SimpleValidator
 					return true;
 				if (conf.getStack().peek().getIndexOfWord() == 0)
 				{
-					System.out.println("因为栈顶是ROOT，故不能有REDUCE操作");
+//					System.out.println("因为栈顶是ROOT，故不能有REDUCE操作");
 					return false;
 				}
 
@@ -91,7 +93,7 @@ public class SimpleValidator
 						return true;
 					}
 				}
-				System.out.println("因为栈顶单词还没有建立依存关系，故不能有REDUCE操作");
+//				System.out.println("因为栈顶单词还没有建立依存关系，故不能有REDUCE操作");
 				return false;
 			}
 

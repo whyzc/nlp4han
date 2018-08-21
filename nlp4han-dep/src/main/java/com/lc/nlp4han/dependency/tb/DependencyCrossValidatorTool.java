@@ -2,6 +2,7 @@ package com.lc.nlp4han.dependency.tb;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.lc.nlp4han.dependency.DependencySample;
@@ -40,6 +41,8 @@ public class DependencyCrossValidatorTool
 		int iters = 100;
 		int folds = 10;
 		File corpusFile = null;
+//		File corpusFile = new File("C:\\Users\\hp\\Desktop\\UD_English-EWT\\en_ewt-ud-train.conllu");
+//		File corpusFile2 = new File("C:\\Users\\hp\\Desktop\\UD_Chinese-GSD\\zh_gsd-ud-train.conllu");
 		String encoding = "UTF-8";
 		for (int i = 0; i < args.length; i++)
 		{
@@ -70,12 +73,12 @@ public class DependencyCrossValidatorTool
 			}
 		}
 
-		TrainingParameters params = TrainingParameters.defaultParams();
+TrainingParameters params = TrainingParameters.defaultParams();
 		
 		params.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(cutoff));
 		params.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(iters));
 		//修改训练模型为EventModelSequenceTrainer
-		params.put(TrainingParameters.ALGORITHM_PARAM, SimplePerceptronSequenceTrainer.PERCEPTRON_SEQUENCE_VALUE);
+//		params.put(TrainingParameters.ALGORITHM_PARAM, SimplePerceptronSequenceTrainer.PERCEPTRON_SEQUENCE_VALUE);
 		
 		
 		ObjectStream<String> linesStream = new PlainTextBySpaceLineStream(
@@ -84,13 +87,28 @@ public class DependencyCrossValidatorTool
 		DependencySampleParser sampleParser = new DependencySampleParserCoNLL();
 		ObjectStream<DependencySample> sampleStream = new DependencySampleStream(linesStream, sampleParser);
 
+//		ObjectStream<String> linesStream2 = new PlainTextBySpaceLineStream(
+//				new MarkableFileInputStreamFactory(corpusFile2), encoding);
+//
+//		DependencySampleParser sampleParser2 = new DependencySampleParserCoNLL();
+//		ObjectStream<DependencySample> sampleStream2 = new DependencySampleStream(linesStream2, sampleParser2);
+		
 		// 交叉验证
 		DependencyParseCrossValidator crossValidator = new DependencyParseCrossValidator(params);
-		DependencyParseContextGenerator contextGen = new DependencyParseContextGeneratorConf();
+		DependencyParseContextGenerator contextGen = new DependencyParseContextGeneratorConf_ArcEager();
 		LocalDateTime start = LocalDateTime.now();
 		crossValidator.evaluate(sampleStream, folds, contextGen);
-		System.out.println("开始时间:"+start);
-		System.out.println("结束时间:"+LocalDateTime.now());
+		LocalDateTime end = LocalDateTime.now();
+		BigDecimal time = new BigDecimal(end.toString()).subtract(new BigDecimal(start.toString()));
+		System.out.println("消耗时间:"+time);
+		
+		
+//		// 交叉验证
+//		DependencyParseCrossValidator crossValidator2 = new DependencyParseCrossValidator(params);
+//		DependencyParseContextGenerator contextGen2 = new DependencyParseContextGeneratorConf_ArcEager();
+//		LocalDateTime start2 = LocalDateTime.now();
+//		crossValidator2.evaluate(sampleStream2, folds, contextGen2);
+//		System.out.println("开始时间:" + start2);
 	}
 
 }
