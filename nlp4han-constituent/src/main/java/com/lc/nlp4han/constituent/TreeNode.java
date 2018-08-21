@@ -175,7 +175,7 @@ public class TreeNode implements Cloneable
 	{
 		return this.children.get(i);
 	}
-	
+
 	public void setChild(int i, TreeNode c)
 	{
 		this.children.set(i, c);
@@ -506,16 +506,19 @@ public class TreeNode implements Cloneable
 		boolean flag = false;
 		for (int i = 0; i < tree.getChildrenNum(); i++)
 		{
-			if (tree.getChild(i).getChildrenNum() == 1 && tree.getFirstChild().getFirstChild().getChildrenNum() == 0)
+			if (tree.getChild(i).getChildrenNum() == 1 && tree.getChild(i).getFirstChild().getChildrenNum() == 0)
 			{
 				flag = true;
 			}
-			else if (tree.getChild(i).getChildrenNum() > 1 || (tree.getChild(1).getChildrenNum() == 1)
-					&& tree.getChild(1).getFirstChild().getChildrenNum() > 0)
+			else
 			{
 				flag = false;
 				break;
 			}
+		}
+		if (flag)
+		{
+			System.out.println("所有孩子都是词性标注tree.getChildren()==" + tree.getChildren());
 		}
 		return flag;
 	}
