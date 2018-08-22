@@ -29,6 +29,11 @@ public class Configuration_ArcStandard extends Configuration
 	{
 	}
 	
+	public static Configuration_ArcStandard initialConf(String[] words, String[] pos)
+	{
+		return new Configuration_ArcStandard(words, pos);
+	}
+	
 	public  Configuration_ArcStandard generateConfByActions(String[] wordpos, String[] priorActions) {
 		//暂时先不管这个
 		return null;

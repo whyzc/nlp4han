@@ -53,10 +53,7 @@ public abstract class Configuration {
 	
 	
 	
-	public static Configuration_ArcEager initialConf(String[] words, String[] pos)
-	{
-		return new Configuration_ArcEager(words, pos);
-	}
+	
 	public boolean isFinalConf()
 	{
 		if (wordsBuffer.isEmpty() && stack.size() == 1)

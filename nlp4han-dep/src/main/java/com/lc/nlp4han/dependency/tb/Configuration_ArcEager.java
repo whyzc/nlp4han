@@ -27,6 +27,12 @@ public class Configuration_ArcEager extends Configuration
 	{
 	}
 
+	public static Configuration_ArcEager initialConf(String[] words, String[] pos)
+	{
+		return new Configuration_ArcEager(words, pos);
+	}
+	
+	
 	// public static Configuration initialConf(DependencySample sample)
 	// {//通过sample得到初始的一个Configuration
 	// //······
