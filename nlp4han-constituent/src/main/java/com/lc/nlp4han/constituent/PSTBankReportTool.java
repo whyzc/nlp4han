@@ -15,23 +15,25 @@ public class PSTBankReportTool
 		{
 			return;
 		}
+		
 		String frompath = null;
-		String incoding = null;
+		String encoding = "GBK";
 		for (int i = 0; i < args.length; i++)
 		{
-			if (args[i].equals("-frompath"))
+			if (args[i].equals("-data"))
 			{
 				frompath = args[i + 1];
 				i++;
 			}
-			if (args[i].equals("-incoding"))
+			if (args[i].equals("-encoding"))
 			{
-				incoding = args[i + 1];
+				encoding = args[i + 1];
 				i++;
 			}
 		}
-			PSTBankReport getTL = new PSTBankReport();
-			TreeBankReport treeBankReport = getTL.getInformationOfTreeLibrary(frompath, incoding);
-			System.out.println(treeBankReport.toString());
+		
+		PSTBankReport getTL = new PSTBankReport();
+		TreeBankReport treeBankReport = getTL.getInformationOfTreeLibrary(frompath, encoding);
+		System.out.println(treeBankReport.toString());
 	}
 }
