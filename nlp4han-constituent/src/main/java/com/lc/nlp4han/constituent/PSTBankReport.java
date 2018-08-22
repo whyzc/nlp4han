@@ -1,15 +1,13 @@
-package com.lc.nlp4han.constituent.pcfg;
+package com.lc.nlp4han.constituent;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 
-import com.lc.nlp4han.constituent.BracketExpUtil;
-import com.lc.nlp4han.constituent.PlainTextByTreeStream;
-import com.lc.nlp4han.constituent.TreeNode;
+import com.lc.nlp4han.constituent.pcfg.TreeBankReport;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 
-public class GetInformationOfTreeBank
+public class PSTBankReport
 {
 	private int tokenCount;// 词条数
 	private HashSet<String> wordShapeSet;
@@ -17,7 +15,7 @@ public class GetInformationOfTreeBank
 	private int wordCount;// 总字数(包括标点符号)
 	private int nonTerminalCount;// 非终结符的个数
 
-	public GetInformationOfTreeBank()
+	public PSTBankReport()
 	{
 		tokenCount = 0;
 		wordShapeSet = new HashSet<String>();

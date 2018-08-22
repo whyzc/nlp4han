@@ -83,10 +83,10 @@ public class CTBClearerTool
 		if (node.getChildrenNum() == 1)
 		{
 			TreeNode child = node.getFirstChild();
-			if (node.getNodeName().equals(child.getNodeName()) && parent!=null)
+			if (node.getNodeName().equals(child.getNodeName()) && parent != null)
 			{
 				int index = indexOf(parent, node);
-				
+
 				parent.setChild(index, child);
 				child.setParent(parent);
 			}
@@ -100,57 +100,107 @@ public class CTBClearerTool
 			}
 		}
 	}
-	
+
 	// 在最外层添加ROOT
 	private static String addRoot(String str)
 	{
 		String res = "(ROOT " + str + ")";
-		
+
 		return res;
 	}
-	
+
 	private static void usage()
 	{
 		System.out.println(CTBClearerTool.class.getName()
-				+ " <inBracketFile> <outBracketFile> <encoding>");
+				+ " -in <inBracketFile> -out <outBracketFile> [-encoing <encoding>] [-f] [-n] [-u] [-indent]");
 	}
 
 	public static void main(String[] args) throws IOException
 	{
-		if(args.length <1)
+		if (args.length < 1)
 		{
 			usage();
-			
+
 			return;
 		}
-		
-		String encoding = args[2];
-		PlainTextByTreeStream lineStream = new PlainTextByTreeStream(
-				new FileInputStreamFactory(new File(args[0])), encoding);
+
+		String in = null;
+		String outFile = null;
+		String encoding = "GBK";
+		boolean removeFuncTag = false;
+		boolean removeNONENode = false;
+		boolean removeUnit = false;
+		boolean indent = false;
+		for (int i = 0; i < args.length; i++)
+		{
+			if (args[i].equals("-in"))
+			{
+				in = args[i + 1];
+				i++;
+			}
+			else if (args[i].equals("-encoding"))
+			{
+				encoding = args[i + 1];
+				i++;
+			}
+			else if (args[i].equals("-out"))
+			{
+				outFile = args[i + 1];
+				i++;
+			}
+			else if (args[i].equals("-f"))
+			{
+				removeFuncTag = true;
+				i++;
+			}
+			else if (args[i].equals("-u"))
+			{
+				removeUnit = true;
+				i++;
+			}
+			else if (args[i].equals("-n"))
+			{
+				removeNONENode = true;
+				i++;
+			}
+			else if (args[i].equals("-indent"))
+			{
+				indent = true;
+				i++;
+			}
+		}
+
+		PlainTextByTreeStream lineStream = new PlainTextByTreeStream(new FileInputStreamFactory(new File(in)),
+				encoding);
 		String bracketStr = "";
-		PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(args[1]), encoding));
+		PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(outFile), encoding));
 		int n = 1;
 		while ((bracketStr = lineStream.read()) != "")
 		{
 			System.out.println(n);
-			
+
 			TreeNode tree = BracketExpUtil.generateTreeNotDeleteBracket(bracketStr);
 
-			removeFuncTag(tree);
+			if (removeFuncTag)
+				removeFuncTag(tree);
 
-			removeNullNode(tree);
-			
+			if (removeNONENode)
+				removeNullNode(tree);
+
 			String str = tree.toStringNoNone();
 			tree = BracketExpUtil.generateTreeNotDeleteBracket(str);
 			removeUnit(tree);
 
-			str = tree.toStringNoNone();			
+			str = tree.toStringNoNone();
 			str = addRoot(str);
-			
+
 			tree = BracketExpUtil.generateTreeNotDeleteBracket(str);
-			
-			out.println(TreeNode.printTree(tree, 1));
-			
+
+			if (indent)
+				out.println(TreeNode.printTree(tree, 1));
+			else
+				out.println(tree.toString());
+
 			n++;
 		}
 
