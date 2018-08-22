@@ -1,8 +1,10 @@
-package com.lc.nlp4han.constituent.pcfg;
+package com.lc.nlp4han.constituent;
 
 import java.io.IOException;
 
-public class GetInformationOfTreeBankTool
+import com.lc.nlp4han.constituent.pcfg.TreeBankReport;
+
+public class PSTBankReportTool
 {
 	/**
 	 * 获取树库信息
@@ -28,7 +30,7 @@ public class GetInformationOfTreeBankTool
 				i++;
 			}
 		}
-			GetInformationOfTreeBank getTL = new GetInformationOfTreeBank();
+			PSTBankReport getTL = new PSTBankReport();
 			TreeBankReport treeBankReport = getTL.getInformationOfTreeLibrary(frompath, incoding);
 			System.out.println(treeBankReport.toString());
 	}
