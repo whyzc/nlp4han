@@ -1,4 +1,4 @@
-package org.nlp4han.sentiment.nb;
+package org.nlp4han.sentiment;
 
 import java.io.IOException;
 

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.nlp4han.sentiment.SentimentAnalyzer;
 import org.nlp4han.sentiment.SentimentPolarity;
+import org.nlp4han.sentiment.SentimentTextSample;
 
 import com.lc.nlp4han.ml.model.ClassificationModel;
 import com.lc.nlp4han.ml.model.Event;

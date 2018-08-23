@@ -2,6 +2,8 @@ package org.nlp4han.sentiment.nb;
 
 import java.util.Iterator;
 
+import org.nlp4han.sentiment.SentimentTextSample;
+
 import com.lc.nlp4han.ml.model.Event;
 import com.lc.nlp4han.ml.util.AbstractEventStream;
 import com.lc.nlp4han.ml.util.ObjectStream;
