@@ -1,7 +1,9 @@
 package org.nlp4han.sentiment.nb;
 
 import org.nlp4han.sentiment.SentimentAnalyzer;
+import org.nlp4han.sentiment.SentimentAnalyzerEvaluationMonitor;
 import org.nlp4han.sentiment.SentimentPolarity;
+import org.nlp4han.sentiment.SentimentTextSample;
 
 import com.lc.nlp4han.ml.util.Evaluator;
 

@@ -5,6 +5,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import org.nlp4han.sentiment.SentimentAnalyzerErrorPrinter;
+import org.nlp4han.sentiment.SentimentTextSample;
+import org.nlp4han.sentiment.SentimentTextSampleStream;
+
 import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 import com.lc.nlp4han.ml.util.PlainTextByLineStream;
