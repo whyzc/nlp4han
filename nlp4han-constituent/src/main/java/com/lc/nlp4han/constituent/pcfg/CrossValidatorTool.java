@@ -10,7 +10,7 @@ import com.lc.nlp4han.ml.util.CrossValidationPartitioner;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 
-public class CrossValidator
+public class CrossValidatorTool
 {
 	
 	/**
@@ -73,7 +73,7 @@ public class CrossValidator
 				encoding);
 		ObjectStream<ConstituentTree> sampleStream = new ConstituentTreeStream(treeStream);
 
-		CrossValidator run = new CrossValidator();
+		CrossValidatorTool run = new CrossValidatorTool();
 		ConstituentMeasure measure=new ConstituentMeasure();
 		run.evaluate(sampleStream,folds,measure);
 	}
