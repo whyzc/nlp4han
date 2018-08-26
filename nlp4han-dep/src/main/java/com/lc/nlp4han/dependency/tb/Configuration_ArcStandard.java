@@ -35,8 +35,22 @@ public class Configuration_ArcStandard extends Configuration
 	}
 	
 	public  Configuration_ArcStandard generateConfByActions(String[] wordpos, String[] priorActions) {
-		//暂时先不管这个
-		return null;
+		String[] words = new String[wordpos.length / 2 + 1];
+		String[] poses = new String[wordpos.length / 2 + 1];
+		for (int i = 0; i < words.length; i++)
+		{
+			String[] word_pos = wordpos[i].split("/");
+			words[i] = word_pos[0];
+			poses[i] = word_pos[1];
+		}
+		Configuration_ArcStandard conf = new Configuration_ArcStandard(words, poses);
+		for (String preAction : priorActions)
+		{
+			ActionType at = ActionType.toType(preAction);
+			conf.transition(at);
+		}
+		return conf;
+		
 	}
 		
 	/**

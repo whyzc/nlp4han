@@ -36,7 +36,7 @@ public class Configuration_ArcEager extends Configuration
 	// return new Configuration();
 	// }
 
-	// 包括“核心”
+	// wordpos包括“核心”
 	public  Configuration_ArcEager generateConfByActions(String[] wordpos, String[] priorActions)
 	{
 		String[] words = new String[wordpos.length / 2 + 1];
