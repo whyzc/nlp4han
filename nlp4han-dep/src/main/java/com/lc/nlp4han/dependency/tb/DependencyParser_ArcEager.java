@@ -92,7 +92,7 @@ public class DependencyParser_ArcEager implements DependencyParser
 
 		this.contextGenerator = contextGenerator;
 
-		this.sequenceValidator = new DependencyParseSequenceValidator();
+		this.sequenceValidator = new DependencyParseSequenceValidator_ArcEager();
 	}
 
 	public static ModelWrapper train(String trainDatePath, TrainingParameters params,
@@ -176,7 +176,7 @@ public class DependencyParser_ArcEager implements DependencyParser
 		words = allWords.toArray(new String[allWords.size()]);
 		poses = allPoses.toArray(new String[allPoses.size()]);
 
-		Oracle_ArcEager oracleMEBased = new Oracle_ArcEager(model, contextGenerator);
+		Oracle oracleMEBased = new Oracle(model, contextGenerator);
 		ActionType action = new ActionType();
 		Configuration_ArcEager currentConf = Configuration_ArcEager.initialConf(words, poses);
 		String[] priorDecisions = new String[2 * (words.length - 1) ];
@@ -184,7 +184,7 @@ public class DependencyParser_ArcEager implements DependencyParser
 		while (!currentConf.isFinalConf())
 		{
 			action = oracleMEBased.classify(currentConf, priorDecisions, null);
-//			System.out.println(currentConf.toString() + "*****" + "preAction =" + action.typeToString());
+			System.out.println(currentConf.toString() + "*****" + "preAction =" + action.typeToString());
 			currentConf.transition(action);
 			priorDecisions[indexOfConf] = action.typeToString();
 			indexOfConf++;

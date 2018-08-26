@@ -8,9 +8,6 @@ import java.util.LinkedList;
 
 public class Configuration_ArcEager extends Configuration
 {
-	private ArrayDeque<Vertice> stack = new ArrayDeque<Vertice>();
-	private LinkedList<Vertice> wordsBuffer = new LinkedList<Vertice>();
-	private ArrayList<Arc> arcs = new ArrayList<Arc>();
 
 	public Configuration_ArcEager(ArrayDeque<Vertice> stack, LinkedList<Vertice> wordsBuffer, ArrayList<Arc> arcs)
 	{

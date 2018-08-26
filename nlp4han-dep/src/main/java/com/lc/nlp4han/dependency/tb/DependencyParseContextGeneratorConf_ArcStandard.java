@@ -75,15 +75,15 @@ public class DependencyParseContextGeneratorConf_ArcStandard implements Dependen
 	private boolean s1wt_b1tset;
 	private boolean s1wt_b1wtset;
 
-//	private boolean b1w_b2tset;
-//	private boolean b1t_b2wset;
-//	private boolean b1w_b2wset;
-//	private boolean b1t_b2tset;
-//	private boolean b1t_b2wtset;
-//	private boolean b1w_b2wtset;
-//	private boolean b1wt_b2wset;
-//	private boolean b1wt_b2tset;
-//	private boolean b1wt_b2wtset;
+	// private boolean b1w_b2tset;
+	// private boolean b1t_b2wset;
+	// private boolean b1w_b2wset;
+	// private boolean b1t_b2tset;
+	// private boolean b1t_b2wtset;
+	// private boolean b1w_b2wtset;
+	// private boolean b1wt_b2wset;
+	// private boolean b1wt_b2tset;
+	// private boolean b1wt_b2wtset;
 
 	// 三个单词特征
 	private boolean s3w_s2w_s1wset;
@@ -206,15 +206,16 @@ public class DependencyParseContextGeneratorConf_ArcStandard implements Dependen
 		s1wt_b1tset = config.getProperty("feature.s1wt_b1t", "true").equals("true");
 		s1wt_b1wtset = config.getProperty("feature.s1wt_b1wt", "true").equals("true");
 
-//		b1w_b2tset = config.getProperty("feature.b1w_b2t", "true").equals("true");
-//		b1t_b2wset = config.getProperty("feature.b1t_b2w", "true").equals("true");
-//		b1w_b2wset = config.getProperty("feature.b1w_b2w", "true").equals("true");
-//		b1t_b2tset = config.getProperty("feature.b1t_b2t", "true").equals("true");
-//		b1t_b2wtset = config.getProperty("feature.b1t_b2wt", "true").equals("true");
-//		b1w_b2wtset = config.getProperty("feature.b1w_b2wt", "true").equals("true");
-//		b1wt_b2wset = config.getProperty("feature.b1wt_b2w", "true").equals("true");
-//		b1wt_b2tset = config.getProperty("feature.b1wt_b2t", "true").equals("true");
-//		b1wt_b2wtset = config.getProperty("feature.b1wt_b2wt", "true").equals("true");
+		// b1w_b2tset = config.getProperty("feature.b1w_b2t", "true").equals("true");
+		// b1t_b2wset = config.getProperty("feature.b1t_b2w", "true").equals("true");
+		// b1w_b2wset = config.getProperty("feature.b1w_b2w", "true").equals("true");
+		// b1t_b2tset = config.getProperty("feature.b1t_b2t", "true").equals("true");
+		// b1t_b2wtset = config.getProperty("feature.b1t_b2wt", "true").equals("true");
+		// b1w_b2wtset = config.getProperty("feature.b1w_b2wt", "true").equals("true");
+		// b1wt_b2wset = config.getProperty("feature.b1wt_b2w", "true").equals("true");
+		// b1wt_b2tset = config.getProperty("feature.b1wt_b2t", "true").equals("true");
+		// b1wt_b2wtset = config.getProperty("feature.b1wt_b2wt",
+		// "true").equals("true");
 
 		s3w_s2w_s1wset = config.getProperty("feature.s3w_s2w_s1w", "true").equals("true");
 		s3w_s2w_s1tset = config.getProperty("feature.s3w_s2w_s1t", "true").equals("true");
@@ -462,27 +463,41 @@ public class DependencyParseContextGeneratorConf_ArcStandard implements Dependen
 		if (s3wt_s2wt_s1wt_b1wtset && s2w != null && s2t != null && b1w != null && b1t != null && s3w != null
 				&& s3t != null)
 			features.add("s3wt_s2wt_s1wt_b1wt=" + s3w + s3t + s2w + s2t + s1w + s1t + b1w + b1t);
-		
-		
-		if (pre_head_1_wset && pre_head_1_tset && priorDecisions.length >= 1
-				&& !priorDecisions[priorDecisions.length - 1].equals("null/SHIFT"))
+
+		int indexOfPriorDecision = -1;
+
+		for (int index = 0; index < priorDecisions.length; index++)
+		{
+			if (priorDecisions[index] != null)
+			{
+				continue;
+			}
+			else
+			{
+				indexOfPriorDecision = index - 1;
+				break;
+			}
+		}
+
+		if (pre_head_1_wset && pre_head_1_tset && indexOfPriorDecision  >= 0
+				&& !priorDecisions[indexOfPriorDecision].equals("null/SHIFT"))
 		{
 			Vertice pre_head_1 = conf.getStack().peek();
 			features.add("pre_head_1_w=" + pre_head_1.getWord());
 			features.add("pre_head_1_t=" + pre_head_1.getPos());
 		}
 
-		if (pre_head_2_wset && pre_head_2_tset && priorDecisions.length >= 2
-				&& !priorDecisions[priorDecisions.length - 2].equals("null/SHIFT"))
+		if (pre_head_2_wset && pre_head_2_tset && indexOfPriorDecision >= 1
+				&& !priorDecisions[indexOfPriorDecision - 1].equals("null/SHIFT"))
 		{
 			Vertice pre_head_2;
-			if (priorDecisions[priorDecisions.length - 1].equals("null/SHIFT"))
+			if (priorDecisions[indexOfPriorDecision].equals("null/SHIFT"))
 			{
 				Vertice tempVer = conf.getStack().pop();
 				pre_head_2 = conf.getStack().peek();
 				conf.getStack().push(tempVer);
 			}
-			else if (ActionType.toType(priorDecisions[priorDecisions.length - 1]).getBaseAction()
+			else if (ActionType.toType(priorDecisions[indexOfPriorDecision]).getBaseAction()
 					.equals("LEFTARC_REDUCE"))
 			{
 				pre_head_2 = conf.getStack().peek();
@@ -495,14 +510,14 @@ public class DependencyParseContextGeneratorConf_ArcStandard implements Dependen
 			features.add("pre_head_2_t=" + pre_head_2.getPos());
 		}
 
-		if (pre_action_1set && priorDecisions.length >= 1)
+		if (pre_action_1set && indexOfPriorDecision >= 0)
 		{
-			pre_action_1 = priorDecisions[priorDecisions.length - 1];
+			pre_action_1 = priorDecisions[indexOfPriorDecision];
 			features.add("pre_action_1=" + pre_action_1);
 		}
-		if (pre_action_2set && priorDecisions.length >= 2)
+		if (pre_action_2set && indexOfPriorDecision >= 1)
 		{
-			pre_action_2 = priorDecisions[priorDecisions.length - 2];
+			pre_action_2 = priorDecisions[indexOfPriorDecision - 1];
 			features.add("pre_action_2=" + pre_action_2);
 		}
 
@@ -530,7 +545,7 @@ public class DependencyParseContextGeneratorConf_ArcStandard implements Dependen
 					{
 						right_w.insert(0, conf.getArcs().get(i).getDependent().getWord());
 						right_t.insert(0, conf.getArcs().get(i).getDependent().getPos());
-						right_dep.insert(0,conf.getArcs().get(i).getRelation());
+						right_dep.insert(0, conf.getArcs().get(i).getRelation());
 					}
 				}
 			}
@@ -543,7 +558,7 @@ public class DependencyParseContextGeneratorConf_ArcStandard implements Dependen
 				features.add("current_s1depword_t=" + current_s1depword_t);
 				features.add("current_s21dep=" + current_s1dep);
 			}
-			
+
 		}
 
 		if (current_s2depword_wset && current_s2depword_tset && current_s2depset && conf.getArcs().size() != 0)
@@ -571,7 +586,7 @@ public class DependencyParseContextGeneratorConf_ArcStandard implements Dependen
 					{
 						right_w.insert(0, conf.getArcs().get(i).getDependent().getWord());
 						right_t.insert(0, conf.getArcs().get(i).getDependent().getPos());
-						right_dep.insert(0,conf.getArcs().get(i).getRelation());
+						right_dep.insert(0, conf.getArcs().get(i).getRelation());
 					}
 				}
 			}
@@ -586,6 +601,6 @@ public class DependencyParseContextGeneratorConf_ArcStandard implements Dependen
 				features.add("current_s2dep=" + current_s2dep);
 			}
 		}
-		return null;
+		return features.toArray(new String[features.size()]);
 	}
 }

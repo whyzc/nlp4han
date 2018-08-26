@@ -76,19 +76,18 @@ public class DependencySampleEventStream_ArcStandard extends AbstractEventStream
 		int headIndexOfWord_S1;// 栈顶单词中心词在words中的索引
 		int headIndexOfWord_S2;
 		int indexOfConf = 0;
-
-		while (!conf_ArcStandard.isFinalConf())
+		int count = 0;
+		while (!conf_ArcStandard.isFinalConf() && count < priorDecisions.length)
 		{
+			count++;
 			String[] context = ((DependencyParseContextGeneratorConf_ArcStandard) pcg).getContext(conf_ArcStandard,
 					priorDecisions, null);
-
 			if (conf_ArcStandard.getStack().size() == 1
 					&& conf_ArcStandard.getStack().peek().getWord().equals(DependencyParser.RootWord))
 			{
 				// S1,S2没关系。SHIFT
 				at = new ActionType("null", "SHIFT");
-				// System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" +
-				// at.typeToString());
+//				System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" + at.typeToString());
 				strOfAType = at.typeToString();
 				conf_ArcStandard.shift();
 			}
@@ -112,8 +111,7 @@ public class DependencySampleEventStream_ArcStandard extends AbstractEventStream
 				if (indexOfWord_S1 == headIndexOfWord_S2)
 				{// 左弧
 					at = new ActionType(dependency[indexOfWord_S2 - 1], "LEFTARC_REDUCE");
-					// System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" +
-					// at.typeToString());
+//					System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" + at.typeToString());
 					strOfAType = at.typeToString();
 					conf_ArcStandard.addArc(new Arc(dependency[indexOfWord_S2 - 1], S1, S2));
 					conf_ArcStandard.reduce(at);
@@ -123,8 +121,7 @@ public class DependencySampleEventStream_ArcStandard extends AbstractEventStream
 					if (conf_ArcStandard.canReduce(dependencyIndices))
 					{// RIGHTARC_REDUCE
 						at = new ActionType(dependency[indexOfWord_S1 - 1], "RIGHTARC_REDUCE");
-						// System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" +
-						// at.typeToString());
+//						System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" + at.typeToString());
 						strOfAType = at.typeToString();
 						conf_ArcStandard.addArc(new Arc(dependency[indexOfWord_S1 - 1], S2, S1));
 						conf_ArcStandard.reduce(at);
@@ -133,8 +130,7 @@ public class DependencySampleEventStream_ArcStandard extends AbstractEventStream
 					{
 						// S1还有依存词在buffer中，先SHIFT
 						at = new ActionType("null", "SHIFT");
-						// System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" +
-						// at.typeToString());
+//						System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" + at.typeToString());
 						strOfAType = at.typeToString();
 						conf_ArcStandard.shift();
 					}
@@ -143,8 +139,7 @@ public class DependencySampleEventStream_ArcStandard extends AbstractEventStream
 				{
 					// S1,S2没关系。SHIFT
 					at = new ActionType("null", "SHIFT");
-					// System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" +
-					// at.typeToString());
+//					System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" + at.typeToString());
 					strOfAType = at.typeToString();
 					conf_ArcStandard.shift();
 				}
@@ -156,6 +151,12 @@ public class DependencySampleEventStream_ArcStandard extends AbstractEventStream
 			events.add(event);
 
 		}
-		return events ;
+		 if(conf_ArcStandard.getArcs().size() == dependency.length) {
+//				 System.out.println(TBDepTree.getSample(conf_ArcStandard.getArcs(),
+//				 words,pos).toCoNLLString());
+				 }else {
+				 return new ArrayList<Event>();
+				 }
+		return events;
 	}
 }

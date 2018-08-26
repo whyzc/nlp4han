@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 public abstract class Configuration {
-	private ArrayDeque<Vertice> stack = new ArrayDeque<Vertice>();
-	private LinkedList<Vertice> wordsBuffer = new LinkedList<Vertice>();
-	private ArrayList<Arc> arcs = new ArrayList<Arc>();
+	protected ArrayDeque<Vertice> stack = new ArrayDeque<Vertice>();
+	protected LinkedList<Vertice> wordsBuffer = new LinkedList<Vertice>();
+	protected ArrayList<Arc> arcs = new ArrayList<Arc>();
 	
 	
 	public Configuration(ArrayDeque<Vertice> stack, LinkedList<Vertice> wordsBuffer, ArrayList<Arc> arcs)

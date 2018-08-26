@@ -2,6 +2,7 @@ package com.lc.nlp4han.dependency.tb;
 
 import com.lc.nlp4han.dependency.DependencyParseEvaluateMonitor;
 import com.lc.nlp4han.dependency.DependencyParseMeasure;
+import com.lc.nlp4han.dependency.DependencyParser;
 import com.lc.nlp4han.dependency.DependencySample;
 import com.lc.nlp4han.ml.util.Evaluator;
 
@@ -11,10 +12,10 @@ import com.lc.nlp4han.ml.util.Evaluator;
  */
 public class DependencyParseEvaluator extends Evaluator<DependencySample>
 {
-	private DependencyParser_ArcEager tagger;
+	private DependencyParser tagger;
 	private DependencyParseMeasure measure;
 
-	public DependencyParseEvaluator(DependencyParser_ArcEager tagger, DependencyParseEvaluateMonitor... monitor)
+	public DependencyParseEvaluator(DependencyParser tagger, DependencyParseEvaluateMonitor... monitor)
 	{
 		super(monitor);
 		this.tagger = tagger;
@@ -36,10 +37,10 @@ public class DependencyParseEvaluator extends Evaluator<DependencySample>
 			posRefNoRoot[i - 1] = posRef[i];
 		}
 
-//		DependencySample preSample = tagger.parse(wordsRefNoRoot, posRefNoRoot).getSample();
+		DependencySample preSample = tagger.parse(wordsRefNoRoot, posRefNoRoot).getSample();
 		
 		
-		DependencySample preSample = tagger.parse(wordsRefNoRoot, posRefNoRoot,3)[0].getSample();
+//		DependencySample preSample = tagger.parse(wordsRefNoRoot, posRefNoRoot,3)[0].getSample();
 //		// 将预测的结果输出
 //		System.out.println(preSample.toCoNLLString());
 
@@ -51,7 +52,7 @@ public class DependencyParseEvaluator extends Evaluator<DependencySample>
 		return preSample;
 	}
 
-	public DependencyParser_ArcEager getTagger()
+	public DependencyParser getTagger()
 	{
 		return tagger;
 	}

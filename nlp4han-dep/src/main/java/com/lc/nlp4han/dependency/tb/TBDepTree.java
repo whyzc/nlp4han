@@ -19,7 +19,7 @@ public class TBDepTree
 	 *            解析得到的弧的配置
 	 * @return 句子对应的依存树
 	 */
-	public static DependencyTree getTree(Configuration_ArcEager conf, String[] word, String[] pos)
+	public static DependencyTree getTree(Configuration conf, String[] word, String[] pos)
 	{
 		return getTree(conf.getArcs(), word, pos);
 	}
