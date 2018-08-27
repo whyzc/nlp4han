@@ -681,5 +681,23 @@ public class TreeNodeUtil
 	{
 		return TreeNodeUtil.getFirstNodeUpWithSpecifiedName(treeNode, new String[] { "NP", "IP" });
 	}
+	
+	public static int getIndex(TreeNode node)
+	{
+		if (node == null)
+			throw new RuntimeException("输入错误");
+		if (node.getParent() != null)
+		{
+			TreeNode father = node.getParent();
+			for (int i=0 ; i<father.getChildrenNum() ; i++)
+			{
+				if (father.getChild(i) == node)
+				{
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
 
 }
