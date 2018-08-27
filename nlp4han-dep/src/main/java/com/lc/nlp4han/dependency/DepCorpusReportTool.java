@@ -1,15 +1,9 @@
-package com.lc.nlp4han.dependency.tb;
+package com.lc.nlp4han.dependency;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-import com.lc.nlp4han.dependency.DepCorpusReport;
-import com.lc.nlp4han.dependency.DependencySample;
-import com.lc.nlp4han.dependency.DependencySampleParser;
-import com.lc.nlp4han.dependency.DependencySampleParserCoNLL;
-import com.lc.nlp4han.dependency.DependencySampleStream;
-import com.lc.nlp4han.dependency.PlainTextBySpaceLineStream;
 import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 
