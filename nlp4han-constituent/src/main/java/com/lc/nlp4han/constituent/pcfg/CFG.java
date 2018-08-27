@@ -1,5 +1,9 @@
 package com.lc.nlp4han.constituent.pcfg;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,20 +15,21 @@ import java.util.Set;
  */
 public class CFG
 {
-	private String startSymbol;
+	private String startSymbol=null;
 	private Set<String> nonTerminalSet = new HashSet<String>();// 非终结符集
 	private Set<String> terminalSet = new HashSet<String>();// 终结符集
 	private Set<RewriteRule> ruleSet = new HashSet<RewriteRule>();// 规则集
 	private HashMap<String, HashSet<RewriteRule>> ruleMapStartWithlhs = new HashMap<String, HashSet<RewriteRule>>();// 以左部为key值的规则集map
 	private HashMap<ArrayList<String>, HashSet<RewriteRule>> ruleMapStartWithrhs = new HashMap<ArrayList<String>, HashSet<RewriteRule>>();// 以规则右部为key值的规则集map
+
 	/**
 	 * 构造函数,一步创建
 	 */
-
-	public CFG(Set<String> nonTerminalSet, Set<String> terminalSet,
+	public CFG(String startSymbol, Set<String> nonTerminalSet, Set<String> terminalSet,
 			HashMap<String, HashSet<RewriteRule>> ruleMapStartWithlhs,
 			HashMap<ArrayList<String>, HashSet<RewriteRule>> ruleMapStartWithrhs)
 	{
+		this.startSymbol = startSymbol;
 		this.nonTerminalSet = nonTerminalSet;
 		this.terminalSet = terminalSet;
 		this.ruleMapStartWithlhs = ruleMapStartWithlhs;
@@ -33,6 +38,86 @@ public class CFG
 		{
 			ruleSet.addAll(ruleMapStartWithlhs.get(lhs));
 		}
+	}
+
+	/**
+	 * 构造函数，通过起始符，终结符集，非终结符集，规则集一步构造
+	 * 
+	 * @param startSymbol
+	 * @param nonTerminalSet
+	 * @param terminalSet
+	 * @param rules
+	 */
+	public CFG(String startSymbol, Set<String> nonTerminalSet, Set<String> terminalSet, HashSet<RewriteRule> rules)
+	{
+		this.startSymbol = startSymbol;
+		this.nonTerminalSet = nonTerminalSet;
+		this.terminalSet = terminalSet;
+		for (RewriteRule rule : rules)
+		{
+			add(rule);
+		}
+	}
+
+	/**
+	 * 从流中加载CFG文法，此接口可以完成从资源流和文件流中获得CFG文法
+	 * 
+	 * @param in
+	 * @param encoding
+	 * @throws IOException
+	 */
+	public CFG(InputStream in, String encoding) throws IOException
+	{
+		ExtractGrammarFromStream(in, encoding, "CFG", null);
+	}
+     /**
+      * 从流中加载CFG/PCFG文法，此接口可以完成从资源流和文件流中获得CFG/PCFG文法
+      * @param in
+      * @param encoding
+      * @param type
+      * @param pruleMap
+      * @throws IOException
+      */
+	public void ExtractGrammarFromStream(InputStream in, String encoding, String type,
+			HashMap<RewriteRule, PRule> pruleMap) throws IOException
+	{
+		BufferedReader buffer = new BufferedReader(new InputStreamReader(in, encoding));
+		String str = buffer.readLine().trim();
+		if (str.equals("--起始符--"))
+		{
+			setStartSymbol(buffer.readLine().trim());
+		}
+		buffer.readLine();
+		str = buffer.readLine().trim();
+		while (!str.equals("--终结符集--"))
+		{
+			addNonTerminal(str);
+			str = buffer.readLine().trim();
+		}
+		str = buffer.readLine();
+		while (!str.equals("--规则集--"))
+		{
+			addTerminal(str);
+			str = buffer.readLine().trim();
+		}
+		str = buffer.readLine();
+		while (str != null)
+		{
+			str = str.trim();
+			if (!type.contains("P"))
+			{
+				add(new RewriteRule(str));
+			}
+			else
+			{
+				PRule prule = new PRule(str);
+				add(prule);
+				pruleMap.put(prule, prule);
+			}
+
+			str = buffer.readLine();
+		}
+		buffer.close();
 	}
 
 	/**
@@ -79,7 +164,6 @@ public class CFG
 		}
 		return isCNF;
 	}
-
 	/*
 	 * 方法
 	 */
@@ -156,10 +240,12 @@ public class CFG
 	{
 		nonTerminalSet.add(nonTer);
 	}
+
 	/**
 	 * 添加终结符
+	 * 
 	 * @param terminal
-	 *               终结符
+	 *            终结符
 	 */
 	public void addTerminal(String terminal)
 	{
@@ -168,8 +254,9 @@ public class CFG
 
 	/**
 	 * 根据规则左部得到所有对应规则
+	 * 
 	 * @param lhs
-	 *          左侧字符串
+	 *            左侧字符串
 	 */
 	public Set<RewriteRule> getRuleBylhs(String lhs)
 	{
@@ -178,18 +265,21 @@ public class CFG
 
 	/**
 	 * 根据规则右部得到所有对应规则
+	 * 
 	 * @param rhsList
-	 *             右部字符串列表
+	 *            右部字符串列表
 	 * @return 字符串集合
 	 */
 	public Set<RewriteRule> getRuleByrhs(ArrayList<String> rhsList)
 	{
 		return ruleMapStartWithrhs.get(rhsList);
 	}
+
 	/**
 	 * 根据规则右部得到所有对应规则
+	 * 
 	 * @param args
-	 *           右部字符串
+	 *            右部字符串
 	 * @return 字符串集合
 	 */
 	public Set<RewriteRule> getRuleByrhs(String... args)

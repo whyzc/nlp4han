@@ -41,14 +41,21 @@ public class RewriteRule
 			this.rhs.add(args[i]);
 		}
 	}
-	public static RewriteRule getRewriteRule(String ruleStr) {
+	/**
+	 * 由规则字符串构造规则
+	 * @param ruleStr
+	 *             规则的字符串形式
+	 */
+	public RewriteRule (String ruleStr) {
 		String[] strArray=ruleStr.split("->");
-		String lhs=strArray[0];
-		ArrayList<String> rhs=new ArrayList<String>();
-		for(String string:strArray[0].split(" ")) {
+		lhs=strArray[0];
+		rhs=new ArrayList<String>();
+		for(String string:strArray[1].split(" ")) {
 			rhs.add(string);
 		}
-		return new RewriteRule(lhs,rhs);
+	}
+	public static RewriteRule getRewriteRule(String ruleStr) {
+		return new RewriteRule(ruleStr);
 	}
 	/**
 	 * 由树结构中的节点值和子节点初始化RewriteRule

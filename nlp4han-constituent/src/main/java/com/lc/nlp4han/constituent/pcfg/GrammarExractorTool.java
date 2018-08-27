@@ -19,7 +19,7 @@ public class GrammarExractorTool
 		String frompath = null;
 		String topath = null;
 		String incoding = null;
-		String type=null;
+		String type = null;
 		for (int i = 0; i < args.length; i++)
 		{
 			if (args[i].equals("-frompath"))
@@ -37,7 +37,7 @@ public class GrammarExractorTool
 				type = args[i + 1];
 				i++;
 			}
-			if (args[i].equals("-incoding"))
+			if (args[i].equals("-encoding"))
 			{
 				incoding = args[i + 1];
 				i++;
@@ -48,13 +48,16 @@ public class GrammarExractorTool
 			/*
 			 * 存储文法和提取文法格式一般相同
 			 */
-			ExtractGrammarToFile(frompath, topath, incoding,type);
+			ExtractGrammarToFile(frompath, topath, incoding, type);
 		}
 		else
 		{
-			if(type.contains("P")) {
+			if (type.contains("P"))
+			{
 				System.out.println(GrammarExtractor.getPCFG(frompath, incoding).toString());
-			}else {
+			}
+			else
+			{
 				System.out.println(GrammarExtractor.getCFG(frompath, incoding).toString());
 			}
 		}
@@ -63,12 +66,16 @@ public class GrammarExractorTool
 	/**
 	 * 从树库中提取文法，然后存入文件指定中
 	 */
-	private static void ExtractGrammarToFile(String fromPath, String toPath, String inCoding,String type) throws IOException
+	private static void ExtractGrammarToFile(String fromPath, String toPath, String inCoding, String type)
+			throws IOException
 	{
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(toPath), inCoding));
-		if(type.contains("P")) {
+		if (type.contains("P"))
+		{
 			bw.append(GrammarExtractor.getPCFG(fromPath, inCoding).toString());
-		}else {
+		}
+		else
+		{
 			bw.append(GrammarExtractor.getCFG(fromPath, inCoding).toString());
 		}
 		bw.close();

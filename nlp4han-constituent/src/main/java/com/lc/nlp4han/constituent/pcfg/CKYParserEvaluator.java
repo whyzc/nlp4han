@@ -7,7 +7,7 @@ import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.ml.util.Evaluator;
 
-public class CKYAnalysisEvaluator extends Evaluator<ConstituentTree>
+public class CKYParserEvaluator extends Evaluator<ConstituentTree>
 {
 	/**
 	 * 句法分析模型得到一颗句法树
@@ -29,9 +29,14 @@ public class CKYAnalysisEvaluator extends Evaluator<ConstituentTree>
 		this.measure = measure;
 	}
 
-	public CKYAnalysisEvaluator(ConstituentParserCKYOfP2NFImproving cky)
+	public CKYParserEvaluator(ConstituentParserCKYOfP2NFImproving cky)
 	{
 		this.cky = cky;
+	}
+
+	public CKYParserEvaluator(PCFG p2nf)
+	{
+		this.cky = new ConstituentParserCKYOfP2NFImproving(p2nf);
 	}
 
 	@Override
@@ -39,26 +44,28 @@ public class CKYAnalysisEvaluator extends Evaluator<ConstituentTree>
 	{
 		TreeNode rootNodeRef = sample.getRoot();
 		/* String[] words=GetWordsAndPOSFromTree.getetWordsFromTree(rootNodeRef); */
-		ArrayList<String> words=new ArrayList<String>();
-		ArrayList<String> poses=new ArrayList<String>();
-		GetWordsAndPOSFromTree.getWordsAndPOSFromTree(words, poses, rootNodeRef);;
+		ArrayList<String> words = new ArrayList<String>();
+		ArrayList<String> poses = new ArrayList<String>();
+		GetWordsAndPOSFromTree.getWordsAndPOSFromTree(words, poses, rootNodeRef);
 		String[] words1 = new String[words.size()];
-		String[] poses1=new String[poses.size()];
+		String[] poses1 = new String[poses.size()];
 		for (int i = 0; i < words.size(); i++)
 		{
 			words1[i] = words.get(i);
-			poses1[i]=poses.get(i);
+			poses1[i] = poses.get(i);
 		}
-		ConstituentTree treePre = cky.parseTree(words1,poses1);
+		ConstituentTree treePre = cky.parseTree(words1, poses1);
 		try
 		{
-            if(treePre==null)
-            {
-            	measure.countNodeDecodeTrees(null);
-    			measure.update(rootNodeRef, new TreeNode()); 
-            }else {
-    			measure.update(rootNodeRef, treePre.getRoot());          	
-            }
+			if (treePre == null)
+			{
+				measure.countNodeDecodeTrees(null);
+				measure.update(rootNodeRef, new TreeNode());
+			}
+			else
+			{
+				measure.update(rootNodeRef, treePre.getRoot());
+			}
 		}
 		catch (CloneNotSupportedException e)
 		{

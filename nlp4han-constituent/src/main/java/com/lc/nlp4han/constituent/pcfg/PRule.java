@@ -21,7 +21,15 @@ public class PRule extends RewriteRule implements Comparable<PRule>
 		super(args);
 		this.proOfRule = pro;
 	}
-
+	/**
+	 * 由规则字符串构造规则
+	 * @param ruleStr
+	 *             规则的字符串形式
+	 */
+	public PRule (String ruleStr) {
+		super(ruleStr.split(" ---- ")[0]);
+        proOfRule=Double.parseDouble(ruleStr.split(" ---- ")[1]);
+	}
 	/**
 	 * 初始化PRule
 	 * @param pro

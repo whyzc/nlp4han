@@ -1,5 +1,7 @@
 package com.lc.nlp4han.constituent.pcfg;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,6 +18,11 @@ public class PCFG extends CFG
 
 	}
 
+	public PCFG(InputStream in, String encoding) throws IOException
+	{
+		super.ExtractGrammarFromStream(in, encoding, "PCFG", pruleMap);
+	}
+
 	@Override
 	public void add(RewriteRule rule)
 	{
@@ -25,6 +32,7 @@ public class PCFG extends CFG
 
 	/**
 	 * 由RewriteRule集转换为PRule规则集
+	 * 
 	 * @param ruleset
 	 * @return pruleSet
 	 */
@@ -41,6 +49,7 @@ public class PCFG extends CFG
 
 	/**
 	 * 根据规则中的终结符和非终结符获取概率
+	 * 
 	 * @param rule
 	 * @return
 	 */
@@ -50,7 +59,7 @@ public class PCFG extends CFG
 	}
 
 	/**
-	 * 获取PCFG中所有非终结符扩展出的规则概率之和与1.0的误差，取其中最大的
+	 * 获取PCFG中所有非终结符扩展出的规则概率之和与1.0的误差，取其中最大的值返回
 	 */
 	public double getProMaxErrorOfNonTer()
 	{
@@ -73,6 +82,7 @@ public class PCFG extends CFG
 
 	/**
 	 * 获取集合中概率最高的那个规则
+	 * 
 	 * @param ruleSet
 	 * @return
 	 */
@@ -84,6 +94,7 @@ public class PCFG extends CFG
 
 	/**
 	 * 从映射中得到概率最大的K个规则
+	 * 
 	 * @param ruleMap
 	 * @param k
 	 * @return
@@ -96,6 +107,7 @@ public class PCFG extends CFG
 
 	/**
 	 * 从规则迭代器中获取概率最高的k个规则
+	 * 
 	 * @param itr
 	 * @param k
 	 * @return
@@ -125,7 +137,7 @@ public class PCFG extends CFG
 		}
 		else
 		{
-			Collections.sort(pruleList);;
+			Collections.sort(pruleList);
 		}
 		/*
 		 * 若结果集中多余k个，则截取其中的前k个
