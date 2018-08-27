@@ -11,9 +11,9 @@ import java.util.LinkedList;
 */
 public class Configuration_ArcStandard extends Configuration
 {
-	private ArrayDeque<Vertice> stack = new ArrayDeque<Vertice>();
-	private LinkedList<Vertice> wordsBuffer = new LinkedList<Vertice>();
-	private ArrayList<Arc> arcs = new ArrayList<Arc>();
+//	private ArrayDeque<Vertice> stack = new ArrayDeque<Vertice>();
+//	private LinkedList<Vertice> wordsBuffer = new LinkedList<Vertice>();
+//	private ArrayList<Arc> arcs = new ArrayList<Arc>();
 
 	public Configuration_ArcStandard(ArrayDeque<Vertice> stack, LinkedList<Vertice> wordsBuffer, ArrayList<Arc> arcs)
 	{
@@ -29,9 +29,28 @@ public class Configuration_ArcStandard extends Configuration
 	{
 	}
 	
+	public static Configuration_ArcStandard initialConf(String[] words, String[] pos)
+	{
+		return new Configuration_ArcStandard(words, pos);
+	}
+	
 	public  Configuration_ArcStandard generateConfByActions(String[] wordpos, String[] priorActions) {
-		//暂时先不管这个
-		return null;
+		String[] words = new String[wordpos.length / 2 + 1];
+		String[] poses = new String[wordpos.length / 2 + 1];
+		for (int i = 0; i < words.length; i++)
+		{
+			String[] word_pos = wordpos[i].split("/");
+			words[i] = word_pos[0];
+			poses[i] = word_pos[1];
+		}
+		Configuration_ArcStandard conf = new Configuration_ArcStandard(words, poses);
+		for (String preAction : priorActions)
+		{
+			ActionType at = ActionType.toType(preAction);
+			conf.transition(at);
+		}
+		return conf;
+		
 	}
 		
 	/**

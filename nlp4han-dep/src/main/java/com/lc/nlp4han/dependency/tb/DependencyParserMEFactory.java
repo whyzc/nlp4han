@@ -13,7 +13,7 @@ import com.lc.nlp4han.ml.util.ModelWrapper;
 public class DependencyParserMEFactory
 {
 
-	public static DependencyParser_ArcEager getDependencyParser() throws IOException
+	public static DependencyParser_ArcEager getDependencyParser_ArcEager() throws IOException
 	{
 		InputStream modelIn = DependencyParserMEFactory.class.getClassLoader()
 				.getResourceAsStream("com/lc/nlp4han/dependency/tb_cpostag2.model");
@@ -21,15 +21,24 @@ public class DependencyParserMEFactory
 		return new DependencyParser_ArcEager(modelWrapper);
 	}
 
+	public static DependencyParser_ArcStandard getDependencyParser_ArcStandard() throws IOException
+	{
+		InputStream modelIn = DependencyParserMEFactory.class.getClassLoader()
+				.getResourceAsStream("com/lc/nlp4han/dependency/arc_standard.model");
+		ModelWrapper modelWrapper = new ModelWrapper(modelIn);
+		return new DependencyParser_ArcStandard(modelWrapper);
+	}
 	public static void main(String[] args)
 	{
-		DependencyParser_ArcEager dpME;
+		DependencyParser_ArcStandard dpME;
 		try
 		{
-			dpME = DependencyParserMEFactory.getDependencyParser();
+			dpME = DependencyParserMEFactory.getDependencyParser_ArcStandard();
 
-			 String [] words = {"世界","最","先进","的","清真寺","落成"};
-			 String [] poses = {"n","d","a","u","n","v"};
+			 String [] words = {"世界","第","八","大","奇迹","出现"};
+			 String [] poses = {"n","m","m","a","n","v"};
+//			 String [] words = {"世界","最","先进","的","清真寺","落成"};
+//			 String [] poses = {"n","d","a","u","n","v"};
 //			 String [] words = {"化作","电波","传","向","世界","各个","角落"};
 //			 String [] poses = {"v","n","v","p","n","r","n"};
 
@@ -37,12 +46,12 @@ public class DependencyParserMEFactory
 //			String[] poses = { "p", "a", "u", "n", "v", "v", "u", "m", "n" };
 			 
 //			 
-//			DependencyTree depTree = dpME.parse(words, poses);
-//			System.out.println(depTree.getSample().toCoNLLString());
+			DependencyTree tree = dpME.parse(words, poses);
+//			System.out.println(tree.getSample().toCoNLLString());
 
-			DependencyTree[] depTree = dpME.parse(words, poses, 5);
-			System.out.println(depTree.length);
-			for (DependencyTree tree : depTree)
+//			DependencyTree[] depTree = dpME.parse(words, poses,5);
+//			System.out.println(depTree.length);
+//			for (DependencyTree tree : depTree)
 				System.out.println(tree.getSample().toCoNLLString());
 		}
 		catch (IOException e)

@@ -2,6 +2,8 @@ package com.lc.nlp4han.dependency.tb;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +22,7 @@ import com.lc.nlp4han.ml.util.EventTrainer;
 import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ModelWrapper;
 import com.lc.nlp4han.ml.util.ObjectStream;
+import com.lc.nlp4han.ml.util.Sequence;
 import com.lc.nlp4han.ml.util.SequenceTrainer;
 import com.lc.nlp4han.ml.util.SequenceValidator;
 import com.lc.nlp4han.ml.util.TrainerFactory;
@@ -86,7 +89,7 @@ public class DependencyParser_ArcStandard implements DependencyParser
 
 		this.contextGenerator = contextGenerator;
 
-		this.sequenceValidator = new DependencyParseSequenceValidator();
+		this.sequenceValidator = new DependencyParseSequenceValidator_ArcStandard();
 	}
 	
 	
@@ -172,7 +175,29 @@ public class DependencyParser_ArcStandard implements DependencyParser
 	@Override
 	public DependencyTree parse(String[] words, String[] poses)
 	{
-		return null;
+		ArrayList<String> allWords = new ArrayList<String>(Arrays.asList(words));
+		allWords.add(0, DependencyParser_ArcEager.RootWord);
+		ArrayList<String> allPoses = new ArrayList<String>(Arrays.asList(poses));
+		allPoses.add(0, "root");
+		words = allWords.toArray(new String[allWords.size()]);
+		poses = allPoses.toArray(new String[allPoses.size()]);
+		
+		Oracle oracleMEBased = new Oracle(model, contextGenerator);
+		ActionType action = new ActionType();
+		Configuration_ArcStandard currentConf = Configuration_ArcStandard.initialConf(words, poses);
+		String[] priorDecisions = new String[2 * (words.length - 1) ];
+		int indexOfConf = 0;
+		while (!currentConf.isFinalConf())
+		{
+			action = oracleMEBased.classify(currentConf, priorDecisions, null);
+//			System.out.println(currentConf.toString() + "*****" + "preAction =" + action.typeToString());
+			currentConf.transition(action);
+			priorDecisions[indexOfConf] = action.typeToString();
+			indexOfConf++;
+		}
+//		System.out.println(currentConf.arcsToString());
+		DependencyTree depTree = TBDepTree.getTree(currentConf, words, poses);
+		return depTree;
 	}
 
 	@Override
@@ -190,7 +215,30 @@ public class DependencyParser_ArcStandard implements DependencyParser
 	@Override
 	public DependencyTree[] parse(String[] words, String[] poses, int k)
 	{
-		return null;
+		ArrayList<String> allWords = new ArrayList<String>(Arrays.asList(words));
+		allWords.add(0, DependencyParser.RootWord);
+		ArrayList<String> allPoses = new ArrayList<String>(Arrays.asList(poses));
+		allPoses.add(0, "root");
+		words = allWords.toArray(new String[allWords.size()]);
+		poses = allPoses.toArray(new String[allPoses.size()]);
+		String[] wordpos = new String[(words.length-1)*2];
+		for (int i = 0; i < words.length ; i++)
+		{
+			wordpos[i] = words[i] + "/" + poses[i];
+		}
+		
+		Sequence[] allSequence= SModel.bestSequences(k, wordpos, null, contextGenerator, sequenceValidator);
+		DependencyTree [] allTree= new DependencyTree[allSequence.length];
+		for (int i = 0; i < allSequence.length; i++)
+		{
+			Configuration_ArcStandard conf = Configuration_ArcStandard.initialConf(words, poses);
+			for(String outcome :allSequence[i].getOutcomes()) {
+				conf.transition(ActionType.toType(outcome));
+			}
+			DependencyTree depTree = TBDepTree.getTree(conf, words, poses);
+			allTree[i] = depTree;
+		}
+		return allTree;
 	}
 
 	@Override

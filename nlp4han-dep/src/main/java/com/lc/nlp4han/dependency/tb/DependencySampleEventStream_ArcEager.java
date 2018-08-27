@@ -102,7 +102,7 @@ public class DependencySampleEventStream_ArcEager extends AbstractEventStream<De
 		if (words.length == 0)
 			return new ArrayList<Event>(words.length);
 		Configuration_ArcEager conf_ArcEager = Configuration_ArcEager.initialConf(words, pos);
-		String[] priorDecisions = new String[2 * (words.length - 1) + 1];
+		String[] priorDecisions = new String[2 * (words.length - 1) ];
 
 		List<Event> events = new ArrayList<Event>();
 		ActionType at;

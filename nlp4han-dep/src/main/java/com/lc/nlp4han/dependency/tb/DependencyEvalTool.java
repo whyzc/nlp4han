@@ -7,6 +7,7 @@ import java.io.InputStream;
 
 import com.lc.nlp4han.dependency.DependencyParseErrorPrinter;
 import com.lc.nlp4han.dependency.DependencyParseMeasure;
+import com.lc.nlp4han.dependency.DependencyParser;
 import com.lc.nlp4han.dependency.DependencySample;
 import com.lc.nlp4han.dependency.DependencySampleParser;
 import com.lc.nlp4han.dependency.DependencySampleParserCoNLL;
@@ -25,21 +26,48 @@ import com.lc.nlp4han.ml.util.TrainingParameters;
  */
 public class DependencyEvalTool
 {
-	public static void eval(File trainFile, TrainingParameters params, File goldFile, String encoding, File errorFile)
-			throws IOException
+	public static void eval(File trainFile, String transitionType, TrainingParameters params, File goldFile,
+			String encoding, File errorFile) throws IOException
 	{
-		DependencyParseContextGenerator gen = new DependencyParseContextGeneratorConf_ArcEager();
 		ModelWrapper model;
-		if (trainFile != null)
-			model = DependencyParser_ArcEager.train(trainFile, params, gen, encoding);
+		DependencyParser tagger;
+		
+		if (trainFile != null) 
+		{
+			if (transitionType.equals("arceager"))
+			{
+				model = DependencyParser_ArcEager.train(trainFile, params, new DependencyParseContextGeneratorConf_ArcEager(), encoding);
+			}
+			else
+			{
+				model = DependencyParser_ArcStandard.train(trainFile, params, new DependencyParseContextGeneratorConf_ArcStandard(), encoding);
+			}
+		}
 		else
 		{
-			InputStream inStream = DependencyEvalTool.class.getClassLoader()
-					.getResourceAsStream("com/lc/nlp4han/dependency/tb_cpostag2.model");
+			InputStream inStream;
+			if (transitionType.equals("arceager"))
+			{
+				inStream = DependencyEvalTool.class.getClassLoader()
+						.getResourceAsStream("com/lc/nlp4han/dependency/tb_cpostag2.model");
+			}
+			else
+			{
+				inStream = DependencyEvalTool.class.getClassLoader()
+						.getResourceAsStream("com/lc/nlp4han/dependency/arc_standard2.model");
+			}
 			model = new ModelWrapper(inStream);
 		}
-
-		DependencyParser_ArcEager tagger = new DependencyParser_ArcEager(model, gen);
+		
+		if (transitionType.equals("arceager"))
+		{
+			tagger = new DependencyParser_ArcEager(model, new DependencyParseContextGeneratorConf_ArcEager());
+		}
+		else
+		{
+			tagger = new DependencyParser_ArcStandard(model, new DependencyParseContextGeneratorConf_ArcStandard());
+		}
+		
 
 		DependencyParseMeasure measure = new DependencyParseMeasure();
 		DependencyParseEvaluator evaluator = null;
@@ -60,7 +88,7 @@ public class DependencyEvalTool
 		DependencySampleParser sampleParser = new DependencySampleParserCoNLL();
 		ObjectStream<DependencySample> sampleStream = new DependencySampleStream(linesStream, sampleParser);
 		evaluator.evaluate(sampleStream);
-		
+
 		System.out.println(evaluator.getMeasure().getData());
 		System.out.println(evaluator.getMeasure());
 	}
@@ -68,7 +96,7 @@ public class DependencyEvalTool
 	private static void usage()
 	{
 		System.out.println(DependencyEvalTool.class.getName()
-				+ " -data <trainFile> -gold <goldFile> -encoding <encoding> [-error <errorFile>]"
+				+ " -data <trainFile> -tType<transitionType> -gold <goldFile> -encoding <encoding> [-error <errorFile>]"
 				+ " [-cutoff <num>] [-iters <num>]");
 	}
 
@@ -84,6 +112,7 @@ public class DependencyEvalTool
 		String trainFile = null;
 		String goldFile = null;
 		String errorFile = null;
+		String tType = "arceager";
 		String encoding = "UTF-8";
 		int cutoff = 3;
 		int iters = 100;
@@ -92,6 +121,11 @@ public class DependencyEvalTool
 			if (args[i].equals("-data"))
 			{
 				trainFile = args[i + 1];
+				i++;
+			}
+			else if (args[i].equals("-tType"))
+			{
+				tType = args[i + 1];
 				i++;
 			}
 			else if (args[i].equals("-gold"))
@@ -129,19 +163,19 @@ public class DependencyEvalTool
 		{
 			if (errorFile != null)
 			{
-				eval(new File(trainFile), params, new File(goldFile), encoding, new File(errorFile));
+				eval(new File(trainFile), tType, params, new File(goldFile), encoding, new File(errorFile));
 			}
 			else
-				eval(new File(trainFile), params, new File(goldFile), encoding, null);
+				eval(new File(trainFile), tType, params, new File(goldFile), encoding, null);
 		}
 		else
 		{
 			if (errorFile != null)
 			{
-				eval(null, params, new File(goldFile), encoding, new File(errorFile));
+				eval(null, tType, params, new File(goldFile), encoding, new File(errorFile));
 			}
 			else
-				eval(null, params, new File(goldFile), encoding, null);
+				eval(null, tType, params, new File(goldFile), encoding, null);
 		}
 
 	}

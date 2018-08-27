@@ -341,7 +341,7 @@ public class DependencyParseContextGeneratorConf_ArcEager implements DependencyP
 		if (s1w_b1tset && b1t != null)
 			features.add("s1w_b1t=" + s1w + b1t);
 		if (s1t_b1wset && b1w != null)
-			features.add("s1w_b1t=" + s1t + b1w);
+			features.add("s1t_b1w=" + s1t + b1w);
 		if (s1w_b1wset && b1w != null)
 			features.add("s1w_b1w=" + s1w + b1w);
 		if (s1t_b1tset && b1t != null)
@@ -401,7 +401,7 @@ public class DependencyParseContextGeneratorConf_ArcEager implements DependencyP
 			features.add("s1w_s2w_b1t=" + s1w + s2w + b1t);
 		if (s1t_s2t_b1wset && s2t != null && b1w != null)
 			features.add("s1t_s2t_b1w=" + s1t + s2t + b1w);
-		if (s1t_s2t_b1tset && b1t != null)
+		if (s1t_s2t_b1tset && b1t != null && s2t != null)
 			features.add("s1t_s2t_b1t=" + s1t + s2t + b1t);
 		if (s1wt_s2wt_b1wtset && s2w != null && s2t != null && b1w != null && b1t != null)
 			features.add("s1wt_s2wt_b1wt=" + s1w + s1t + s2w + s2t + b1w + b1t);

@@ -50,7 +50,7 @@ public class DependencyParseCrossValidator
 	 *             io异常
 	 */
 	public void evaluate(ObjectStream<DependencySample> sample, int nFolds,
-			DependencyParseContextGenerator contextGenerator) throws IOException
+			DependencyParseContextGenerator contextGenerator, String tType) throws IOException
 	{
 		CrossValidationPartitioner<DependencySample> partitioner = new CrossValidationPartitioner<DependencySample>(
 				sample, nFolds);
@@ -62,18 +62,31 @@ public class DependencyParseCrossValidator
 
 			// 训练模型
 			CrossValidationPartitioner.TrainingSampleStream<DependencySample> trainingSampleStream = partitioner.next();
-			ModelWrapper model = DependencyParser_ArcEager.train(trainingSampleStream, params, contextGenerator);
-
-			// 评价模型
-			DependencyParseEvaluator evaluator = new DependencyParseEvaluator(
-					new DependencyParser_ArcEager(model, contextGenerator), listeners);
+			ModelWrapper model;
+			DependencyParseEvaluator evaluator;
+			if (tType.equals("arceager"))
+			{
+				model = DependencyParser_ArcEager.train(trainingSampleStream, params, contextGenerator);
+				// 评价模型
+				evaluator = new DependencyParseEvaluator(new DependencyParser_ArcEager(model, contextGenerator),
+						listeners);
+			}
+			else
+			{
+				model = DependencyParser_ArcStandard.train(trainingSampleStream, params, contextGenerator);
+				// 评价模型
+				evaluator = new DependencyParseEvaluator(new DependencyParser_ArcStandard(model, contextGenerator),
+						listeners);
+			}
+			
+			
 			evaluator.setMeasure(measure);
 			evaluator.evaluate(trainingSampleStream.getTestSampleStream());
 
 			System.out.println(measure);
 			run++;
 		}
-		FileOutputStream fo = new FileOutputStream("C:\\Users\\hp\\Desktop\\"+System.currentTimeMillis()+".txt");
+		FileOutputStream fo = new FileOutputStream("C:\\Users\\hp\\Desktop\\" + System.currentTimeMillis() + ".txt");
 		OutputStreamWriter osw = new OutputStreamWriter(fo, "utf-8");
 		osw.write(measure.toString());
 		osw.close();

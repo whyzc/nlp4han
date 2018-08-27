@@ -8,9 +8,6 @@ import java.util.LinkedList;
 
 public class Configuration_ArcEager extends Configuration
 {
-	private ArrayDeque<Vertice> stack = new ArrayDeque<Vertice>();
-	private LinkedList<Vertice> wordsBuffer = new LinkedList<Vertice>();
-	private ArrayList<Arc> arcs = new ArrayList<Arc>();
 
 	public Configuration_ArcEager(ArrayDeque<Vertice> stack, LinkedList<Vertice> wordsBuffer, ArrayList<Arc> arcs)
 	{
@@ -27,13 +24,19 @@ public class Configuration_ArcEager extends Configuration
 	{
 	}
 
+	public static Configuration_ArcEager initialConf(String[] words, String[] pos)
+	{
+		return new Configuration_ArcEager(words, pos);
+	}
+	
+	
 	// public static Configuration initialConf(DependencySample sample)
 	// {//通过sample得到初始的一个Configuration
 	// //······
 	// return new Configuration();
 	// }
 
-	// 包括“核心”
+	// wordpos包括“核心”
 	public  Configuration_ArcEager generateConfByActions(String[] wordpos, String[] priorActions)
 	{
 		String[] words = new String[wordpos.length / 2 + 1];

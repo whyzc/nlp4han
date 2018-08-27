@@ -10,8 +10,8 @@ package com.lc.nlp4han.dependency;
 public interface DependencyParser
 {
 	public static final String RootWord = "RootWord";
-	public static final String RootDep = "root"
-			+ "";
+	public static final String RootDep = "核心成分";
+			
 	/**
 	 * 解析语句得到依存分析的结果
 	 * 
