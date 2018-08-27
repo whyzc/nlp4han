@@ -30,6 +30,11 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 		this.treeGen = treeGen;
 		init();
 	}
+	
+	public SentimentAnalyzerRB() throws IOException
+	{
+		init();
+	}
 
 	/**
 	 * 初始化字典
@@ -183,6 +188,18 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 		String polarity = tn.getNodeName();
 		
 		return new SentimentPolarity(polarity);
+	}
+	
+	public static void main(String[] args) throws IOException
+	{
+		SentimentAnalyzerRB analyzer = new SentimentAnalyzerRB();
+		
+		String bracketStr = "(VP (ADVP (AD 不) (VP (VA 漂亮)))";
+		
+		TreeNode tn = BracketExpUtil.generateTree(bracketStr);
+		tn = analyzer.parse(tn);
+		
+		System.out.println(tn);
 	}
 
 }
