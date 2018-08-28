@@ -1,6 +1,8 @@
 package com.lc.nlp4han.constituent.pcfg;
 
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -30,7 +32,7 @@ public class ConvertPCFGToPCNFTool
 				topath = args[i + 1];
 				i++;
 			}
-			if(args[i].equals("-incoding")) {
+			if(args[i].equals("-encoding")) {
 				incoding=args[i+1];
 				i++;
 			}
@@ -41,7 +43,7 @@ public class ConvertPCFGToPCNFTool
 			 */
 			ConvertPCFGToPCNFToFile(frompath,topath,incoding);
 		}else {
-			PCFG pcfg=GetGrammarFromFile.getPCFGFromFile(frompath, incoding);
+			PCFG pcfg = new PCFG(new FileInputStream(new File(frompath)), incoding);
 			System.out.println(new ConvertPCFGToPCNF().convertToCNF(pcfg).toString());
        }
 	}
@@ -50,7 +52,7 @@ public class ConvertPCFGToPCNFTool
 	*/
 	private static void ConvertPCFGToPCNFToFile(String fromPath,String toPath,String inCoding) throws UnsupportedOperationException, IOException {
 	   BufferedWriter bw=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(toPath),inCoding));   
-	   PCFG pcfg=GetGrammarFromFile.getPCFGFromFile(fromPath, inCoding);
+	   PCFG pcfg=new PCFG(new FileInputStream(new File(fromPath)),inCoding);
 	   bw.append(new ConvertPCFGToPCNF().convertToCNF(pcfg).toString());
 	   bw.close();
 	}

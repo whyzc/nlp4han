@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
-
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
@@ -143,7 +142,7 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 		// 开始剖析
 		for (int j = 1; j <= n; j++)
 		{// 从第一列开始，由左往右
-			//由分词结果反推得到规则，并进行table表对角线的初始化
+			// 由分词结果反推得到规则，并进行table表对角线的初始化
 			HashMap<String, ArrayList<CKYPRule>> ruleMap = table[j - 1][j].getPruleMap();
 			if (pos == null)
 			{
@@ -153,8 +152,8 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 				for (PRule rule : ruleSet)
 				{
 					ArrayList<CKYPRule> ckyPRulList = new ArrayList<CKYPRule>();
-					//此处延迟概率初始化至updateRuleMapOfTable
-					ckyPRulList.add(new CKYPRule(1.0, rule.getLhs(),rule.getRhs(), 0, 0, 0));
+					// 此处延迟概率初始化至updateRuleMapOfTable
+					ckyPRulList.add(new CKYPRule(1.0, rule.getLhs(), rule.getRhs(), 0, 0, 0));
 					HashMap<String, Double> lhsAndProMap = new HashMap<String, Double>();
 					updateRuleMapOfTable(rule, ruleMap, rule.getLhs(), ckyPRulList, numOfResulets, lhsAndProMap);
 				}
@@ -164,7 +163,7 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 				// 根据分词和词性标注的结果进行table表对角线的j初始化
 				ArrayList<CKYPRule> ckyPRulList = new ArrayList<CKYPRule>();
 				ckyPRulList.add(new CKYPRule(1.0, pos[j - 1], words[j - 1], 0, 0, 0));
-				PRule rule=new PRule(1.0,pos[j - 1],words[j - 1]);
+				PRule rule = new PRule(1.0, pos[j - 1], words[j - 1]);
 				HashMap<String, Double> lhsAndProMap = new HashMap<String, Double>();
 				updateRuleMapOfTable(rule, ruleMap, rule.getLhs(), ckyPRulList, numOfResulets, lhsAndProMap);
 			}
@@ -181,7 +180,7 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 				}
 			}
 		}
-		
+
 		// 回溯并生成括号表达式列表
 		CreatBracketStringList(n, numOfResulets);
 		return resultList;
@@ -303,7 +302,7 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 	}
 
 	/**
-	 * 由规则右侧反推规则左侧，由右侧的非终结符得到对应的列表ikCKYPRuleList，kjCKYPRuleList，然后不同的列表中的规则两两结合，去前numOfResulets个并返回
+	 * 由规则右侧反推规则左侧，由右侧的非终结符得到对应的列表ikCKYPRuleList，kjCKYPRuleList，然后不同的列表中的规则两两结合，取前numOfResulets个并返回
 	 * 
 	 * @param k
 	 *            分裂位置
@@ -362,7 +361,8 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 		// 查找概率最大的n个结果
 		ArrayList<CKYPRule> resultRuleList = table[0][n].getPruleMap().get(pcnf.getStartSymbol());
 		resultList = new ArrayList<String>();
-		if(resultRuleList==null) {
+		if (resultRuleList == null)
+		{
 			return;
 		}
 		for (CKYPRule prule : resultRuleList)

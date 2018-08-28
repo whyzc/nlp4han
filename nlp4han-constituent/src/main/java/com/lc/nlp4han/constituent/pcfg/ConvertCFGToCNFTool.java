@@ -1,6 +1,8 @@
 package com.lc.nlp4han.constituent.pcfg;
 
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -45,6 +47,7 @@ public class ConvertCFGToCNFTool
 
 	/**
 	 * 从文档中读取CFG,然后转为CNF并存储到指定文件
+	 * 
 	 * @param CFGpath
 	 * @param CNFpath
 	 * @param encoding
@@ -53,7 +56,7 @@ public class ConvertCFGToCNFTool
 	private static void readCFGAndConvertToCNF(String CFGpath, String CNFpath, String encoding) throws IOException
 	{
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(CNFpath), encoding));
-		CFG cfg = GetGrammarFromFile.getCFGFromFile(CFGpath, encoding);
+		CFG cfg = new CFG(new FileInputStream(new File(CFGpath)), encoding);
 		bw.append(new ConvertCFGToCNF().convertToCNF(cfg).toString());
 		bw.close();
 	}

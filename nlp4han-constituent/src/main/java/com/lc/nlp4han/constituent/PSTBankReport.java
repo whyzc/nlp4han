@@ -1,85 +1,120 @@
 package com.lc.nlp4han.constituent;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashSet;
-
-import com.lc.nlp4han.constituent.pcfg.TreeBankReport;
-import com.lc.nlp4han.ml.util.FileInputStreamFactory;
-
 public class PSTBankReport
 {
 	private int tokenCount;// 词条数
-	private HashSet<String> wordShapeSet;
+	private int wordShapeCount;// 词形数
 	private int sentenceCount;// 句子数
 	private int wordCount;// 总字数(包括标点符号)
-	private HashSet<String> nonTerminalSet;//非终结符集合
+	private int nonTerminalCount;// 非终结符的个数
+	private int numOfHighestTree;// 库中句法树的最大高度
+	private int numOfLowestTree;// 库中句法树的最小高度
+	private int meanLevelOfTree;// 库中句法树的平均高度
+
 	public PSTBankReport()
 	{
-		tokenCount = 0;
-		wordShapeSet = new HashSet<String>();
-		sentenceCount = 0;
-		wordCount = 0;
-		nonTerminalSet=new HashSet<String>();
+
 	}
 
-	/**
-	 * 生成文法集
-	 */
-	public TreeBankReport getInformationOfTreeLibrary(String fileName, String enCoding) throws IOException
+	public PSTBankReport(int tokenCount, int wordShapeCount, int sentenceCount, int wordCount, int nonTerminalCount,
+			int numOfHighestTree, int numOfLowestTree, int meanLevelOfTree)
 	{
-		// 括号表达式树拼接成括号表达式String数组
-		PlainTextByTreeStream ptbt = new PlainTextByTreeStream(new FileInputStreamFactory(new File(fileName)),
-				enCoding);
-		String bracketStr = ptbt.read();
-		int heighest = 0;
-		int lowest = 1000;
-		int heightTatleCount = 0;
-		while (bracketStr.length() != 0)
-		{
-			sentenceCount++;
-			int height = TraverseTree(BracketExpUtil.generateTreeNotDeleteBracket(bracketStr));
-			if (height > heighest)
-			{
-				heighest = height;
-			}
-			if (height < lowest)
-			{
-				lowest = height;
-			}
-			heightTatleCount += height;
-			bracketStr = ptbt.read();
-		}
-		int meanLevelOfTree = heightTatleCount / sentenceCount;
-		ptbt.close();
-		// 括号表达式生成文法
-		return new TreeBankReport(tokenCount, wordShapeSet.size(), sentenceCount, wordCount, nonTerminalSet.size(), heighest,
-				lowest, meanLevelOfTree);
+		this.tokenCount = tokenCount;
+		this.wordShapeCount = wordShapeCount;
+		this.sentenceCount = sentenceCount;
+		this.wordCount = wordCount;
+		this.nonTerminalCount = nonTerminalCount;
+		this.numOfHighestTree = numOfHighestTree;
+		this.numOfLowestTree = numOfLowestTree;
+		this.meanLevelOfTree = meanLevelOfTree;
 	}
 
-	private int TraverseTree(TreeNode node)
+	public int getTokenCount()
 	{
-		if (node.getChildrenNum() == 0)
-		{
-			// 根节点
-			tokenCount++;// 词条数
-			wordShapeSet.add(node.getNodeName());
-			wordCount += node.getNodeName().length();// 总字数(包括标点符号)
-			return 1;
-		}
-		else
-		{
-			nonTerminalSet.add(node.nodename);
-		}
-		int height = 0;
-		for (TreeNode node1 : node.getChildren())
-		{
-			int length = TraverseTree(node1) + 1;
-			if (length > height)
-			{
-				height = length;
-			}
-		}
-		return height;
+		return tokenCount;
+	}
+
+	public void setTokenCount(int tokenCount)
+	{
+		this.tokenCount = tokenCount;
+	}
+
+	public int getWordShapeCount()
+	{
+		return wordShapeCount;
+	}
+
+	public void setWordShapeCount(int wordShapeCount)
+	{
+		this.wordShapeCount = wordShapeCount;
+	}
+
+	public int getSentenceCount()
+	{
+		return sentenceCount;
+	}
+
+	public void setSentenceCount(int sentenceCount)
+	{
+		this.sentenceCount = sentenceCount;
+	}
+
+	public int getWordCount()
+	{
+		return wordCount;
+	}
+
+	public void setWordCount(int wordCount)
+	{
+		this.wordCount = wordCount;
+	}
+
+	public int getNonTerminalCount()
+	{
+		return nonTerminalCount;
+	}
+
+	public void setNonTerminalCount(int nonTerminalCount)
+	{
+		this.nonTerminalCount = nonTerminalCount;
+	}
+
+	public int getNumOfHighestTree()
+	{
+		return numOfHighestTree;
+	}
+
+	public void setNumOfHighestTree(int numOfHighestTree)
+	{
+		this.numOfHighestTree = numOfHighestTree;
+	}
+
+	public int getNumOfLowestTree()
+	{
+		return numOfLowestTree;
+	}
+
+	public void setNumOfLowestTree(int numOfLowestTree)
+	{
+		this.numOfLowestTree = numOfLowestTree;
+	}
+
+	public int getMeanLevelOfTree()
+	{
+		return meanLevelOfTree;
+	}
+
+	public void setMeanLevelOfTree(int meanLevelOfTree)
+	{
+		this.meanLevelOfTree = meanLevelOfTree;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "tokenCount=" + tokenCount + "\n" + "wordShapeCount=" + wordShapeCount + "\n" + "sentenceCount="
+				+ sentenceCount + "\n" + "wordCount=" + wordCount + "\n" + "nonTerminalCount=" + nonTerminalCount + "\n"
+				+ "numOfHighestTree=" + numOfHighestTree + "\n" + "numOfLowestTree=" + numOfLowestTree + "\n"
+				+ "meanLevelOfTree=" + meanLevelOfTree;
 	}
 }
