@@ -41,7 +41,7 @@ private int n;
 	 * @return
 	 * @throws IOException 
 	 */
-	public abstract String[] tokenize(String text);
+	protected abstract String[] tokenize(String text);
 
 
 }

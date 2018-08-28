@@ -8,7 +8,7 @@ public class NGramCharFeatureGenerator extends NGramFeatureGenerator
 	}
 
 	@Override
-	public String[] tokenize(String text)
+	protected String[] tokenize(String text)
 	{
 		String[] tokens = text.split("");
 		return tokens;
