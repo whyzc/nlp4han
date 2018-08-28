@@ -29,8 +29,8 @@ public class SentimentAnalyzerUserTool
 
 		String strategy = "NB";// or RB
 		String modelPath = "";
-		String nGram = "2";
 		String xBase = "character";
+		int nGram = 2;
 
 		for (int i = 0; i < args.length; i++)
 		{
@@ -46,7 +46,7 @@ public class SentimentAnalyzerUserTool
 			}
 			if (args[i].equals("-ng"))
 			{
-				nGram = args[i + 1];
+				nGram = Integer.parseInt(args[i + 1]);
 				i++;
 			}
 			if (args[i].equals("-flag"))
@@ -64,8 +64,17 @@ public class SentimentAnalyzerUserTool
 			File modelFile = new File(modelPath);
 			ModelWrapper model = new ModelWrapper(modelFile);
 
-			FeatureGenerator fg = new NGramFeatureGenerator(nGram, xBase);
-			SentimentAnalyzerContextGenerator contextGen = new SentimentAnalyzerContextGeneratorConf(fg);
+			FeatureGenerator fg =null;
+			switch(xBase) {
+			case "word":
+				fg = new NGramWordFeatureGenerator(nGram);
+				break;
+			case "character":
+				fg = new NGramCharFeatureGenerator(nGram);
+				break;
+			}
+			SentimentAnalyzerContextGenerator contextGen = 
+					new SentimentAnalyzerContextGeneratorConf(fg);
 
 			myAnalyzer = new SentimentAnalyzerNB(model, contextGen);
 

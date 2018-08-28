@@ -28,7 +28,7 @@ public class SentimentAnalyzerTrainTool {
 		String modelFile = "";
 		String encoding = "GBK";
 		String algrithm = "NAIVEBAYES";
-		String nGram ="2";
+		int nGram =2;
 		//character,word
 		String xBase = "character";
 		
@@ -46,7 +46,7 @@ public class SentimentAnalyzerTrainTool {
 				i++;
 			}
 			if (args[i].equals("-ng")) {
-				nGram = args[i+1];
+				nGram = Integer.parseInt(args[i+1]);
 				i++;
 			}
 			if(args[i].equals("-encoding")) {
@@ -71,7 +71,15 @@ public class SentimentAnalyzerTrainTool {
 			TrainingParameters params  = TrainingParameters.defaultParams();
 			params.put(TrainingParameters.ALGORITHM_PARAM, algrithm);
 			
-			FeatureGenerator fg = new NGramFeatureGenerator(nGram, xBase);
+			FeatureGenerator fg =null;
+			switch(xBase) {
+			case "word":
+				fg = new NGramWordFeatureGenerator(nGram);
+				break;
+			case "character":
+				fg = new NGramCharFeatureGenerator(nGram);
+				break;
+			}
 			SentimentAnalyzerContextGenerator contextGen = 
 					new SentimentAnalyzerContextGeneratorConf(fg);
 			

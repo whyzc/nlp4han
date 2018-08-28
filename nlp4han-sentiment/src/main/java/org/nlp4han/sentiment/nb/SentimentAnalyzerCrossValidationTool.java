@@ -32,8 +32,8 @@ public class SentimentAnalyzerCrossValidationTool {
 		String n = "10";
 		String encoding = "gbk";
 		String algorithm = "NAIVEBAYES";
-		String nGram = "2";
 		String xBase = "character";//character,word
+		int nGram = 2;
 		
 		for (int i=0;i<args.length;i++) {
 			if (args[i].equals("-data")) {
@@ -45,7 +45,7 @@ public class SentimentAnalyzerCrossValidationTool {
 				i++;
 			}
 			if (args[i].equals("-ng")) {
-				nGram = args[i+1];
+				nGram = Integer.parseInt(args[i+1]);
 				i++;
 			}
 			if (args[i].equals("-flag")) {
@@ -72,9 +72,17 @@ public class SentimentAnalyzerCrossValidationTool {
 		ObjectStream<SentimentTextSample> sampleStream = 
 				new SentimentTextSampleStream(lineStream);
 		
-		FeatureGenerator featureGen = new NGramFeatureGenerator(nGram, xBase);//基于字的二元
+		FeatureGenerator fg =null;
+		switch(xBase) {
+		case "word":
+			fg = new NGramWordFeatureGenerator(nGram);
+			break;
+		case "character":
+			fg = new NGramCharFeatureGenerator(nGram);
+			break;
+		}
 		SentimentAnalyzerContextGenerator contextGen = 
-				new SentimentAnalyzerContextGeneratorConf(featureGen);
+				new SentimentAnalyzerContextGeneratorConf(fg);
 		SentimentAnalyzerMeasure measure = new SentimentAnalyzerMeasure();
 		
 		SentimentAnalyzerCrossValidation crossVal = 
