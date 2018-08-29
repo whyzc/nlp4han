@@ -13,24 +13,24 @@ import com.lc.nlp4han.ml.util.ModelWrapper;
 public class DependencyParserMEFactory
 {
 
-	public static DependencyParser_ArcEager getDependencyParser_ArcEager() throws IOException
+	public static DependencyParserTB getDependencyParser_ArcEager() throws IOException
 	{
 		InputStream modelIn = DependencyParserMEFactory.class.getClassLoader()
 				.getResourceAsStream("com/lc/nlp4han/dependency/tb_cpostag2.model");
 		ModelWrapper modelWrapper = new ModelWrapper(modelIn);
-		return new DependencyParser_ArcEager(modelWrapper);
+		return new DependencyParserTB(modelWrapper,new DependencyParseContextGeneratorConf_ArcEager());
 	}
 
-	public static DependencyParser_ArcStandard getDependencyParser_ArcStandard() throws IOException
+	public static DependencyParserTB getDependencyParser_ArcStandard() throws IOException
 	{
 		InputStream modelIn = DependencyParserMEFactory.class.getClassLoader()
 				.getResourceAsStream("com/lc/nlp4han/dependency/arc_standard.model");
 		ModelWrapper modelWrapper = new ModelWrapper(modelIn);
-		return new DependencyParser_ArcStandard(modelWrapper);
+		return new DependencyParserTB(modelWrapper,new DependencyParseContextGeneratorConf_ArcStandard());
 	}
 	public static void main(String[] args)
 	{
-		DependencyParser_ArcStandard dpME;
+		DependencyParserTB dpME;
 		try
 		{
 			dpME = DependencyParserMEFactory.getDependencyParser_ArcStandard();

@@ -36,11 +36,11 @@ public class DependencyEvalTool
 		{
 			if (transitionType.equals("arceager"))
 			{
-				model = DependencyParser_ArcEager.train(trainFile, params, new DependencyParseContextGeneratorConf_ArcEager(), encoding);
+				model = DependencyParserTB.train(trainFile, params, new DependencyParseContextGeneratorConf_ArcEager(), encoding);
 			}
 			else
 			{
-				model = DependencyParser_ArcStandard.train(trainFile, params, new DependencyParseContextGeneratorConf_ArcStandard(), encoding);
+				model = DependencyParserTB.train(trainFile, params, new DependencyParseContextGeneratorConf_ArcStandard(), encoding);
 			}
 		}
 		else
@@ -49,23 +49,23 @@ public class DependencyEvalTool
 			if (transitionType.equals("arceager"))
 			{
 				inStream = DependencyEvalTool.class.getClassLoader()
-						.getResourceAsStream("com/lc/nlp4han/dependency/tb_cpostag2.model");
+						.getResourceAsStream("com/lc/nlp4han/dependency/arceager.model");
 			}
 			else
 			{
 				inStream = DependencyEvalTool.class.getClassLoader()
-						.getResourceAsStream("com/lc/nlp4han/dependency/arc_standard2.model");
+						.getResourceAsStream("com/lc/nlp4han/dependency/arc_standard3.model");
 			}
 			model = new ModelWrapper(inStream);
 		}
 		
 		if (transitionType.equals("arceager"))
 		{
-			tagger = new DependencyParser_ArcEager(model, new DependencyParseContextGeneratorConf_ArcEager());
+			tagger = new DependencyParserTB(model, new DependencyParseContextGeneratorConf_ArcEager());
 		}
 		else
 		{
-			tagger = new DependencyParser_ArcStandard(model, new DependencyParseContextGeneratorConf_ArcStandard());
+			tagger = new DependencyParserTB(model, new DependencyParseContextGeneratorConf_ArcStandard());
 		}
 		
 

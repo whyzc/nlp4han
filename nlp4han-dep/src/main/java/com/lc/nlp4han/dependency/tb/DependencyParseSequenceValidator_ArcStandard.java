@@ -13,7 +13,8 @@ public class DependencyParseSequenceValidator_ArcStandard implements SequenceVal
 	@Override
 	public boolean validSequence(int indexOfCurrentConf, String[] wordpos, String[] priorOutcomes, String preOutcome)
 	{
-		Configuration_ArcStandard conf = new Configuration_ArcStandard().generateConfByActions(wordpos, priorOutcomes);
+		Configuration_ArcStandard conf = new Configuration_ArcStandard();
+		conf.generateConfByActions(wordpos, priorOutcomes);
 
 		ActionType preAct = ActionType.toType(preOutcome);
 		if (preAct != null)

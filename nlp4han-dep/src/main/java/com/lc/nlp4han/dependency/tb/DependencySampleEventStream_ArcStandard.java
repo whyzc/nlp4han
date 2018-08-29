@@ -65,7 +65,8 @@ public class DependencySampleEventStream_ArcStandard extends AbstractEventStream
 	public static List<Event> generateEvents(String[] words, String[] pos, String[] dependency,
 			String[] dependencyWords, String[] dependencyIndices, String[][] ac)
 	{
-		Configuration_ArcStandard conf_ArcStandard = Configuration_ArcStandard.initialConf(words, pos);
+		Configuration_ArcStandard conf_ArcStandard =new Configuration_ArcStandard();
+		conf_ArcStandard.initialConf(words, pos);
 		String[] priorDecisions = new String[2 * (words.length - 1)];
 		List<Event> events = new ArrayList<Event>();
 		ActionType at;

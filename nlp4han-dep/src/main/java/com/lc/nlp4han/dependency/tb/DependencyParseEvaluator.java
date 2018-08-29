@@ -57,7 +57,7 @@ public class DependencyParseEvaluator extends Evaluator<DependencySample>
 		return tagger;
 	}
 
-	public void setTagger(DependencyParser_ArcEager tagger)
+	public void setTagger(DependencyParserTB tagger)
 	{
 		this.tagger = tagger;
 	}

@@ -36,7 +36,7 @@ public class DependencySampleSequenceStream_ArcEager implements SequenceStream
 		Sequence<DependencySample> pss = sequence;
 		try
 		{
-			DependencyParser_ArcEager parseTB = new DependencyParser_ArcEager(new ModelWrapper(model));
+			DependencyParserTB parseTB = new DependencyParserTB(new ModelWrapper(model),new DependencyParseContextGeneratorConf_ArcEager());
 		
 		DependencySample sample = (DependencySample)sequence.getSource();
 		String[] words = sample.getWords();
