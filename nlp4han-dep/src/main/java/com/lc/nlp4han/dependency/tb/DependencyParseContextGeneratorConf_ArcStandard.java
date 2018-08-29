@@ -258,7 +258,8 @@ public class DependencyParseContextGeneratorConf_ArcStandard implements Dependen
 	@Override
 	public String[] getContext(int index, String[] wordpos, String[] priorDecisions, Object[] additionalContext)
 	{
-		Configuration_ArcStandard conf = new Configuration_ArcStandard().generateConfByActions(wordpos, priorDecisions);
+		Configuration_ArcStandard conf = new Configuration_ArcStandard();
+		conf.generateConfByActions(wordpos, priorDecisions);
 		return getContext(conf, priorDecisions, additionalContext);
 	}
 

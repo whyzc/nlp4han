@@ -35,13 +35,13 @@ public abstract class Configuration {
 	}
 	
 	
-	public abstract  Configuration generateConfByActions(String[] wordpos, String[] priorActions) ;
+//	public abstract  Configuration generateConfByActions(String[] wordpos, String[] priorActions) ;
 	/**
 	 * 通过基本操作对当前conf进行转换
 	 * 
 	 * @return 转换后的conf
 	 */
-	public abstract Configuration transition(ActionType actType);
+	public abstract void transition(ActionType actType);
 	/**
 	 * 判断是否reduce
 	 * 
@@ -49,9 +49,33 @@ public abstract class Configuration {
 	 */
 	public abstract boolean canReduce(String[] dependencyIndices);
 	
+	public void initialConf(String[] words, String[] pos)
+	{
+		if (words.length != 0)
+		{
+			wordsBuffer = Vertice.getWordsBuffer(words, pos);
+			stack.push(wordsBuffer.get(0));
+			wordsBuffer.remove(0);
+		}
+	}
 	
-	
-	
+	public void generateConfByActions(String[] wordpos, String[] priorActions)
+	{
+		String[] words = new String[wordpos.length / 2 + 1];
+		String[] poses = new String[wordpos.length / 2 + 1];
+		for (int i = 0; i < words.length; i++)
+		{
+			String[] word_pos = wordpos[i].split("/");
+			words[i] = word_pos[0];
+			poses[i] = word_pos[1];
+		}
+		initialConf(words, poses);
+		for (String preAction : priorActions)
+		{
+			ActionType at = ActionType.toType(preAction);
+			transition(at);
+		}
+	}
 	
 	
 	public boolean isFinalConf()
@@ -60,6 +84,23 @@ public abstract class Configuration {
 			return true;
 		else
 			return false;
+	}
+	
+	public void addArc(Arc arc)
+	{
+		arcs.add(arc);
+	}
+	
+	public void shift()
+	{
+		if (wordsBuffer.size() != 0)
+		{
+			stack.push(wordsBuffer.remove(0));
+		}
+		else
+		{
+		}
+
 	}
 	
 	public String toString()

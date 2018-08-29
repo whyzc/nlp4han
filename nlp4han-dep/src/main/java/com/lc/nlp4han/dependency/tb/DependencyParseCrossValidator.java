@@ -64,22 +64,10 @@ public class DependencyParseCrossValidator
 			CrossValidationPartitioner.TrainingSampleStream<DependencySample> trainingSampleStream = partitioner.next();
 			ModelWrapper model;
 			DependencyParseEvaluator evaluator;
-			if (tType.equals("arceager"))
-			{
-				model = DependencyParser_ArcEager.train(trainingSampleStream, params, contextGenerator);
-				// 评价模型
-				evaluator = new DependencyParseEvaluator(new DependencyParser_ArcEager(model, contextGenerator),
-						listeners);
-			}
-			else
-			{
-				model = DependencyParser_ArcStandard.train(trainingSampleStream, params, contextGenerator);
-				// 评价模型
-				evaluator = new DependencyParseEvaluator(new DependencyParser_ArcStandard(model, contextGenerator),
-						listeners);
-			}
 			
-			
+			model = DependencyParserTB.train(trainingSampleStream, params, contextGenerator);
+			// 评价模型
+			evaluator = new DependencyParseEvaluator(new DependencyParserTB(model, contextGenerator),		listeners);
 			evaluator.setMeasure(measure);
 			evaluator.evaluate(trainingSampleStream.getTestSampleStream());
 

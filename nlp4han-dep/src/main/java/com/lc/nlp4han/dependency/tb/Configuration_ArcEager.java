@@ -24,37 +24,25 @@ public class Configuration_ArcEager extends Configuration
 	{
 	}
 
-	public static Configuration_ArcEager initialConf(String[] words, String[] pos)
-	{
-		return new Configuration_ArcEager(words, pos);
-	}
-	
-	
-	// public static Configuration initialConf(DependencySample sample)
-	// {//通过sample得到初始的一个Configuration
-	// //······
-	// return new Configuration();
-	// }
-
 	// wordpos包括“核心”
-	public  Configuration_ArcEager generateConfByActions(String[] wordpos, String[] priorActions)
-	{
-		String[] words = new String[wordpos.length / 2 + 1];
-		String[] poses = new String[wordpos.length / 2 + 1];
-		for (int i = 0; i < words.length; i++)
-		{
-			String[] word_pos = wordpos[i].split("/");
-			words[i] = word_pos[0];
-			poses[i] = word_pos[1];
-		}
-		Configuration_ArcEager conf = new Configuration_ArcEager(words, poses);
-		for (String preAction : priorActions)
-		{
-			ActionType at = ActionType.toType(preAction);
-			conf.transition(at);
-		}
-		return conf;
-	}
+//	public  Configuration_ArcEager generateConfByActions(String[] wordpos, String[] priorActions)
+//	{
+//		String[] words = new String[wordpos.length / 2 + 1];
+//		String[] poses = new String[wordpos.length / 2 + 1];
+//		for (int i = 0; i < words.length; i++)
+//		{
+//			String[] word_pos = wordpos[i].split("/");
+//			words[i] = word_pos[0];
+//			poses[i] = word_pos[1];
+//		}
+//		Configuration_ArcEager conf = new Configuration_ArcEager(words, poses);
+//		for (String preAction : priorActions)
+//		{
+//			ActionType at = ActionType.toType(preAction);
+//			conf.transition(at);
+//		}
+//		return conf;
+//	}
 
 	/**
 	 * 当栈顶元素和buffer第一个单词没有关系时，判断是否reduce
@@ -84,55 +72,38 @@ public class Configuration_ArcEager extends Configuration
 	}
 
 	// 共四类基本操作RIGHTARC_SHIFT、LEFTARC_REDUCE、SHIFT、REDUCE
-	public Configuration_ArcEager transition(ActionType actType)
+	public void transition(ActionType actType)
 	{
 		switch (actType.getBaseAction())
 		{
 		case "RIGHTARC_SHIFT":
-			return addArc(new Arc(actType.getRelation(), stack.peek(), wordsBuffer.get(0))).shift();
+			addArc(new Arc(actType.getRelation(), stack.peek(), wordsBuffer.get(0)));
+			shift();
+			break;
 		case "LEFTARC_REDUCE":
-			return addArc(new Arc(actType.getRelation(), wordsBuffer.get(0), stack.peek())).reduce();
+			addArc(new Arc(actType.getRelation(), wordsBuffer.get(0), stack.peek()));
+			reduce();
+			break;
 		case "SHIFT":
-			return shift();
+			shift();
+			break;
 		case "REDUCE":
-			return reduce();
+			reduce();
+			break;
 		default:
 			throw new IllegalArgumentException("参数不合法!");
 		}
 	}
 
-	public Configuration_ArcEager addArc(Arc arc)
-	{
-		arcs.add(arc);
-		return this;
-	}
-
-	public Configuration_ArcEager shift()
-	{
-		if (wordsBuffer.size() != 0)
-		{
-			stack.push(wordsBuffer.remove(0));
-			return this;
-		}
-		else
-		{
-			return null;// ?
-		}
-
-	}
-
-	public Configuration_ArcEager reduce()
+	public void reduce()
 	{
 		if (!stack.isEmpty())
 		{
 			stack.pop();
-			return this;
 		}
 		else
 		{
-			return null;
 		}
-
 	}
 
 	public static void main(String[] args)

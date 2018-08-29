@@ -20,7 +20,8 @@ public class DependencyTrainerTool
 	private static void usage()
 	{
 		System.out.println(DependencyTrainerTool.class.getName()
-				+ " -data <corpusFile> -model <modelFile> -encoding <encoding> " + "[-cutoff <num>] [-iters <num>]");
+				+ " -data <corpusFile> -tType<transitionType> -model <modelFile> -encoding <encoding> "
+				+ "[-cutoff <num>] [-iters <num>]");
 	}
 
 	public static void main(String[] args)
@@ -38,6 +39,7 @@ public class DependencyTrainerTool
 		File corpusFile = null;
 		File modelFile = null;
 		String encoding = "UTF-8";
+		String tType = "arceager";
 		for (int i = 0; i < args.length; i++)
 		{
 			if (args[i].equals("-data"))
@@ -48,6 +50,11 @@ public class DependencyTrainerTool
 			else if (args[i].equals("-model"))
 			{
 				modelFile = new File(args[i + 1]);
+				i++;
+			}
+			else if (args[i].equals("-tType"))
+			{
+				tType = args[i + 1];
 				i++;
 			}
 			else if (args[i].equals("-encoding"))
@@ -70,13 +77,14 @@ public class DependencyTrainerTool
 		TrainingParameters params = TrainingParameters.defaultParams();
 		params.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(cutoff));
 		params.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(iters));
-
-		DependencyParseContextGenerator gen = new DependencyParseContextGeneratorConf_ArcEager();
-		DependencyParseContextGenerator gen_arcstand = new DependencyParseContextGeneratorConf_ArcStandard();
-//		ModelWrapper model = DependencyParser_ArcEager.train(corpusFile, params, gen, encoding);
-		ModelWrapper model_arcstandard = DependencyParser_ArcStandard.train(corpusFile, params, gen_arcstand, encoding);
+		DependencyParseContextGenerator gen;
+		if (tType.equals("arceager"))
+			gen = new DependencyParseContextGeneratorConf_ArcEager();
+		else
+			gen = new DependencyParseContextGeneratorConf_ArcStandard();
+		ModelWrapper model = DependencyParserTB.train(corpusFile, params, gen, encoding);
 		OutputStream modelOut = new BufferedOutputStream(new FileOutputStream(modelFile));
-		model_arcstandard.serialize(modelOut);
+		model.serialize(modelOut);
 		modelOut.close();
 	}
 }
