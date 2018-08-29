@@ -151,22 +151,18 @@ public class CTBClearerTool
 			else if (args[i].equals("-f"))
 			{
 				removeFuncTag = true;
-				i++;
 			}
 			else if (args[i].equals("-u"))
 			{
 				removeUnit = true;
-				i++;
 			}
 			else if (args[i].equals("-n"))
 			{
 				removeNONENode = true;
-				i++;
 			}
 			else if (args[i].equals("-indent"))
 			{
 				indent = true;
-				i++;
 			}
 		}
 
