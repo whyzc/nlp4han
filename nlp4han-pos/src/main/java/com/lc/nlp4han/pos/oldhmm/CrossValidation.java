@@ -1,20 +1,12 @@
-package com.lc.nlp4han.pos.hmm;
+package com.lc.nlp4han.pos.oldhmm;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Random;
 
 import com.lc.nlp4han.pos.WordPOSMeasure;
 
-/**
- * 一次验证评估，按比例划分语料。
- */
-public class Validation implements ModelEval {
-
-    public static void main(String[] args) throws Exception {
-        ModelEval modelScore = new Validation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 0.1, NGram.BiGram, -1, AbstractParams.UNK_MAXPROB);
-        modelScore.eval();
-        System.out.println(modelScore.getScores().toString());
-    }
+public class CrossValidation implements ModelEval {
 
     /**
      * 标明使用的n-gram
@@ -24,6 +16,7 @@ public class Validation implements ModelEval {
     /**
      * 生成的标注器
      */
+
     private POSTaggerHMM tagger;
 
     /**
@@ -49,7 +42,12 @@ public class Validation implements ModelEval {
     /**
      * 折数
      */
-    private double ratio;
+    private int fold;
+
+    /**
+     * 映射词典
+     */
+    private HashSet<String> wordDict;
 
     /**
      * 留存数据比例
@@ -61,42 +59,63 @@ public class Validation implements ModelEval {
      */
     private int unkHandle;
 
-    public Validation(WordTagStream wordTagStream, double ratio, NGram nGram, int holdOutRatio,int unkHandle) {
+    /**
+     * @param wordTagStream 包含特点语料路径的语料读取流
+     * @param fold          交叉验证折数
+     * @param nGram         语法参数
+     */
+    public CrossValidation(WordTagStream wordTagStream, int fold, NGram nGram,int holdOutRatio,int unkHandle) {
         this.stream = wordTagStream;
-        this.ratio = ratio;
+        this.fold = fold;
         this.nGram = nGram;
-        this.holdOutRatio = holdOutRatio;
+        this.measure = new WordPOSMeasure();
+        this.holdOutRatio=holdOutRatio;
         this.unkHandle=unkHandle;
     }
 
     @Override
     public void eval() throws Exception {
-        this.getTagger();
-        this.stream.openReadStream();
-        this.estimate();
+        for (int i = 0; i < this.fold; ++i) {
+            System.out.println("训练模型...");
+            long start = System.currentTimeMillis();
+            this.tagger = this.getTagger(i);
+            System.out.println("训练时间:\t" + (System.currentTimeMillis()-start));
+            
+            this.stream.openReadStream();
+            
+            System.out.println("词性标注...");
+            start = System.currentTimeMillis();
+            WordPOSMeasure m = this.tag(i);
+            System.out.println("标注时间:\t" + (System.currentTimeMillis()-start));
+            System.out.println(m);
+            this.measure.mergeInto(m);
+            this.stream.openReadStream();
+        }
     }
 
     /**
-     * 通过验证集获得隐藏状态标注器
+     * 获得指定训练集上训练的隐藏状态标注器
+     *
+     * @param taggerNO 代表训练集的编号
+     * @return 隐藏状态标注器
      */
-    private void getTagger() throws IOException,IllegalAccessException {
-        DictFactory dictFactory = new DictFactory();
-
+    private POSTaggerHMM getTagger(int taggerNO) throws Exception {
         WordTag[] wts = null;
-        int fold = (int) (1 / this.ratio);
-        int num = 0;
+        POSTaggerHMM tagger = null;
+        Random random = new Random(11);
 
-        //第一次扫描
+        AbstractParams paras = null;
+        DictFactory dictFactory=new DictFactory();
+        HMM hmm = null;
+
+        int num = 0;
         while ((wts = this.stream.readSentence()) != null) {
-            //在1000中取指定比例样本
-            if (num % fold != 0) {
+            if (num % this.fold != taggerNO) {
                 dictFactory.addIndex(wts);
             }
             ++num;
         }
 
-        AbstractParams paras = null;
-        HMM hmm = null;
         if (this.nGram == NGram.BiGram) {
             paras = new BigramParams(dictFactory,this.unkHandle);
             hmm = new HMM1st(paras);
@@ -104,15 +123,13 @@ public class Validation implements ModelEval {
             paras = new TrigramParams(dictFactory,this.unkHandle);
             hmm = new HMM2nd(paras);
         }
-        this.stream.openReadStream();
-
         num = 0;
-        if (holdOutRatio > 1) {
-            Random generator = new Random(11);
-            while ((wts = stream.readSentence()) != null) {
-                if (num % fold != 0) {
-
-                    int randNum = generator.nextInt(holdOutRatio);
+        this.stream.openReadStream();
+        if (this.holdOutRatio > 1) {
+            while ((wts = this.stream.readSentence()) != null) {
+                if (num % this.fold != taggerNO) {
+                    //相比于第一次扫描，因为划分了训练集和留存，训练参数中可能有些状态没有记录到
+                    int randNum = random.nextInt(this.holdOutRatio);
                     if (randNum == 1) {
                         paras.addHoldOut(wts);
                     } else {
@@ -123,46 +140,46 @@ public class Validation implements ModelEval {
             }
         } else {
             while ((wts = stream.readSentence()) != null) {
-                if (num % fold != 0) {
+                if (num % fold != taggerNO) {
                     paras.addCorpus(wts);
                 }
                 ++num;
             }
         }
-
         paras.calcProbs();
-        this.measure = new WordPOSMeasure(dictFactory.getWordSet());
-        this.tagger = new POSTaggerHMM(hmm);
+        tagger = new POSTaggerHMM(hmm);
+        this.wordDict = dictFactory.getWordSet();
+        return tagger;
     }
 
     /**
      * 指定验证集，进行一次交叉验证，并返回评估值
      *
-     * @return 验证评分
+     * @return 一折验证的评分
      */
-    private void estimate() throws IOException {
+    private WordPOSMeasure tag(int taggerNo) throws IOException {
+        WordPOSMeasure posMeasure = new WordPOSMeasure(this.wordDict);
         WordTag[] wts = null;
-
-        String[] predictTags = null;
-        int fold = (int) (1 / this.ratio);
         int num = 0;
+        String[] predictTags = null;
+
 
         while ((wts = this.stream.readSentence()) != null) {
-            if (num % fold == 0) {
+            if (num % this.fold == taggerNo) {
+                //验证语料不能直接放入内存
                 this.getTagOfValidation(wts);
+                String[]words=this.unknownSentence.trim().split("\\s+");
                 WordTag[] predict = this.tagger.tag(this.unknownSentence);
-                String[] words = new String[predict.length];
                 predictTags = new String[predict.length];
                 for (int j = 0; j < predict.length; ++j) {
                     predictTags[j] = predict[j].getTag();
-                    words[j] = predict[j].getWord();
                 }
-                this.measure.updateScores(words, this.expectedTags, predictTags);
+                posMeasure.updateScores(words, this.expectedTags,predictTags);
             }
             ++num;
         }
+        return posMeasure;
     }
-
 
     /**
      * 分割验证集观察状态和隐藏状态
@@ -179,8 +196,10 @@ public class Validation implements ModelEval {
         this.unknownSentence = sentence.trim();
     }
 
-    @Override
+    /**
+     * @return 返回此次验证评分
+     */
     public WordPOSMeasure getScores() {
-        return measure;
+        return this.measure;
     }
 }
