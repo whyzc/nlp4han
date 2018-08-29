@@ -17,7 +17,6 @@ import com.lc.nlp4han.ml.util.ObjectStream;
 import com.lc.nlp4han.ml.util.PlainTextByLineStream;
 import com.lc.nlp4han.ml.util.TrainingParameters;
 
-
 /**
  * 情感分析模型评估工具类
  * @author lim
@@ -36,9 +35,9 @@ public class SentimentAnalyzerEvalTool {
 		String modelPath = "";
 		String encoding = "gbk";
 		String algorithm = "NAIVEBAYES";
-		String nGram = "2";
 		String xBase = "character";
 		String errFilePath = "";
+		int nGram = 2;
 		
 		for(int i=0; i<args.length; i++) {
 			if (args[i].equals("-data")) {
@@ -50,7 +49,7 @@ public class SentimentAnalyzerEvalTool {
 				i++;
 			}
 			if (args[i].equals("-ng")) {
-				nGram = args[i+1];
+				nGram = Integer.parseInt(args[i+1]);
 				i++;
 			}
 			if (args[i].equals("-flag")) {
@@ -86,9 +85,17 @@ public class SentimentAnalyzerEvalTool {
 		InputStream modelFile = new FileInputStream(modelPath);
 		ModelWrapper model = new ModelWrapper(modelFile);
 		
-		FeatureGenerator featureGen = new NGramFeatureGenerator(nGram, xBase);
-		SentimentAnalyzerContextGenerator contextGen =
-				new SentimentAnalyzerContextGeneratorConf(featureGen);
+		FeatureGenerator fg =null;
+		switch(xBase) {
+		case "word":
+			fg = new NGramWordFeatureGenerator(nGram);
+			break;
+		case "character":
+			fg = new NGramCharFeatureGenerator(nGram);
+			break;
+		}
+		SentimentAnalyzerContextGenerator contextGen = 
+				new SentimentAnalyzerContextGeneratorConf(fg);
 		
 		SentimentAnalyzerNB analyzer = new SentimentAnalyzerNB(model,contextGen);
 		
