@@ -32,7 +32,6 @@ public class DependencySampleSequenceStream_ArcEager implements SequenceStream
 	@Override
 	public Event[] updateContext(Sequence sequence, AbstractModel model)// 感知机算法使用
 	{
-//		System.out.println("使用了updateContext方法");
 		Sequence<DependencySample> pss = sequence;
 		try
 		{
@@ -43,7 +42,7 @@ public class DependencySampleSequenceStream_ArcEager implements SequenceStream
 		String[] poses = sample.getPos();
 		String[][] ac = sample.getAditionalContext();
 		
-		DependencySample newSample = parseTB.parse(words, poses, 1)[0].getSample();
+		DependencySample newSample = parseTB.parse(words, poses, 3)[0].getSample();
 		String[] dependency = newSample.getDependency();
 		String[] dependencyWords = newSample.getDependencyWords();
 		String[] dependencyIndices = newSample.getDependencyIndices();
@@ -80,13 +79,13 @@ public class DependencySampleSequenceStream_ArcEager implements SequenceStream
 	@Override
 	public void reset() throws IOException, UnsupportedOperationException
 	{
-
+		samples.reset();
 	}
 
 	@Override
 	public void close() throws IOException
 	{
-
+		samples.close();
 	}
 
 }

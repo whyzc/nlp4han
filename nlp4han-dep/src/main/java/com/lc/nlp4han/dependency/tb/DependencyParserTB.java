@@ -44,32 +44,31 @@ public class DependencyParserTB implements DependencyParser
 	private SequenceClassificationModel<String> SModel;
 
 	private SequenceValidator<String> sequenceValidator;
-	
 
-//	public DependencyParser_ArcEager(String modelPath) throws IOException
-//	{
-//		this(new File(modelPath));
-//	}
+	// public DependencyParser_ArcEager(String modelPath) throws IOException
+	// {
+	// this(new File(modelPath));
+	// }
 
 	public DependencyParserTB(String modelPath, DependencyParseContextGenerator contextGenerator) throws IOException
 	{
 		this(new File(modelPath), contextGenerator);
 	}
 
-//	public DependencyParser_ArcEager(File file) throws IOException
-//	{
-//		this(new ModelWrapper(file));
-//	}
+	// public DependencyParser_ArcEager(File file) throws IOException
+	// {
+	// this(new ModelWrapper(file));
+	// }
 
 	public DependencyParserTB(File file, DependencyParseContextGenerator contextGenerator) throws IOException
 	{
 		this(new ModelWrapper(file), contextGenerator);
 	}
 
-//	public DependencyParser_ArcEager(ModelWrapper model) throws IOException
-//	{
-//		init(model, new DependencyParseContextGeneratorConf_ArcEager());
-//	}
+	// public DependencyParser_ArcEager(ModelWrapper model) throws IOException
+	// {
+	// init(model, new DependencyParseContextGeneratorConf_ArcEager());
+	// }
 
 	public DependencyParserTB(ModelWrapper model, DependencyParseContextGenerator contextGenerator)
 	{
@@ -91,8 +90,10 @@ public class DependencyParserTB implements DependencyParser
 		this.SModel = model.getSequenceModel();
 
 		this.contextGenerator = contextGenerator;
-
-		this.sequenceValidator = new DependencyParseSequenceValidator_ArcEager();
+		if (contextGenerator instanceof DependencyParseContextGeneratorConf_ArcEager)
+			this.sequenceValidator = new DependencyParseSequenceValidator_ArcEager();
+		else
+			this.sequenceValidator = new DependencyParseSequenceValidator_ArcStandard();
 	}
 
 	public static ModelWrapper train(String trainDatePath, TrainingParameters params,
@@ -122,13 +123,14 @@ public class DependencyParserTB implements DependencyParser
 			DependencyParseContextGenerator contextGenerator) throws IOException
 	{
 
-//		String beamSizeString = params.getSettings().get(BeamSearch.BEAM_SIZE_PARAMETER);
+		// String beamSizeString =
+		// params.getSettings().get(BeamSearch.BEAM_SIZE_PARAMETER);
 
 		int beamSize = DependencyParserTB.DEFAULT_BEAM_SIZE;
-//		if (beamSizeString != null)
-//		{
-//			beamSize = Integer.parseInt(beamSizeString);
-//		}
+		// if (beamSizeString != null)
+		// {
+		// beamSize = Integer.parseInt(beamSizeString);
+		// }
 
 		ClassificationModel depModel = null;
 		SequenceClassificationModel seqDepModel = null;
@@ -150,10 +152,11 @@ public class DependencyParserTB implements DependencyParser
 		{
 			System.err.println(TrainerType.EVENT_MODEL_SEQUENCE_TRAINER);
 			DependencySampleSequenceStream_ArcEager ss;
-//			if (contextGenerator instanceof DependencyParseContextGeneratorConf_ArcEager)
-				ss = new DependencySampleSequenceStream_ArcEager(sampleStream, contextGenerator);
-//			else
-//				ss=new DependencySampleSequenceStream_ArcStandard(sampleStream, contextGenerator);
+			// if (contextGenerator instanceof DependencyParseContextGeneratorConf_ArcEager)
+			ss = new DependencySampleSequenceStream_ArcEager(sampleStream, contextGenerator);
+			// else
+			// ss=new DependencySampleSequenceStream_ArcStandard(sampleStream,
+			// contextGenerator);
 			EventModelSequenceTrainer trainer = TrainerFactory.getEventModelSequenceTrainer(params.getSettings(),
 					manifestInfoEntries);
 			depModel = trainer.train(ss);
@@ -162,8 +165,8 @@ public class DependencyParserTB implements DependencyParser
 		{
 			SequenceTrainer trainer = TrainerFactory.getSequenceModelTrainer(params.getSettings(), manifestInfoEntries);
 			DependencySampleSequenceStream_ArcEager ss;
-//			if (contextGenerator instanceof DependencyParseContextGeneratorConf_ArcEager)
-				ss = new DependencySampleSequenceStream_ArcEager(sampleStream, contextGenerator);
+			// if (contextGenerator instanceof DependencyParseContextGeneratorConf_ArcEager)
+			ss = new DependencySampleSequenceStream_ArcEager(sampleStream, contextGenerator);
 			seqDepModel = trainer.train(ss);
 		}
 		else
@@ -173,8 +176,6 @@ public class DependencyParserTB implements DependencyParser
 
 		return new ModelWrapper(depModel, beamSize);
 	}
-
-	
 
 	@Override
 	public DependencyTree parse(String[] words, String[] poses)
@@ -194,17 +195,18 @@ public class DependencyParserTB implements DependencyParser
 		else
 			currentConf = new Configuration_ArcStandard();
 		currentConf.initialConf(words, poses);
-		String[] priorDecisions = new String[2 * (words.length - 1) ];
+		String[] priorDecisions = new String[2 * (words.length - 1)];
 		int indexOfConf = 0;
 		while (!currentConf.isFinalConf())
 		{
 			action = oracleMEBased.classify(currentConf, priorDecisions, null);
-//			System.out.println(currentConf.toString() + "*****" + "preAction =" + action.typeToString());
+			// System.out.println(currentConf.toString() + "*****" + "preAction =" +
+			// action.typeToString());
 			currentConf.transition(action);
 			priorDecisions[indexOfConf] = action.typeToString();
 			indexOfConf++;
 		}
-//		System.out.println(currentConf.arcsToString());
+		// System.out.println(currentConf.arcsToString());
 		DependencyTree depTree = TBDepTree.getTree(currentConf, words, poses);
 		return depTree;
 	}
@@ -215,13 +217,13 @@ public class DependencyParserTB implements DependencyParser
 		String[] wordsandposes = sentence.split("/");
 		return parse(wordsandposes);
 	}
-	
+
 	@Override
 	public DependencyTree[] parse(String sentence, int k)
 	{
-		
+
 		String[] wordsandposes = sentence.split("/");
-		return parse(wordsandposes,k);
+		return parse(wordsandposes, k);
 	}
 
 	@Override
@@ -233,21 +235,27 @@ public class DependencyParserTB implements DependencyParser
 		allPoses.add(0, "root");
 		words = allWords.toArray(new String[allWords.size()]);
 		poses = allPoses.toArray(new String[allPoses.size()]);
-		String[] wordpos = new String[(words.length-1)*2];
-		for (int i = 0; i < words.length ; i++)
+		String[] wordpos = new String[(words.length - 1) * 2];
+		for (int i = 0; i < words.length; i++)
 		{
 			wordpos[i] = words[i] + "/" + poses[i];
 		}
-		
-		Sequence[] allSequence= SModel.bestSequences(k, wordpos, null, contextGenerator, sequenceValidator);
-		DependencyTree [] allTree= new DependencyTree[allSequence.length];
+
+		Sequence[] allSequence = SModel.bestSequences(k, wordpos, null, contextGenerator, sequenceValidator);
+		DependencyTree[] allTree = new DependencyTree[allSequence.length];
 		for (int i = 0; i < allSequence.length; i++)
 		{
 			Configuration conf;
 			if (contextGenerator instanceof DependencyParseContextGeneratorConf_ArcEager)
+			{
 				conf = new Configuration_ArcEager();
+			}
 			else
+			{
+
 				conf = new Configuration_ArcStandard();
+			}
+
 			conf.initialConf(words, poses);
 			for (String outcome : allSequence[i].getOutcomes())
 			{
@@ -258,32 +266,33 @@ public class DependencyParserTB implements DependencyParser
 		}
 		return allTree;
 	}
+
 	@Override
 	public DependencyTree parse(String[] wordsandposes)
 	{
-		String[] words = new String[wordsandposes.length ];
-		String[] poses = new String[wordsandposes.length ];
+		String[] words = new String[wordsandposes.length];
+		String[] poses = new String[wordsandposes.length];
 		for (int i = 0; i < wordsandposes.length; i++)
 		{
 			String[] word_pos = wordsandposes[i].split("/");
-			words[i ] = word_pos[0];
-			poses[i ] = word_pos[1];
+			words[i] = word_pos[0];
+			poses[i] = word_pos[1];
 		}
-		return parse(words,poses,1)[0];
+		return parse(words, poses, 1)[0];
 	}
 
 	@Override
 	public DependencyTree[] parse(String[] wordsandposes, int k)
 	{
-		String[] words = new String[wordsandposes.length ];
-		String[] poses = new String[wordsandposes.length ];
+		String[] words = new String[wordsandposes.length];
+		String[] poses = new String[wordsandposes.length];
 		for (int i = 0; i < wordsandposes.length; i++)
 		{
 			String[] word_pos = wordsandposes[i].split("/");
-			words[i ] = word_pos[0];
-			poses[i ] = word_pos[1];
+			words[i] = word_pos[0];
+			poses[i] = word_pos[1];
 		}
-		return parse(words,poses,k);
+		return parse(words, poses, k);
 	}
 
 }
