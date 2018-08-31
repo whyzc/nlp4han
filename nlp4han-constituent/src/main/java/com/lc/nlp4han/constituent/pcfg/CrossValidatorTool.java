@@ -37,9 +37,11 @@ public class CrossValidatorTool
 
 			CrossValidationPartitioner.TrainingSampleStream<ConstituentTree> trainingSampleStream = partitioner.next();
 			ConstituentParserCKYOfP2NFImproving cky = GetckyByStream.getckyFromStream(trainingSampleStream);
+			
 			CKYParserEvaluator evaluator = new CKYParserEvaluator(cky);
 			evaluator.setMeasure(measure);
-			// 设置测试集（在测试集上进行评价）
+
+			System.out.println("开始评价...");
 			evaluator.evaluate(trainingSampleStream.getTestSampleStream());
 			System.out.println(measure);
 			run++;

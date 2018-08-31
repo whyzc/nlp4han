@@ -24,6 +24,7 @@ public class GetckyByStream
 		
 		System.out.println("对文法进行转换...");
 		PCFG p2nf = new ConvertPCFGToP2NF().convertToCNF(pcfg);
+		
 		return new ConstituentParserCKYOfP2NFImproving(p2nf);
 	}
 }
