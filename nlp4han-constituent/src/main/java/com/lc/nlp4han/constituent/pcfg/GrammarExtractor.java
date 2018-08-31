@@ -135,15 +135,18 @@ public class GrammarExtractor
 	{
 		for (String nonTer : grammar.getNonTerminalSet())
 		{
-			Set<PRule> set = PCFG.convertRewriteRuleSetToPRuleSet(grammar.getRuleBylhs(nonTer));
+//			Set<PRule> set = PCFG.convertRewriteRuleSetToPRuleSet(grammar.getRuleBylhs(nonTer));
+			Set<RewriteRule> set = grammar.getRuleBylhs(nonTer);
 			int allNum = 0;
-			for (PRule rule : set)
+			for (RewriteRule rule : set)
 			{
-				allNum += ruleCounter.get(rule);
+				PRule pr = (PRule)rule;
+				allNum += ruleCounter.get(pr);
 			}
-			for (PRule rule : set)
+			for (RewriteRule rule : set)
 			{
-				rule.setProOfRule(1.0 * ruleCounter.get(rule) / allNum);
+				PRule pr = (PRule)rule;
+				pr.setProOfRule(1.0 * ruleCounter.get(rule) / allNum);
 			}
 		}
 	}
