@@ -24,26 +24,6 @@ public class Configuration_ArcEager extends Configuration
 	{
 	}
 
-	// wordpos包括“核心”
-//	public  Configuration_ArcEager generateConfByActions(String[] wordpos, String[] priorActions)
-//	{
-//		String[] words = new String[wordpos.length / 2 + 1];
-//		String[] poses = new String[wordpos.length / 2 + 1];
-//		for (int i = 0; i < words.length; i++)
-//		{
-//			String[] word_pos = wordpos[i].split("/");
-//			words[i] = word_pos[0];
-//			poses[i] = word_pos[1];
-//		}
-//		Configuration_ArcEager conf = new Configuration_ArcEager(words, poses);
-//		for (String preAction : priorActions)
-//		{
-//			ActionType at = ActionType.toType(preAction);
-//			conf.transition(at);
-//		}
-//		return conf;
-//	}
-
 	/**
 	 * 当栈顶元素和buffer第一个单词没有关系时，判断是否reduce
 	 * 

@@ -229,12 +229,26 @@ public class DependencyParseContextGeneratorConf_ArcEager implements DependencyP
 				}
 			}
 		}
-
-		if (priorDecisions.length >= 1)
+		
+		int indexOfPriorDecision = -1;
+		for (int index = 0; index < priorDecisions.length; index++)
 		{
-			pre_action_1 = priorDecisions[priorDecisions.length - 1];
-			if (priorDecisions.length >= 2)
-				pre_action_2 = priorDecisions[priorDecisions.length - 2];
+			if (priorDecisions[index] != null)
+			{
+				continue;
+			}
+			else
+			{
+				indexOfPriorDecision = index - 1;
+				break;
+			}
+		}
+		
+		if (indexOfPriorDecision >= 0)
+		{
+			pre_action_1 = priorDecisions[indexOfPriorDecision];
+			if (indexOfPriorDecision >= 1)
+				pre_action_2 = priorDecisions[indexOfPriorDecision - 1];
 		}
 
 		s1w = stack.peek().getWord();

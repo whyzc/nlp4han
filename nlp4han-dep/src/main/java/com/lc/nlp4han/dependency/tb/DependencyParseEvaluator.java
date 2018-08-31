@@ -40,7 +40,7 @@ public class DependencyParseEvaluator extends Evaluator<DependencySample>
 //		DependencySample preSample = tagger.parse(wordsRefNoRoot, posRefNoRoot).getSample();
 		
 		
-		DependencySample preSample = tagger.parse(wordsRefNoRoot, posRefNoRoot,4)[0].getSample();
+		DependencySample preSample = tagger.parse(wordsRefNoRoot, posRefNoRoot,1)[0].getSample();
 //		// 将预测的结果输出
 //		System.out.println(preSample.toCoNLLString());
 
