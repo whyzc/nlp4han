@@ -2,6 +2,8 @@ package com.lc.nlp4han.constituent.maxent;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.HeadGeneratorCollins;
@@ -92,12 +94,17 @@ public class ParserMETrainerTool
 
 		AbstractHeadGenerator headGenerator = new HeadGeneratorCollins();
 		
+		Logger.getLogger("").setLevel(Level.OFF);
+		
 		// TODO: 可以选择首先训练词性标注模型
+		System.out.println("训练组块模型...");
 		ChunkerForParserME.train(corpusFile, chunkmodelFile, params, contextGen, encoding, headGenerator);
 		
+		System.out.println("训练构建模型...");
 		BuilderAndCheckerME.trainForBuild(corpusFile, buildmodelFile, params, contextGen, encoding,
 				headGenerator);
 		
+		System.out.println("训练检查模型...");
 		BuilderAndCheckerME.trainForCheck(corpusFile, checkmodelFile, params, contextGen, encoding,
 				headGenerator);
 	}

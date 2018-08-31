@@ -102,7 +102,7 @@ public class ParserEvaluatorForByStep extends Evaluator<ConstituentTreeSample>
 				}
 				else
 				{
-					samplePre = HeadTreeToActions.headTreeToAction(treePre, headGen);
+					samplePre = HeadTreeToActions.headTreeToSample(treePre, headGen);
 					measure.update(treeRef, treePre);
 				}
 			}
