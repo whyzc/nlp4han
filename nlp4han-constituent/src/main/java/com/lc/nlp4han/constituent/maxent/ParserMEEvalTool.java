@@ -38,39 +38,42 @@ public class ParserMEEvalTool
 		ParserContextGenerator contextGen = new ParserContextGeneratorConf();
 		System.out.println(contextGen);
 		AbstractHeadGenerator aghw = new HeadGeneratorCollins();
-		ModelWrapper posmodel = new ModelWrapper(new File("data\\model\\pos\\en-pos-maxent.bin"));
+//		ModelWrapper posmodel = new ModelWrapper(new File("data\\model\\pos\\en-pos-maxent.bin"));
 		ModelWrapper chunkmodel = ChunkerForParserME.train(trainFile, params, contextGen, encoding, aghw);
 		ModelWrapper buildmodel = BuilderAndCheckerME.trainForBuild(trainFile, params, contextGen,
 				encoding, aghw);
 		ModelWrapper checkmodel = BuilderAndCheckerME.trainForCheck(trainFile, params, contextGen,
 				encoding, aghw);
 		System.out.println("训练时间： " + (System.currentTimeMillis() - start));
-		POSTaggerForParser<HeadTreeNode> postagger;
-		if (postaggertype.equals("china"))
-		{
-			postagger = new POSTaggerForParserMEChinese(posmodel);
-		}
-		else
-		{
-			postagger = new POSTaggerForParserMEEnglish(posmodel);
-		}
+//		POSTaggerForParser<HeadTreeNode> postagger;
+//		if (postaggertype.equals("china"))
+//		{
+//			postagger = new POSTaggerForParserMEChinese(posmodel);
+//		}
+//		else
+//		{
+//			postagger = new POSTaggerForParserMEEnglish(posmodel);
+//		}
 		ChunkerForParserME chunktagger = new ChunkerForParserME(chunkmodel, contextGen, aghw);
 		BuilderAndCheckerME buildandchecktagger = new BuilderAndCheckerME(buildmodel,
 				checkmodel, contextGen, aghw);
 
 		ConstituentMeasure measure = new ConstituentMeasure();
-		ParserEvaluatorForByStep evaluator = null;
+		ParserMEEvaluator evaluator = null;
 		ParserErrorPrinter printer = null;
 		if (errorFile != null)
 		{
 			System.out.println("Print error to file " + errorFile);
 			printer = new ParserErrorPrinter(new FileOutputStream(errorFile));
-			evaluator = new ParserEvaluatorForByStep(postagger, chunktagger, buildandchecktagger, aghw,
+//			evaluator = new ParserEvaluatorForByStep(postagger, chunktagger, buildandchecktagger, aghw,
+//					printer);
+			evaluator = new ParserMEEvaluator(chunktagger, buildandchecktagger, aghw,
 					printer);
 		}
 		else
 		{
-			evaluator = new ParserEvaluatorForByStep(postagger, chunktagger, buildandchecktagger, aghw);
+//			evaluator = new ParserEvaluatorForByStep(postagger, chunktagger, buildandchecktagger, aghw);
+			evaluator = new ParserMEEvaluator(chunktagger, buildandchecktagger, aghw);
 		}
 		evaluator.setMeasure(measure);
 		ObjectStream<String> linesStream = new PlainTextByLineStream(new FileInputStreamFactory(goldFile), encoding);

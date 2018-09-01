@@ -1004,7 +1004,7 @@ public class ParserContextGeneratorConf implements ParserContextGenerator
 	@Override
 	public String toString()
 	{
-		return "SyntacticAnalysisContextGeneratorConf{" + "chunkandpostag0Set=" + chunkandpostag0Set
+		return  this.getClass().getSimpleName() + "{" + "chunkandpostag0Set=" + chunkandpostag0Set
 				+ ", chunkandpostag_1Set=" + chunkandpostag_1Set + ", chunkandpostag_2Set=" + chunkandpostag_2Set
 				+ ", chunkandpostag1Set=" + chunkandpostag1Set + ", chunkandpostag2Set=" + chunkandpostag2Set
 				+ ", chunkandpostag0*Set=" + chunkandpostag0ASet + ", chunkandpostag_1*Set=" + chunkandpostag_1ASet

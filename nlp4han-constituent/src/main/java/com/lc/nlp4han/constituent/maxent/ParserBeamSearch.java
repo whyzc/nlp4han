@@ -330,6 +330,7 @@ public class ParserBeamSearch implements ParserSequenceClassificationModel
 		// 遍历K个结果
 		for (int i = 0; i < comnineChunkTree.size(); i++)
 		{
+//			System.out.println("Build+Check" + i);
 			PriorityQueue<BuildAndCheckSequence<HeadTreeNode>> prev = new PriorityQueue<>(
 					this.size);
 			PriorityQueue<BuildAndCheckSequence<HeadTreeNode>> next = new PriorityQueue<>(

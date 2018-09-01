@@ -17,12 +17,12 @@ import com.lc.nlp4han.ml.util.Evaluator;
  * @author 王馨苇
  *
  */
-public class ParserEvaluatorForByStep extends Evaluator<ConstituentTreeSample>
+public class ParserMEEvaluator extends Evaluator<ConstituentTreeSample>
 {
 
-	private Logger logger = Logger.getLogger(ParserEvaluatorForByStep.class.getName());
+	private Logger logger = Logger.getLogger(ParserMEEvaluator.class.getName());
 	
-	private POSTaggerForParser<HeadTreeNode> postagger;
+//	private POSTaggerForParser<HeadTreeNode> postagger;
 	private ChunkerForParserME chunktagger;
 	private BuilderAndCheckerME buildAndChecktagger;
 	
@@ -30,21 +30,39 @@ public class ParserEvaluatorForByStep extends Evaluator<ConstituentTreeSample>
 	
 	private AbstractHeadGenerator headGen;
 
-	public ParserEvaluatorForByStep(POSTaggerForParser<HeadTreeNode> postagger, ChunkerForParserME chunktagger,
+//	public ParserEvaluatorForByStep(POSTaggerForParser<HeadTreeNode> postagger, ChunkerForParserME chunktagger,
+//			BuilderAndCheckerME buildAndChecktagger, AbstractHeadGenerator aghw)
+//	{
+//		this.postagger = postagger;
+//		this.chunktagger = chunktagger;
+//		this.buildAndChecktagger = buildAndChecktagger;
+//		this.headGen = aghw;
+//	}
+
+//	public ParserEvaluatorForByStep(POSTaggerForParser<HeadTreeNode> postagger, ChunkerForParserME chunktagger,
+//			BuilderAndCheckerME buildAndChecktagger, AbstractHeadGenerator aghw,
+//			ParserEvaluateMonitor... evaluateMonitors)
+//	{
+//		super(evaluateMonitors);
+//		this.postagger = postagger;
+//		this.chunktagger = chunktagger;
+//		this.buildAndChecktagger = buildAndChecktagger;
+//		this.headGen = aghw;
+//	}
+	
+	public ParserMEEvaluator(ChunkerForParserME chunktagger,
 			BuilderAndCheckerME buildAndChecktagger, AbstractHeadGenerator aghw)
 	{
-		this.postagger = postagger;
 		this.chunktagger = chunktagger;
 		this.buildAndChecktagger = buildAndChecktagger;
 		this.headGen = aghw;
 	}
 
-	public ParserEvaluatorForByStep(POSTaggerForParser<HeadTreeNode> postagger, ChunkerForParserME chunktagger,
+	public ParserMEEvaluator(ChunkerForParserME chunktagger,
 			BuilderAndCheckerME buildAndChecktagger, AbstractHeadGenerator aghw,
 			ParserEvaluateMonitor... evaluateMonitors)
 	{
 		super(evaluateMonitors);
-		this.postagger = postagger;
 		this.chunktagger = chunktagger;
 		this.buildAndChecktagger = buildAndChecktagger;
 		this.headGen = aghw;
@@ -90,8 +108,18 @@ public class ParserEvaluatorForByStep extends Evaluator<ConstituentTreeSample>
 				List<String> actionsRef = sample.getActions();
 				// 参考样本没有保存完整的一棵树，需要将动作序列转成一颗完整的树
 				TreeNode treeRef = ActionsToTree.actionsToTree(words, actionsRef);
-				List<List<HeadTreeNode>> posTree = postagger.posTree(words.toArray(new String[words.size()]), 20);
-				List<List<HeadTreeNode>> chunkTree = chunktagger.tagKChunk(20, posTree, null);
+				
+				System.out.println("Parsing " + words);
+				
+				String[] ws = sample.getWords().toArray(new String[sample.getWords().size()]);
+				String[] ps = sample.getPoses().toArray(new String[sample.getWords().size()]);
+				
+				List<List<HeadTreeNode>> posTree = HeadTreeNode.toPosTree(ws, new String[][]{ps});
+				
+				final int ChunkResultCount = 10;
+				
+//				List<List<HeadTreeNode>> posTree = postagger.posTree(words.toArray(new String[words.size()]), 20);
+				List<List<HeadTreeNode>> chunkTree = chunktagger.tagKChunk(ChunkResultCount, posTree, null);
 				treePre = buildAndChecktagger.tagBuildAndCheck(chunkTree, null);
 
 				if (treePre == null)
