@@ -21,7 +21,7 @@ public class Center
 	 * @param anaphorEntities
 	 */
 	public Center(List<Entity> entities, List<Entity> newEntities)
-	{// 注意：第二个参数为null时，Cb为undefined(null)  此处需修改
+	{// 注意：参数不能为null，当两个参数相等时，为第一句话，Cb为undefined(null)  此处需修改
 		generateCf(newEntities);
 		generateCb(entities, newEntities);
 		generateCp(entities, newEntities);
@@ -123,7 +123,10 @@ public class Center
 		}
 		else
 			strCf = "( )";
-		return "[Cb=" + Cb.getEntityName() + ", Cf=" + strCf + ", Cp=" + Cp.getEntityName() + "]";
+		if (Cb != null)
+			return "[Cb=" + Cb.getEntityName() + ", Cf=" + strCf + ", Cp=" + Cp.getEntityName() + "]";
+		else
+			return "[Cf=" + strCf + ", Cp=" + Cp.getEntityName() + "]";
 	}
 	
 	

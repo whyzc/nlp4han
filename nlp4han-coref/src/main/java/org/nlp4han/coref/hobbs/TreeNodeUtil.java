@@ -682,6 +682,11 @@ public class TreeNodeUtil
 		return TreeNodeUtil.getFirstNodeUpWithSpecifiedName(treeNode, new String[] { "NP", "IP" });
 	}
 	
+	/**
+	 * 找到结点在其兄弟节点中的位置
+	 * @param node
+	 * @return
+	 */
 	public static int getIndex(TreeNode node)
 	{
 		if (node == null)
@@ -699,5 +704,36 @@ public class TreeNodeUtil
 		}
 		return -1;
 	}
+	
+	/**
+	 * 根据结点名与其位置，找出树中其对应的结点
+	 * @param nodeName
+	 * @param site
+	 * @param root
+	 * @return
+	 */
+	public static TreeNode string2Node(String nodeName, int site, TreeNode root)
+	{
+		if (nodeName == null || site < 0 || root == null)
+			throw new RuntimeException("输入错误");
+		List<TreeNode> leaves = getAllLeafNodes(root);
+		if (leaves.get(site).getNodeName().equals(nodeName))
+		{
+			return leaves.get(site);
+		}
+		else
+			return null;
+	}
 
+	public static int siteOfLeaves(TreeNode leaf)
+	{
+		if (leaf == null)
+			throw new RuntimeException("输入错误");
+		if (leaf.getChildrenNum() > 0)
+			throw new RuntimeException("非叶子结点");
+		TreeNode root = getRootNode(leaf);
+		List<TreeNode> leaves = getAllLeafNodes(root);
+		return leaves.indexOf(leaf);
+		 
+	}
 }

@@ -31,15 +31,17 @@ public class GrammaticalRoleRuleSet
 		
 		/***************直接宾语规则集**************/
 		String OBJRule1 = "NP#(VP(VV _))";
-		String OBJRule2 = "NP#(VP(VV AS _))";
-		String OBJRule3 = "NP#(VP(VV NP _))";
-		String OBJRule4 = "NP#(VP(VC _))";
-		String OBJRule5 = "NP#(VP(VV AS NP _))";
+		String OBJRule2 = "NP#(VP(VE _))";
+		String OBJRule3 = "NP#(VP(VV AS _))";
+		String OBJRule4 = "NP#(VP(VV NP _))";
+		String OBJRule5 = "NP#(VP(VC _))";
+		String OBJRule6 = "NP#(VP(VV AS NP _))";
 		OBJRules.add(OBJRule1);
 		OBJRules.add(OBJRule2);
 		OBJRules.add(OBJRule3);
 		OBJRules.add(OBJRule4);
 		OBJRules.add(OBJRule5);
+		OBJRules.add(OBJRule6);
 		
 		grammaticalRoleRuleSet.put("OBJ", OBJRules);
 		

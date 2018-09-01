@@ -3,6 +3,8 @@ package org.nlp4han.coref.hobbs;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.nlp4han.coref.centering.CenteringBFP;
+
 import com.lc.nlp4han.constituent.TreeNode;
 
 /**
@@ -13,6 +15,7 @@ public class Hobbs
 {
 
 	private Filter filter;
+	private List<TreeNode> constituentTrees;
 
 	public Hobbs()
 	{
@@ -40,6 +43,7 @@ public class Hobbs
 	 */
 	public TreeNode hobbs(List<TreeNode> constituentTrees, TreeNode pronoun)
 	{
+		this.constituentTrees = constituentTrees;
 		TreeNode x;
 		Path path = new Path();
 
@@ -183,6 +187,52 @@ public class Hobbs
 				return true;
 		}
 		return false;
+	}
+	
+	public String resultStr(TreeNode pronoun, TreeNode antecedent)
+	{
+		if (pronoun == null || antecedent == null)
+			return null;
+		TreeNode root1 = TreeNodeUtil.getRootNode(pronoun);
+		TreeNode root2 = TreeNodeUtil.getRootNode(antecedent);
+		int site_s1 = -1;
+		int site_s2 = -1;
+		int site_pron = -1;
+		int site_ante = -1;
+		if (root1 == root2)
+		{
+			List<TreeNode> leaves = TreeNodeUtil.getAllLeafNodes(root1);
+			site_s1 = site_s2 = constituentTrees.indexOf(root1);
+			site_pron = leafSite(TreeNodeUtil.getString(pronoun), leaves);
+			site_ante = leafSite(TreeNodeUtil.getString(TreeNodeUtil.getHead(antecedent, NPHeadRuleSetPTB.getNPRuleSet())), leaves);
+		}
+		else
+		{
+			List<TreeNode> leaves1 = TreeNodeUtil.getAllLeafNodes(root1);
+			List<TreeNode> leaves2 = TreeNodeUtil.getAllLeafNodes(root2);
+			site_s1 = constituentTrees.indexOf(root1);
+			site_s2 = constituentTrees.indexOf(root2);
+			site_pron = leafSite(TreeNodeUtil.getString(pronoun), leaves1);
+			site_ante = leafSite(TreeNodeUtil.getString(TreeNodeUtil.getHead(antecedent, NPHeadRuleSetPTB.getNPRuleSet())), leaves2);
+		}
+		
+		String nodeName_pron = TreeNodeUtil.getString(pronoun);
+		String nodeName_ante = TreeNodeUtil.getString(TreeNodeUtil.getHead(antecedent, NPHeadRuleSetPTB.getNPRuleSet()));
+		String result = nodeName_pron+"("+ (site_s1+1) + "-" + (site_pron+1)+")"+CenteringBFP.SEPARATOR+nodeName_ante+"("+ (site_s2+1) + "-" + (site_ante+1)+")";
+		
+		return result;
+	}
+	
+	private int leafSite (String nodeName, List<TreeNode> nodes)
+	{
+		if (nodeName == null || nodes == null)
+			throw new RuntimeException("输入错误");
+		for (int i=0 ; i<nodes.size() ; i++)
+		{
+			if (nodes.get(i).getNodeName().equals(nodeName))
+				return i;
+		}
+		return -1;
 	}
 
 }

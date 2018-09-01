@@ -16,6 +16,8 @@ public class CenteringBFP
 {
 	private List<List<Entity>> entitiesOfUtterances;	// 所有句子的实体集
 	private List<TreeNode> rootNodesOfUtterances;		//所有句子的根结点集
+	public static String SEPARATOR = "->";		//指代结果中的分隔符 
+
 
 	public CenteringBFP()
 	{
@@ -48,7 +50,7 @@ public class CenteringBFP
 			}
 			return extractEntitySet(centersOfUtterances);
 		}
-		return null;
+		return entitiesOfUtterances;
 	}
 
 	/**
@@ -56,16 +58,16 @@ public class CenteringBFP
 	 * @param str
 	 * @return
 	 */
-	private boolean isPronoun(String str)
+	private static boolean isPronoun(Entity	e, TreeNode root)
 	{
-		String[] pronouns = { "我", "我们", "你", "你们", "她", "她们", "他", "他们", "它", "它们" };
-		if (str != null)
-			for (String pro : pronouns)
-			{
-				if (str.equals(pro))
-					return true;
-			}
-		return false;
+		if (e == null)
+			throw new RuntimeException("输入错误");
+		TreeNode node = entity2Node(e, root);
+		TreeNode pnNode = TreeNodeUtil.getFirstNodeUpWithSpecifiedName(node, new String[] {"PN"});
+		if (pnNode != null)
+			return true;
+		else
+			return false;
 	}
 
 	/**
@@ -73,9 +75,9 @@ public class CenteringBFP
 	 * @param centersOfUtterances
 	 * @return
 	 */
-	private List<List<Entity>> extractEntitySet(List<Center> centersOfUtterances)
+	private static List<List<Entity>> extractEntitySet(List<Center> centersOfUtterances)
 	{
-		if (centersOfUtterances.size() > 0)
+		if (centersOfUtterances != null)
 		{
 			List<List<Entity>> result = new ArrayList<List<Entity>>();
 			for (int i=0 ; i<centersOfUtterances.size() ; i++)
@@ -96,6 +98,11 @@ public class CenteringBFP
 	{
 		this.entitiesOfUtterances = entitiesOfUtterances;
 	}
+	
+	public void setRootNodesOfUtterances(List<TreeNode> rootNodesOfUtterances)
+	{
+		this.rootNodesOfUtterances = rootNodesOfUtterances;
+	}
 
 	/**
 	 * 生成话语的中心数值（Cb、Cf、Cp）
@@ -104,15 +111,17 @@ public class CenteringBFP
 	 * @param entity
 	 * @return
 	 */
-	public Center generateCenter(List<Entity> entitiesOfUi, Center centerOfUi_1, TreeNode rootOfUi, TreeNode rootOfUi_1)
-	{// 注意：第二个参数为null是表明是第一个句子；
+	public static Center generateCenter(List<Entity> entitiesOfUi, Center centerOfUi_1, TreeNode rootOfUi, TreeNode rootOfUi_1)
+	{
 		if (entitiesOfUi == null)
 		{
 			throw new RuntimeException("输入错误！");
 		}
 		if (centerOfUi_1 != null)
 		{
-			List<Entity> pronounEntities = getPronounEntities(entitiesOfUi);
+			List<Entity> pronounEntities = getPronounEntities(entitiesOfUi, rootOfUi);
+			if (pronounEntities.isEmpty())
+				return new Center(entitiesOfUi, entitiesOfUi);
 			List<List<Entity>> anaphorEntitiesList = generateAllAnaphorEntities(pronounEntities, centerOfUi_1, rootOfUi, rootOfUi_1);
 			List<Center> candidates = new ArrayList<Center>();
 			List<String> transitions = new ArrayList<String>();
@@ -121,15 +130,21 @@ public class CenteringBFP
 				List<Entity> newEntitiesOfUi = replaceEntity(entitiesOfUi, pronounEntities, anaphorEntitiesList.get(i));
 				Center c = new Center(entitiesOfUi, newEntitiesOfUi);		//注意：第一个句子的时候，两个参数应该相同，Cb的值应为null
 				candidates.add(c);
-				String transition = getTransition(centerOfUi_1, c);
+				String transition = getTransition(c, centerOfUi_1);
 				transitions.add(transition);
 			}
-			int index = bestTransition(transitions);
-			return candidates.get(index);
+			if (!transitions.isEmpty())
+			{
+				int index = bestTransition(transitions);
+				if (index >-1)
+					return candidates.get(index);
+			}
+			return null;
+				
 		}
 		else 
-		{
-			return new Center(entitiesOfUi, null);
+		{//两个参数相同，表示无指代，也表示第一个句子
+			return new Center(entitiesOfUi, entitiesOfUi);
 		}
 	}
 	
@@ -141,7 +156,7 @@ public class CenteringBFP
 	 * @param list
 	 * @return
 	 */
-	private List<Entity> replaceEntity(List<Entity> entitiesOfUi, List<Entity> pronounEntitiesOfUi, List<Entity> anaphorEntitiesOfUi_1)
+	private static List<Entity> replaceEntity(List<Entity> entitiesOfUi, List<Entity> pronounEntitiesOfUi, List<Entity> anaphorEntitiesOfUi_1)
 	{
 		if (entitiesOfUi == null || pronounEntitiesOfUi == null || anaphorEntitiesOfUi_1 == null)
 		{
@@ -166,7 +181,7 @@ public class CenteringBFP
 	 * @param entitiesOfUi
 	 * @return
 	 */
-	private List<Entity> getPronounEntities(List<Entity> entitiesOfUi)
+	private static List<Entity> getPronounEntities(List<Entity> entitiesOfUi, TreeNode rootOfUi)
 	{
 		if (entitiesOfUi != null)
 		{
@@ -175,7 +190,7 @@ public class CenteringBFP
 			{
 				for (Entity e : entitiesOfUi)
 				{
-					if (isPronoun(e.getEntityName()))
+					if (isPronoun(e, rootOfUi))
 					{
 						result.add(e);
 					}
@@ -189,12 +204,14 @@ public class CenteringBFP
 	/**
 	 * 获取最佳Transition的索引
 	 */
-	private int bestTransition(List<String> transitions)
+	private static int bestTransition(List<String> transitions)
 	{
-		if (transitions == null || transitions.size() < 1)
+		if (transitions == null)
 		{
 			throw new RuntimeException("输入错误！");
 		}
+		if (transitions.isEmpty())
+			return -1;
 		int result;
 		if ((result = transitions.indexOf("Continue")) != -1)
 		{
@@ -221,11 +238,15 @@ public class CenteringBFP
 	 * @param centerOfUi_1
 	 * @return
 	 */
-	private List<List<Entity>> generateAllAnaphorEntities(List<Entity> pronounEntitiesOfUi, Center centerOfUi_1, TreeNode rootOfUi, TreeNode rootOfUi_1)
+	private static List<List<Entity>> generateAllAnaphorEntities(List<Entity> pronounEntitiesOfUi, Center centerOfUi_1, TreeNode rootOfUi, TreeNode rootOfUi_1)
 	{	
 		if (pronounEntitiesOfUi == null || centerOfUi_1 == null)
 		{
 			throw new RuntimeException("输入错误");
+		}
+		if (pronounEntitiesOfUi.size() < 1)
+		{
+			return new ArrayList<List<Entity>>();
 		}
 		List<List<Entity>> result;
 		List<Entity> entitiesOfUi_1 = centerOfUi_1.getCf();
@@ -239,11 +260,13 @@ public class CenteringBFP
 			List<Entity> candidates = getMatchingEntities(entitiesOfUi_1, pronounEntitiesOfUi.get(i), attributeFilter, rootOfUi, rootOfUi_1);
 			tmp.add(candidates);
 		}
+		if (tmp.size() < 1)
+			return new ArrayList<List<Entity>>();
 		result = transform(tmp);
 		return result;
 	}
 
-	private List<List<Entity>> transform(List<List<Entity>> entitiesList)
+	private static List<List<Entity>> transform(List<List<Entity>> entitiesList)
 	{
 		if (entitiesList == null)
 			throw new RuntimeException("输入错误");
@@ -281,15 +304,17 @@ public class CenteringBFP
 		return result;
 	}
 
-	private List<Entity> getMatchingEntities(List<Entity> entitiesOfUi_1, Entity entity, AttributeFilter filter, TreeNode rootOfUi, TreeNode rootOfUi_1)
+	private static List<Entity> getMatchingEntities(List<Entity> entitiesOfUi_1, Entity entity, AttributeFilter filter, TreeNode rootOfUi, TreeNode rootOfUi_1)
 	{
 		List<Entity> result = new ArrayList<Entity>();
-		TreeNode node = transform2Node(entity, rootOfUi);
+		TreeNode leaf = entity2Node(entity, rootOfUi);
+		TreeNode node = TreeNodeUtil.getFirstNodeUpWithSpecifiedName(leaf, new String[] {"NP", "PN"});
 		List<TreeNode> nodes = new LinkedList<TreeNode>();
 		List<TreeNode> nodes_copy = new LinkedList<TreeNode>();
 		for (int i=0 ; i<entitiesOfUi_1.size() ; i++)
 		{
-			TreeNode tmp = transform2Node(entitiesOfUi_1.get(i), rootOfUi_1);
+			leaf = entity2Node(entitiesOfUi_1.get(i), rootOfUi_1);
+			TreeNode tmp = TreeNodeUtil.getFirstNodeUpWithSpecifiedName(leaf, new String[] {"NP", "PN"});
 			nodes.add(tmp);
 			nodes_copy.add(tmp);
 		}
@@ -300,27 +325,39 @@ public class CenteringBFP
 		
 		for (TreeNode n : nodes_copy)
 		{
-			int index = nodes.indexOf(n);
-			result.add(entitiesOfUi_1.get(index));
+			if (incompatible(n, node))
+				continue;
+			else
+			{
+				int index = nodes.indexOf(n);
+				result.add(entitiesOfUi_1.get(index));
+			}
 		}
 		
 		return result;
 	}
+	
+	/**
+	 * node1与node2不相容的规则
+	 * @param node1
+	 * @param node2
+	 * @return
+	 */
+	private static boolean incompatible(TreeNode node1, TreeNode node2)
+	{
+		if (node1.getNodeName().equals("PN") && node2.getNodeName().equals("PN") && !TreeNodeUtil.getString(node1).equals(TreeNodeUtil.getString(node2)))
+		{//node1与node2都是"PN"（代词），但他们是不同的代词，则node1与node2不相容
+			return true;
+		}
+		return false;
+	}
 
-	private TreeNode transform2Node(Entity entity, TreeNode root)
+
+	private static TreeNode entity2Node(Entity entity, TreeNode root)
 	{
 		if (entity == null && root == null)
 			throw new RuntimeException("输入错误");
-		TreeNode result;
-		TreeNode leaf = TreeNodeUtil.getAllLeafNodes(root).get(entity.getSite());
-		TreeNode NPnode = TreeNodeUtil.getFirstNPNodeUp(root);
-		List<TreeNode> PNnode = TreeNodeUtil.getNodesWithSpecifiedNameBetween2Nodes(leaf, NPnode, new String[] {"PN"});
-		if (PNnode != null && !PNnode.isEmpty())
-		{
-			result = PNnode.get(0);
-		}
-		else
-			result = NPnode;
+		TreeNode result = TreeNodeUtil.string2Node(entity.getEntityName(), entity.getSite(), root);
 		return result;
 	}
 
@@ -331,7 +368,7 @@ public class CenteringBFP
 	 * @param c2
 	 * @return
 	 */
-	public String getTransition(Center centerOfUi, Center centerOfUi_1)
+	public static String getTransition(Center centerOfUi, Center centerOfUi_1)
 	{//注意：若Ui-1为首句，其Cb为undefined(null)
 		if (centerOfUi != null && centerOfUi_1 != null)
 		{
@@ -351,5 +388,35 @@ public class CenteringBFP
 			}
 		}
 		return null;
+	}
+	
+	public static List<String> analysisResult(List<List<Entity>> oldEntitiesSet, List<List<Entity>> newEntitiesSet)
+	{//TODO
+		if (newEntitiesSet == null || oldEntitiesSet == null || newEntitiesSet.size() != oldEntitiesSet.size())
+			throw new RuntimeException("输入错误");
+		if (newEntitiesSet.size() < 2)
+			return new ArrayList<String>();
+		List<String> result = new ArrayList<String>();
+		for (int i=1 ; i<newEntitiesSet.size() ; i++)
+		{
+			for (int j=0 ; j<newEntitiesSet.get(i).size() ; j++)
+			{
+				if (!newEntitiesSet.get(i).get(j).equals(oldEntitiesSet.get(i).get(j)))
+				{
+					String word1 = oldEntitiesSet.get(i).get(j).getEntityName();
+					String size1 = "(" + (i+1) + "-"+(oldEntitiesSet.get(i).get(j).getSite()+1)+ ")";
+					String word2;
+					String size2;
+					int index = oldEntitiesSet.get(i-1).indexOf(newEntitiesSet.get(i).get(j));
+					Entity e = oldEntitiesSet.get(i-1).get(index);
+					word2 = e.getEntityName();
+					size2 = "(" + i + "-"+(e.getSite()+1)+ ")";
+					String str = word1 + size1 + SEPARATOR + word2+ size2;
+					
+					result.add(str);
+				}
+			}
+		}
+		return result;
 	}
 }

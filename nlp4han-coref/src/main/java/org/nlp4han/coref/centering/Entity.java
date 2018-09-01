@@ -2,8 +2,10 @@ package org.nlp4han.coref.centering;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.nlp4han.coref.hobbs.NPHeadRuleSetPTB;
 import org.nlp4han.coref.hobbs.TreeNodeUtil;
@@ -21,6 +23,13 @@ public class Entity
 	public Entity()
 	{
 
+	}
+	
+	public Entity(String entityName, String grammaticalRole, int site)
+	{
+		this.entityName = entityName;
+		this.grammaticalRole = grammaticalRole;
+		this.site = site;
 	}
 
 	public Entity(TreeNode node, String grammaticalRole)
@@ -75,7 +84,7 @@ public class Entity
 	 * @param sentence
 	 * @return
 	 */
-	public static List<Entity> entitys(String sentence)
+	public static List<Entity> entities(String sentence)
 	{
 		// TODO
 		return null;
@@ -84,13 +93,23 @@ public class Entity
 	/**
 	 * 根据结构树生成其所有实体对象
 	 * 
-	 * @param tree
+	 * @param root
 	 * @return
 	 */
-	public static List<Entity> entitys(TreeNode tree)
+	public static List<Entity> entities(TreeNode root)
 	{
-		// TODO
-		return null;
+		if (root == null)
+			throw new RuntimeException("输入错误");
+		List<Entity> result = new ArrayList<Entity>();
+		Map<String, List<Entity>> maps = Entity.generateEntitiesAndGrammaticalRole(root, GrammaticalRoleRuleSet.getGrammaticalRoleRuleSet());
+		Set<String> keys = maps.keySet();
+		Iterator<String> it = keys.iterator();
+		while (it.hasNext())
+		{
+			String key = it.next();
+			result.addAll(maps.get(key));
+		}
+		return sort(result);
 	}
 
 	public static List<Entity> sort(List<Entity> entities)
@@ -198,11 +217,11 @@ public class Entity
 					List<Entity> e = result.get("IO");
 					e.addAll(entities);
 				}
-				
+
 			}
 		}
 		List<Entity> IOEntities = result.get("IO");
-		
+
 		List<String> OBJRules = grammaticalRoleRuleSet.get("OBJ");
 		if (OBJRules != null)
 		{
@@ -210,20 +229,22 @@ public class Entity
 			{
 				List<TreeNode> nodes = parseOneRule(tree, rule);
 				List<Entity> entities = getEntities(nodes, "OBJ");
-				
+
 				if (IOEntities != null && !IOEntities.isEmpty())
-				{//间接宾语不能同时为直接宾语
-					for (int i=0 ; i<entities.size() ; i++)
+				{// 间接宾语不能同时为直接宾语
+					for (int i = 0; i < entities.size(); i++)
 					{
 						for (Entity ioe : IOEntities)
 						{
-							if (ioe.getEntityName().equals(entities.get(i).getEntityName()) && ioe.getSite()==entities.get(i).getSite())
+							if (ioe.getEntityName().equals(entities.get(i).getEntityName())
+									&& ioe.getSite() == entities.get(i).getSite())
 							{
-								entities.remove(i);							}
+								entities.remove(i);
+							}
 						}
 					}
 				}
-				
+
 				if (entities != null && !entities.isEmpty() && !result.containsKey("OBJ"))
 				{
 					result.put("OBJ", entities);
@@ -233,7 +254,7 @@ public class Entity
 					List<Entity> e = result.get("OBJ");
 					e.addAll(entities);
 				}
-				
+
 			}
 		}
 
@@ -245,21 +266,35 @@ public class Entity
 		List<Entity> result = new ArrayList<Entity>();
 		for (int i = 0; i < nodes.size(); i++)
 		{
-			Entity tmp = getEntity(nodes.get(i), grammaticalRole);
+			List<Entity> tmp = getEntity(nodes.get(i), grammaticalRole);
 			if (tmp != null)
-				result.add(tmp);
+				result.addAll(tmp);
 		}
 		return result;
 	}
 
-	private static Entity getEntity(TreeNode treeNode, String grammaticalRole)
+	private static List<Entity> getEntity(TreeNode treeNode, String grammaticalRole)
 	{
-		TreeNode node = TreeNodeUtil.getHead(treeNode, NPHeadRuleSetPTB.getNPRuleSet());
-		Entity result = new Entity(node, grammaticalRole);
+		List<Entity> result = new ArrayList<Entity>();
+		if (TreeNodeUtil.isCoordinatingNP(treeNode))
+		{
+			List<TreeNode> children = TreeNodeUtil.getChildNodeWithSpecifiedName(treeNode, new String[] {"NP", "NN", "NR"});
+			for (int i=0 ; i<children.size() ; i++)
+			{
+				Entity e = new Entity(children.get(i), grammaticalRole);
+				result.add(e);
+			}
+		}
+		else
+		{
+			TreeNode node = TreeNodeUtil.getHead(treeNode, NPHeadRuleSetPTB.getNPRuleSet());
+			Entity e = new Entity(node, grammaticalRole);
+			result.add(e);
+		}
 		return result;
 	}
 
-	public static List<TreeNode> parseOneRule(TreeNode tree, String ruleStr)
+	private static List<TreeNode> parseOneRule(TreeNode tree, String ruleStr)
 	{
 		if (tree == null || ruleStr == null)
 			throw new RuntimeException("输入错误");
@@ -285,7 +320,7 @@ public class Entity
 		return result;
 	}
 
-	public static Map<Boolean, List<TreeNode>> parse(TreeNode node, List<String> parts, int startSite, EndSite endSite,
+	private static Map<Boolean, List<TreeNode>> parse(TreeNode node, List<String> parts, int startSite, EndSite endSite,
 			String targetNodeName)
 	{
 		TreeNode currentNode = node;
@@ -371,7 +406,7 @@ public class Entity
 
 				if (parts.get(i).equals("_"))
 				{
-					if (index+1 >= father.getChildrenNum() || !father.getChildName(index + 1).equals(targetNodeName))
+					if (index + 1 >= father.getChildrenNum() || !father.getChildName(index + 1).equals(targetNodeName))
 					{
 						if (result.containsKey(true))
 							result.remove(true);
@@ -388,7 +423,7 @@ public class Entity
 				}
 				else
 				{
-					if (index+1 >= father.getChildrenNum() || !father.getChildName(index + 1).equals(parts.get(i)))
+					if (index + 1 >= father.getChildrenNum() || !father.getChildName(index + 1).equals(parts.get(i)))
 					{
 						if (result.containsKey(true))
 							result.remove(true);
@@ -409,11 +444,6 @@ public class Entity
 		public EndSite()
 		{
 
-		}
-
-		public EndSite(int endSite)
-		{
-			this.endSite = endSite;
 		}
 
 		public int getEndSite()
