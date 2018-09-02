@@ -11,6 +11,7 @@ public class NPHeadRuleSetPTB
 	private static List<String> RIGHT2LEFT1 = new ArrayList<String>();
 	private static List<String> RIGHT2LEFT2 = new ArrayList<String>();
 	private static List<String> RIGHT2LEFT3 = new ArrayList<String>();
+	private static List<String> RIGHT2LEFT4 = new ArrayList<String>();
 	
 	private static HashMap<String, List<HeadRule>> NPRules = new HashMap<>();
 	
@@ -31,10 +32,16 @@ public class NPHeadRuleSetPTB
 		{
 			RIGHT2LEFT3.add(NPStr3[i]);
 		}
+		String[] NPStr4 = { "VV" };
+		for (int i = 0; i < NPStr4.length; i++)
+		{
+			RIGHT2LEFT4.add(NPStr4[i]);
+		}
 		List<HeadRule> NPRule = new ArrayList<>();
 		NPRule.add(new HeadRule(RIGHT2LEFT1, "left"));
 		NPRule.add(new HeadRule(RIGHT2LEFT2, "left"));
 		NPRule.add(new HeadRule(RIGHT2LEFT3, "left"));
+		NPRule.add(new HeadRule(RIGHT2LEFT4, "left"));
 		NPRules.put("NP", NPRule);
 	}
 	

@@ -288,8 +288,15 @@ public class Entity
 		else
 		{
 			TreeNode node = TreeNodeUtil.getHead(treeNode, NPHeadRuleSetPTB.getNPRuleSet());
-			Entity e = new Entity(node, grammaticalRole);
-			result.add(e);
+			if (node != null)
+			{
+				Entity e = new Entity(node, grammaticalRole);
+				result.add(e);
+			}
+			else
+			{// TODO:这里的else需要删除
+				System.out.println("获取head失败：" + treeNode);
+			}
 		}
 		return result;
 	}

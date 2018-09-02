@@ -153,7 +153,7 @@ public class EvaluationHobbs extends AbstractEvaluation
 			results.add(resultStr);
 		}
 		total++;
-		if (EvaluationBFP.compare(results, information2))
+		if (EvaluationBFP.compare(results, information2, total))
 			correctNumber++;
 		
 	}

@@ -153,11 +153,11 @@ public class EvaluationBFP extends AbstractEvaluation
 		List<List<Entity>> newEntitiesSet = bfp.run();
 		List<String> results = CenteringBFP.analysisResult(eou, newEntitiesSet);
 		total++;
-		if (compare(results, information2))
+		if (compare(results, information2, total))
 			correctNumber++;
 	}
 	
-	public static boolean compare(List<String> results, List<String> expection)
+	public static boolean compare(List<String> results, List<String> expection, int t)
 	{
 		boolean meetExpectation = true;	
 		List<String> errors = new ArrayList<String>();		//错误的指代关系
@@ -189,7 +189,7 @@ public class EvaluationBFP extends AbstractEvaluation
 			return true;
 		else
 		{//打印错误信息
-			System.out.println("第" + total + "个未通过：");
+			System.out.println("第" + t + "个未通过：");
 			if (!errors.isEmpty())
 			{
 				System.out.println("\t错误的指代：");
