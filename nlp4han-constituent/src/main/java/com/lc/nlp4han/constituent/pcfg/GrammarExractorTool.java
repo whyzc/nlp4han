@@ -18,16 +18,16 @@ public class GrammarExractorTool
 		}
 		String frompath = null;
 		String topath = null;
-		String incoding = null;
+		String encoding = null;
 		String type = null;
 		for (int i = 0; i < args.length; i++)
 		{
-			if (args[i].equals("-frompath"))
+			if (args[i].equals("-data"))
 			{
 				frompath = args[i + 1];
 				i++;
 			}
-			if (args[i].equals("-topath"))
+			if (args[i].equals("-out"))
 			{
 				topath = args[i + 1];
 				i++;
@@ -39,27 +39,30 @@ public class GrammarExractorTool
 			}
 			if (args[i].equals("-encoding"))
 			{
-				incoding = args[i + 1];
+				encoding = args[i + 1];
 				i++;
 			}
 		}
+		
+		type = type.toUpperCase();
+		
+		
 		if (topath != null)
 		{
-			/*
-			 * 存储文法和提取文法格式一般相同
-			 */
-			ExtractGrammarToFile(frompath, topath, incoding, type);
+			ExtractGrammarToFile(frompath, topath, encoding, type);
 		}
 		else
 		{
-			if (type.contains("P"))
+			if (type.equals("PCFG"))
 			{
-				System.out.println(GrammarExtractor.getPCFG(frompath, incoding).toString());
+				System.out.println(GrammarExtractor.getPCFG(frompath, encoding).toString());
+			}
+			else if(type.equals("CFG"))
+			{
+				System.out.println(GrammarExtractor.getCFG(frompath, encoding).toString());
 			}
 			else
-			{
-				System.out.println(GrammarExtractor.getCFG(frompath, incoding).toString());
-			}
+				System.out.println("抽取文法类型不对: " + type);
 		}
 	}
 
@@ -70,14 +73,17 @@ public class GrammarExractorTool
 			throws IOException
 	{
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(toPath), inCoding));
-		if (type.contains("P"))
+		if (type.equals("PCFG"))
 		{
 			bw.append(GrammarExtractor.getPCFG(fromPath, inCoding).toString());
 		}
-		else
+		else if(type.equals("CFG"))
 		{
 			bw.append(GrammarExtractor.getCFG(fromPath, inCoding).toString());
 		}
+		else
+			System.out.println("抽取文法类型不对: " + type);
+		
 		bw.close();
 	}
 }
