@@ -17,25 +17,18 @@ public class PCFG extends CFG
 
 	public PCFG(InputStream in, String encoding) throws IOException
 	{
-		super.ExtractGrammarFromStream(in, encoding, "PCFG");
+		super.readGrammar(in, encoding, "PCFG");
 	}
 
-/*	public HashMap<RewriteRule, PRule> getPruleMap()
-	{
-		return pruleMap;
-	}
-
-	public void setPruleMap(HashMap<RewriteRule, PRule> pruleMap)
-	{
-		this.pruleMap = pruleMap;
-	}
-
-	@Override
-	public void add(RewriteRule rule)
-	{
-		super.add(rule);
-		pruleMap.put(rule, (PRule) rule);
-	}*/
+	/*
+	 * public HashMap<RewriteRule, PRule> getPruleMap() { return pruleMap; }
+	 * 
+	 * public void setPruleMap(HashMap<RewriteRule, PRule> pruleMap) { this.pruleMap
+	 * = pruleMap; }
+	 * 
+	 * @Override public void add(RewriteRule rule) { super.add(rule);
+	 * pruleMap.put(rule, (PRule) rule); }
+	 */
 	/**
 	 * 根据规则中的终结符和非终结符获取概率
 	 * 
@@ -44,11 +37,12 @@ public class PCFG extends CFG
 	 */
 	public PRule getPRuleByLHSAndRHS(RewriteRule rule)
 	{
-		ArrayList<String> lhsAndRhs=new ArrayList<String>();
+		ArrayList<String> lhsAndRhs = new ArrayList<String>();
 		lhsAndRhs.add(rule.getLhs());
 		lhsAndRhs.addAll(rule.getRhs());
-		return (PRule)super.getPruleMap().get(lhsAndRhs);
+		return (PRule) super.getPruleMap().get(lhsAndRhs);
 	}
+
 	/**
 	 * 获取PCFG中所有非终结符扩展出的规则概率之和与1.0的误差，取其中最大的值返回
 	 */

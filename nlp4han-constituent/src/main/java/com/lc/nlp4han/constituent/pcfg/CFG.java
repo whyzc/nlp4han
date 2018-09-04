@@ -15,7 +15,7 @@ import java.util.Set;
  */
 public class CFG
 {
-	private String startSymbol=null;
+	private String startSymbol = null;
 	private Set<String> nonTerminalSet = new HashSet<String>();// 非终结符集
 	private Set<String> terminalSet = new HashSet<String>();// 终结符集
 	private Set<RewriteRule> ruleSet = new HashSet<RewriteRule>();// 规则集
@@ -69,17 +69,19 @@ public class CFG
 	 */
 	public CFG(InputStream in, String encoding) throws IOException
 	{
-		ExtractGrammarFromStream(in, encoding, "CFG");
+		readGrammar(in, encoding, "CFG");
 	}
-     /**
-      * 从流中加载CFG/PCFG文法，此接口可以完成从资源流和文件流中获得CFG/PCFG文法
-      * @param in
-      * @param encoding
-      * @param type
-      * @param pruleMap
-      * @throws IOException
-      */
-	public void ExtractGrammarFromStream(InputStream in, String encoding, String type) throws IOException
+
+	/**
+	 * 从流中加载CFG/PCFG文法，此接口可以完成从资源流和文件流中获得CFG/PCFG文法
+	 * 
+	 * @param in
+	 * @param encoding
+	 * @param type
+	 * @param pruleMap
+	 * @throws IOException
+	 */
+	public void readGrammar(InputStream in, String encoding, String type) throws IOException
 	{
 		BufferedReader buffer = new BufferedReader(new InputStreamReader(in, encoding));
 		String str = buffer.readLine().trim();
@@ -137,7 +139,7 @@ public class CFG
 			ArrayList<String> list = rule.getRhs();
 			if (list.size() >= 3)
 			{
-				System.out.println("rhs数量大于2"+rule);
+				System.out.println("rhs数量大于2" + rule);
 				isCNF = false;
 				break;
 			}
@@ -147,7 +149,7 @@ public class CFG
 				{
 					if (!nonTerminalSet.contains(string))
 					{
-						System.out.println("rhs包含终结符和非终结符"+rule);
+						System.out.println("rhs包含终结符和非终结符" + rule);
 						isCNF = false;
 						break;
 					}
@@ -157,7 +159,7 @@ public class CFG
 			{
 				if (nonTerminalSet.contains(list.get(0)))
 				{
-					System.out.println("rhs只有一个终结符"+rule);
+					System.out.println("rhs只有一个终结符" + rule);
 					isCNF = false;
 					break;
 				}
@@ -165,6 +167,7 @@ public class CFG
 		}
 		return isCNF;
 	}
+
 	/*
 	 * 方法
 	 */
@@ -172,6 +175,7 @@ public class CFG
 	{
 		return pruleMap;
 	}
+
 	public String getStartSymbol()
 	{
 		return startSymbol;
@@ -201,12 +205,13 @@ public class CFG
 	{
 		this.terminalSet = terminalSet;
 	}
+
 	/**
 	 * 添加单个规则
 	 */
 	public void add(RewriteRule rule)
 	{
-		ArrayList<String> strList=new ArrayList<String>();
+		ArrayList<String> strList = new ArrayList<String>();
 		strList.add(rule.getLhs());
 		strList.addAll(rule.getRhs());
 		pruleMap.put(strList, rule);
