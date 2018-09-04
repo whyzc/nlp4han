@@ -1,6 +1,7 @@
 package com.lc.nlp4han.constituent.pcfg;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -121,7 +122,8 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 	 */
 	private ArrayList<String> CKYParser(String[] words, String[] pos, int numOfResulets)
 	{
-		System.out.println("进来了1");
+		System.out.println("解析" + Arrays.toString(words));
+		
 		int n = words.length;
 		table = new CKYTreeNode[n + 1][n + 1];
 		for (int i = 0; i <= n; i++)

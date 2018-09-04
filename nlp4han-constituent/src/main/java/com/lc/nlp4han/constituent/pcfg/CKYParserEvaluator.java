@@ -19,6 +19,9 @@ public class CKYParserEvaluator extends Evaluator<ConstituentTree>
 	 * 句法树中的短语分析评估
 	 */
 	private ConstituentMeasure measure;
+	
+	private long count = 0;
+	private long totalTime = 0;
 
 	public ConstituentMeasure getMeasure()
 	{
@@ -56,7 +59,14 @@ public class CKYParserEvaluator extends Evaluator<ConstituentTree>
 			poses1[i] = poses.get(i);
 		}
 		
+		long start = System.currentTimeMillis();
+		
 		ConstituentTree treePre = cky.parseTree(words1, poses1);
+		
+		totalTime += (System.currentTimeMillis() - start);	
+		count++;
+		
+		System.out.println("平均解析时间：" + (totalTime/count) + "ms");
 		
 		try
 		{

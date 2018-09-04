@@ -58,14 +58,20 @@ public class CKYCrossValidatorTool
 		{
 			System.out.println("Run" + run + "...");
 
+			long start = System.currentTimeMillis();
 			CrossValidationPartitioner.TrainingSampleStream<ConstituentTree> trainingSampleStream = partitioner.next();
 			ConstituentParserCKYOfP2NFImproving parser = getParser(trainingSampleStream);
+			
+			System.out.println("训练学习时间：" + (System.currentTimeMillis() - start) + "ms");
 			
 			CKYParserEvaluator evaluator = new CKYParserEvaluator(parser);
 			evaluator.setMeasure(measure);
 
 			System.out.println("开始评价...");
+			
+			start = System.currentTimeMillis();
 			evaluator.evaluate(trainingSampleStream.getTestSampleStream());
+			System.out.println("解析评价时间：" + (System.currentTimeMillis() - start) + "ms");
 			
 			System.out.println(measure);
 			run++;
