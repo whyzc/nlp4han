@@ -17,6 +17,7 @@ public class CKYEvalTool
 		{
 			return;
 		}
+		
 		String trainFile = null;
 		String goldFile = null;
 		String encoding = null;
@@ -45,12 +46,15 @@ public class CKYEvalTool
 	{
 		PCFG p2nf = new PCFG(new FileInputStream(new File(trainFile)), encoding);
 		CKYParserEvaluator evaluator = new CKYParserEvaluator(p2nf);
+		
 		ConstituentMeasure measure = new ConstituentMeasure();
 		evaluator.setMeasure(measure);
+		
 		ObjectStream<String> treeStream = new PlainTextByTreeStream(new FileInputStreamFactory(new File(goldFile)),
 				encoding);
 		ObjectStream<ConstituentTree> sampleStream = new ConstituentTreeStream(treeStream);
 		evaluator.evaluate(sampleStream);
+		
 		ConstituentMeasure measureRes = evaluator.getMeasure();
 		System.out.println(measureRes);
 	}

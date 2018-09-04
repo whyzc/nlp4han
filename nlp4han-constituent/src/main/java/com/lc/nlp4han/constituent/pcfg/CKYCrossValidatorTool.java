@@ -2,15 +2,38 @@ package com.lc.nlp4han.constituent.pcfg;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+
 import com.lc.nlp4han.constituent.ConstituentMeasure;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.PlainTextByTreeStream;
 import com.lc.nlp4han.ml.util.CrossValidationPartitioner;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
+import com.lc.nlp4han.ml.util.CrossValidationPartitioner.TrainingSampleStream;
 
-public class CrossValidatorTool
+public class CKYCrossValidatorTool
 {
+	
+	private static ConstituentParserCKYOfP2NFImproving getParser(
+			TrainingSampleStream<ConstituentTree> trainingSampleStream) throws IOException
+	{
+		ArrayList<String> bracketList = new ArrayList<String>();
+		ConstituentTree tree = trainingSampleStream.read();
+		while (tree != null)
+		{
+			bracketList.add(tree.getRoot().toString());
+			tree = trainingSampleStream.read();
+		}
+		
+		System.out.println("从树库提取文法...");
+		PCFG pcfg = new GrammarExtractor().getPCFG(bracketList);
+		
+		System.out.println("对文法进行转换...");
+		PCFG p2nf = new ConvertPCFGToP2NF().convertToCNF(pcfg);
+		
+		return new ConstituentParserCKYOfP2NFImproving(p2nf);
+	}
 
 	/**
 	 * n折交叉验证评估
@@ -36,13 +59,14 @@ public class CrossValidatorTool
 			System.out.println("Run" + run + "...");
 
 			CrossValidationPartitioner.TrainingSampleStream<ConstituentTree> trainingSampleStream = partitioner.next();
-			ConstituentParserCKYOfP2NFImproving cky = GetckyByStream.getckyFromStream(trainingSampleStream);
+			ConstituentParserCKYOfP2NFImproving parser = getParser(trainingSampleStream);
 			
-			CKYParserEvaluator evaluator = new CKYParserEvaluator(cky);
+			CKYParserEvaluator evaluator = new CKYParserEvaluator(parser);
 			evaluator.setMeasure(measure);
 
 			System.out.println("开始评价...");
 			evaluator.evaluate(trainingSampleStream.getTestSampleStream());
+			
 			System.out.println(measure);
 			run++;
 		}
@@ -77,10 +101,12 @@ public class CrossValidatorTool
 				i++;
 			}
 		}
+		
 		ObjectStream<String> treeStream = new PlainTextByTreeStream(new FileInputStreamFactory(corpusFile), encoding);
 		ObjectStream<ConstituentTree> sampleStream = new ConstituentTreeStream(treeStream);
-		CrossValidatorTool run = new CrossValidatorTool();
+		CKYCrossValidatorTool run = new CKYCrossValidatorTool();
 		ConstituentMeasure measure = new ConstituentMeasure();
+		
 		run.evaluate(sampleStream, folds, measure);
 	}
 }

@@ -3,6 +3,7 @@ package com.lc.nlp4han.constituent.pcfg;
 import java.util.ArrayList;
 
 import com.lc.nlp4han.constituent.ConstituentMeasure;
+import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.ml.util.Evaluator;
@@ -12,7 +13,7 @@ public class CKYParserEvaluator extends Evaluator<ConstituentTree>
 	/**
 	 * 句法分析模型得到一颗句法树
 	 */
-	private ConstituentParserCKYOfP2NFImproving cky;
+	private ConstituentParser cky;
 
 	/**
 	 * 句法树中的短语分析评估
@@ -29,7 +30,7 @@ public class CKYParserEvaluator extends Evaluator<ConstituentTree>
 		this.measure = measure;
 	}
 
-	public CKYParserEvaluator(ConstituentParserCKYOfP2NFImproving cky)
+	public CKYParserEvaluator(ConstituentParser cky)
 	{
 		this.cky = cky;
 	}
@@ -45,7 +46,8 @@ public class CKYParserEvaluator extends Evaluator<ConstituentTree>
 		TreeNode rootNodeRef = sample.getRoot();
 		ArrayList<String> words = new ArrayList<String>();
 		ArrayList<String> poses = new ArrayList<String>();
-		GetWordsAndPOSFromTree.getWordsAndPOSFromTree(words, poses, rootNodeRef);
+		TreeNodeUtil.getWordsAndPOSFromTree(words, poses, rootNodeRef);
+		
 		String[] words1 = new String[words.size()];
 		String[] poses1 = new String[poses.size()];
 		for (int i = 0; i < words.size(); i++)
@@ -53,7 +55,9 @@ public class CKYParserEvaluator extends Evaluator<ConstituentTree>
 			words1[i] = words.get(i);
 			poses1[i] = poses.get(i);
 		}
+		
 		ConstituentTree treePre = cky.parseTree(words1, poses1);
+		
 		try
 		{
 			if (treePre == null)
@@ -70,6 +74,7 @@ public class CKYParserEvaluator extends Evaluator<ConstituentTree>
 		{
 			e.printStackTrace();
 		}
+		
 		return treePre;
 	}
 

@@ -34,13 +34,16 @@ public class P2NFModelTool
 				i++;
 			}
 		}
+		
 		GetP2NFModel(corpusFile, encoding, topath);
 	}
 
 	private static void GetP2NFModel(String corpusFile, String encoding, String topath) throws IOException
 	{
 		PCFG pcfg = GrammarExtractor.getPCFG(corpusFile, encoding);
+		
 		PCFG p2nf = new ConvertPCFGToP2NF().convertToCNF(pcfg);
+		
 		if (topath == null)
 		{
 			System.out.println(p2nf.toString());
