@@ -150,11 +150,10 @@ public class ConstituentParserCKY implements ConstituentParser
 				ArrayList<String> rhs = new ArrayList<String>();
 				rhs.add(words[j - 1]);
 				System.out.println(rhs);
-				Set<PRule> ruleSet = PCFG.convertRewriteRuleSetToPRuleSet(pcnf.getRuleByrhs(rhs));
 				HashMap<String, RewriteRule> map = table[j - 1][j].getPruleMap();
-				for (PRule rule : ruleSet)
+				for (RewriteRule rule : pcnf.getRuleByrhs(rhs))
 				{
-					map.put(rule.getLhs(), rule);
+					map.put(rule.getLhs(), (PRule)rule);
 				}
 			}
 			else

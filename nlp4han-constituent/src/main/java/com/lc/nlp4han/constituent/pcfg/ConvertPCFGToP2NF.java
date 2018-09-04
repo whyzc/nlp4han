@@ -13,30 +13,12 @@ public class ConvertPCFGToP2NF
 		
 		pcnf.setNonTerminalSet(pcfg.getNonTerminalSet());
 		pcnf.setTerminalSet(pcfg.getTerminalSet());
-		
-		// 添加新的起始符
-		addNewStartSymbol(pcfg);
+		pcnf.setStartSymbol(pcfg.getStartSymbol());
 		
 		// 前期处理，遍历pcfg将规则加入pcnf
 		priorDisposal(pcfg);
 		
 		return pcnf;
-	}
-
-	/**
-	 * 添加新的起始符DuRoot,新规则，DuIP->IP,因为我是在最后处理Unit
-	 * Production,集合的遍历和修改不能同时进行，故将这个规则同时放入pcfg中
-	 */
-	private void addNewStartSymbol(PCFG pcfg)
-	{
-		String oldStartSymbol = pcfg.getStartSymbol();
-		String newStartSymbol = "Start#" + pcfg.getStartSymbol();
-		
-		pcnf.setStartSymbol(newStartSymbol);// 设置新的起始符
-		pcnf.addNonTerminal(newStartSymbol);// 添加新的非终结符
-		pcnf.add(new PRule(1.0, newStartSymbol, oldStartSymbol));
-		
-		pcfg.add(new PRule(1.0, newStartSymbol, oldStartSymbol));// 添加新的规则
 	}
 
 	/**
