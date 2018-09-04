@@ -29,6 +29,9 @@ public class ParserMEEvaluator extends Evaluator<ConstituentTreeSample>
 	private ConstituentMeasure measure;
 	
 	private AbstractHeadGenerator headGen;
+	
+	private long count = 0;
+	private long totalTime = 0;
 
 //	public ParserEvaluatorForByStep(POSTaggerForParser<HeadTreeNode> postagger, ChunkerForParserME chunktagger,
 //			BuilderAndCheckerME buildAndChecktagger, AbstractHeadGenerator aghw)
@@ -111,6 +114,8 @@ public class ParserMEEvaluator extends Evaluator<ConstituentTreeSample>
 				
 				System.out.println("Parsing " + words);
 				
+				long start = System.currentTimeMillis();
+				
 				String[] ws = sample.getWords().toArray(new String[sample.getWords().size()]);
 				String[] ps = sample.getPoses().toArray(new String[sample.getWords().size()]);
 				
@@ -133,6 +138,11 @@ public class ParserMEEvaluator extends Evaluator<ConstituentTreeSample>
 					samplePre = HeadTreeToActions.headTreeToSample(treePre, headGen);
 					measure.update(treeRef, treePre);
 				}
+				
+				count++;
+				
+				totalTime += (System.currentTimeMillis() - start);
+				System.out.println("平均解析时间：" + totalTime/count + "ms");
 			}
 			catch (Exception e)
 			{
