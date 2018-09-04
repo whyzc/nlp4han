@@ -155,10 +155,10 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 			{
 				ArrayList<String> rhs = new ArrayList<String>();
 				rhs.add(words[j - 1]);
-				Set<PRule> ruleSet = PCFG.convertRewriteRuleSetToPRuleSet(pcnf.getRuleByrhs(rhs));
 				HashMap<String, RewriteRule> map = table[j - 1][j].getPruleMap();
-				for (PRule rule : ruleSet)
+				for (RewriteRule rule0 : pcnf.getRuleByrhs(rhs))
 				{
+					PRule rule = (PRule) rule0;
 					HashMap<String, Double> lhsAndProMap = new HashMap<String, Double>();
 					updateRuleMapOfDiagonal(rule, map, rule.getLhs(), lhsAndProMap, j - 1, j);
 				}
@@ -283,8 +283,9 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 		Set<RewriteRule> ruleSet = pcnf.getRuleByrhs(lhs);
 		if (ruleSet != null)
 		{
-			for (PRule prule : PCFG.convertRewriteRuleSetToPRuleSet(ruleSet))
+			for (RewriteRule rule0 : ruleSet)
 			{
+				PRule prule = (PRule) rule0;
 				double pro1 = rule.getProOfRule() * prule.getProOfRule();
 				if (lhsAndProMap.containsKey(prule.getLhs()))
 				{
@@ -337,8 +338,9 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 		Set<RewriteRule> ruleSet = pcnf.getRuleByrhs(lhs);
 		if (ruleSet != null)
 		{
-			for (PRule prule : PCFG.convertRewriteRuleSetToPRuleSet(ruleSet))
+			for (RewriteRule rule0 : ruleSet)
 			{
+				PRule prule = (PRule) rule0;
 				double pro1 = rule.getProOfRule() * prule.getProOfRule();
 				if (lhsAndProMap.containsKey(prule.getLhs()))
 				{
@@ -379,8 +381,9 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 		Set<RewriteRule> ruleSet = pcnf.getRuleByrhs(lhs);
 		if (ruleSet != null)
 		{
-			for (PRule prule : PCFG.convertRewriteRuleSetToPRuleSet(ruleSet))
+			for (RewriteRule rule0 : ruleSet)
 			{
+				PRule prule = (PRule) rule0;
 				double pro1 = pro * prule.getProOfRule();
 				if (rule.getLhs().contains(prule.getLhs()))
 				{

@@ -1,13 +1,10 @@
 package com.lc.nlp4han.constituent.pcfg;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.logging.Logger;
-
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
@@ -15,8 +12,6 @@ import com.lc.nlp4han.constituent.TreeNode;
 
 public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 {
-	private Logger logger = Logger.getLogger(ConstituentParserCKYOfP2NFImproving.class.getName());
-	
 	private CKYTreeNode[][] table;// 存储在该点的映射表
 	private PCFG pcnf;
 	private ArrayList<String> resultList;
@@ -126,8 +121,7 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 	 */
 	private ArrayList<String> CKYParser(String[] words, String[] pos, int numOfResulets)
 	{
-		logger.info("Parsing " + Arrays.toString(words) + ": " + words.length);
-		
+		System.out.println("进来了1");
 		int n = words.length;
 		table = new CKYTreeNode[n + 1][n + 1];
 		for (int i = 0; i <= n; i++)
@@ -146,7 +140,6 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 
 			}
 		}
-		
 		// 开始剖析
 		for (int j = 1; j <= n; j++)
 		{// 从第一列开始，由左往右
@@ -156,9 +149,9 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 			{
 				ArrayList<String> rhs = new ArrayList<String>();
 				rhs.add(words[j - 1]);
-				Set<PRule> ruleSet = PCFG.convertRewriteRuleSetToPRuleSet(pcnf.getRuleByrhs(rhs));
-				for (PRule rule : ruleSet)
+				for (RewriteRule rule0 : pcnf.getRuleByrhs(rhs))
 				{
+					PRule rule = (PRule) rule0;
 					ArrayList<CKYPRule> ckyPRulList = new ArrayList<CKYPRule>();
 					// 此处延迟概率初始化至updateRuleMapOfTable
 					ckyPRulList.add(new CKYPRule(1.0, rule.getLhs(), rule.getRhs(), 0, 0, 0));
@@ -175,18 +168,16 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 				HashMap<String, Double> lhsAndProMap = new HashMap<String, Double>();
 				updateRuleMapOfTable(rule, ruleMap, rule.getLhs(), ckyPRulList, numOfResulets, lhsAndProMap);
 			}
-			
 			if (j <= 1)
 			{
 				continue;
 			}
-			
 			for (int i = j - 2; i >= 0; i--)
 			{// 从第j-2行开始，由下到上
 				// System.out.println("i= " + i + " " + "j= " + j);
 				for (int k = i + 1; k <= j - 1; k++)
-				{// 遍历table[i][k]和table[k][j]中的映射表，更新table[i][j]和back[i][j]				
-					updateTable(i, k, j, n, numOfResulets);					
+				{// 遍历table[i][k]和table[k][j]中的映射表，更新table[i][j]和back[i][j]
+					updateTable(i, k, j, n, numOfResulets);
 				}
 			}
 		}
@@ -227,9 +218,6 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 					{// 若ruleSet为空，则遍历下一个kjStr
 						continue;
 					}
-					
-//					logger.info(n + "->" + i + " " + k + " " + j + ": " + ruleSet.size());
-					
 					Iterator<RewriteRule> itr = ruleSet.iterator();
 					while (itr.hasNext())
 					{
@@ -280,16 +268,13 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 			 */
 			if (tempList.size() > numOfResulets)
 			{
-				ArrayList<CKYPRule> subPruleList = new ArrayList<CKYPRule>();
-				for (int i = 0; i < numOfResulets; i++)
-				{
-					subPruleList.add(tempList.get(i));
+				ArrayList<CKYPRule> subList=new ArrayList<CKYPRule>();
+				for(int i=0;i<numOfResulets;i++) {
+					subList.add(tempList.get(i));
 				}
-				ruleMap.put(lhs, subPruleList);
-			}
-			else
-			{
-				ruleMap.put(lhs, tempList);
+				ruleMap.put(lhs, subList);
+			}else {
+				ruleMap.put(lhs, tempList);				
 			}
 		}
 		int size = ruleMap.get(lhs).size();
@@ -297,8 +282,9 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 		Set<RewriteRule> ruleSet = pcnf.getRuleByrhs(lhs);
 		if (ruleSet != null)
 		{
-			for (PRule prule : PCFG.convertRewriteRuleSetToPRuleSet(ruleSet))
+			for (RewriteRule rule0 : ruleSet)
 			{
+				PRule prule = (PRule) rule0;
 				double pro1 = prule.getProOfRule() * rule.getProOfRule() * ckyPRuleList.get(0).getProOfRule();
 				if (lhsAndProMap.containsKey(prule.getLhs()))
 				{
@@ -350,12 +336,11 @@ public class ConstituentParserCKYOfP2NFImproving implements ConstituentParser
 		 */
 		if (tempList.size() > numOfResulets)
 		{
-			ArrayList<CKYPRule> subPruleList = new ArrayList<CKYPRule>();
-			for (int i = 0; i < numOfResulets; i++)
-			{
-				subPruleList.add(tempList.get(i));
+			ArrayList<CKYPRule> subList=new ArrayList<CKYPRule>();
+			for(int i=0;i<numOfResulets;i++) {
+				subList.add(tempList.get(i));
 			}
-			return subPruleList;
+           return subList;			
 		}
 		return tempList;
 

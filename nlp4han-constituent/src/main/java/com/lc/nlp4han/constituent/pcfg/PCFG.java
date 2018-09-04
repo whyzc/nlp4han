@@ -5,14 +5,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 public class PCFG extends CFG
 {
-	private HashMap<RewriteRule, PRule> pruleMap = new HashMap<RewriteRule, PRule>();// 规则集map
-
 	public PCFG()
 	{
 
@@ -20,7 +17,17 @@ public class PCFG extends CFG
 
 	public PCFG(InputStream in, String encoding) throws IOException
 	{
-		super.ExtractGrammarFromStream(in, encoding, "PCFG", pruleMap);
+		super.ExtractGrammarFromStream(in, encoding, "PCFG");
+	}
+
+/*	public HashMap<RewriteRule, PRule> getPruleMap()
+	{
+		return pruleMap;
+	}
+
+	public void setPruleMap(HashMap<RewriteRule, PRule> pruleMap)
+	{
+		this.pruleMap = pruleMap;
 	}
 
 	@Override
@@ -28,25 +35,7 @@ public class PCFG extends CFG
 	{
 		super.add(rule);
 		pruleMap.put(rule, (PRule) rule);
-	}
-
-	/**
-	 * 由RewriteRule集转换为PRule规则集
-	 * 
-	 * @param ruleset
-	 * @return pruleSet
-	 */
-	public static Set<PRule> convertRewriteRuleSetToPRuleSet(Set<RewriteRule> ruleset)
-	{
-		Iterator<RewriteRule> itr = ruleset.iterator();
-		Set<PRule> pruleSet = new HashSet<PRule>();
-		while (itr.hasNext())
-		{
-			pruleSet.add((PRule) itr.next());
-		}
-		return pruleSet;
-	}
-
+	}*/
 	/**
 	 * 根据规则中的终结符和非终结符获取概率
 	 * 
@@ -55,9 +44,11 @@ public class PCFG extends CFG
 	 */
 	public PRule getPRuleByLHSAndRHS(RewriteRule rule)
 	{
-		return pruleMap.get(rule);
+		ArrayList<String> lhsAndRhs=new ArrayList<String>();
+		lhsAndRhs.add(rule.getLhs());
+		lhsAndRhs.addAll(rule.getRhs());
+		return (PRule)super.getPruleMap().get(lhsAndRhs);
 	}
-
 	/**
 	 * 获取PCFG中所有非终结符扩展出的规则概率之和与1.0的误差，取其中最大的值返回
 	 */
@@ -66,15 +57,15 @@ public class PCFG extends CFG
 		double MaxErrorOfPCNF = 0;
 		for (String string : super.getNonTerminalSet())
 		{
-			Set<PRule> pruleSet = convertRewriteRuleSetToPRuleSet(getRuleBylhs(string));
 			double pro = 0;
-			for (PRule rule : pruleSet)
+			for (RewriteRule rule : getRuleBylhs(string))
 			{
-				pro += rule.getProOfRule();
+				PRule prule = (PRule) rule;
+				pro += prule.getProOfRule();
 			}
 			if (Math.abs(1.0 - pro) > MaxErrorOfPCNF)
 			{
-				MaxErrorOfPCNF = 1.0 - pro;
+				MaxErrorOfPCNF = Math.abs(1.0 - pro);
 			}
 		}
 		return MaxErrorOfPCNF;
@@ -144,12 +135,7 @@ public class PCFG extends CFG
 		 */
 		if (pruleList.size() > k)
 		{
-			ArrayList<PRule> subPruleList = new ArrayList<PRule>();
-			for (int i = 0; i < k; i++)
-			{
-				subPruleList.add(pruleList.get(i));
-			}
-			return subPruleList;
+			return (ArrayList<PRule>) pruleList.subList(0, k);
 		}
 		return pruleList;
 	}

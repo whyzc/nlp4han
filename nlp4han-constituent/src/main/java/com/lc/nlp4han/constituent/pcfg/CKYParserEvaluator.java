@@ -43,7 +43,6 @@ public class CKYParserEvaluator extends Evaluator<ConstituentTree>
 	protected ConstituentTree processSample(ConstituentTree sample)
 	{
 		TreeNode rootNodeRef = sample.getRoot();
-		/* String[] words=GetWordsAndPOSFromTree.getetWordsFromTree(rootNodeRef); */
 		ArrayList<String> words = new ArrayList<String>();
 		ArrayList<String> poses = new ArrayList<String>();
 		GetWordsAndPOSFromTree.getWordsAndPOSFromTree(words, poses, rootNodeRef);

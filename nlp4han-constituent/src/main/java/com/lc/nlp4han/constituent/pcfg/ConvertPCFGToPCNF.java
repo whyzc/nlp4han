@@ -138,9 +138,9 @@ public class ConvertPCFGToPCNF
 		 * 因为pcfg中其前期处理中，不管是3个rhs以上还是非终结符与终结符混合的规则都同pcnf一样经过处理
 		 * 只是没有添加新的规则，非终结符集同样添加完全，所以此处可以用pcfg代替pcnf
 		 */
-		Set<PRule> ruleSet = PCFG.convertRewriteRuleSetToPRuleSet(pcfg.getRuleBylhs(rule.getRhs().get(0)));
-		for (PRule rule1 : ruleSet)
+		for (RewriteRule rule0 : pcfg.getRuleBylhs(rule.getRhs().get(0)))
 		{
+			PRule rule1=(PRule)rule0;
 			PRule rule2 = new PRule(rule.getProOfRule() * rule1.getProOfRule(), rule.getLhs(), rule1.getRhs());
 			if (!(rule2.getRhs().size() == 1 && pcfg.getNonTerminalSet().containsAll(rule2.getRhs())))
 			{
@@ -238,9 +238,9 @@ public class ConvertPCFGToPCNF
 	{
 		for (PRule rule : duplicateRuleMap.values())
 		{
-			Set<PRule> pruleSet = PCFG.convertRewriteRuleSetToPRuleSet(pcnf.getRuleBylhs(rule.getRhs().get(0)));
-			for (PRule prule : pruleSet)
+			for (RewriteRule rule0 : pcnf.getRuleBylhs(rule.getRhs().get(0)))
 			{
+				PRule prule=(PRule)rule0;
 				PRule rule1 = pcnf.getPRuleByLHSAndRHS(new PRule(0.0, rule.getLhs(), prule.getRhs()));
 				double pro = prule.getProOfRule() * rule.getProOfRule() + rule1.getProOfRule();
 				deleteRule(rule1);
