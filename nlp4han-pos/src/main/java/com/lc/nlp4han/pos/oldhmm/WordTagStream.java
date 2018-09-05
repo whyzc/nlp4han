@@ -1,4 +1,4 @@
-package com.lc.nlp4han.pos.hmm;
+package com.lc.nlp4han.pos.oldhmm;
 
 import java.io.*;
 
