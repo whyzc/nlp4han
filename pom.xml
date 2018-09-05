@@ -47,5 +47,6 @@
 		<module>nlp4han-csc</module>
 		<module>nlp4han-sentiment</module>
 		<module>nlp4han-coref</module>
+		<module>nlp4han-coref</module>
 	</modules>
 </project>
