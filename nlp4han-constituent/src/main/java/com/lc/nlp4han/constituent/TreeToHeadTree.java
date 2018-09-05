@@ -87,8 +87,25 @@ public class TreeToHeadTree
 				tree.push(node);
 			}
 		}
-		
-		HeadTreeNode treeStruct = tree.pop();
-		return treeStruct;
+		HeadTreeNode headTreeNode=tree.pop();
+		TraverseTreeConvertRRBAndLRB(headTreeNode);
+		return headTreeNode;
+	}
+	private static void TraverseTreeConvertRRBAndLRB(HeadTreeNode node) {
+		if(node.getChildrenNum()==0) {
+			if(node.getNodeName().equals("-LRB-")) {
+				   node.setNewName("(");
+				}else if(node.getNodeName().equals("-RRB-")) {
+				   node.setNewName(")");
+				}
+			return;
+		}else if(node.getHeadWord().equals("-LRB-")) {
+			  node.setHeadWord("(");
+		}else if(node.getHeadWord().equals("-RRB-")) {
+			node.setHeadWord(")");
+		}
+		for(HeadTreeNode childNode:node.getChildren()) {
+			TraverseTreeConvertRRBAndLRB(childNode);
+		}
 	}
 }
