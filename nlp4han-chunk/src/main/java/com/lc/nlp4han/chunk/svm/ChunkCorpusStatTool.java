@@ -1,4 +1,5 @@
 package com.lc.nlp4han.chunk.svm;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,22 +11,24 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class ChunkingCorporaCount
+public class ChunkCorpusStatTool
 {
-	private static int chunkNum = 0;		
+	private static int chunkNum = 0;
 	private static int charaNum = 0;
 	private static int wordNum = 0;
-	private static Map<String, Infor> chunks = new HashMap<String, Infor>();
+	private static Map<String, Info> chunks = new HashMap<String, Info>();
 	private static Set<String> words = new HashSet<String>();
 	private static Set<String> POSs = new HashSet<String>();
-	
+
 	public static void main(String[] args)
 	{
 		String[] path_encoding = parseArgs(args);
-		readFileByLines(path_encoding[0], path_encoding[1]);
+
+		process(path_encoding[0], path_encoding[1]);
+
 		printResult();
 	}
-	
+
 	public static void printResult()
 	{
 		System.out.println("字数：" + charaNum);
@@ -34,20 +37,20 @@ public class ChunkingCorporaCount
 		System.out.println("词性数：" + POSs.size());
 		System.out.println("组块类型数：" + chunks.size());
 		System.out.println("组块总数：" + chunkNum);
-		
+
 		System.out.println("***************组块详细数据**************");
-		
+
 		Set<String> set = chunks.keySet();
 		Iterator<String> it = set.iterator();
 		while (it.hasNext())
 		{
 			String key = it.next();
-			Infor ifr = chunks.get(key);
-			
-			System.out.println(key + "----" + "\t数量：" + ifr.number + "  "+ "\t平均长度：" + ifr.averageLength);
+			Info ifr = chunks.get(key);
+
+			System.out.println(key + "----" + "\t数量：" + ifr.number + "  " + "\t平均长度：" + ifr.averageLength);
 		}
 	}
-	
+
 	public static String[] parseArgs(String[] args)
 	{
 		String usage = "[-path DOC_PATH] [-encoding ENCODING]\n\n";
@@ -90,8 +93,8 @@ public class ChunkingCorporaCount
 		result[1] = encoding;
 		return result;
 	}
-	
-	public static void readFileByLines(String path, String encoding)
+
+	public static void process(String path, String encoding)
 	{
 		FileInputStream fis = null;
 		BufferedReader reader = null;
@@ -106,9 +109,10 @@ public class ChunkingCorporaCount
 
 			while ((tempString = reader.readLine()) != null)
 			{
-				processingData(tempString);
+				processSample(tempString);
 			}
-			postProcessing(); 
+			
+			postProcessing();
 
 			reader.close();
 
@@ -121,7 +125,7 @@ public class ChunkingCorporaCount
 		}
 		finally
 		{
-			
+
 			if (reader != null)
 			{
 
@@ -146,109 +150,117 @@ public class ChunkingCorporaCount
 		while (it.hasNext())
 		{
 			String key = it.next();
-			Infor ifr = chunks.get(key);
+			Info ifr = chunks.get(key);
 			ifr.averageLength /= ifr.number;
 		}
 	}
 
-	public static void processingData(String oneLine)
+	private static void processSample(String sample)
 	{
-		String[] units = oneLine.split(" +");
-		for (int i=0 ; i<units.length ; i++)
+		String[] units = sample.split(" +");
+		for (int i = 0; i < units.length; i++)
 		{
-			/*if (units[i].length()<1)
-				continue;*/
+			/*
+			 * if (units[i].length()<1) continue;
+			 */
 			if (units[i].startsWith("["))
 			{
 				if (units[i].contains("]"))
 				{
-					deal(units[i], 3, 1);
+					count(units[i], 3, 1);
 				}
 				else
 				{
 					int j = i;
-					deal(units[i], 1, 0);
+					count(units[i], 1, 0);
 					i++;
 					while (!units[i].contains("]"))
 					{
-						deal(units[i], 0, 0);
+						count(units[i], 0, 0);
 						i++;
 					}
-					deal(units[i], 2, i-j+1);
+					
+					count(units[i], 2, i - j + 1);
 				}
 			}
 			else
 			{
-				if (units[i].length()>0)
-					deal(units[i], 0, 0);
+				if (units[i].length() > 0)
+					count(units[i], 0, 0);
 			}
-			
+
 		}
-		
+
 	}
-	
-	public static void deal(String str, int type, int chunkLen)
+
+	private static void count(String str, int type, int chunkLen)
 	{
 		if (type == 0)
 		{ // 形如"w/p"
-			
+
 			String[] wordAndPOS = str.split("/");
 			if (wordAndPOS.length != 2)
 			{
-				System.out.println("1"+str);
+				System.out.println("1" + str);
 			}
+			
 			wordNum++;
 			words.add(wordAndPOS[0]);
 			charaNum += wordAndPOS[0].length();
 			POSs.add(wordAndPOS[1]);
 		}
 		else if (type == 1)
-		{ //形如"[w/p"
-			deal(str.substring(1), 0, 0);
+		{ // 形如"[w/p"
+			count(str.substring(1), 0, 0);
 		}
 		else if (type == 2)
-		{ //形如"w/p]t"
+		{ // 形如"w/p]t"
 			String[] strs = str.split("]");
 			if (strs.length > 1)
 			{
 				String chunkStr = strs[1];
 				String[] wordAndPOS = strs[0].split("/");
+				
 				wordNum++;
 				words.add(wordAndPOS[0]);
 				charaNum += wordAndPOS[0].length();
 				POSs.add(wordAndPOS[1]);
+				
 				if (chunks.containsKey(chunkStr))
 				{
-					Infor inf = chunks.get(chunkStr);
+					Info inf = chunks.get(chunkStr);
 					inf.number++;
 					inf.averageLength += chunkLen;
 				}
 				else
 				{
-					chunks.put(chunkStr, new Infor(1, chunkLen));
+					chunks.put(chunkStr, new Info(1, chunkLen));
 				}
+				
 				chunkNum++;
 			}
 			else
 			{
-				deal(strs[0], 0, 0);
+				count(strs[0], 0, 0);
 			}
 		}
 		else if (type == 3)
-		{ //形如"[w/p]t"
-			deal(str.substring(1), 2, 1);
+		{ // 形如"[w/p]t"
+			count(str.substring(1), 2, 1);
 		}
 	}
-	
-	static class Infor
+
+	static class Info
 	{
 		int number = 0;
 		double averageLength = 0;
-		Infor()
+
+		Info()
 		{
-			
+
 		}
-		Infor(int number, double averageLength)
+
+		Info(int number, double averageLength)
 		{
 			this.number = number;
 			this.averageLength = averageLength;
