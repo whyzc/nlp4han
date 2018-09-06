@@ -1,4 +1,4 @@
-package com.lc.nlp4han.srl;
+package com.lc.nlp4han.srl.tree;
 
 import static org.junit.Assert.assertEquals;
 

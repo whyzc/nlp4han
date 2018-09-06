@@ -1,4 +1,4 @@
-package com.lc.nlp4han.srl;
+package com.lc.nlp4han.srl.tree;
 
 import static org.junit.Assert.assertEquals;
 
@@ -20,16 +20,16 @@ import com.lc.nlp4han.ml.model.Event;
 import com.lc.nlp4han.srl.tree.AbstractParseStrategy;
 import com.lc.nlp4han.srl.tree.SRLContextGenerator;
 import com.lc.nlp4han.srl.tree.SRLContextGeneratorConfForIdentification;
-import com.lc.nlp4han.srl.tree.SRLParseWithNULL_101AndPruning;
+import com.lc.nlp4han.srl.tree.SRLParseNormalWithPruning;
 import com.lc.nlp4han.srl.tree.SRLSample;
 import com.lc.nlp4han.srl.tree.TreeNodeWrapper;
 
 /**
- * 对识别阶段生成特征进行单元测试(对包含NULL_101类别，有剪枝的样本生成特征)
+ * 对识别阶段生成特征进行单元测试(对只包含NULL类别，且剪枝的样本生成特征)
  * @author 王馨苇
  *
  */
-public class SRLSampleWithNULL_101AndPruningEventStreamForIdentificationTest {
+public class SRLSampleNormalWithPruningEventStreamForIdentificationTest {
 	
 	@Test
 	public void test() throws IOException{
@@ -41,10 +41,10 @@ public class SRLSampleWithNULL_101AndPruningEventStreamForIdentificationTest {
 				+ "(: ;)(S(NP-SBJ(NP(NNP Newsweek)(POS 's))(NN ad)(NNS pages))(VP(VBD totaled)(NP"
 				+ "(NP(CD 1,620))(, ,)(NP(NP(DT a)(NN drop))(PP(IN of)(NP (CD 3.2)(NN %)))"
 				+ "(PP-DIR(IN from)(NP(JJ last)(NN year)))))(, ,)(PP(VBG according)(PP(TO to)"
-				+ "(NP(NNP Publishers)(NNP Information)(NNP Bureau))))))(. .)))");	
+				+ "(NP(NNP Publishers)(NNP Information)(NNP Bureau))))))(. .)))");			
 		TreePreprocessTool.deleteNone(tree1);
 		
-		AbstractParseStrategy<HeadTreeNode> ttss = new SRLParseWithNULL_101AndPruning();
+		AbstractParseStrategy<HeadTreeNode> ttss = new SRLParseNormalWithPruning();
 		AbstractHeadGenerator ahg = new HeadGeneratorCollins();
 		String roles1 = "wsj/00/wsj0012.mrg 9 12 gold shore.01 i---a 4:1*10:0-ARG0 12:0,13:1-rel 14:2-ARG1";
 		SRLSample<HeadTreeNode> sample = ttss.parse(tree1, roles1, ahg);
@@ -54,7 +54,7 @@ public class SRLSampleWithNULL_101AndPruningEventStreamForIdentificationTest {
 		String[] labelinfo = sample.getIdentificationLabelInfo();
 		
 		Properties featureConf = new Properties();	
-		InputStream featureStream = SRLSampleWithNULL_101AndPruningEventStreamForIdentificationTest.class.getClassLoader().getResourceAsStream("com/lc/nlp4han/srl/feature.properties");	
+		InputStream featureStream = SRLSampleNormalWithPruningEventStreamForIdentificationTest.class.getClassLoader().getResourceAsStream("com/lc/nlp4han/srl/feature.properties");	
 		featureConf.load(featureStream);
 		SRLContextGenerator generator = new SRLContextGeneratorConfForIdentification(featureConf);	
 		
@@ -82,7 +82,7 @@ public class SRLSampleWithNULL_101AndPruningEventStreamForIdentificationTest {
 		
 		List<String> result27 = new ArrayList<>();
 		result27.add("path=NP↑S↓VP↓NP↓VP↓VP↓VB");
-		result27.add("pathlength=7");	
+		result27.add("pathlength=7");
 		result27.add("headword=plan");
 		result27.add("headwordpos=NN");
 		result27.add("predicateAndHeadword=shore|plan");
@@ -90,7 +90,7 @@ public class SRLSampleWithNULL_101AndPruningEventStreamForIdentificationTest {
 		
 		List<String> result29 = new ArrayList<>();
 		result29.add("path=NP↑S↓VP↓S↓VP↓NP↓VP↓VP↓VB");
-		result29.add("pathlength=9");	
+		result29.add("pathlength=9");
 		result29.add("headword=Mr.");
 		result29.add("headwordpos=NNP");
 		result29.add("predicateAndHeadword=shore|Mr.");
@@ -101,9 +101,9 @@ public class SRLSampleWithNULL_101AndPruningEventStreamForIdentificationTest {
 		List<Event> event27 = new ArrayList<Event>();
 		List<Event> event29 = new ArrayList<Event>();
 		event1.add(new Event("YES", result1.toArray(new String[result1.size()])));
-		event2.add(new Event("NULL1", result2.toArray(new String[result2.size()])));
+		event2.add(new Event("NULL", result2.toArray(new String[result2.size()])));
 		event27.add(new Event("YES", result27.toArray(new String[result27.size()])));
-		event29.add(new Event("NULL_1", result29.toArray(new String[result29.size()])));	
+		event29.add(new Event("NULL", result29.toArray(new String[result29.size()])));
 		
 		assertEquals(argumenttree.length, 29);
 		assertEquals(events.size(), 29);

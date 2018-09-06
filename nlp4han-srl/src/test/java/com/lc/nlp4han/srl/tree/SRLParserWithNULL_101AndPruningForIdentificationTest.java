@@ -1,4 +1,4 @@
-package com.lc.nlp4han.srl;
+package com.lc.nlp4han.srl.tree;
 
 import static org.junit.Assert.assertEquals;
 
@@ -19,12 +19,12 @@ import com.lc.nlp4han.srl.tree.SRLParseWithNULL_101AndPruning;
 import com.lc.nlp4han.srl.tree.SRLSample;
 
 /**
- * 有剪枝的样本类解析,此时样本类标签增加NULL_1 NULL0 NULL1
+ * 为识别阶段解析出有剪枝的样本类,此时样本类标签增加NULL_1 NULL0 NULL1
  * @author 王馨苇
  *
  */
-public class SRLParserWithNULL_101AndPruningTest {
-	
+public class SRLParserWithNULL_101AndPruningForIdentificationTest {
+
 	@Test
 	public void test(){
 		AbstractHeadGenerator ahg = new HeadGeneratorCollins();
@@ -63,7 +63,7 @@ public class SRLParserWithNULL_101AndPruningTest {
 		srlinfo.add("24");
 		srlinfo.add("24");
 		srlinfo.add("25");
-		srlinfo.add("25");		
+		srlinfo.add("25");
 		srlinfo.add("11");
 		srlinfo.add("8");
 		srlinfo.add("9");
@@ -74,7 +74,7 @@ public class SRLParserWithNULL_101AndPruningTest {
 		srlinfo.add("0");
 		
 		List<String> label = new ArrayList<>();
-		label.add("ARG1");
+		label.add("YES");
 		label.add("NULL1");
 		label.add("NULL1");
 		label.add("NULL1");
@@ -94,13 +94,13 @@ public class SRLParserWithNULL_101AndPruningTest {
 		label.add("NULL1");
 		label.add("NULL1");
 		label.add("NULL1");
-		label.add("NULL1");		
+		label.add("NULL1");	
 		label.add("NULL_1");
 		label.add("NULL_1");
 		label.add("NULL_1");
 		label.add("NULL_1");
 		label.add("NULL_1");
-		label.add("ARG0");
+		label.add("YES");
 		label.add("NULL_1");
 		label.add("NULL_1");
 		
@@ -116,19 +116,19 @@ public class SRLParserWithNULL_101AndPruningTest {
 		
 		List<String> label1 = new ArrayList<>();
 		label1.add("NULL_1");		
-		label1.add("ARG1");
+		label1.add("YES");
 		
 		String list1 = "(VP{gone[VBN]}(VBN{gone[VBN]} gone[9]))";
 		
 		SRLSample<HeadTreeNode> sample = parse.parse(tree, roles, ahg);
-		assertEquals(Arrays.asList(sample.getLabelInfo()), label);
+		assertEquals(Arrays.asList(sample.getIdentificationLabelInfo()), label);
 		for (int i = 0; i < srlinfo.size(); i++) {
 			assertEquals(sample.getArgumentTree()[i].getLeftLeafIndex() + "", srlinfo.get(i));
 		}
 		assertEquals(sample.getPredicateTree()[0].getTree().toString(), list);
-		
+
 		SRLSample<HeadTreeNode> sample1 = parse.parse(tree1, roles1, ahg);
-		assertEquals(Arrays.asList(sample1.getLabelInfo()), label1);
+		assertEquals(Arrays.asList(sample1.getIdentificationLabelInfo()), label1);
 		for (int i = 0; i < srlinfo1.size(); i++) {
 			assertEquals(sample1.getArgumentTree()[i].getLeftLeafIndex() + "", srlinfo1.get(i));
 		}

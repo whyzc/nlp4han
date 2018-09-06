@@ -1,4 +1,4 @@
-package com.lc.nlp4han.srl;
+package com.lc.nlp4han.srl.tree;
 
 import static org.junit.Assert.assertEquals;
 
@@ -15,20 +15,20 @@ import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.TreePreprocessTool;
 import com.lc.nlp4han.srl.tree.AbstractParseStrategy;
-import com.lc.nlp4han.srl.tree.SRLParseNormal;
+import com.lc.nlp4han.srl.tree.SRLParseNormalWithPruning;
 import com.lc.nlp4han.srl.tree.SRLSample;
 
 /**
- * 样本类的测试(有NULL，没有剪枝)
+ * 样本类测试(NULL标记，有剪枝)
  * @author 王馨苇
  *
  */
-public class SRLParseNormalTest {
+public class SRLParseNormalWithPruningTest {
 
 	@Test
 	public void test(){
 		AbstractHeadGenerator ahg = new HeadGeneratorCollins();
-		AbstractParseStrategy<HeadTreeNode> parse = new SRLParseNormal();
+		AbstractParseStrategy<HeadTreeNode> parse = new SRLParseNormalWithPruning();
 		
 		String roles = "wsj/00/wsj0012.mrg 9 12 gold shore.01 i---a 4:1*10:0-ARG0 12:0,13:1-rel 14:2-ARG1";
 		TreeNode tree = BracketExpUtil.generateTree(""
@@ -41,27 +41,8 @@ public class SRLParseNormalTest {
 				+ "(PP-DIR(IN from)(NP(JJ last)(NN year)))))(, ,)(PP(VBG according)(PP(TO to)"
 				+ "(NP(NNP Publishers)(NNP Information)(NNP Bureau))))))(. .)))");	
 		TreePreprocessTool.deleteNone(tree);		
-		
+
 		List<String> srlinfo = new ArrayList<>();		
-		srlinfo.add("0");
-		srlinfo.add("0");
-		srlinfo.add("0");
-		srlinfo.add("1");
-		srlinfo.add("2");
-		srlinfo.add("2");
-		srlinfo.add("4");
-		srlinfo.add("4");
-		srlinfo.add("4");
-		srlinfo.add("5");
-		srlinfo.add("6");
-		srlinfo.add("6");
-		srlinfo.add("7");
-		srlinfo.add("8");
-		srlinfo.add("8");
-		srlinfo.add("9");
-		srlinfo.add("11");
-		srlinfo.add("11");
-		srlinfo.add("12");
 		srlinfo.add("14");
 		srlinfo.add("14");
 		srlinfo.add("14");
@@ -82,62 +63,17 @@ public class SRLParseNormalTest {
 		srlinfo.add("24");
 		srlinfo.add("24");
 		srlinfo.add("25");
-		srlinfo.add("25");
-		srlinfo.add("27");
-		srlinfo.add("27");
-		srlinfo.add("27");
-		srlinfo.add("27");
-		srlinfo.add("28");
-		srlinfo.add("29");
-		srlinfo.add("30");
-		srlinfo.add("31");
-		srlinfo.add("31");
-		srlinfo.add("32");
-		srlinfo.add("32");
-		srlinfo.add("32");
-		srlinfo.add("34");
-		srlinfo.add("34");
-		srlinfo.add("34");
-		srlinfo.add("35");
-		srlinfo.add("36");
-		srlinfo.add("36");
-		srlinfo.add("37");
-		srlinfo.add("37");
-		srlinfo.add("38");
-		srlinfo.add("39");
-		srlinfo.add("39");
-		srlinfo.add("40");
-		srlinfo.add("40");
-		srlinfo.add("41");
-		srlinfo.add("43");
-		srlinfo.add("43");
-		srlinfo.add("44");
-		srlinfo.add("44");
-		srlinfo.add("45");
-		srlinfo.add("45");
-		srlinfo.add("46");
-		srlinfo.add("47");
+		srlinfo.add("25");		
+		srlinfo.add("11");
+		srlinfo.add("8");
+		srlinfo.add("9");
+		srlinfo.add("6");
+		srlinfo.add("7");
+		srlinfo.add("4");
+		srlinfo.add("2");
+		srlinfo.add("0");
 		
 		List<String> label = new ArrayList<>();
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("ARG0");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
 		label.add("ARG1");
 		label.add("NULL");
 		label.add("NULL");
@@ -164,85 +100,33 @@ public class SRLParseNormalTest {
 		label.add("NULL");
 		label.add("NULL");
 		label.add("NULL");
+		label.add("ARG0");
 		label.add("NULL");
 		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-		label.add("NULL");
-
+		
 		String list = "(VB{shore[VB]} shore[12])";
-	
+		
 		String roles1 = "wsj/00/wsj_0071.mrg 37 9 gold go.13 pn--a 7:1-ARG1 9:1-rel";
 		TreeNode tree1 = BracketExpUtil.generateTree("((S(S(NP-SBJ (PRP We))(VP (VBD got)(NP(PRP$ our)(CD two)(NNS six-packs))))(: --)(CC and)(S(NP-SBJ(PRP they))(VP (VBP 're) (VP (VBN gone) )))(. .)('' '')))");	
 		TreePreprocessTool.deleteNone(tree1);		
 		
 		List<String> srlinfo1 = new ArrayList<>();		
-		srlinfo1.add("0");
-		srlinfo1.add("0");
-		srlinfo1.add("0");
-		srlinfo1.add("1");
-		srlinfo1.add("1");
-		srlinfo1.add("2");
-		srlinfo1.add("2");
-		srlinfo1.add("3");
-		srlinfo1.add("4");
-		srlinfo1.add("6");
-		srlinfo1.add("7");
-		srlinfo1.add("7");
-		srlinfo1.add("7");
 		srlinfo1.add("8");
-		srlinfo1.add("8");
+		srlinfo1.add("7");
 		
 		List<String> label1 = new ArrayList<>();
 		label1.add("NULL");
-		label1.add("NULL");
-		label1.add("NULL");
-		label1.add("NULL");
-		label1.add("NULL");
-		label1.add("NULL");
-		label1.add("NULL");
-		label1.add("NULL");
-		label1.add("NULL");
-		label1.add("NULL");
-		label1.add("NULL");
 		label1.add("ARG1");
-		label1.add("NULL");
-		label1.add("NULL");
-		label1.add("NULL");
-		
+
 		String list1 = "(VP{gone[VBN]}(VBN{gone[VBN]} gone[9]))";
 		
 		SRLSample<HeadTreeNode> sample = parse.parse(tree, roles, ahg);
 		assertEquals(Arrays.asList(sample.getLabelInfo()), label);
 		for (int i = 0; i < srlinfo.size(); i++) {
-			assertEquals(sample.getArgumentTree()[i].getLeftLeafIndex() + "",srlinfo.get(i));
+			assertEquals(sample.getArgumentTree()[i].getLeftLeafIndex() + "", srlinfo.get(i));
 		}
 		assertEquals(sample.getPredicateTree()[0].getTree().toString(), list);
-		
+
 		SRLSample<HeadTreeNode> sample1 = parse.parse(tree1, roles1, ahg);
 		assertEquals(Arrays.asList(sample1.getLabelInfo()), label1);
 		for (int i = 0; i < srlinfo1.size(); i++) {
