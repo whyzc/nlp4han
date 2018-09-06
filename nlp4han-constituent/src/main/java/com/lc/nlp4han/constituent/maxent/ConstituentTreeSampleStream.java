@@ -56,7 +56,7 @@ public class ConstituentTreeSampleStream extends FilterObjectStream<String, Cons
 				{
 					TreeNode tree = BracketExpUtil.generateTree(sentence);
 					HeadTreeNode headtree = TreeToHeadTree.treeToHeadTree(tree, headGen);
-					sample = HeadTreeToActions.headTreeToAction(headtree, headGen);
+					sample = HeadTreeToActions.headTreeToSample(headtree, headGen);
 				}
 				catch (Exception e)
 				{

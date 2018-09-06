@@ -51,9 +51,9 @@ public class DependencySampleStream extends FilterObjectStream<String, Dependenc
 			{
 				if (logger.isLoggable(Level.WARNING))
 				{
-
 					logger.warning("Error during parsing, ignoring sentence: " + sentences);
 				}
+//				System.out.println(sentences);
 				sample = new DependencySample(new String[] {}, new String[] {}, new String[] {}, new String[] {},
 						new String[] {});
 			}

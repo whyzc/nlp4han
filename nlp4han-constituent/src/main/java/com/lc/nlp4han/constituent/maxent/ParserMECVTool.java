@@ -2,16 +2,18 @@ package com.lc.nlp4han.constituent.maxent;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.HeadGeneratorCollins;
 import com.lc.nlp4han.constituent.HeadTreeNode;
+import com.lc.nlp4han.constituent.PlainTextByTreeStream;
 import com.lc.nlp4han.constituent.ConstituentMeasure;
 import com.lc.nlp4han.ml.util.CrossValidationPartitioner;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ModelWrapper;
 import com.lc.nlp4han.ml.util.ObjectStream;
-import com.lc.nlp4han.ml.util.PlainTextByLineStream;
 import com.lc.nlp4han.ml.util.TrainingParameters;
 
 /**
@@ -66,42 +68,46 @@ public class ParserMECVTool
 					.next();
 			
 			// 训练组块器
+			System.out.println("训练组块模型...");
 			ModelWrapper chunkmodel = ChunkerForParserME.train(languageCode, trainingSampleStream, params,
 					contextGen);
 			
 			// 训练构建器
+			System.out.println("训练构建模型...");
 			trainingSampleStream.reset();		
 			ModelWrapper buildmodel = BuilderAndCheckerME.trainForBuild(languageCode,
 					trainingSampleStream, params, contextGen);
 
 			// 训练检测器
+			System.out.println("训练检查模型...");
 			trainingSampleStream.reset();
 			ModelWrapper checkmodel = BuilderAndCheckerME.trainForCheck(languageCode,
 					trainingSampleStream, params, contextGen);
 
-			POSTaggerForParser<HeadTreeNode> postagger;
-			// TODO: 此处模型文件应可灵活指定
-			ModelWrapper posmodel = new ModelWrapper(new File("data\\model\\pos\\en-pos-maxent.bin"));
-			if (postaggertype.equals("china"))
-			{
-				postagger = new POSTaggerForParserMEChinese(posmodel);
-			}
-			else
-			{
-				postagger = new POSTaggerForParserMEEnglish(posmodel);
-			}
+//			POSTaggerForParser<HeadTreeNode> postagger;
+//			// TODO: 此处模型文件应可灵活指定
+//			ModelWrapper posmodel = new ModelWrapper(new File("data\\model\\pos\\en-pos-maxent.bin"));
+//			if (postaggertype.equals("china"))
+//			{
+//				postagger = new POSTaggerForParserMEChinese(posmodel);
+//			}
+//			else
+//			{
+//				postagger = new POSTaggerForParserMEEnglish(posmodel);
+//			}
 			
 			ChunkerForParserME chunktagger = new ChunkerForParserME(chunkmodel, contextGen, headGen);
 			BuilderAndCheckerME buildandchecktagger = new BuilderAndCheckerME(
 					buildmodel, checkmodel, contextGen, headGen);
 
-			ParserEvaluatorForByStep evaluator = new ParserEvaluatorForByStep(postagger,
-					chunktagger, buildandchecktagger, headGen, listeners);
+//			ParserEvaluatorForByStep evaluator = new ParserEvaluatorForByStep(postagger,
+//					chunktagger, buildandchecktagger, headGen, listeners);
+			ParserMEEvaluator evaluator = new ParserMEEvaluator(chunktagger, buildandchecktagger, headGen, listeners);
 			
 			ConstituentMeasure measure = new ConstituentMeasure();
 			evaluator.setMeasure(measure);
 			
-			// 设置测试集（在测试集上进行评价）
+			System.out.println("评价模型...");
 			evaluator.evaluate(trainingSampleStream.getTestSampleStream());
 
 			System.out.println(measure);
@@ -169,6 +175,8 @@ public class ParserMECVTool
 				i++;
 			}
 		}
+		
+		Logger.getLogger("").setLevel(Level.OFF);
 
 		TrainingParameters params = TrainingParameters.defaultParams();
 		params.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(cutoff));
@@ -179,7 +187,7 @@ public class ParserMECVTool
 		AbstractHeadGenerator headGen = new HeadGeneratorCollins();
 		System.out.println(contextGen);
 
-		ObjectStream<String> lineStream = new PlainTextByLineStream(new FileInputStreamFactory(corpusFile), encoding);
+		ObjectStream<String> lineStream = new PlainTextByTreeStream(new FileInputStreamFactory(corpusFile), encoding);
 		ObjectStream<ConstituentTreeSample> sampleStream = new ConstituentTreeSampleStream(lineStream,
 				headGen);
 

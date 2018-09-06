@@ -46,7 +46,7 @@ public class Tree2Action2TreeTest
 		TreeNode tree = BracketExpUtil.generateTree(treestr);
 		HeadTreeNode headTree = TreeToHeadTree.treeToHeadTree(tree, aghw);
 
-		ConstituentTreeSample sample = HeadTreeToActions.headTreeToAction(headTree, aghw);
+		ConstituentTreeSample sample = HeadTreeToActions.headTreeToSample(headTree, aghw);
 		List<String> words = sample.getWords();
 		List<String> actions = sample.getActions();
 		TreeNode resulttree = ActionsToTree.actionsToTree(words, actions);

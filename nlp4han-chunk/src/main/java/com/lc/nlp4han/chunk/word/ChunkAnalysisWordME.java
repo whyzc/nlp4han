@@ -25,14 +25,10 @@ import com.lc.nlp4han.ml.util.TrainerFactory.TrainerType;
 import com.lc.nlp4han.ml.util.TrainingParameters;
 
 /**
- * <ul>
- * <li>Description: 基于词的组块分析模型训练 类
- * <li>Company: HUST
- * <li>@author Sonly
- * <li>Date: 2017年12月3日
- * </ul>
+ * 基于词的组块分析模型训练类
  */
-public class ChunkAnalysisWordME implements Chunker {
+public class ChunkAnalysisWordME implements Chunker
+{
 
 	public static final int DEFAULT_BEAM_SIZE = 33;
 	private ChunkAnalysisContextGenerator contextGenerator;
@@ -40,9 +36,10 @@ public class ChunkAnalysisWordME implements Chunker {
 	private Sequence bestSequence;
 	private SequenceClassificationModel<String> model;
 	private SequenceValidator<String> sequenceValidator;
-	private String label;
+	private String scheme;
 
-	public ChunkAnalysisWordME() {
+	public ChunkAnalysisWordME()
+	{
 
 	}
 
@@ -55,9 +52,10 @@ public class ChunkAnalysisWordME implements Chunker {
 	 *            上下文生成器
 	 */
 	public ChunkAnalysisWordME(ModelWrapper model, SequenceValidator<String> sequenceValidator,
-			ChunkAnalysisContextGenerator contextGen, String label) {
+			ChunkAnalysisContextGenerator contextGen, String label)
+	{
 		this.sequenceValidator = sequenceValidator;
-		this.label = label;
+		this.scheme = label;
 		init(model, contextGen);
 	}
 
@@ -69,7 +67,8 @@ public class ChunkAnalysisWordME implements Chunker {
 	 * @param contextGen
 	 *            上下文生成器
 	 */
-	private void init(ModelWrapper model, ChunkAnalysisContextGenerator contextGen) {
+	private void init(ModelWrapper model, ChunkAnalysisContextGenerator contextGen)
+	{
 		int beamSize = ChunkAnalysisWordME.DEFAULT_BEAM_SIZE;
 
 		contextGenerator = contextGen;
@@ -77,7 +76,6 @@ public class ChunkAnalysisWordME implements Chunker {
 
 		this.model = model.getSequenceModel();
 	}
-
 
 	/**
 	 * 训练模型
@@ -95,10 +93,12 @@ public class ChunkAnalysisWordME implements Chunker {
 	 * @throws FileNotFoundException
 	 */
 	public ModelWrapper train(ObjectStream<AbstractChunkAnalysisSample> sampleStream, TrainingParameters params,
-			ChunkAnalysisContextGenerator contextGen) throws IOException {
+			ChunkAnalysisContextGenerator contextGen) throws IOException
+	{
 		String beamSizeString = params.getSettings().get(BeamSearch.BEAM_SIZE_PARAMETER);
 		int beamSize = ChunkAnalysisWordME.DEFAULT_BEAM_SIZE;
-		if (beamSizeString != null) {
+		if (beamSizeString != null)
+		{
 			beamSize = Integer.parseInt(beamSizeString);
 		}
 		ClassificationModel maxentModel = null;
@@ -106,16 +106,20 @@ public class ChunkAnalysisWordME implements Chunker {
 		// event_model_trainer
 		TrainerType trainerType = TrainerFactory.getTrainerType(params.getSettings());
 		SequenceClassificationModel<String> chunkClassificationModel = null;
-		if (TrainerType.EVENT_MODEL_TRAINER.equals(trainerType)) {
+		if (TrainerType.EVENT_MODEL_TRAINER.equals(trainerType))
+		{
 			// sampleStream为PhraseAnalysisSampleStream对象
 			ObjectStream<Event> es = new ChunkAnalysisWordSampleEvent(sampleStream, contextGen);
 			EventTrainer trainer = TrainerFactory.getEventTrainer(params.getSettings(), manifestInfoEntries);
 			maxentModel = trainer.train(es);
 		}
 
-		if (maxentModel != null) {
+		if (maxentModel != null)
+		{
 			return new ModelWrapper(maxentModel, beamSize);
-		} else {
+		}
+		else
+		{
 			return new ModelWrapper(chunkClassificationModel);
 		}
 	}
@@ -129,12 +133,14 @@ public class ChunkAnalysisWordME implements Chunker {
 	 *            一个个词语
 	 * @return 分词加词性标注的序列
 	 */
-	public String[][] tag(int numTaggings, String[] words) {
+	public String[][] tag(int numTaggings, String[] words)
+	{
 		Sequence[] bestSequences = model.bestSequences(numTaggings, words, null, contextGenerator, sequenceValidator);
 		String[][] tags = new String[bestSequences.length][];
 		List<String> temp = new ArrayList<>();
 
-		for (int si = 0; si < tags.length; si++) {
+		for (int si = 0; si < tags.length; si++)
+		{
 			temp = bestSequences[si].getOutcomes();
 			tags[si] = temp.toArray(new String[temp.size()]);
 		}
@@ -149,7 +155,8 @@ public class ChunkAnalysisWordME implements Chunker {
 	 *            词组
 	 * @return 词组的组块标注结果
 	 */
-	public String[] tag(String[] words) {
+	public String[] tag(String[] words)
+	{
 		return tag(words, null);
 	}
 
@@ -162,7 +169,8 @@ public class ChunkAnalysisWordME implements Chunker {
 	 *            其他上下文信息
 	 * @return 词组的组块标注结果
 	 */
-	public String[] tag(String[] words, Object[] additionaContext) {
+	public String[] tag(String[] words, Object[] additionaContext)
+	{
 		bestSequence = model.bestSequence(words, additionaContext, contextGenerator, sequenceValidator);
 		List<String> temp = bestSequence.getOutcomes();
 
@@ -176,7 +184,8 @@ public class ChunkAnalysisWordME implements Chunker {
 	 *            待标注的词组
 	 * @return 最优的K个标注序列
 	 */
-	public Sequence[] getTopKSequences(String[] words) {
+	public Sequence[] getTopKSequences(String[] words)
+	{
 		return getTopKSequences(words, null);
 	}
 
@@ -188,32 +197,36 @@ public class ChunkAnalysisWordME implements Chunker {
 	 * @param additionaContext
 	 * @return 最优的K个标注序列
 	 */
-	public Sequence[] getTopKSequences(String[] words, Object[] additionaContext) {
+	public Sequence[] getTopKSequences(String[] words, Object[] additionaContext)
+	{
 		return model.bestSequences(size, words, additionaContext, contextGenerator, sequenceValidator);
 	}
 
 	@Override
-	public Chunk[] parse(String sentence) {
+	public Chunk[] parse(String sentence)
+	{
 		String[] words = sentence.split("//s+");
 		String[] chunkTypes = tag(words);
 
 		AbstractChunkAnalysisSample sample = new ChunkAnalysisWordSample(words, chunkTypes);
-		sample.setLabel(label);
+		sample.setTagScheme(scheme);
 
 		return sample.toChunk();
 	}
 
 	@Override
-	public Chunk[][] parse(String sentence, int k) {
+	public Chunk[][] parse(String sentence, int k)
+	{
 		String[] words = sentence.split("//s+");
 
 		String[][] chunkTypes = tag(k, words);
 		Chunk[][] chunks = new Chunk[chunkTypes.length][];
-		for (int i = 0; i < chunkTypes.length; i++) {
+		for (int i = 0; i < chunkTypes.length; i++)
+		{
 			String[] chunkSequences = chunkTypes[i];
 
 			AbstractChunkAnalysisSample sample = new ChunkAnalysisWordSample(words, chunkSequences);
-			sample.setLabel(label);
+			sample.setTagScheme(scheme);
 			chunks[i] = sample.toChunk();
 		}
 

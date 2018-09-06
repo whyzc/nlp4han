@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.lc.nlp4han.ml.maxent.gis.GIS;
 import com.lc.nlp4han.ml.maxent.quasinewton.QNTrainer;
+import com.lc.nlp4han.ml.naivebayes.NaiveBayesTrainer;
 import com.lc.nlp4han.ml.perceptron.PerceptronTrainer;
 import com.lc.nlp4han.ml.perceptron.SimplePerceptronSequenceTrainer;
 
@@ -28,7 +29,7 @@ public class TrainerFactory {
     _trainers.put(PerceptronTrainer.PERCEPTRON_VALUE, PerceptronTrainer.class);
     _trainers.put(SimplePerceptronSequenceTrainer.PERCEPTRON_SEQUENCE_VALUE,
         SimplePerceptronSequenceTrainer.class);
-//    _trainers.put(NaiveBayesTrainer.NAIVE_BAYES_VALUE, NaiveBayesTrainer.class);
+    _trainers.put(NaiveBayesTrainer.NAIVE_BAYES_VALUE, NaiveBayesTrainer.class);
 
     BUILTIN_TRAINERS = Collections.unmodifiableMap(_trainers);
   }

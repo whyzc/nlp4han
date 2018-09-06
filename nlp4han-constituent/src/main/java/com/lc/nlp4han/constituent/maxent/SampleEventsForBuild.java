@@ -28,8 +28,7 @@ public class SampleEventsForBuild extends AbstractEventStream<ConstituentTreeSam
 	 * @param generator
 	 *            上下文产生器
 	 */
-	public SampleEventsForBuild(ObjectStream<ConstituentTreeSample> samples,
-			ParserContextGenerator generator)
+	public SampleEventsForBuild(ObjectStream<ConstituentTreeSample> samples, ParserContextGenerator generator)
 	{
 		super(samples);
 		this.generator = generator;
@@ -70,6 +69,12 @@ public class SampleEventsForBuild extends AbstractEventStream<ConstituentTreeSam
 		int j = 0;
 		for (int i = 2 * words.size(); i < actions.size(); i = i + 2)
 		{
+			if (i >= actions.size() - 1)
+			{
+				System.out.println("cg index error");
+				continue;
+			}
+
 			String[] buildContext = generator.getContextForBuild(j, buildAndCheckTree.get(i - 2 * words.size()),
 					actions, ac);
 			events.add(new Event(actions.get(i), buildContext));

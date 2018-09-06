@@ -47,6 +47,7 @@ public class AllDocsToOneDocTool
 
 		for (File file : subFiles)
 		{
+			System.out.println("Merging " + file);
 			br = new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding));
 			String line = "";
 			while ((line = br.readLine()) != null)
@@ -57,10 +58,13 @@ public class AllDocsToOneDocTool
 					bw.newLine();
 				}
 			}
+			
+			br.close();
 		}
+		
 		System.out.println("success");
 		bw.close();
-		br.close();
+		
 	}
 
 	public static void main(String[] args) throws IOException

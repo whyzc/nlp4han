@@ -35,7 +35,7 @@ public class ParserContextGeneratorConfTest{
 		aghw = new HeadGeneratorCollins();
 		tree = BracketExpUtil.generateTree("((S(NP(PRP I))(VP(VP(VBD saw)(NP(DT the)(NN man)))(PP(IN with)(NP(DT the)(NN telescope))))))");
         headTree = TreeToHeadTree.treeToHeadTree(tree,aghw);
-		sample = HeadTreeToActions.headTreeToAction(headTree,aghw);
+		sample = HeadTreeToActions.headTreeToSample(headTree,aghw);
 		actions = sample.getActions();
 		generator = new ParserContextGeneratorConf();
 	}
