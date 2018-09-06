@@ -17,6 +17,12 @@ import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.TreePreprocessTool;
 import com.lc.nlp4han.ml.model.Event;
+import com.lc.nlp4han.srl.tree.AbstractParseStrategy;
+import com.lc.nlp4han.srl.tree.SRLContextGenerator;
+import com.lc.nlp4han.srl.tree.SRLContextGeneratorConfForClassification;
+import com.lc.nlp4han.srl.tree.SRLParseNormal;
+import com.lc.nlp4han.srl.tree.SRLSample;
+import com.lc.nlp4han.srl.tree.TreeNodeWrapper;
 
 /**
  * 对分类阶段生成特征进行单元测试

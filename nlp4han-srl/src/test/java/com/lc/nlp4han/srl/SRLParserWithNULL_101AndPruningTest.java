@@ -14,6 +14,9 @@ import com.lc.nlp4han.constituent.HeadGeneratorCollins;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.TreePreprocessTool;
+import com.lc.nlp4han.srl.tree.AbstractParseStrategy;
+import com.lc.nlp4han.srl.tree.SRLParseWithNULL_101AndPruning;
+import com.lc.nlp4han.srl.tree.SRLSample;
 
 /**
  * 有剪枝的样本类解析,此时样本类标签增加NULL_1 NULL0 NULL1

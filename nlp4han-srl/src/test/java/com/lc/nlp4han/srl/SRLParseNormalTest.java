@@ -14,6 +14,9 @@ import com.lc.nlp4han.constituent.HeadGeneratorCollins;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.TreePreprocessTool;
+import com.lc.nlp4han.srl.tree.AbstractParseStrategy;
+import com.lc.nlp4han.srl.tree.SRLParseNormal;
+import com.lc.nlp4han.srl.tree.SRLSample;
 
 /**
  * 样本类的测试(有NULL，没有剪枝)

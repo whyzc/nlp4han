@@ -17,6 +17,12 @@ import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.TreePreprocessTool;
 import com.lc.nlp4han.ml.model.Event;
+import com.lc.nlp4han.srl.tree.AbstractParseStrategy;
+import com.lc.nlp4han.srl.tree.SRLContextGenerator;
+import com.lc.nlp4han.srl.tree.SRLContextGeneratorConfForIdentification;
+import com.lc.nlp4han.srl.tree.SRLParseWithNULL_101;
+import com.lc.nlp4han.srl.tree.SRLSample;
+import com.lc.nlp4han.srl.tree.TreeNodeWrapper;
 
 /**
  * 对识别阶段生成特征进行单元测试(对包含NULL_101类别，没有剪枝的样本生成特征)

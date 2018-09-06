@@ -10,6 +10,11 @@ import com.lc.nlp4han.constituent.HeadGeneratorCollins;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.TreePreprocessTool;
+import com.lc.nlp4han.srl.tree.AbstractParseStrategy;
+import com.lc.nlp4han.srl.tree.SRLParseNormalWithPruning;
+import com.lc.nlp4han.srl.tree.SRLSample;
+import com.lc.nlp4han.srl.tree.SRLTreeNode;
+import com.lc.nlp4han.srl.tree.TreeToSRLTree;
 
 /**
  * 将一颗语义角色树输出为中括号形式的测试

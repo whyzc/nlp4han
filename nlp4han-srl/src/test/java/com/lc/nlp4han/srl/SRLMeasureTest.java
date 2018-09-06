@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import com.lc.nlp4han.srl.tree.SRLMeasure;
+
 /**
  * 指标计算类的测试
  * @author 王馨苇
