@@ -40,7 +40,7 @@ public class CKYParserEvaluator extends Evaluator<ConstituentTree>
 
 	public CKYParserEvaluator(PCFG p2nf)
 	{
-		this.cky = new ConstituentParserCKYOfP2NFImproving(p2nf);
+		this.cky = new ConstituentParserCKYOfP2NF(p2nf);
 	}
 
 	@Override
