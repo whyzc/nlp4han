@@ -4,8 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.BracketExpUtil;
+import com.lc.nlp4han.constituent.HeadGeneratorCollins;
+import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.TreeNode;
+import com.lc.nlp4han.constituent.TreeToHeadTree;
 
 public class HeadGeneratorForCTBTest
 {

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.lc.nlp4han.constituent.HeadRule;
+import com.lc.nlp4han.constituent.HeadRuleSet;
 
 /**
  * 

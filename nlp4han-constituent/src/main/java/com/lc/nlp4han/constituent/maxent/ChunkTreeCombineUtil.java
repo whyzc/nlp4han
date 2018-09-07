@@ -5,8 +5,6 @@ import java.util.List;
 
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.HeadTreeNode;
-import com.lc.nlp4han.constituent.HeadRuleSetPTB;
-import com.lc.nlp4han.constituent.TreeNode;
 
 /**
  * 合并chunk子树
@@ -39,9 +37,8 @@ public class ChunkTreeCombineUtil
 				HeadTreeNode node = new HeadTreeNode(subTree.get(i).getNodeNameRightPart());
 				node.addChild(subTree.get(i).getFirstChild());
 				node.setHeadWord(
-						headGen.extractHeadWord(node, HeadRuleSetPTB.getNormalRuleSet(), HeadRuleSetPTB.getSpecialRuleSet()));
-				node.setHeadPos(headGen.extractHeadPos(node, HeadRuleSetPTB.getNormalRuleSet(),
-						HeadRuleSetPTB.getSpecialRuleSet()));
+						headGen.extractHeadWord(node));
+				node.setHeadPos(headGen.extractHeadPos(node));
 				subTree.get(i).getFirstChild().setParent(node);
 
 				for (int j = i + 1; j < subTree.size(); j++)
@@ -57,10 +54,8 @@ public class ChunkTreeCombineUtil
 					{
 						break;
 					}
-					node.setHeadWord(headGen.extractHeadWord(node, HeadRuleSetPTB.getNormalRuleSet(),
-							HeadRuleSetPTB.getSpecialRuleSet()));
-					node.setHeadPos(headGen.extractHeadPos(node, HeadRuleSetPTB.getNormalRuleSet(),
-							HeadRuleSetPTB.getSpecialRuleSet()));
+					node.setHeadWord(headGen.extractHeadWord(node));
+					node.setHeadPos(headGen.extractHeadPos(node));
 				}
 				// 将一颗合并过的完整子树加入列表
 				combineChunk.add(node);

@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.HeadGeneratorCollins;
+import com.lc.nlp4han.constituent.HeadRuleSetPTB;
 import com.lc.nlp4han.ml.util.TrainingParameters;
 
 /**
@@ -92,7 +93,7 @@ public class ParserMETrainerTool
 		params.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(iters));
 		params.put(TrainingParameters.ALGORITHM_PARAM, type.toUpperCase());
 
-		AbstractHeadGenerator headGenerator = new HeadGeneratorCollins();
+		AbstractHeadGenerator headGenerator = new HeadGeneratorCollins(new HeadRuleSetPTB());
 		
 		Logger.getLogger("").setLevel(Level.OFF);
 		
