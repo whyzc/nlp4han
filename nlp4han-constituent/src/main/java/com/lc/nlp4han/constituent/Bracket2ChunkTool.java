@@ -73,12 +73,11 @@ public class Bracket2ChunkTool
 	private static void usage()
 	{
 		System.out.println(Bracket2ChunkTool.class.getName()
-				+ " -in <inputFile> -out <outputFile> [-chunkTag <targetTag>] [-encoding <encoding>]");
+				+ " -in <inputFile> -out <outputFile> [-chunkTag <tagListSeperatedByComma>] [-encoding <encoding>]");
 	}
 
 	private static List<TreeNode> run(String fileIn, List<String> targetChunks, String encoding) throws IOException
 	{
-
 		List<TreeNode> treeList = new ArrayList<>(); // 存放标记了基本组块的树结构
 
 		PlainTextByTreeStream lineStream = new PlainTextByTreeStream(new FileInputStreamFactory(new File(fileIn)),
@@ -100,7 +99,7 @@ public class Bracket2ChunkTool
 		BufferedWriter bw = new BufferedWriter(fw);
 		for (int i = 0; i < subTrees.size(); i++)
 		{
-			String chunkStr = TreeNodeUtil.toChunkString(subTrees.get(i));
+			String chunkStr = BaseChunkSearcher.toChunkString(subTrees.get(i));
 			bw.write(chunkStr);
 			bw.newLine();
 		}

@@ -70,6 +70,12 @@ public class SampleEventsForChunk extends AbstractEventStream<ConstituentTreeSam
 
 		for (int i = words.size(); i < 2 * words.size(); i++)
 		{
+			if((i - words.size()) >= chunkTree.size())
+			{
+				System.out.println("cg index error");
+				continue;
+			}
+			
 			String[] context = generator.getContextForChunk(i - words.size(), chunkTree, actions, ac);
 			
 			events.add(new Event(actions.get(i), context));

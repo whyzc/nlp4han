@@ -23,36 +23,37 @@ public class DependencySampleParserCoNLL implements DependencySampleParser
 	{
 		String wordLine[] = sentence.split("\\n");
 		// 词
-		List<String> word = new ArrayList<String>();
+		List<String> words = new ArrayList<String>();
 		// 词性
-		List<String> pos = new ArrayList<String>();
+		List<String> poses = new ArrayList<String>();
 		// 依赖关系
-		List<String> dependency = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<String>();
 		// 依赖词语的下标
 		List<String> dependencyIndices = new ArrayList<String>();
 		// 依赖的词语
 		List<String> dependencyWords = new ArrayList<String>();
 
-		word.add("核心");
-		pos.add("root");
+//		words.add("核心");
+		words.add(DependencyParser.RootWord);
+		poses.add("root");
 		for (int i = 0; i < wordLine.length; i++)
 		{
 			String[] temp = wordLine[i].split("\\t");
-			word.add(temp[1]);
+			words.add(temp[1]);
 			// TODO: 下一列的词性更具体，是否采用？
-			pos.add(temp[3]);
+			poses.add(temp[3]);
 			dependencyIndices.add(temp[6]);
-			dependency.add(temp[7]);
+			dependencies.add(temp[7]);
 		}
 		
 		for (int i = 0; i < dependencyIndices.size(); i++)
 		{
-			String tempword = word.get(Integer.parseInt(dependencyIndices.get(i)));
+			String tempword = words.get(Integer.parseInt(dependencyIndices.get(i)));
 			dependencyWords.add(tempword);
 		}
 
-		return new DependencySample(word.toArray(new String[word.size()]), pos.toArray(new String[pos.size()]),
-				dependency.toArray(new String[dependency.size()]),
+		return new DependencySample(words.toArray(new String[words.size()]), poses.toArray(new String[poses.size()]),
+				dependencies.toArray(new String[dependencies.size()]),
 				dependencyWords.toArray(new String[dependencyWords.size()]),
 				dependencyIndices.toArray(new String[dependencyIndices.size()]));
 	}

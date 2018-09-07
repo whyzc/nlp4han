@@ -7,7 +7,6 @@ import com.lc.nlp4han.constituent.TreeNode;
 
 public class BaseChunkSearcher
 {
-
 	// 维护一个基本短语标记的列表
 	private static List<String> tags = new ArrayList<>();
 	static
@@ -34,6 +33,8 @@ public class BaseChunkSearcher
 	/**
 	 * 提取基本短语块
 	 * 
+	 * 可以提取的节点在节点名字上做标记
+	 * 
 	 * @param tn
 	 *            短语结构树
 	 * @param targetTags
@@ -43,10 +44,9 @@ public class BaseChunkSearcher
 
 	public static void search(TreeNode tn, List<String> targetTags)
 	{
-
 		List<? extends TreeNode> children = null;
 
-		boolean flag = true;// 标记是否是基本短语块
+		boolean childHasNoXP = true;
 		boolean tried = false;// 节点是否被遍历过
 		if (tn != null)
 		{
@@ -55,22 +55,22 @@ public class BaseChunkSearcher
 			{
 				for (TreeNode child : children)
 				{
-
 					// 判断该节点的子树中是否包含短语块
 					String name = child.getNodeName();
 					if (tags.contains(name))
 					{
-						flag = false;
+						childHasNoXP = false;
 						break;
 					}
 				}
+
 				tried = true;
 			}
 		}
 
 		if (tried)
 		{
-			if (flag)
+			if (childHasNoXP)
 			{
 				if (targetTags.contains("all") && tags.contains(tn.getNodeName()))
 				{
@@ -90,6 +90,44 @@ public class BaseChunkSearcher
 		for (int i = 0; i < tn.getChildrenNum(); i++)// 遍历
 		{
 			search(children.get(i), targetTags);
+		}
+	}
+
+	/**
+	 * 将短语结构树转换成已标注基本短语的字符串
+	 * 
+	 * @param t
+	 *            待转换的短语结构树
+	 */
+	public static String toChunkString(TreeNode t)
+	{
+
+		if (t.isLeaf())
+		{
+
+			return t.getNodeName() + "/";
+
+		}
+		else
+		{
+			String treestr = "";
+
+			for (TreeNode node : t.getChildren())
+			{
+				treestr += toChunkString(node);
+
+				if (treestr.endsWith("/"))
+				{
+					treestr += t.getNodeName() + " ";
+				}
+			}
+
+			if (t.getNodeName().startsWith("tag:"))
+			{
+				treestr = "[" + treestr.trim() + "]" + t.getNodeName().substring(4, t.getNodeName().length()) + " ";
+			}
+
+			return treestr;
 		}
 	}
 }

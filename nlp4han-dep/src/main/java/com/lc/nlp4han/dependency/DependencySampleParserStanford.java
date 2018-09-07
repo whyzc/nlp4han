@@ -17,19 +17,20 @@ public class DependencySampleParserStanford implements DependencySampleParser
 	{
 		String wordLine[] = sentence.split("\\n");
 		// 词
-		List<String> word = new ArrayList<String>();
+		List<String> words = new ArrayList<String>();
 		// 依赖关系
-		List<String> dependency = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<String>();
 		// 依赖词语的下标
 		List<String> dependencyIndices = new ArrayList<String>();
 		// 依赖的词语
 		List<String> dependencyWords = new ArrayList<String>();
 
-		word.add("核心");
+//		words.add("核心");
+		words.add(DependencyParser.RootWord);
 		for (int i = 0; i < wordLine.length; i++)
 		{
-			word.add("");
-			dependency.add("");
+			words.add("");
+			dependencies.add("");
 			dependencyIndices.add("");
 			dependencyWords.add("");
 		}
@@ -43,14 +44,14 @@ public class DependencySampleParserStanford implements DependencySampleParser
 			String wordindex = str[1].split("-")[1].substring(0, str[1].split("-")[1].length() - 1);
 			int index = Integer.parseInt(wordindex);
 			System.out.println(str[1].split("-")[0]);
-			word.set(index, str[1].split("-")[0]);
-			dependency.set(index - 1, temp[0]);
+			words.set(index, str[1].split("-")[0]);
+			dependencies.set(index - 1, temp[0]);
 			dependencyWords.set(index - 1, str[0].split("-")[0]);
 			dependencyIndices.set(index - 1, str[0].split("-")[1]);
 		}
 
-		return new DependencySample(word.toArray(new String[word.size()]), null,
-				dependency.toArray(new String[dependency.size()]),
+		return new DependencySample(words.toArray(new String[words.size()]), null,
+				dependencies.toArray(new String[dependencies.size()]),
 				dependencyWords.toArray(new String[dependencyWords.size()]),
 				dependencyIndices.toArray(new String[dependencyIndices.size()]));
 	}

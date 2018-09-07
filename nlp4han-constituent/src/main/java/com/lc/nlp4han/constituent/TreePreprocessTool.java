@@ -30,18 +30,16 @@ public class TreePreprocessTool
 	 *            是否加入词的下标
 	 * @throws IOException
 	 */
-	public static void preProcess(String frompath, String topath, boolean haveWordIndex) throws IOException
+	public static void preProcess(String frompath, String topath, String encoding, boolean haveWordIndex) throws IOException
 	{
-		// 读取一颗树
 		PlainTextByTreeStream lineStream = new PlainTextByTreeStream(new FileInputStreamFactory(new File(frompath)),
-				"utf8");
-		// 创建输出流
+				encoding);
 		BufferedWriter bw = new BufferedWriter(new FileWriter(new File(topath)));
 		String tree = "";
 		while ((tree = lineStream.read()) != "")
 		{
 			TreeNode node = BracketExpUtil.generateTree(tree);
-			
+
 			// 对树进行遍历
 			deleteNone(node);
 
@@ -54,12 +52,12 @@ public class TreePreprocessTool
 			{
 				newTreeStr = node.toStringNoNone();
 			}
-			
+
 			TreeNode newTree = BracketExpUtil.generateTree("(" + newTreeStr + ")");
 			bw.write("(" + TreeNode.printTree(newTree, 1) + ")");
 			bw.newLine();
 		}
-		
+
 		bw.close();
 		lineStream.close();
 	}
@@ -79,6 +77,7 @@ public class TreePreprocessTool
 				deleteNone(treenode);
 			}
 		}
+		
 		if (!node.isLeaf())
 		{
 			if (node.getNodeName().contains("NONE"))
@@ -143,17 +142,14 @@ public class TreePreprocessTool
 		}
 	}
 
-	// havewordindex用yes no设定
 	private static void usage()
 	{
 		System.out.println(TreePreprocessTool.class.getName()
-				+ "-frompath <fromPath> -topath <toPath> -havewordindex <haveWordIndex>");
+				+ "-frompath <fromPath> -topath <toPath> [-encoding <encoding>]-havewordindex");
 	}
 
 	public static void main(String[] args) throws IOException
 	{
-		/// TODO: 语料编码作为命令行参数
-
 		if (args.length < 1)
 		{
 			usage();
@@ -162,7 +158,8 @@ public class TreePreprocessTool
 
 		String frompath = null;
 		String topath = null;
-		String havewordindex = null;
+		boolean havewordindex = false;
+		String encoding = "GBK";
 		for (int i = 0; i < args.length; i++)
 		{
 			if (args[i].equals("-frompath"))
@@ -170,27 +167,24 @@ public class TreePreprocessTool
 				frompath = args[i + 1];
 				i++;
 			}
-			if (args[i].equals("-topath"))
+			else if (args[i].equals("-topath"))
 			{
 				topath = args[i + 1];
 				i++;
 			}
-			if (args[i].equals("-havewordindex"))
+			else if (args[i].equals("-havewordindex"))
 			{
-				// TODO:  开关量参数不需要带参数值
-				havewordindex = args[i + 1];
+				havewordindex = true;
+				i++;
+			}
+			else if (args[i].equals("-encoding"))
+			{
+				encoding = args[i + 1];
 				i++;
 			}
 		}
 
-		if (havewordindex.equals("yes"))
-		{
-			preProcess(frompath, topath, true);
-		}
-		else
-		{
-			preProcess(frompath, topath, false);
-		}
+		preProcess(frompath, topath, encoding, havewordindex);
 
 		System.out.println("success");
 	}

@@ -19,6 +19,7 @@ import com.lc.nlp4han.dependency.DependencySampleParser;
 import com.lc.nlp4han.dependency.DependencySampleParserCoNLL;
 import com.lc.nlp4han.dependency.DependencySampleStream;
 import com.lc.nlp4han.dependency.DependencyTree;
+import com.lc.nlp4han.dependency.PlainTextBySpaceLineStream;
 import com.lc.nlp4han.ml.model.ClassificationModel;
 import com.lc.nlp4han.ml.model.Event;
 import com.lc.nlp4han.ml.model.SequenceClassificationModel;
@@ -101,7 +102,7 @@ public class DependencyParserME implements DependencyParser
 	public static ModelWrapper train(File file, TrainingParameters params, DependencyParseContextGenerator contextGen,
 			String encoding) throws IOException
 	{
-		ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(file), encoding);
+		ObjectStream<String> lineStream = new PlainTextBySpaceLineStream(new MarkableFileInputStreamFactory(file), encoding);
 		// TODO: 样本解析器灵活选择，不能固化
 		DependencySampleParser sampleParser = new DependencySampleParserCoNLL();
 		ObjectStream<DependencySample> sampleStream = new DependencySampleStream(lineStream, sampleParser);
@@ -390,7 +391,7 @@ public class DependencyParserME implements DependencyParser
 				allposes.toArray(new String[allposes.size()]));
 
 		DependencySample sample;
-		sample = MaxSpanningTree.getMaxTree(proba);
+		sample = MaxSpanningTree.getMaxTreeNoLoop(proba);
 		DependencyTree parse = new DependencyTree(sample);
 
 		return parse;

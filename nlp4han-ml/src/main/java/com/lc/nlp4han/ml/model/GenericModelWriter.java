@@ -13,6 +13,7 @@ import com.lc.nlp4han.ml.maxent.gis.BinaryGISModelWriter;
 import com.lc.nlp4han.ml.maxent.gis.PlainTextGISModelWriter;
 import com.lc.nlp4han.ml.maxent.quasinewton.BinaryQNModelWriter;
 import com.lc.nlp4han.ml.model.AbstractModel.ModelType;
+import com.lc.nlp4han.ml.naivebayes.BinaryNaiveBayesModelWriter;
 import com.lc.nlp4han.ml.perceptron.BinaryPerceptronModelWriter;
 import com.lc.nlp4han.ml.perceptron.PlainTextPerceptronModelWriter;
 
@@ -52,9 +53,9 @@ public class GenericModelWriter extends AbstractModelWriter {
     } else if (model.getModelType() == ModelType.MaxentQn) {
       delegateWriter = new BinaryQNModelWriter(model, dos);
     }
-//    if (model.getModelType() == ModelType.NaiveBayes) {
-//      delegateWriter = new BinaryNaiveBayesModelWriter(model, dos);
-//    }
+    else if (model.getModelType() == ModelType.NaiveBayes) {
+      delegateWriter = new BinaryNaiveBayesModelWriter(model, dos);
+    }
   }
 
   private void init(AbstractModel model, BufferedWriter bw) {

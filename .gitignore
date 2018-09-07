@@ -28,3 +28,10 @@ hs_err_pid*
 /.settings/
 /.idea/
 /nlp4han.iml
+/bin/
+.classpath
+.project
+*.class
+.settings
+.gitignore
+.model
