@@ -20,17 +20,8 @@ public class PCFG extends CFG
 		super.readGrammar(in, encoding, "PCFG");
 	}
 
-	/*
-	 * public HashMap<RewriteRule, PRule> getPruleMap() { return pruleMap; }
-	 * 
-	 * public void setPruleMap(HashMap<RewriteRule, PRule> pruleMap) { this.pruleMap
-	 * = pruleMap; }
-	 * 
-	 * @Override public void add(RewriteRule rule) { super.add(rule);
-	 * pruleMap.put(rule, (PRule) rule); }
-	 */
 	/**
-	 * 根据规则中的终结符和非终结符获取概率
+	 * 根据规则中的终结符和非终结符获取整个规则
 	 * 
 	 * @param rule
 	 * @return

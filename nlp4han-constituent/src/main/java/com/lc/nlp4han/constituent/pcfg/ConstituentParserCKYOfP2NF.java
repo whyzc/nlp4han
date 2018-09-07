@@ -1,10 +1,10 @@
 package com.lc.nlp4han.constituent.pcfg;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
-
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
@@ -12,16 +12,13 @@ import com.lc.nlp4han.constituent.TreeNode;
 
 public class ConstituentParserCKYOfP2NF implements ConstituentParser
 {
-	private BackMap back[][];// 回溯使用，需要记住k和非终结符
 	private CKYTreeNode[][] table;// 存储在该点的映射表
 	private PCFG pcnf;
 	private ArrayList<String> resultList;
-	private HashMap<RewriteRule, Integer> resultMap;
 
 	public ConstituentParserCKYOfP2NF(PCFG pcnf)
 	{
 		this.pcnf = pcnf;
-
 	}
 
 	/**
@@ -126,7 +123,6 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 	{
 		int n = words.length;
 		table = new CKYTreeNode[n + 1][n + 1];
-		back = new BackMap[n + 1][n + 1];
 		for (int i = 0; i <= n; i++)
 		{
 			for (int j = 1; j <= n; j++)
@@ -134,13 +130,11 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 				// 矩阵的上三角才会用于存储数据
 				if (j > i + 1)
 				{
-					table[i][j] = new CKYTreeNode(new HashMap<String, RewriteRule>(), false);
-					back[i][j] = new BackMap(new HashMap<String, Integer>());
+					table[i][j] = new CKYTreeNode(new HashMap<String, ArrayList<CKYPRule>>(), false);
 				} // 对角线上的点的flag需要标记为true作为区别
 				else if (j == i + 1)
 				{
-					table[i][j] = new CKYTreeNode(new HashMap<String, RewriteRule>(), true);
-					back[i][j] = new BackMap(new HashMap<String, Integer>());
+					table[i][j] = new CKYTreeNode(new HashMap<String, ArrayList<CKYPRule>>(), true);
 				}
 
 			}
@@ -148,25 +142,30 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 		// 开始剖析
 		for (int j = 1; j <= n; j++)
 		{// 从第一列开始，由左往右
-			/*
-			 * 由分词结果反推得到规则，并进行table表对角线的初始化
-			 */
+			// 由分词结果反推得到规则，并进行table表对角线的初始化
+			HashMap<String, ArrayList<CKYPRule>> ruleMap = table[j - 1][j].getPruleMap();
 			if (pos == null)
 			{
 				ArrayList<String> rhs = new ArrayList<String>();
 				rhs.add(words[j - 1]);
-				HashMap<String, RewriteRule> map = table[j - 1][j].getPruleMap();
 				for (RewriteRule rule0 : pcnf.getRuleByrhs(rhs))
 				{
 					PRule rule = (PRule) rule0;
+					ArrayList<CKYPRule> ckyPRulList = new ArrayList<CKYPRule>();
+					// 此处延迟概率初始化至updateRuleMapOfTable
+					ckyPRulList.add(new CKYPRule(1.0, rule.getLhs(), rule.getRhs(), 0, 0, 0));
 					HashMap<String, Double> lhsAndProMap = new HashMap<String, Double>();
-					updateRuleMapOfDiagonal(rule, map, rule.getLhs(), lhsAndProMap, j - 1, j);
+					updateRuleMapOfTable(rule, ruleMap, rule.getLhs(), ckyPRulList, numOfResulets, lhsAndProMap);
 				}
 			}
 			else
 			{
 				// 根据分词和词性标注的结果进行table表对角线的j初始化
-				table[j - 1][j].getPruleMap().put(pos[j - 1], new PRule(1.0, pos[j - 1], words[j - 1]));
+				ArrayList<CKYPRule> ckyPRulList = new ArrayList<CKYPRule>();
+				ckyPRulList.add(new CKYPRule(1.0, pos[j - 1], words[j - 1], 0, 0, 0));
+				PRule rule = new PRule(1.0, pos[j - 1], words[j - 1]);
+				HashMap<String, Double> lhsAndProMap = new HashMap<String, Double>();
+				updateRuleMapOfTable(rule, ruleMap, rule.getLhs(), ckyPRulList, numOfResulets, lhsAndProMap);
 			}
 			if (j <= 1)
 			{
@@ -174,20 +173,10 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 			}
 			for (int i = j - 2; i >= 0; i--)
 			{// 从第j-2行开始，由下到上
+				// System.out.println("i= " + i + " " + "j= " + j);
 				for (int k = i + 1; k <= j - 1; k++)
 				{// 遍历table[i][k]和table[k][j]中的映射表，更新table[i][j]和back[i][j]
-					updateTableAndBack(i, k, j, n);
-				}
-			}
-		}
-		for (int i = 0; i <= n; i++)
-		{
-			for (int j = 1; j <= n; j++)
-			{
-				// 矩阵的上三角才会用于存储数据
-				if (j >= i + 1)
-				{
-					System.out.println("i==" + i + " j==" + j + " " + table[i][j].getPruleMap().toString());
+					updateTable(i, k, j, n, numOfResulets);
 				}
 			}
 		}
@@ -205,12 +194,13 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 	 *            table表纵坐标点
 	 * @param n
 	 *            words的长度
+	 * @param numOfResulets
+	 *            所需的最佳结果数
 	 */
-	private void updateTableAndBack(int i, int k, int j, int n)
+	private void updateTable(int i, int k, int j, int n, int numOfResulets)
 	{
-		resultMap = new HashMap<RewriteRule, Integer>();
-		HashMap<String, RewriteRule> ikRuleMap = table[i][k].getPruleMap();
-		HashMap<String, RewriteRule> kjRuleMap = table[k][j].getPruleMap();
+		HashMap<String, ArrayList<CKYPRule>> ikRuleMap = table[i][k].getPruleMap();
+		HashMap<String, ArrayList<CKYPRule>> kjRuleMap = table[k][j].getPruleMap();
 		if (ikRuleMap.size() != 0 && kjRuleMap.size() != 0)
 		{// 如果在ik点和kj点的映射表不为空
 			Iterator<String> itrIk = ikRuleMap.keySet().iterator();
@@ -226,27 +216,15 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 					{// 若ruleSet为空，则遍历下一个kjStr
 						continue;
 					}
-					double ikPro = ((PRule) ikRuleMap.get(ikStr)).getProOfRule();
-					double kjPro = ((PRule) kjRuleMap.get(kjStr)).getProOfRule();
 					Iterator<RewriteRule> itr = ruleSet.iterator();
-					if (ikPro > 0 && kjPro > 0)
+					while (itr.hasNext())
 					{
-						while (itr.hasNext())
-						{
-							double pro = ikPro * kjPro;
-							PRule prule = (PRule) itr.next();
-							if (i == 0 && j == n)
-							{// 若为最终节点，则添加左侧为起始符的规则
-
-								updateResultMap(prule, resultMap, prule.getLhs(), pro, k);
-							}
-							else
-							{
-								HashMap<String, Double> lhsAndProMap = new HashMap<String, Double>();
-								HashMap<String, RewriteRule> ruleMap = table[i][j].getPruleMap();
-								updateRuleMapOfTable(prule, ruleMap, pro, prule.getLhs(), lhsAndProMap, i, j, k);
-							}
-						}
+						PRule prule = (PRule) itr.next();
+						ArrayList<CKYPRule> ckyPRuleList = getKCKYPRuleFromTable(k, numOfResulets, ikRuleMap.get(ikStr),
+								kjRuleMap.get(kjStr), prule);
+						HashMap<String, Double> lhsAndProMap = new HashMap<String, Double>();
+						HashMap<String, ArrayList<CKYPRule>> ruleMap = table[i][j].getPruleMap();
+						updateRuleMapOfTable(prule, ruleMap, prule.getLhs(), ckyPRuleList, numOfResulets, lhsAndProMap);
 					}
 				}
 			}
@@ -254,39 +232,61 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 	}
 
 	/**
-	 * 更新对角线上的点 在遇到单位产品时，新建规则，pro=P1*P2,LHS=prule.getLhs() + "@" +
-	 * rule.getLhs()，RHS=rule.getRhs()。并在Map中以prule.getLhs()作为key值，
-	 * 取出时通过ruleMap中规则左侧获取整个消除过程，例如：A->B->S将赋值为 A@B@S
+	 * 更新table表中ruleMap,其中每个终结符对应的ArrayList中个最多有numOfResulets个 遇到单位产品时，比如S->A->B
+	 * D新建规则，pro=P(S->A)*P(A->B D),LHS=S+ "@" +A ，RHS=B D。并在Map中以S作为key值
 	 * 
 	 * @param rule
-	 *            由ik点和kj点结合的rhs逆推得到的规则
 	 * @param ruleMap
-	 *            本节点，也就是ij点的规则映射
 	 * @param lhs
-	 *            映射的key值
+	 * @param ckyPRuleList
+	 * @param numOfResulets
 	 * @param lhsAndProMap
-	 *            记录映射中作为key值的非终结符及其概率，作为过滤掉重复规则的基础
-	 * @param i
-	 *            table表和back表横坐标
-	 * @param j
-	 *            table表和back表纵坐标
 	 */
-	private void updateRuleMapOfDiagonal(PRule rule, HashMap<String, RewriteRule> ruleMap, String lhs,
-			HashMap<String, Double> lhsAndProMap, int i, int j)
+	private void updateRuleMapOfTable(PRule rule, HashMap<String, ArrayList<CKYPRule>> ruleMap, String lhs,
+			ArrayList<CKYPRule> ckyPRuleList, int numOfResulets, HashMap<String, Double> lhsAndProMap)
 	{
-		PRule oldPRule = (PRule) ruleMap.get(lhs);
-		lhsAndProMap.put(lhs, rule.getProOfRule());
-		if ((oldPRule != null && rule.getProOfRule() > oldPRule.getProOfRule()) || oldPRule == null)
+		// 该非终结符对应的映射表不存在，直接添加
+		if (!ruleMap.keySet().contains(lhs))
 		{
-			ruleMap.put(lhs, new PRule(rule.getProOfRule(), rule.getLhs(), rule.getRhs()));
+			ArrayList<CKYPRule> tempList = makeNewArrayList(ckyPRuleList, rule);
+			ruleMap.put(lhs, tempList);
+		} // 若该非终结符对应的映射表已满，而且其中概率最小的比ckyPRuleList中最大的还要大则不处理
+		else if (ruleMap.get(lhs).size() == numOfResulets && ruleMap.get(lhs).get(numOfResulets - 1)
+				.getProOfRule() >= ckyPRuleList.get(0).getProOfRule() * rule.getProOfRule())
+		{
+
+		} // 将ckyPRuleList和ruleMap中该非终结符对应的规则表联合再排序
+		else
+		{
+			ArrayList<CKYPRule> tempList = makeNewArrayList(ckyPRuleList, rule);
+			tempList.addAll(ruleMap.get(lhs));
+			Collections.sort(tempList);
+			/*
+			 * 若结果集中多余k个，则截取其中的前k个
+			 */
+			if (tempList.size() > numOfResulets)
+			{
+				ArrayList<CKYPRule> subList = new ArrayList<CKYPRule>();
+				for (int i = 0; i < numOfResulets; i++)
+				{
+					subList.add(tempList.get(i));
+				}
+				ruleMap.put(lhs, subList);
+			}
+			else
+			{
+				ruleMap.put(lhs, tempList);
+			}
 		}
+		int size = ruleMap.get(lhs).size();
+		lhsAndProMap.put(lhs, ruleMap.get(lhs).get(size - 1).getProOfRule());
 		Set<RewriteRule> ruleSet = pcnf.getRuleByrhs(lhs);
 		if (ruleSet != null)
 		{
 			for (RewriteRule rule0 : ruleSet)
 			{
 				PRule prule = (PRule) rule0;
-				double pro1 = rule.getProOfRule() * prule.getProOfRule();
+				double pro1 = prule.getProOfRule() * rule.getProOfRule() * ckyPRuleList.get(0).getProOfRule();
 				if (lhsAndProMap.containsKey(prule.getLhs()))
 				{
 					if (lhsAndProMap.get(prule.getLhs()) >= pro1)
@@ -294,105 +294,58 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 						continue;
 					}
 				}
-				PRule prule1 = new PRule(pro1, prule.getLhs() + "@" + rule.getLhs(), rule.getRhs());
-				updateRuleMapOfDiagonal(prule1, ruleMap, prule.getLhs(), lhsAndProMap, i, j);
+				PRule prule1 = new PRule(prule.getProOfRule() * rule.getProOfRule(),
+						prule.getLhs() + "@" + rule.getLhs(), rule.getRhs());
+				updateRuleMapOfTable(prule1, ruleMap, prule.getLhs(), ckyPRuleList, numOfResulets, lhsAndProMap);
 			}
 		}
 	}
 
 	/**
-	 * 更新table和back表中的数据
+	 * 由规则右侧反推规则左侧，由右侧的非终结符得到对应的列表ikCKYPRuleList，kjCKYPRuleList，然后不同的列表中的规则两两结合，取前numOfResulets个并返回
 	 * 
-	 * @param rule
-	 *            由ik点和kj点结合的rhs逆推得到的规则
-	 * @param ruleMap
-	 *            本节点，也就是ij点的规则映射
-	 * @param pro
-	 *            ik点和kj点的概率相乘，在后序遍历中赋值为1.0
-	 * @param lhs
-	 *            映射的key值
-	 * @param lhsAndProMap
-	 *            记录映射中作为key值的非终结符及其概率，作为过滤掉重复规则的基础
-	 * @param i
-	 *            table表和back表横坐标
-	 * @param j
-	 *            table表和back表纵坐标
 	 * @param k
-	 *            存储规则的右侧点的分裂位置，ij->ik kj
+	 *            分裂位置
+	 * @param numOfResultRule
+	 *            所需结果数
+	 * @param ikCKYPRuleList
+	 *            ik点的非终结符ikStr对应的规则列表
+	 * @param kjCKYPRuleList
+	 *            kj点的非终结符kjStr对应的规则列表
+	 * @param prule
+	 *            ij点的规则
+	 * @return
 	 */
-	private void updateRuleMapOfTable(PRule rule, HashMap<String, RewriteRule> ruleMap, double pro, String lhs,
-			HashMap<String, Double> lhsAndProMap, int i, int j, int k)
+	private ArrayList<CKYPRule> getKCKYPRuleFromTable(int k, int numOfResulets, ArrayList<CKYPRule> ikCKYPRuleList,
+			ArrayList<CKYPRule> kjCKYPRuleList, PRule prule)
 	{
-		PRule oldPRule = (PRule) ruleMap.get(lhs);
-		if (pro != 1.0)
-		{// 递归的第一层
-			pro = pro * rule.getProOfRule();
-			rule = new PRule(pro, rule.getLhs(), rule.getRhs());
-		}
-		lhsAndProMap.put(lhs, rule.getProOfRule());
-		if ((oldPRule != null && rule.getProOfRule() > oldPRule.getProOfRule()) || oldPRule == null)
+		String lhs = prule.getLhs();
+		ArrayList<CKYPRule> tempList = new ArrayList<CKYPRule>();
+		for (int i = 0; i < ikCKYPRuleList.size(); i++)
 		{
-			ruleMap.put(lhs, rule);
-			back[i][j].getBackMap().put(lhs, k);
-		}
-		Set<RewriteRule> ruleSet = pcnf.getRuleByrhs(lhs);
-		if (ruleSet != null)
-		{
-			for (RewriteRule rule0 : ruleSet)
+			CKYPRule ikCKYPRule = ikCKYPRuleList.get(i);
+			for (int j = 0; j < kjCKYPRuleList.size(); j++)
 			{
-				PRule prule = (PRule) rule0;
-				double pro1 = rule.getProOfRule() * prule.getProOfRule();
-				if (lhsAndProMap.containsKey(prule.getLhs()))
-				{
-					if (lhsAndProMap.get(prule.getLhs()) >= pro1)
-					{
-						continue;
-					}
-				}
-				PRule prule1 = new PRule(pro1, prule.getLhs() + "@" + rule.getLhs(), rule.getRhs());
-				updateRuleMapOfTable(prule1, ruleMap, 1.0, prule.getLhs(), lhsAndProMap, i, j, k);
+				CKYPRule kjCKYPRule = kjCKYPRuleList.get(j);
+				tempList.add(new CKYPRule(ikCKYPRule.getProOfRule() * kjCKYPRule.getProOfRule(), lhs, prule.getRhs(), k,
+						i, j));
 			}
 		}
-	}
+		Collections.sort(tempList);
+		/*
+		 * 若结果集中多余k个，则截取其中的前k个
+		 */
+		if (tempList.size() > numOfResulets)
+		{
+			ArrayList<CKYPRule> subList = new ArrayList<CKYPRule>();
+			for (int i = 0; i < numOfResulets; i++)
+			{
+				subList.add(tempList.get(i));
+			}
+			return subList;
+		}
+		return tempList;
 
-	/**
-	 * 更新结果集的数据
-	 * 
-	 * @param rule
-	 *            当前rule
-	 * @param resultMap
-	 *            结果规则集
-	 * @param lhs
-	 *            映射表中规则的key值
-	 * @param lhsAndProMap
-	 *            存储映射表中规则的key值及其概率
-	 * @param pro
-	 *            由上层函数调用时赋值为ik点和kj点的概率相乘，在后序遍历中赋值为1.0
-	 * @param k
-	 *            存储规则的右侧点的位置，ij->ik kj
-	 */
-	private void updateResultMap(PRule rule, HashMap<RewriteRule, Integer> resultMap, String lhs, double pro, int k)
-	{
-		pro = pro * rule.getProOfRule();
-		if (rule.getLhs().contains(pcnf.getStartSymbol()))
-		{
-			resultMap.put(rule, k);
-		}
-		Set<RewriteRule> ruleSet = pcnf.getRuleByrhs(lhs);
-		if (ruleSet != null)
-		{
-			for (RewriteRule rule0 : ruleSet)
-			{
-				PRule prule = (PRule) rule0;
-				double pro1 = pro * prule.getProOfRule();
-				if (rule.getLhs().contains(prule.getLhs()))
-				{
-					continue;
-				}
-				PRule prule1 = new PRule(pro1, prule.getLhs() + "@" + rule.getLhs(), rule.getRhs());
-				updateResultMap(prule1, resultMap, prule.getLhs(), 1.0, k);
-			}
-		}
 	}
 
 	/**
@@ -406,21 +359,23 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 	private void CreatBracketStringList(int n, int numOfResulets)
 	{
 		// 查找概率最大的n个结果
-		System.out.println(resultMap.toString());
-		ArrayList<PRule> resultRuleList = new PCFG().getHighestProRuleFromMap(resultMap, numOfResulets);
+		ArrayList<CKYPRule> resultRuleList = table[0][n].getPruleMap().get(pcnf.getStartSymbol());
 		resultList = new ArrayList<String>();
-		for (PRule prule : resultRuleList)
+		if (resultRuleList == null)
+		{
+			return;
+		}
+		for (CKYPRule prule : resultRuleList)
 		{
 			StringBuilder strBuilder = new StringBuilder();
 			// 从最后一个节点[0,n]开始回溯
-			int k = resultMap.get(prule);
-			CreateStringBuilder(0, k, n, prule, strBuilder);
+			CreateStringBuilder(0, n, prule, strBuilder);
 			resultList.add(strBuilder.toString());
 		}
 	}
 
 	// 递归table和back生成StringBuilder
-	private void CreateStringBuilder(int i, int k, int j, PRule prule, StringBuilder strBuilder)
+	private void CreateStringBuilder(int i, int j, CKYPRule prule, StringBuilder strBuilder)
 	{
 		int count = 1;
 		String lhs = prule.getLhs();
@@ -432,7 +387,7 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 			for (String lhs1 : strArray)
 			{
 				// 含有起始符或者为伪词性标注则跳过
-				if (lhs1.equals(pcnf.getStartSymbol()) || lhs1.contains("$"))
+				if (lhs1.contains("$"))
 				{
 					count--;
 					continue;
@@ -440,14 +395,11 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 				strBuilder.append("(");
 				strBuilder.append(lhs1);
 			}
-			/*
-			 * 当含有&符号时，则为两个非终结符在中间过程合成的，故不处理此非终结符，直接跳过
-			 */
-		}
+		} // * 当含有&符号时，则为两个非终结符在中间过程合成的，故不处理此非终结符，直接跳过
 		else if (prule.getLhs().contains("&"))
 		{
-			AddString(i, k, prule, 0, strBuilder);
-			AddString(k, j, prule, 1, strBuilder);
+			AddString(i, prule.getK(), prule, 0, strBuilder);
+			AddString(prule.getK(), j, prule, 1, strBuilder);
 			return;
 		}
 		else
@@ -455,8 +407,17 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 			strBuilder.append("(");
 			strBuilder.append(lhs);
 		}
-		AddString(i, k, prule, 0, strBuilder);
-		AddString(k, j, prule, 1, strBuilder);
+
+		if (table[i][j].isFlag())
+		{
+			strBuilder.append(" ");
+			strBuilder.append(prule.getRhs().get(0));
+		}
+		else
+		{
+			AddString(i, prule.getK(), prule, 0, strBuilder);
+			AddString(prule.getK(), j, prule, 1, strBuilder);
+		}
 		while (count > 0)
 		{
 			strBuilder.append(")");
@@ -467,13 +428,25 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 	/**
 	 * 添加左右括号和终结符与非终结符，i记录prule右侧的非终结符序号
 	 */
-	private void AddString(int n, int m, PRule prule, int i, StringBuilder strBuilder)
+	private void AddString(int n, int m, CKYPRule prule, int i, StringBuilder strBuilder)
 	{
+		CKYPRule prule1;
+		String DuPos = prule.getRhs().get(i);
+		// 获取对应的规则
+		if (i == 0)
+		{
+			prule1 = table[n][m].getPruleMap().get(DuPos).get(prule.getI());
+		}
+		else
+		{
+			prule1 = table[n][m].getPruleMap().get(DuPos).get(prule.getJ());
+		}
+
 		if (table[n][m].isFlag())
 		{// 叶子结点
 			int count = 1;
-			String DuPos = prule.getRhs().get(i);
-			String pos = table[n][m].getPruleMap().get(DuPos).getLhs();
+			String pos;
+			pos = prule1.getLhs();
 			strBuilder.append("(");
 			// 为终结符，类似"$中国$"，直接跳过
 			if (pos.contains("$"))
@@ -496,7 +469,7 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 				strBuilder.append(pos);// 词性标注
 			}
 			strBuilder.append(" ");
-			strBuilder.append(table[n][m].getPruleMap().get(DuPos).getRhs().get(0));// 词
+			strBuilder.append(prule1.getRhs().get(0));// 词
 			while (count > 0)
 			{
 				strBuilder.append(")");
@@ -505,10 +478,20 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 		}
 		else
 		{
-			int k1 = back[n][m].getBackMap().get(prule.getRhs().get(i));
-			PRule prule1 = (PRule) table[n][m].getPruleMap().get(prule.getRhs().get(i));
-			CreateStringBuilder(n, k1, m, prule1, strBuilder);
+			CreateStringBuilder(n, m, prule1, strBuilder);
 		}
+	}
+
+	private ArrayList<CKYPRule> makeNewArrayList(ArrayList<CKYPRule> ckyPRuleList, PRule rule)
+	{
+		ArrayList<CKYPRule> tempList = new ArrayList<CKYPRule>();
+		for (int i = 0; i < ckyPRuleList.size(); i++)
+		{
+			CKYPRule ckyprule = ckyPRuleList.get(i);
+			tempList.add(new CKYPRule(rule.getProOfRule() * ckyprule.getProOfRule(), rule.getLhs(), ckyprule.getRhs(),
+					ckyprule.getK(), ckyprule.getI(), ckyprule.getJ()));
+		}
+		return tempList;
 	}
 
 	/**
@@ -516,16 +499,23 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 	 */
 	class CKYTreeNode
 	{
-		private HashMap<String, RewriteRule> pruleMap;
+		private HashMap<String, ArrayList<CKYPRule>> pruleMap;
 		// flag用来判断是否为对角线上的点
 		private boolean flag;
 
-		public HashMap<String, RewriteRule> getPruleMap()
+		public CKYTreeNode(HashMap<String, ArrayList<CKYPRule>> pruleMap, boolean flag)
+		{
+			super();
+			this.pruleMap = pruleMap;
+			this.flag = flag;
+		}
+
+		public HashMap<String, ArrayList<CKYPRule>> getPruleMap()
 		{
 			return pruleMap;
 		}
 
-		public void setPruleMap(HashMap<String, RewriteRule> pruleMap)
+		public void setPruleMap(HashMap<String, ArrayList<CKYPRule>> pruleMap)
 		{
 			this.pruleMap = pruleMap;
 		}
@@ -537,36 +527,7 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 
 		public void setFlag(boolean flag)
 		{
-			this.flag = flag;// 判断是否为对角线上的点
-		}
-
-		public CKYTreeNode(HashMap<String, RewriteRule> pruleMap, boolean flag)
-		{
-			this.pruleMap = pruleMap;
 			this.flag = flag;
-		}
-	}
-
-	/**
-	 * 内部类,back存储类,包含非终结符，以及对应该非终结符的k值，将[i,j]分裂为[i,k][k,j]
-	 */
-	class BackMap
-	{
-		private HashMap<String, Integer> backMap;
-
-		public HashMap<String, Integer> getBackMap()
-		{
-			return backMap;
-		}
-
-		public void setBackMap(HashMap<String, Integer> backMap)
-		{
-			this.backMap = backMap;
-		}
-
-		public BackMap(HashMap<String, Integer> backMap)
-		{
-			this.backMap = backMap;
 		}
 	}
 }

@@ -15,7 +15,7 @@ import com.lc.nlp4han.ml.util.CrossValidationPartitioner.TrainingSampleStream;
 public class CKYCrossValidatorTool
 {
 	
-	private static ConstituentParserCKYOfP2NFImproving getParser(
+	private static ConstituentParseCKYPCNF getParser(
 			TrainingSampleStream<ConstituentTree> trainingSampleStream) throws IOException
 	{
 		ArrayList<String> bracketList = new ArrayList<String>();
@@ -32,7 +32,8 @@ public class CKYCrossValidatorTool
 		System.out.println("对文法进行转换...");
 		PCFG p2nf = new ConvertPCFGToP2NF().convertToCNF(pcfg);
 		
-		return new ConstituentParserCKYOfP2NFImproving(p2nf);
+		PCFG pcnf = new ConvertP2NFToPCNF(p2nf).removeUnitProduction();
+		return new ConstituentParseCKYPCNF(pcnf);
 	}
 
 	/**
@@ -60,8 +61,8 @@ public class CKYCrossValidatorTool
 
 			long start = System.currentTimeMillis();
 			CrossValidationPartitioner.TrainingSampleStream<ConstituentTree> trainingSampleStream = partitioner.next();
-			ConstituentParserCKYOfP2NFImproving parser = getParser(trainingSampleStream);
-			
+			//ConstituentParserCKYOfP2NFImproving parser = getParser(trainingSampleStream);
+			ConstituentParseCKYPCNF parser= getParser(trainingSampleStream);
 			System.out.println("训练学习时间：" + (System.currentTimeMillis() - start) + "ms");
 			
 			CKYParserEvaluator evaluator = new CKYParserEvaluator(parser);
