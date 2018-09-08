@@ -29,16 +29,7 @@ public class Oracle
 	public ActionType classify(Configuration currentConf, String[] priorDecisions, Object[] additionalContext)
 	{// 将当前的Configuration分类
 		String[] context;
-		if (contextGenerator instanceof DependencyParseContextGeneratorConf_ArcEager)
-		{
-			context = ((DependencyParseContextGeneratorConf_ArcEager) contextGenerator)
-					.getContext((Configuration_ArcEager) currentConf, priorDecisions, null);
-		}
-		else
-		{
-			context = ((DependencyParseContextGeneratorConf_ArcStandard) contextGenerator)
-					.getContext((Configuration_ArcStandard) currentConf, priorDecisions, null);
-		}
+		context =  contextGenerator.getContext( currentConf, priorDecisions, null);
 		double allPredicates[] = model.eval(context);
 		String tempAllType[] = new String[allPredicates.length];// 存储所有的分类
 
@@ -64,7 +55,6 @@ public class Oracle
 				indexOfBestOutcome = getBestIndexOfOutcome(allPredicates);
 			}
 		}
-		
 
 		ActionType action = ActionType.toType(tempAllType[indexOfBestOutcome]);
 		return action;
