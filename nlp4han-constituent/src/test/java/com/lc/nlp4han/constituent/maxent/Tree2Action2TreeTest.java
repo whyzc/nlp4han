@@ -11,6 +11,7 @@ import org.junit.Test;
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.HeadGeneratorCollins;
+import com.lc.nlp4han.constituent.HeadRuleSetPTB;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.TreeToHeadTree;
@@ -35,7 +36,7 @@ public class Tree2Action2TreeTest
 	public void testTreeToActions() throws FileNotFoundException, IOException, CloneNotSupportedException
 	{
 
-		AbstractHeadGenerator aghw = new HeadGeneratorCollins();
+		AbstractHeadGenerator aghw = new HeadGeneratorCollins(new HeadRuleSetPTB());
 		// 节点有多个子节点
 		// 1 一个子节点
 		// 2 两个子节点

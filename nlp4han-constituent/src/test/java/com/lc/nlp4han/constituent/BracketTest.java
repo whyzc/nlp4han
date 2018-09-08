@@ -79,7 +79,7 @@ public class BracketTest
 	@Test
 	public void TraverseHeadTreeTest()
 	{
-		AbstractHeadGenerator headGen = new HeadGeneratorCollins();
+		AbstractHeadGenerator headGen = new HeadGeneratorCollins(new HeadRuleSetPTB());
 		TreeNode tree1 = BracketExpUtil.generateTree(
 				"(ROOT(IP(NP(NR 我)(PU -LRB-)(NN 李斯)(PU -RRB-))(VP(Verb 是)(NP(PU -LRB-)(NN 大秦)(PU -RRB-)(NR 丞相)))(PU 。)))");
 		HeadTreeNode headTree1 = TreeToHeadTree.treeToHeadTree(tree1, headGen);

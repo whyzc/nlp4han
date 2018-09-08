@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.HeadGeneratorCollins;
+import com.lc.nlp4han.constituent.HeadRuleSetPTB;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.ml.util.TrainingParameters;
 
@@ -95,7 +96,7 @@ public class SRLTrainerForByStepNoNullTool {
     	}else{
     		parse = new SRLParseWithNULL_101AndPruning();
     	}
-        AbstractHeadGenerator ahg = new HeadGeneratorCollins();
+        AbstractHeadGenerator ahg = new HeadGeneratorCollins(new HeadRuleSetPTB());
         SRLMEForIdentification.train(corpusFile, idenmodelFile, params, contextGenIden, encoding, parse, ahg);
 		SRLMEForClassificationNoNull.train(corpusFile, clasmodelFile, params, contextGenClas, encoding, parse, ahg);
 	}	

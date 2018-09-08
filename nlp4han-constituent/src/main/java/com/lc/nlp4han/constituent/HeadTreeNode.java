@@ -169,7 +169,7 @@ public class HeadTreeNode extends TreeNode
 		else
 		{
 			String treestr = "";
-			treestr = "(" + this.nodename + "{" + super.BracketConvert(this.headWord) + "[" + this.headPos + "]}";
+			treestr = "(" + super.BracketConvert(this.nodename) + "{" + super.BracketConvert(this.headWord) + "[" + this.headPos + "]}";
 
 			for (HeadTreeNode node : getChildren())
 			{

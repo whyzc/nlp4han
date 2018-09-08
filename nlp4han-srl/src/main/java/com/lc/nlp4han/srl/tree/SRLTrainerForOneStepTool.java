@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.HeadGeneratorCollins;
+import com.lc.nlp4han.constituent.HeadRuleSetPTB;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.ml.util.TrainingParameters;
 
@@ -90,7 +91,7 @@ public class SRLTrainerForOneStepTool {
     		parse = new SRLParseWithNULL_101AndPruning();
     	}
         
-        AbstractHeadGenerator ahg = new HeadGeneratorCollins();
+        AbstractHeadGenerator ahg = new HeadGeneratorCollins(new HeadRuleSetPTB());
         SRLMEForOneStep.train(corpusFile, modelFile, params, contextGen, encoding, parse, ahg);
 	}
 }
