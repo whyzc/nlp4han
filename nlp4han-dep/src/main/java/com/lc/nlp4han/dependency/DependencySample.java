@@ -16,7 +16,7 @@ import java.util.List;
 public class DependencySample
 {
 
-	private List<String> words;
+	private List<String> words;//包括认为添加的ROOT
 	private List<String> pos;
 	private List<String> dependency;
 	private List<String> dependencyWords;

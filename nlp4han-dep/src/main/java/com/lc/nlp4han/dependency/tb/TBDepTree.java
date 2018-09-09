@@ -66,8 +66,4 @@ public class TBDepTree
 		return new DependencySample(words, poses, dependency, dependencyWords, dependencyIndices);
 	}
 
-	public DependencySample getSample(Configuration_ArcEager conf, String[] word, String[] pos)
-	{
-		return getSample(conf.getArcs(), word, pos);
-	}
 }

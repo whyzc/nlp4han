@@ -51,6 +51,9 @@ public abstract class Configuration {
 	
 	public void initialConf(String[] words, String[] pos)
 	{
+		wordsBuffer.clear();
+		stack.clear();
+		arcs.clear();
 		if (words.length != 0)
 		{
 			wordsBuffer = Vertice.getWordsBuffer(words, pos);

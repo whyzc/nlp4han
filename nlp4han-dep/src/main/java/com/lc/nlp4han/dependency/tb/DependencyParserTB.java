@@ -45,34 +45,23 @@ public class DependencyParserTB implements DependencyParser
 
 	private SequenceValidator<String> sequenceValidator;
 
-	// public DependencyParser_ArcEager(String modelPath) throws IOException
-	// {
-	// this(new File(modelPath));
-	// }
+	private Configuration conf;
 
-	public DependencyParserTB(String modelPath, DependencyParseContextGenerator contextGenerator) throws IOException
+	public DependencyParserTB(String modelPath, DependencyParseContextGenerator contextGenerator ,Configuration conf,SequenceValidator<String> sequenceValidator) throws IOException
 	{
-		this(new File(modelPath), contextGenerator);
+		this(new File(modelPath), contextGenerator,conf,sequenceValidator);
 	}
 
-	// public DependencyParser_ArcEager(File file) throws IOException
-	// {
-	// this(new ModelWrapper(file));
-	// }
 
-	public DependencyParserTB(File file, DependencyParseContextGenerator contextGenerator) throws IOException
+	public DependencyParserTB(File file, DependencyParseContextGenerator contextGenerator,Configuration conf,SequenceValidator<String> sequenceValidator) throws IOException
 	{
-		this(new ModelWrapper(file), contextGenerator);
+		this(new ModelWrapper(file), contextGenerator,conf,sequenceValidator);
 	}
 
-	// public DependencyParser_ArcEager(ModelWrapper model) throws IOException
-	// {
-	// init(model, new DependencyParseContextGeneratorConf_ArcEager());
-	// }
 
-	public DependencyParserTB(ModelWrapper model, DependencyParseContextGenerator contextGenerator)
+	public DependencyParserTB(ModelWrapper model, DependencyParseContextGenerator contextGenerator,Configuration conf,SequenceValidator<String> sequenceValidator)
 	{
-		init(model, contextGenerator);
+		init(model, contextGenerator,conf,sequenceValidator);
 	}
 
 	/**
@@ -83,17 +72,17 @@ public class DependencyParserTB implements DependencyParser
 	 * @param contextGen
 	 *            特征
 	 */
-	private void init(ModelWrapper model, DependencyParseContextGenerator contextGenerator)
+	private void init(ModelWrapper model, DependencyParseContextGenerator contextGenerator,Configuration conf,SequenceValidator<String> sequenceValidator)
 	{
 		this.model = model.getModel();
 
 		this.SModel = model.getSequenceModel();
 
+		this.conf = conf;
+		
 		this.contextGenerator = contextGenerator;
-		if (contextGenerator instanceof DependencyParseContextGeneratorConf_ArcEager)
-			this.sequenceValidator = new DependencyParseSequenceValidator_ArcEager();
-		else
-			this.sequenceValidator = new DependencyParseSequenceValidator_ArcStandard();
+		
+		this.sequenceValidator = sequenceValidator;
 	}
 
 	public static ModelWrapper train(String trainDatePath, TrainingParameters params,
@@ -147,6 +136,7 @@ public class DependencyParserTB implements DependencyParser
 				es = new DependencySampleEventStream_ArcStandard(sampleStream, contextGenerator);
 			EventTrainer trainer = TrainerFactory.getEventTrainer(params.getSettings(), manifestInfoEntries);
 			depModel = trainer.train(es);
+			System.out.println("训练完毕：");
 		}
 		else if (TrainerType.EVENT_MODEL_SEQUENCE_TRAINER.equals(trainerType))
 		{
@@ -189,25 +179,20 @@ public class DependencyParserTB implements DependencyParser
 
 		Oracle oracleMEBased = new Oracle(model, contextGenerator);
 		ActionType action = new ActionType();
-		Configuration currentConf;
-		if (contextGenerator instanceof DependencyParseContextGeneratorConf_ArcEager)
-			currentConf = new Configuration_ArcEager();
-		else
-			currentConf = new Configuration_ArcStandard();
-		currentConf.initialConf(words, poses);
+		conf.initialConf(words, poses);
 		String[] priorDecisions = new String[2 * (words.length - 1)];
 		int indexOfConf = 0;
-		while (!currentConf.isFinalConf())
+		while (!conf.isFinalConf())
 		{
-			action = oracleMEBased.classify(currentConf, priorDecisions, null);
+			action = oracleMEBased.classify(conf, priorDecisions, null);
 			// System.out.println(currentConf.toString() + "*****" + "preAction =" +
 			// action.typeToString());
-			currentConf.transition(action);
+			conf.transition(action);
 			priorDecisions[indexOfConf] = action.typeToString();
 			indexOfConf++;
 		}
 		// System.out.println(currentConf.arcsToString());
-		DependencyTree depTree = TBDepTree.getTree(currentConf, words, poses);
+		DependencyTree depTree = TBDepTree.getTree(conf, words, poses);
 		return depTree;
 	}
 
@@ -245,17 +230,6 @@ public class DependencyParserTB implements DependencyParser
 		DependencyTree[] allTree = new DependencyTree[allSequence.length];
 		for (int i = 0; i < allSequence.length; i++)
 		{
-			Configuration conf;
-			if (contextGenerator instanceof DependencyParseContextGeneratorConf_ArcEager)
-			{
-				conf = new Configuration_ArcEager();
-			}
-			else
-			{
-
-				conf = new Configuration_ArcStandard();
-			}
-
 			conf.initialConf(words, poses);
 			for (String outcome : allSequence[i].getOutcomes())
 			{
