@@ -9,10 +9,8 @@ import com.lc.nlp4han.dependency.DependencyTree;
  * @author 王宁
  * @version 创建时间：2018年7月24日 下午3:35:20 将解析来的conf解析为树和sample
  */
-public class TBDepTree
+public class DependencyTreeTBUtil
 {
-
-	private static int erroCount = 0;
 
 	/**
 	 * @param conf

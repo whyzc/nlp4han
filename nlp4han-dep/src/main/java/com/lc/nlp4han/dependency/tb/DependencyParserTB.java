@@ -192,7 +192,7 @@ public class DependencyParserTB implements DependencyParser
 			indexOfConf++;
 		}
 		// System.out.println(currentConf.arcsToString());
-		DependencyTree depTree = TBDepTree.getTree(conf, words, poses);
+		DependencyTree depTree = DependencyTreeTBUtil.getTree(conf, words, poses);
 		return depTree;
 	}
 
@@ -235,7 +235,7 @@ public class DependencyParserTB implements DependencyParser
 			{
 				conf.transition(ActionType.toType(outcome));
 			}
-			DependencyTree depTree = TBDepTree.getTree(conf, words, poses);
+			DependencyTree depTree = DependencyTreeTBUtil.getTree(conf, words, poses);
 			allTree[i] = depTree;
 		}
 		return allTree;

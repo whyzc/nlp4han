@@ -1,11 +1,6 @@
 package com.lc.nlp4han.dependency.tb;
 
-import java.io.File;
-import java.io.IOException;
-
 import com.lc.nlp4han.ml.model.ClassificationModel;
-import com.lc.nlp4han.ml.model.SequenceClassificationModel;
-import com.lc.nlp4han.ml.util.ModelWrapper;
 
 /**
  * action预测
@@ -41,7 +36,7 @@ public class Oracle
 		int indexOfBestOutcome = getBestIndexOfOutcome(allPredicates);
 		if (contextGenerator instanceof DependencyParseContextGeneratorConf_ArcEager)
 		{
-			while (!SimpleValidator.validate((Configuration_ArcEager)currentConf, tempAllType[indexOfBestOutcome]))
+			while (!DependencyTBValidator.validate((Configuration_ArcEager)currentConf, tempAllType[indexOfBestOutcome]))
 			{// ActionType不符合依存转换关系
 				allPredicates[indexOfBestOutcome] = -1;
 				indexOfBestOutcome = getBestIndexOfOutcome(allPredicates);
@@ -49,7 +44,7 @@ public class Oracle
 		}
 		else
 		{
-			while (!SimpleValidator.validate((Configuration_ArcStandard)currentConf, tempAllType[indexOfBestOutcome]))
+			while (!DependencyTBValidator.validate((Configuration_ArcStandard)currentConf, tempAllType[indexOfBestOutcome]))
 			{// ActionType不符合依存转换关系
 				allPredicates[indexOfBestOutcome] = -1;
 				indexOfBestOutcome = getBestIndexOfOutcome(allPredicates);
