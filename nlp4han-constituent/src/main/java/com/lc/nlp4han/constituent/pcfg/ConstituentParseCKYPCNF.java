@@ -134,6 +134,7 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 
 			}
 		}
+		
 		// 开始剖析
 		for (int j = 1; j <= n; j++)
 		{// 从第一列开始，由左往右
@@ -155,10 +156,12 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 				ruleMap.put(pos[j - 1], ckyrule);
 				updateRuleMap(1.0, ruleMap, pos[j - 1], words[j - 1], null, 0);
 			}
+			
 			if (j <= 1)
 			{
 				continue;
 			}
+			
 			for (int i = j - 2; i >= 0; i--)
 			{// 从第j-2行开始，由下到上
 				for (int k = i + 1; k <= j - 1; k++)
@@ -167,8 +170,10 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 				}
 			}
 		}
+		
 		// 回溯并生成括号表达式列表
-		CreatBracketStringList(n, numOfResulets);
+		creatBracketStringList(n, numOfResulets);
+		
 		return resultList;
 	}
 
@@ -271,7 +276,7 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 	 * @param numOfResulets
 	 *            需要获得的句子分析结果个数
 	 */
-	private void CreatBracketStringList(int n, int numOfResulets)
+	private void creatBracketStringList(int n, int numOfResulets)
 	{
 		// 查找概率最大的n个结果
 		CKYPRule resultRule = table[0][n].getPruleMap().get(pcnf.getStartSymbol());
@@ -281,12 +286,12 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 			return;
 		}
 		StringBuilder strBuilder = new StringBuilder();
-		CreateStringBuilder(0, n, resultRule, strBuilder);// 从最后一个节点[0,n]开始回溯
+		createStringBuilder(0, n, resultRule, strBuilder);// 从最后一个节点[0,n]开始回溯
 		resultList.add(strBuilder.toString());
 	}
 
 	// 递归table和back生成StringBuilder
-	private void CreateStringBuilder(int i, int j, CKYPRule prule, StringBuilder strBuilder)
+	private void createStringBuilder(int i, int j, CKYPRule prule, StringBuilder strBuilder)
 	{
 		int count = 1;
 		String lhs = prule.getLhs();
@@ -309,8 +314,8 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 		} // * 当含有&符号时，则为两个非终结符在中间过程合成的，故不处理此非终结符，直接跳过
 		else if (prule.getLhs().contains("&"))
 		{
-			AddString(i, prule.getK(), prule, 0, strBuilder);
-			AddString(prule.getK(), j, prule, 1, strBuilder);
+			addString(i, prule.getK(), prule, 0, strBuilder);
+			addString(prule.getK(), j, prule, 1, strBuilder);
 			return;
 		}
 		else
@@ -325,8 +330,8 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 		}
 		else
 		{
-			AddString(i, prule.getK(), prule, 0, strBuilder);
-			AddString(prule.getK(), j, prule, 1, strBuilder);
+			addString(i, prule.getK(), prule, 0, strBuilder);
+			addString(prule.getK(), j, prule, 1, strBuilder);
 		}
 		while (count > 0)
 		{
@@ -338,7 +343,7 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 	/**
 	 * 添加左右括号和终结符与非终结符，i记录prule右侧的非终结符序号
 	 */
-	private void AddString(int n, int m, CKYPRule prule, int i, StringBuilder strBuilder)
+	private void addString(int n, int m, CKYPRule prule, int i, StringBuilder strBuilder)
 	{
 		CKYPRule prule1;
 		String DuPos = prule.getRhs().get(i);
@@ -379,7 +384,7 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 		}
 		else
 		{
-			CreateStringBuilder(n, m, prule1, strBuilder);
+			createStringBuilder(n, m, prule1, strBuilder);
 		}
 	}
 
