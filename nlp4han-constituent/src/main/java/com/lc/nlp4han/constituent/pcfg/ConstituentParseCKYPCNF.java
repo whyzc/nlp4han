@@ -13,7 +13,6 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 {
 	private CKYCell[][] table;// 存储在该点的映射表
 	private PCFG pcnf;
-	private ArrayList<String> resultList;
 
 	public ConstituentParseCKYPCNF(PCFG pcnf)
 	{
@@ -174,7 +173,7 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 		}
 		
 		// 回溯并生成括号表达式列表
-		creatBracketStringList(n, numOfResulets);
+		ArrayList<String> resultList = creatBracketStringList(n, numOfResulets);
 		
 		return resultList;
 	}
@@ -280,20 +279,23 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 	 * @param numOfResulets
 	 *            需要获得的句子分析结果个数
 	 */
-	private void creatBracketStringList(int n, int numOfResulets)
+	private ArrayList<String> creatBracketStringList(int n, int numOfResulets)
 	{
+		ArrayList<String> resultList = new ArrayList<String>();
+		
 		// 查找概率最大的n个结果
 		CKYPRule resultRule = table[0][n].getPruleMap().get(pcnf.getStartSymbol());		
 		if (resultRule == null)
 		{// 如果没有Parse结果则直接返回
-			return;
+			return resultList;
 		}
-		
-		resultList = new ArrayList<String>();
+			
 		StringBuilder strBuilder = new StringBuilder();
 		backTrack(0, n, resultRule, strBuilder);// 从最后一个节点[0,n]开始回溯
 		
 		resultList.add(strBuilder.toString());
+		
+		return resultList;
 	}
 
 	// 递归table和back生成StringBuilder
