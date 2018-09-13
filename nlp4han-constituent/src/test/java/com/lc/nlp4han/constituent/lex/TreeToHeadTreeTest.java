@@ -11,7 +11,7 @@ import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.TreeToHeadTree;
 
-public class HeadGeneratorForCTBTest
+public class TreeToHeadTreeTest
 {
 	@Test
 	public void testGenerateHeadWords()
