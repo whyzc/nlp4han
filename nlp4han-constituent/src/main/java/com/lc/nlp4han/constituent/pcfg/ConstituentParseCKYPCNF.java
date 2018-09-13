@@ -30,7 +30,7 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 	 */
 	public ConstituentTree parseTree(String[] words, String[] poses)
 	{
-		return getParseResult(words, poses, 1)[0];
+		return parse(words, poses, 1)[0];
 	}
 
 	/**
@@ -42,7 +42,7 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 	 */
 	public ConstituentTree parseTree(String[] words)
 	{
-		return getParseResult(words, null, 1)[0];
+		return parse(words, null, 1)[0];
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 	 */
 	public ConstituentTree[] parseKTree(String[] words, String[] poses, int k)
 	{
-		return getParseResult(words, poses, k);
+		return parse(words, poses, k);
 	}
 
 	/**
@@ -72,7 +72,7 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 	 */
 	public ConstituentTree[] parseKTree(String[] words, int k)
 	{
-		return getParseResult(words, null, k);
+		return parse(words, null, k);
 	}
 
 	/**
@@ -86,7 +86,7 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 	 *            结果数目
 	 * @return
 	 */
-	private ConstituentTree[] getParseResult(String[] words, String[] poses, int k)
+	private ConstituentTree[] parse(String[] words, String[] poses, int k)
 	{
 		ConstituentTree[] treeArray = new ConstituentTree[k];
 		ArrayList<String> bracketList = parseCKY(words, poses, k);
@@ -291,7 +291,7 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 		}
 			
 		StringBuilder strBuilder = new StringBuilder();
-		backTrack(0, n, resultRule, strBuilder);// 从最后一个节点[0,n]开始回溯
+		getParseResult(0, n, resultRule, strBuilder);// 从最后一个节点[0,n]开始回溯
 		
 		resultList.add(strBuilder.toString());
 		
@@ -299,7 +299,7 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 	}
 
 	// 递归table和back生成StringBuilder
-	private void backTrack(int i, int j, CKYPRule prule, StringBuilder strBuilder)
+	private void getParseResult(int i, int j, CKYPRule prule, StringBuilder strBuilder)
 	{
 		int count = 1;
 		String lhs = prule.getLhs();
@@ -322,8 +322,8 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 		} // * 当含有&符号时，则为两个非终结符在中间过程合成的，故不处理此非终结符，直接跳过
 		else if (prule.getLhs().contains("&"))
 		{
-			addString(i, prule.getK(), prule, 0, strBuilder);
-			addString(prule.getK(), j, prule, 1, strBuilder);
+			backTrack(i, prule.getK(), prule, 0, strBuilder);
+			backTrack(prule.getK(), j, prule, 1, strBuilder);
 			return;
 		}
 		else
@@ -331,6 +331,7 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 			strBuilder.append("(");
 			strBuilder.append(lhs);
 		}
+		
 		if (table[i][j].isFlag())
 		{
 			strBuilder.append(" ");
@@ -338,9 +339,10 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 		}
 		else
 		{
-			addString(i, prule.getK(), prule, 0, strBuilder);
-			addString(prule.getK(), j, prule, 1, strBuilder);
+			backTrack(i, prule.getK(), prule, 0, strBuilder);
+			backTrack(prule.getK(), j, prule, 1, strBuilder);
 		}
+		
 		while (count > 0)
 		{
 			strBuilder.append(")");
@@ -351,7 +353,7 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 	/**
 	 * 添加左右括号和终结符与非终结符，i记录prule右侧的非终结符序号
 	 */
-	private void addString(int n, int m, CKYPRule prule, int i, StringBuilder strBuilder)
+	private void backTrack(int n, int m, CKYPRule prule, int i, StringBuilder strBuilder)
 	{
 		CKYPRule prule1;
 		String DuPos = prule.getRhs().get(i);
@@ -393,7 +395,7 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 		}
 		else
 		{
-			backTrack(n, m, prule1, strBuilder);
+			getParseResult(n, m, prule1, strBuilder);
 		}
 	}
 
