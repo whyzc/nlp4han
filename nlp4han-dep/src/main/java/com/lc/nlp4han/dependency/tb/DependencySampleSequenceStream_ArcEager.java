@@ -12,6 +12,7 @@ import com.lc.nlp4han.ml.model.Sequence;
 import com.lc.nlp4han.ml.model.SequenceStream;
 import com.lc.nlp4han.ml.util.ModelWrapper;
 import com.lc.nlp4han.ml.util.ObjectStream;
+import com.lc.nlp4han.ml.util.SequenceValidator;
 
 /**
  * @author 王宁
@@ -35,7 +36,7 @@ public class DependencySampleSequenceStream_ArcEager implements SequenceStream
 		Sequence<DependencySample> pss = sequence;
 		try
 		{
-			DependencyParserTB parseTB = new DependencyParserTB(new ModelWrapper(model),new DependencyParseContextGeneratorConf_ArcEager());
+		DependencyParserTB parseTB = new DependencyParserTB(new ModelWrapper(model),new DependencyParseContextGeneratorConf_ArcEager(),new Configuration_ArcEager(),new DependencyParseSequenceValidator_ArcEager());
 		
 		DependencySample sample = (DependencySample)sequence.getSource();
 		String[] words = sample.getWords();

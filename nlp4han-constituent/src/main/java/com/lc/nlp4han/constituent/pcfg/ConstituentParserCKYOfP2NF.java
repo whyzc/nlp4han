@@ -95,7 +95,7 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 	private ConstituentTree[] getParseResult(String[] words, String[] poses, int k)
 	{
 		ConstituentTree[] treeArray = new ConstituentTree[k];
-		ArrayList<String> bracketList = CKYParser(words, poses, k);
+		ArrayList<String> bracketList = parseCKY(words, poses, k);
 		int i = 0;
 		for (String bracketString : bracketList)
 		{
@@ -119,7 +119,7 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 	 * 
 	 * @return 输出k个句子解析结果
 	 */
-	private ArrayList<String> CKYParser(String[] words, String[] pos, int numOfResulets)
+	private ArrayList<String> parseCKY(String[] words, String[] pos, int numOfResulets)
 	{
 		int n = words.length;
 		table = new CKYTreeNode[n + 1][n + 1];

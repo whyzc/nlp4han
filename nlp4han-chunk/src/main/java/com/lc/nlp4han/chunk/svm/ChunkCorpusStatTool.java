@@ -19,6 +19,8 @@ public class ChunkCorpusStatTool
 	private static Map<String, Info> chunks = new HashMap<String, Info>();
 	private static Set<String> words = new HashSet<String>();
 	private static Set<String> POSs = new HashSet<String>();
+	
+	private static double avgChunkLen = 0;
 
 	public static void main(String[] args)
 	{
@@ -37,6 +39,7 @@ public class ChunkCorpusStatTool
 		System.out.println("词性数：" + POSs.size());
 		System.out.println("组块类型数：" + chunks.size());
 		System.out.println("组块总数：" + chunkNum);
+		System.out.println("平均组块长度：" + avgChunkLen);
 
 		System.out.println("***************组块详细数据**************");
 
@@ -145,14 +148,20 @@ public class ChunkCorpusStatTool
 
 	private static void postProcessing()
 	{
+		int chunkTotalLen = 0;
 		Set<String> set = chunks.keySet();
 		Iterator<String> it = set.iterator();
 		while (it.hasNext())
 		{
 			String key = it.next();
 			Info ifr = chunks.get(key);
+			
+			chunkTotalLen += ifr.averageLength;
+			
 			ifr.averageLength /= ifr.number;
 		}
+		
+		avgChunkLen = chunkTotalLen / (double)chunkNum;
 	}
 
 	private static void processSample(String sample)

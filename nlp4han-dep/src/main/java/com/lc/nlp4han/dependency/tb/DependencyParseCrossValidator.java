@@ -1,8 +1,6 @@
 package com.lc.nlp4han.dependency.tb;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 
 import com.lc.nlp4han.dependency.DependencyParseEvaluateMonitor;
 import com.lc.nlp4han.dependency.DependencyParseMeasure;
@@ -10,6 +8,7 @@ import com.lc.nlp4han.dependency.DependencySample;
 import com.lc.nlp4han.ml.util.CrossValidationPartitioner;
 import com.lc.nlp4han.ml.util.ModelWrapper;
 import com.lc.nlp4han.ml.util.ObjectStream;
+import com.lc.nlp4han.ml.util.SequenceValidator;
 import com.lc.nlp4han.ml.util.TrainingParameters;
 
 /**
@@ -50,7 +49,7 @@ public class DependencyParseCrossValidator
 	 *             io异常
 	 */
 	public void evaluate(ObjectStream<DependencySample> sample, int nFolds,
-			DependencyParseContextGenerator contextGenerator, String tType) throws IOException
+			DependencyParseContextGenerator contextGenerator,Configuration conf, SequenceValidator<String> validator,String tType) throws IOException
 	{
 		CrossValidationPartitioner<DependencySample> partitioner = new CrossValidationPartitioner<DependencySample>(
 				sample, nFolds);
@@ -67,17 +66,13 @@ public class DependencyParseCrossValidator
 			
 			model = DependencyParserTB.train(trainingSampleStream, params, contextGenerator);
 			// 评价模型
-			evaluator = new DependencyParseEvaluator(new DependencyParserTB(model, contextGenerator),		listeners);
+			evaluator = new DependencyParseEvaluator(new DependencyParserTB(model, contextGenerator,conf,validator),		listeners);
 			evaluator.setMeasure(measure);
 			evaluator.evaluate(trainingSampleStream.getTestSampleStream());
 
 			System.out.println(measure);
 			run++;
 		}
-		FileOutputStream fo = new FileOutputStream("C:\\Users\\hp\\Desktop\\" + System.currentTimeMillis() + ".txt");
-		OutputStreamWriter osw = new OutputStreamWriter(fo, "utf-8");
-		osw.write(measure.toString());
-		osw.close();
 		System.out.println(measure);
 	}
 }

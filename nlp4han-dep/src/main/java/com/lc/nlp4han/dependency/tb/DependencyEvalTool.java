@@ -49,23 +49,23 @@ public class DependencyEvalTool
 			if (transitionType.equals("arceager"))
 			{
 				inStream = DependencyEvalTool.class.getClassLoader()
-						.getResourceAsStream("com/lc/nlp4han/dependency/arceager.model");
+						.getResourceAsStream("com/lc/nlp4han/dependency/arceager222.model");
 			}
 			else
 			{
 				inStream = DependencyEvalTool.class.getClassLoader()
-						.getResourceAsStream("com/lc/nlp4han/dependency/arc_standard3.model");
+						.getResourceAsStream("com/lc/nlp4han/dependency/arc_standard5.model");
 			}
 			model = new ModelWrapper(inStream);
 		}
 		
 		if (transitionType.equals("arceager"))
 		{
-			tagger = new DependencyParserTB(model, new DependencyParseContextGeneratorConf_ArcEager());
+			tagger = new DependencyParserTB(model, new DependencyParseContextGeneratorConf_ArcEager(),new Configuration_ArcEager(),new DependencyParseSequenceValidator_ArcEager());
 		}
 		else
 		{
-			tagger = new DependencyParserTB(model, new DependencyParseContextGeneratorConf_ArcStandard());
+			tagger = new DependencyParserTB(model, new DependencyParseContextGeneratorConf_ArcStandard(),new Configuration_ArcStandard(),new DependencyParseSequenceValidator_ArcStandard());
 		}
 		
 

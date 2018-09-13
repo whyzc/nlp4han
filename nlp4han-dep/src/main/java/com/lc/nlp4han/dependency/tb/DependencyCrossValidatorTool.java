@@ -13,6 +13,7 @@ import com.lc.nlp4han.dependency.PlainTextBySpaceLineStream;
 import com.lc.nlp4han.ml.perceptron.SimplePerceptronSequenceTrainer;
 import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
+import com.lc.nlp4han.ml.util.SequenceValidator;
 import com.lc.nlp4han.ml.util.TrainingParameters;
 
 /**
@@ -106,12 +107,24 @@ public class DependencyCrossValidatorTool
 		// 交叉验证
 		DependencyParseCrossValidator crossValidator = new DependencyParseCrossValidator(params);
 		DependencyParseContextGenerator contextGen;
+		Configuration conf;
+		SequenceValidator<String> validator;
 		if (transitionType.equals("arceager"))
+		{
 			contextGen = new DependencyParseContextGeneratorConf_ArcEager();
+			conf = new Configuration_ArcEager();
+			validator = new DependencyParseSequenceValidator_ArcEager();
+		}
+
 		else
+		{
 			contextGen = new DependencyParseContextGeneratorConf_ArcStandard();
+			conf = new Configuration_ArcStandard();
+			validator = new DependencyParseSequenceValidator_ArcStandard();
+		}
+		
 		LocalDateTime start = LocalDateTime.now();
-		crossValidator.evaluate(sampleStream, folds, contextGen,transitionType);
+		crossValidator.evaluate(sampleStream, folds, contextGen, conf, validator, transitionType);
 		LocalDateTime end = LocalDateTime.now();
 		BigDecimal time = new BigDecimal(end.toString()).subtract(new BigDecimal(start.toString()));
 		System.out.println("消耗时间:" + time);

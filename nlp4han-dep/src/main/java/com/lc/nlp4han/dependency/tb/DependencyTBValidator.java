@@ -3,10 +3,9 @@ package com.lc.nlp4han.dependency.tb;
 import com.lc.nlp4han.dependency.DependencyParser;
 
 /**
- * @author 作者
- * @version 创建时间：2018年7月27日 下午2:38:17 类说明
+ * 基于转换的依存关系验证
  */
-public class SimpleValidator
+public class DependencyTBValidator
 {
 	/**
 	 * @param conf
