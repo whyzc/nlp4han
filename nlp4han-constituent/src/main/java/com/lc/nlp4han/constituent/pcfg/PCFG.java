@@ -21,20 +21,6 @@ public class PCFG extends CFG
 	}
 
 	/**
-	 * 根据规则中的终结符和非终结符获取整个规则
-	 * 
-	 * @param rule
-	 * @return
-	 */
-	public PRule getPRuleByLHSAndRHS(RewriteRule rule)
-	{
-		ArrayList<String> lhsAndRhs = new ArrayList<String>();
-		lhsAndRhs.add(rule.getLhs());
-		lhsAndRhs.addAll(rule.getRhs());
-		return (PRule) super.getPruleMap().get(lhsAndRhs);
-	}
-
-	/**
 	 * 获取PCFG中所有非终结符扩展出的规则概率之和与1.0的误差，取其中最大的值返回
 	 */
 	public double getProMaxErrorOfNonTer()
