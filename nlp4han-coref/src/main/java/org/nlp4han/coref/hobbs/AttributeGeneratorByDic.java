@@ -227,7 +227,7 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 				TreeNode qpNode = qpNodes.get(0);
 				if (TreeNodeUtil.hasNodeName(qpNode.getChildren(), "CD"))
 				{
-					List<TreeNode> cdNodes = TreeNodeUtil.getNodesWithSpecified(treeNode, new String[] { "CD" });
+					List<TreeNode> cdNodes = TreeNodeUtil.getNodesWithSpecifiedName(treeNode, new String[] { "CD" });
 					TreeNode cdNode = cdNodes.get(0);
 					if (cdNode.getChild(0).getNodeName().equals("一") || cdNode.getChild(0).getNodeName().equals("1"))
 					{

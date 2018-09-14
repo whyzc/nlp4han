@@ -62,10 +62,15 @@ public class NodeNameFilter implements Filter
 	}
 
 	@Override
-	public void setUp(List<TreeNode> treeNodes)
+	public void setFilteredNodes(List<TreeNode> treeNodes)
 	{
 		this.treeNodes = treeNodes;
 
+	}
+
+	@Override
+	public void setReferenceConditions(Object obj)
+	{
 	}
 
 }

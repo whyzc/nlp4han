@@ -13,7 +13,7 @@ import org.nlp4han.coref.hobbs.TreeNodeUtil;
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.TreeNode;
 
-public class Entity
+public class Entity implements Comparable<Entity>
 {
 	private String entityName;
 	private String grammaticalRole;
@@ -24,7 +24,7 @@ public class Entity
 	{
 
 	}
-	
+
 	public Entity(String entityName, String grammaticalRole, int site)
 	{
 		this.entityName = entityName;
@@ -91,17 +91,18 @@ public class Entity
 	}
 
 	/**
-	 * 根据结构树生成其所有实体对象
+	 * 根据语法角色规则，从短语结构树中提取实体集
 	 * 
 	 * @param root
+	 * @param grammaticalRoleRuleSet
 	 * @return
 	 */
-	public static List<Entity> entities(TreeNode root)
+	public static List<Entity> entities(TreeNode root, HashMap<String, List<String>> grammaticalRoleRuleSet)
 	{
 		if (root == null)
 			throw new RuntimeException("输入错误");
 		List<Entity> result = new ArrayList<Entity>();
-		Map<String, List<Entity>> maps = Entity.generateEntitiesAndGrammaticalRole(root, GrammaticalRoleRuleSet.getGrammaticalRoleRuleSet());
+		Map<String, List<Entity>> maps = Entity.generateEntitiesAndGrammaticalRole(root, grammaticalRoleRuleSet);
 		Set<String> keys = maps.keySet();
 		Iterator<String> it = keys.iterator();
 		while (it.hasNext())
@@ -112,19 +113,31 @@ public class Entity
 		return sort(result);
 	}
 
+	/**
+	 * 从短语结构树中提取实体集
+	 * 
+	 * @param root
+	 * @return
+	 */
+	public static List<Entity> entities(TreeNode root)
+	{
+		// TODO : To Implement
+		return null;
+	}
+
+	/**
+	 * 将实体集进行排序，此处按照语法角色的优先级进行排序
+	 * 
+	 * @param entities
+	 * @return
+	 */
 	public static List<Entity> sort(List<Entity> entities)
 	{
 		if (entities != null && entities.size() > 0)
 		{
 			List<Entity> result = new ArrayList<Entity>();
-			for (int i = 0; i < grammaticalRolePriority.length; i++)
-			{
-				for (int j = 0; j < entities.size(); j++)
-				{
-					if (grammaticalRolePriority[i].equals(entities.get(j).getGrammaticalRole()))
-						result.add(entities.get(j));
-				}
-			}
+			result.addAll(entities);
+			result.sort(null);
 			if (result.size() != entities.size())
 				throw new RuntimeException("结果错误！");
 			return result;
@@ -178,7 +191,14 @@ public class Entity
 		return true;
 	}
 
-	public static Map<String, List<Entity>> generateEntitiesAndGrammaticalRole(TreeNode tree,
+	/**
+	 * 生成语法角色与实体的映射
+	 * 
+	 * @param tree
+	 * @param grammaticalRoleRuleSet
+	 * @return
+	 */
+	private static Map<String, List<Entity>> generateEntitiesAndGrammaticalRole(TreeNode tree,
 			HashMap<String, List<String>> grammaticalRoleRuleSet)
 	{
 		Map<String, List<Entity>> result = new HashMap<String, List<Entity>>();
@@ -273,34 +293,63 @@ public class Entity
 		return result;
 	}
 
+	/**
+	 * 根据结点与其对应的语法角色生成实体
+	 */
 	private static List<Entity> getEntity(TreeNode treeNode, String grammaticalRole)
 	{
 		List<Entity> result = new ArrayList<Entity>();
-		if (TreeNodeUtil.isCoordinatingNP(treeNode))
+
+		List<TreeNode> children = TreeNodeUtil.getChildNodeWithSpecifiedName(treeNode,
+				new String[] { "NP", "DNP", "NN", "NR", "PN" });
+		if (children.isEmpty())
 		{
-			List<TreeNode> children = TreeNodeUtil.getChildNodeWithSpecifiedName(treeNode, new String[] {"NP", "NN", "NR"});
-			for (int i=0 ; i<children.size() ; i++)
-			{
-				Entity e = new Entity(children.get(i), grammaticalRole);
-				result.add(e);
-			}
+			generateAndAddEntity(treeNode, grammaticalRole, result);
 		}
 		else
 		{
-			TreeNode node = TreeNodeUtil.getHead(treeNode, NPHeadRuleSetPTB.getNPRuleSet());
-			if (node != null)
+			for (int i = 0; i < children.size(); i++)
 			{
-				Entity e = new Entity(node, grammaticalRole);
-				result.add(e);
-			}
-			else
-			{// TODO:这里的else需要删除
-				System.out.println("获取head失败：" + treeNode);
+				if (children.get(i).getNodeName().equals("DNP"))
+				{
+					List<TreeNode> nodes = TreeNodeUtil.getChildNodeWithSpecifiedName(children.get(i),
+							new String[] { "NP" });
+					for (int j = 0; j < nodes.size(); j++)
+					{
+						generateAndAddEntity(nodes.get(j), grammaticalRole, result);
+					}
+				}
+				else
+				{
+					generateAndAddEntity(children.get(i), grammaticalRole, result);
+				}
+
 			}
 		}
+
 		return result;
 	}
 
+	private static void generateAndAddEntity(TreeNode node, String grammaticalRole, List<Entity> es)
+	{
+		TreeNode tmp;
+		if (node.getNodeName().equals("NP"))
+		{
+			tmp = TreeNodeUtil.getHead(node, NPHeadRuleSetPTB.getNPRuleSet());
+		}
+		else
+			tmp = node;
+		if (tmp != null)
+		{
+			Entity e = new Entity(tmp, grammaticalRole);
+			if (!es.contains(e))
+				es.add(e);
+		}
+	}
+
+	/**
+	 * 根据ruleStr规则，找出tree中与之结构相同的结点
+	 */
 	private static List<TreeNode> parseOneRule(TreeNode tree, String ruleStr)
 	{
 		if (tree == null || ruleStr == null)
@@ -314,7 +363,7 @@ public class Entity
 
 		List<String> parts = BracketExpUtil.stringToList(rule);
 
-		List<TreeNode> nodes = TreeNodeUtil.getNodesWithSpecified(tree, new String[] { parts.get(1) });
+		List<TreeNode> nodes = TreeNodeUtil.getNodesWithSpecifiedName(tree, new String[] { parts.get(1) });
 
 		for (int i = 0; i < nodes.size(); i++)
 		{
@@ -327,6 +376,16 @@ public class Entity
 		return result;
 	}
 
+	/**
+	 * 递归算法，从一对括号的第一个结点node开始，找出符合规则的结点，startSite与endSite记录一对括号的位置
+	 * 
+	 * @param node
+	 * @param parts
+	 * @param startSite
+	 * @param endSite
+	 * @param targetNodeName
+	 * @return
+	 */
 	private static Map<Boolean, List<TreeNode>> parse(TreeNode node, List<String> parts, int startSite, EndSite endSite,
 			String targetNodeName)
 	{
@@ -469,6 +528,30 @@ public class Entity
 			return "[endSite=" + endSite + "]";
 		}
 
+	}
+
+	@Override
+	public int compareTo(Entity o)
+	{
+		if (this.grammaticalRole.equals(o.grammaticalRole))
+		{
+			return this.site - o.site;
+		}
+		else
+		{
+			int s1 = -1;
+			int s2 = -1;
+			for (int i = 0; i < grammaticalRolePriority.length; i++)
+			{
+				if (this.grammaticalRole.equals(grammaticalRolePriority[i]))
+					s1 = i;
+				if (o.grammaticalRole.equals(grammaticalRolePriority[i]))
+					s2 = i;
+				if (s1 != -1 && s2 != -1)
+					continue;
+			}
+			return s1 - s2;
+		}
 	}
 
 }
