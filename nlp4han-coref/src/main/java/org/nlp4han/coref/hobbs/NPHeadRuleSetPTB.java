@@ -32,11 +32,6 @@ public class NPHeadRuleSetPTB
 		{
 			RIGHT2LEFT3.add(NPStr3[i]);
 		}
-		String[] NPStr4 = { "VV" };
-		for (int i = 0; i < NPStr4.length; i++)
-		{
-			RIGHT2LEFT4.add(NPStr4[i]);
-		}
 		List<HeadRule> NPRule = new ArrayList<>();
 		NPRule.add(new HeadRule(RIGHT2LEFT1, "left"));
 		NPRule.add(new HeadRule(RIGHT2LEFT2, "left"));

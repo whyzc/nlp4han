@@ -20,9 +20,16 @@ public interface Filter
 	public List<TreeNode> filtering();
 
 	/**
-	 * 设置参照结点
+	 * 设置待过滤结点
 	 * 
-	 * @param treeNodes
+	 * @param treeNodes 待过滤结点
 	 */
-	public void setUp(List<TreeNode> treeNodes);
+	public void setFilteredNodes(List<TreeNode> treeNodes);
+
+	/**
+	 * 设置过滤的参考条件
+	 * 
+	 * @param obj 过滤的参考条件信息
+	 */
+	public void setReferenceConditions(Object obj);
 }

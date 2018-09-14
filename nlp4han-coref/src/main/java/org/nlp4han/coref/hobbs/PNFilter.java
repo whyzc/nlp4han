@@ -40,9 +40,9 @@ public class PNFilter extends Filtering
 	}
 
 	@Override
-	public void setUp(List<TreeNode> treeNodes)
+	public void setFilteredNodes(List<TreeNode> treeNodes)
 	{
-		filter.setUp(treeNodes);
+		filter.setFilteredNodes(treeNodes);
 	}
 
 	private boolean isPronoun(String str)
@@ -55,6 +55,12 @@ public class PNFilter extends Filtering
 					return true;
 			}
 		return false;
+	}
+
+	@Override
+	public void setReferenceConditions(Object obj)
+	{
+		
 	}
 
 }

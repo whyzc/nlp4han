@@ -1,29 +1,45 @@
 package org.nlp4han.coref.centering;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.nlp4han.coref.hobbs.AnaphoraResolution;
 import org.nlp4han.coref.hobbs.AttributeFilter;
 import org.nlp4han.coref.hobbs.AttributeGeneratorByDic;
+import org.nlp4han.coref.hobbs.Filter;
 import org.nlp4han.coref.hobbs.NodeNameFilter;
 import org.nlp4han.coref.hobbs.PNFilter;
 import org.nlp4han.coref.hobbs.TreeNodeUtil;
 
 import com.lc.nlp4han.constituent.TreeNode;
 
-public class CenteringBFP
+/**
+ * 中心理论的BFP算法
+ * 
+ * @author 杨智超
+ *
+ */
+public class CenteringBFP implements AnaphoraResolution
 {
-	private List<List<Entity>> entitiesOfUtterances;	// 所有句子的实体集
-	private List<TreeNode> rootNodesOfUtterances;		//所有句子的根结点集
-	public static String SEPARATOR = "->";		//指代结果中的分隔符 
-
+	private List<List<Entity>> entitiesOfUtterances; // 所有句子的实体集
+	private List<TreeNode> rootNodesOfUtterances; // 所有句子的根结点集
+	public static String SEPARATOR = "->"; // 指代结果中的分隔符
+	private HashMap<String, List<String>> grammaticalRoleRuleSet = GrammaticalRoleRuleSet.getGrammaticalRoleRuleSet(); // 语法角色规则集
+	private Filter attributeFilter;
 
 	public CenteringBFP()
 	{
 
 	}
 
+	/**
+	 * 通过实体集和结构树创建类
+	 * 
+	 * @param entitiesOfUtterances
+	 * @param rootNodesOfUtterances
+	 */
 	public CenteringBFP(List<List<Entity>> entitiesOfUtterances, List<TreeNode> rootNodesOfUtterances)
 	{
 		this.entitiesOfUtterances = entitiesOfUtterances;
@@ -37,7 +53,7 @@ public class CenteringBFP
 	 */
 	public List<List<Entity>> run()
 	{
-		List<Center> centersOfUtterances = new ArrayList<Center>(); 		// Utterances的Center集合
+		List<Center> centersOfUtterances = new ArrayList<Center>(); // Utterances的Center集合
 		if (entitiesOfUtterances.size() > 1)
 		{
 			Center ui = generateCenter(entitiesOfUtterances.get(0), null, rootNodesOfUtterances.get(0), null);
@@ -45,7 +61,7 @@ public class CenteringBFP
 			for (int i = 1; i < entitiesOfUtterances.size(); i++)
 			{
 				List<Entity> utter = entitiesOfUtterances.get(i);
-				ui = generateCenter(utter, ui, rootNodesOfUtterances.get(i), rootNodesOfUtterances.get(i-1));
+				ui = generateCenter(utter, ui, rootNodesOfUtterances.get(i), rootNodesOfUtterances.get(i - 1));
 				centersOfUtterances.add(ui);
 			}
 			return extractEntitySet(centersOfUtterances);
@@ -54,16 +70,18 @@ public class CenteringBFP
 	}
 
 	/**
-	 * 是否为代词
-	 * @param str
+	 * 实体e是否为代词
+	 * 
+	 * @param e 待检测实体
+	 * @param root 实体e对应结点的根结点
 	 * @return
 	 */
-	private static boolean isPronoun(Entity	e, TreeNode root)
+	private static boolean isPronoun(Entity e, TreeNode root)
 	{
 		if (e == null)
 			throw new RuntimeException("输入错误");
 		TreeNode node = entity2Node(e, root);
-		TreeNode pnNode = TreeNodeUtil.getFirstNodeUpWithSpecifiedName(node, new String[] {"PN"});
+		TreeNode pnNode = TreeNodeUtil.getFirstNodeUpWithSpecifiedName(node, new String[] { "PN" });
 		if (pnNode != null)
 			return true;
 		else
@@ -71,7 +89,8 @@ public class CenteringBFP
 	}
 
 	/**
-	 * 从Center列表中抽取对应的Entity列表
+	 * 从Center列表中抽取对应的Entity集
+	 * 
 	 * @param centersOfUtterances
 	 * @return
 	 */
@@ -80,7 +99,7 @@ public class CenteringBFP
 		if (centersOfUtterances != null)
 		{
 			List<List<Entity>> result = new ArrayList<List<Entity>>();
-			for (int i=0 ; i<centersOfUtterances.size() ; i++)
+			for (int i = 0; i < centersOfUtterances.size(); i++)
 			{
 				result.add(centersOfUtterances.get(i).getCf());
 			}
@@ -98,20 +117,46 @@ public class CenteringBFP
 	{
 		this.entitiesOfUtterances = entitiesOfUtterances;
 	}
-	
+
+	/**
+	 * 设置句子的结构树
+	 * @param rootNodesOfUtterances
+	 */
 	public void setRootNodesOfUtterances(List<TreeNode> rootNodesOfUtterances)
 	{
 		this.rootNodesOfUtterances = rootNodesOfUtterances;
 	}
 
 	/**
+	 * 设置语法角色规则集
+	 * 
+	 * @param grammaticalRoleRuleSet
+	 */
+	public void setGrammaticalRoleRuleSet(HashMap<String, List<String>> grammaticalRoleRuleSet)
+	{
+		this.grammaticalRoleRuleSet = grammaticalRoleRuleSet;
+	}
+
+	/**
+	 * 设置属性过滤器
+	 * 
+	 * @param attributeFilter
+	 */
+	public void setAttributeFilter(AttributeFilter attributeFilter)
+	{
+		this.attributeFilter = attributeFilter;
+	}
+
+	/**
 	 * 生成话语的中心数值（Cb、Cf、Cp）
 	 * 
-	 * @param entities
-	 * @param entity
+	 * @param entitiesOfUi 当前会话的实体集
+	 * @param centerOfUi_1 前句会话的实体集
+	 * @param rootOfUi 当前会话的根节点
+	 * @param rootOfUi_1 前句会话的根节点
 	 * @return
 	 */
-	public static Center generateCenter(List<Entity> entitiesOfUi, Center centerOfUi_1, TreeNode rootOfUi, TreeNode rootOfUi_1)
+	public Center generateCenter(List<Entity> entitiesOfUi, Center centerOfUi_1, TreeNode rootOfUi, TreeNode rootOfUi_1)
 	{
 		if (entitiesOfUi == null)
 		{
@@ -122,13 +167,14 @@ public class CenteringBFP
 			List<Entity> pronounEntities = getPronounEntities(entitiesOfUi, rootOfUi);
 			if (pronounEntities.isEmpty())
 				return new Center(entitiesOfUi, entitiesOfUi);
-			List<List<Entity>> anaphorEntitiesList = generateAllAnaphorEntities(pronounEntities, centerOfUi_1, rootOfUi, rootOfUi_1);
+			List<List<Entity>> anaphorEntitiesList = generateAllAnaphorEntities(pronounEntities, centerOfUi_1, rootOfUi,
+					rootOfUi_1);
 			List<Center> candidates = new ArrayList<Center>();
 			List<String> transitions = new ArrayList<String>();
-			for (int i=0 ; i<anaphorEntitiesList.size() ; i++)
+			for (int i = 0; i < anaphorEntitiesList.size(); i++)
 			{
 				List<Entity> newEntitiesOfUi = replaceEntity(entitiesOfUi, pronounEntities, anaphorEntitiesList.get(i));
-				Center c = new Center(entitiesOfUi, newEntitiesOfUi);		//注意：第一个句子的时候，两个参数应该相同，Cb的值应为null
+				Center c = new Center(entitiesOfUi, newEntitiesOfUi); // 注意：第一个句子的时候，两个参数应该相同，Cb的值应为null
 				candidates.add(c);
 				String transition = getTransition(c, centerOfUi_1);
 				transitions.add(transition);
@@ -136,27 +182,28 @@ public class CenteringBFP
 			if (!transitions.isEmpty())
 			{
 				int index = bestTransition(transitions);
-				if (index >-1)
+				if (index > -1)
 					return candidates.get(index);
 			}
 			return null;
-				
+
 		}
-		else 
-		{//两个参数相同，表示无指代，也表示第一个句子
+		else
+		{// 两个参数相同，表示无指代，也表示第一个句子
 			return new Center(entitiesOfUi, entitiesOfUi);
 		}
 	}
-	
 
 	/**
 	 * 将实体集中的代词实体替换成回指的实体
+	 * 
 	 * @param entitiesOfUi
 	 * @param pronounEntitiesOfUi
-	 * @param list
+	 * @param anaphorEntitiesOfUi_1
 	 * @return
 	 */
-	private static List<Entity> replaceEntity(List<Entity> entitiesOfUi, List<Entity> pronounEntitiesOfUi, List<Entity> anaphorEntitiesOfUi_1)
+	private static List<Entity> replaceEntity(List<Entity> entitiesOfUi, List<Entity> pronounEntitiesOfUi,
+			List<Entity> anaphorEntitiesOfUi_1)
 	{
 		if (entitiesOfUi == null || pronounEntitiesOfUi == null || anaphorEntitiesOfUi_1 == null)
 		{
@@ -164,9 +211,9 @@ public class CenteringBFP
 		}
 		List<Entity> result = new ArrayList<Entity>();
 		int index;
-		for (int i=0 ; i<entitiesOfUi.size() ; i++)
+		for (int i = 0; i < entitiesOfUi.size(); i++)
 		{
-			if ((index=pronounEntitiesOfUi.indexOf(entitiesOfUi.get(i))) != -1)
+			if ((index = pronounEntitiesOfUi.indexOf(entitiesOfUi.get(i))) != -1)
 			{
 				result.add(anaphorEntitiesOfUi_1.get(index));
 			}
@@ -179,6 +226,7 @@ public class CenteringBFP
 	/**
 	 * 得到实体集中的代词实体
 	 * @param entitiesOfUi
+	 * @param rootOfUi
 	 * @return
 	 */
 	private static List<Entity> getPronounEntities(List<Entity> entitiesOfUi, TreeNode rootOfUi)
@@ -234,12 +282,10 @@ public class CenteringBFP
 
 	/**
 	 * 生成所有的回指实体集，用以确定Cb
-	 * @param entitiesOfUi
-	 * @param centerOfUi_1
-	 * @return
 	 */
-	private static List<List<Entity>> generateAllAnaphorEntities(List<Entity> pronounEntitiesOfUi, Center centerOfUi_1, TreeNode rootOfUi, TreeNode rootOfUi_1)
-	{	
+	private List<List<Entity>> generateAllAnaphorEntities(List<Entity> pronounEntitiesOfUi, Center centerOfUi_1,
+			TreeNode rootOfUi, TreeNode rootOfUi_1)
+	{
 		if (pronounEntitiesOfUi == null || centerOfUi_1 == null)
 		{
 			throw new RuntimeException("输入错误");
@@ -251,13 +297,11 @@ public class CenteringBFP
 		List<List<Entity>> result;
 		List<Entity> entitiesOfUi_1 = centerOfUi_1.getCf();
 		List<List<Entity>> tmp = new ArrayList<List<Entity>>();
-		
-		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter(new NodeNameFilter())); // 组合过滤器
-		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
-		
-		for (int i=0 ; i<pronounEntitiesOfUi.size() ; i++)
+
+		for (int i = 0; i < pronounEntitiesOfUi.size(); i++)
 		{
-			List<Entity> candidates = getMatchingEntities(entitiesOfUi_1, pronounEntitiesOfUi.get(i), attributeFilter, rootOfUi, rootOfUi_1);
+			List<Entity> candidates = getMatchingEntities(entitiesOfUi_1, pronounEntitiesOfUi.get(i), attributeFilter,
+					rootOfUi, rootOfUi_1);
 			tmp.add(candidates);
 		}
 		if (tmp.size() < 1)
@@ -271,58 +315,63 @@ public class CenteringBFP
 		if (entitiesList == null)
 			throw new RuntimeException("输入错误");
 		List<List<Entity>> result = new ArrayList<List<Entity>>();
-		List<Integer> indexQueue = new ArrayList<Integer>();  //记录entitiesList中每一组List<Entity>被访问的位置
-		
-		for (int i=0 ; i<entitiesList.size() ; i++)
-		{//初始化 indexQueue
+		List<Integer> indexQueue = new ArrayList<Integer>(); // 记录entitiesList中每一组List<Entity>被访问的位置
+
+		for (int i = 0; i < entitiesList.size(); i++)
+		{// 初始化 indexQueue
 			indexQueue.add(0);
 		}
-		
-		while (indexQueue.get(indexQueue.size()-1) < entitiesList.get(indexQueue.size()-1).size())
+
+		while (indexQueue.get(indexQueue.size() - 1) < entitiesList.get(indexQueue.size() - 1).size())
 		{
 			List<Entity> list = new ArrayList<Entity>();
-			for (int i=0 ; i<indexQueue.size(); i++)
+			for (int i = 0; i < indexQueue.size(); i++)
 			{
 				Entity e = entitiesList.get(i).get(indexQueue.get(i));
 				list.add(e);
 			}
 			result.add(list);
-			indexQueue.set(0, indexQueue.get(0)+1);
-			
-			for (int i=0 ; i<indexQueue.size()-1 ; i++)
+			indexQueue.set(0, indexQueue.get(0) + 1);
+
+			for (int i = 0; i < indexQueue.size() - 1; i++)
 			{
 				if (indexQueue.get(i) >= entitiesList.get(i).size())
 				{
 					indexQueue.set(i, 0);
-					indexQueue.set(i+1, indexQueue.get(i+1)+1);
+					indexQueue.set(i + 1, indexQueue.get(i + 1) + 1);
 				}
 				else
 					break;
 			}
 		}
-		
+
 		return result;
 	}
 
-	private static List<Entity> getMatchingEntities(List<Entity> entitiesOfUi_1, Entity entity, AttributeFilter filter, TreeNode rootOfUi, TreeNode rootOfUi_1)
+	/**
+	 * entity为Ui中的代词实体，在Ui-1的实体集entitiesOfUi_1中找出属性相容的实体
+	 * filter为属性过滤器，rootOfUi为Ui的结构树根结点，rootOfUi_1为Ui-1的结构树根结点
+	 */
+	private static List<Entity> getMatchingEntities(List<Entity> entitiesOfUi_1, Entity entity, Filter filter,
+			TreeNode rootOfUi, TreeNode rootOfUi_1)
 	{
 		List<Entity> result = new ArrayList<Entity>();
 		TreeNode leaf = entity2Node(entity, rootOfUi);
-		TreeNode node = TreeNodeUtil.getFirstNodeUpWithSpecifiedName(leaf, new String[] {"NP", "PN"});
+		TreeNode node = TreeNodeUtil.getFirstNodeUpWithSpecifiedName(leaf, new String[] { "NP", "PN" });
 		List<TreeNode> nodes = new LinkedList<TreeNode>();
 		List<TreeNode> nodes_copy = new LinkedList<TreeNode>();
-		for (int i=0 ; i<entitiesOfUi_1.size() ; i++)
+		for (int i = 0; i < entitiesOfUi_1.size(); i++)
 		{
 			leaf = entity2Node(entitiesOfUi_1.get(i), rootOfUi_1);
-			TreeNode tmp = TreeNodeUtil.getFirstNodeUpWithSpecifiedName(leaf, new String[] {"NP", "PN"});
+			TreeNode tmp = TreeNodeUtil.getFirstNodeUpWithSpecifiedName(leaf, new String[] { "NP", "PN" });
 			nodes.add(tmp);
 			nodes_copy.add(tmp);
 		}
-		
-		filter.setReferenceNode(node);
-		filter.setUp(nodes_copy);
+
+		filter.setReferenceConditions(node);
+		filter.setFilteredNodes(nodes_copy);
 		filter.filtering();
-		
+
 		for (TreeNode n : nodes_copy)
 		{
 			if (incompatible(n, node))
@@ -333,26 +382,30 @@ public class CenteringBFP
 				result.add(entitiesOfUi_1.get(index));
 			}
 		}
-		
+
 		return result;
 	}
-	
+
 	/**
 	 * node1与node2不相容的规则
+	 * 
 	 * @param node1
 	 * @param node2
 	 * @return
 	 */
 	private static boolean incompatible(TreeNode node1, TreeNode node2)
 	{
-		if (node1.getNodeName().equals("PN") && node2.getNodeName().equals("PN") && !TreeNodeUtil.getString(node1).equals(TreeNodeUtil.getString(node2)))
-		{//node1与node2都是"PN"（代词），但他们是不同的代词，则node1与node2不相容
+		if (node1.getNodeName().equals("PN") && node2.getNodeName().equals("PN")
+				&& !TreeNodeUtil.getString(node1).equals(TreeNodeUtil.getString(node2)))
+		{// node1与node2都是"PN"（代词），但他们是不同的代词，则node1与node2不相容
 			return true;
 		}
 		return false;
 	}
 
-
+	/**
+	 * 在结构树root中找出实体entity对应的结点
+	 */
 	private static TreeNode entity2Node(Entity entity, TreeNode root)
 	{
 		if (entity == null && root == null)
@@ -362,26 +415,26 @@ public class CenteringBFP
 	}
 
 	/**
-	 * 根据前后两句的Center，获得相应的Transition
+	 * 根据前后两句的Center，获得相应的Transition状态
 	 * 
 	 * @param c1
 	 * @param c2
 	 * @return
 	 */
 	public static String getTransition(Center centerOfUi, Center centerOfUi_1)
-	{//注意：若Ui-1为首句，其Cb为undefined(null)
+	{// 注意：若Ui-1为首句，其Cb为undefined(null)
 		if (centerOfUi != null && centerOfUi_1 != null)
 		{
 			if (centerOfUi.getCb().equals(centerOfUi.getCp()))
 			{
-				if (centerOfUi.getCb().equals(centerOfUi_1.getCb()) || centerOfUi_1.getCb()==null)
+				if (centerOfUi.getCb().equals(centerOfUi_1.getCb()) || centerOfUi_1.getCb() == null)
 					return "Continue";
 				if (!centerOfUi.getCb().equals(centerOfUi_1.getCb()))
 					return "Smooth-Shift";
 			}
 			else
 			{
-				if (centerOfUi.getCb().equals(centerOfUi_1.getCb()) || centerOfUi_1.getCb()==null)
+				if (centerOfUi.getCb().equals(centerOfUi_1.getCb()) || centerOfUi_1.getCb() == null)
 					return "Retain";
 				if (!centerOfUi.getCb().equals(centerOfUi_1.getCb()))
 					return "Rough-Shift";
@@ -389,34 +442,66 @@ public class CenteringBFP
 		}
 		return null;
 	}
-	
+
+	/**
+	 * 根据会话的实体集与将其中的代词替换成先行词的实体后的实体集，得出以字符串形式表示的指代消解结果
+	 * @param oldEntitiesSet
+	 * @param newEntitiesSet
+	 * @return
+	 */
 	public static List<String> analysisResult(List<List<Entity>> oldEntitiesSet, List<List<Entity>> newEntitiesSet)
-	{//TODO
+	{
 		if (newEntitiesSet == null || oldEntitiesSet == null || newEntitiesSet.size() != oldEntitiesSet.size())
 			throw new RuntimeException("输入错误");
 		if (newEntitiesSet.size() < 2)
 			return new ArrayList<String>();
 		List<String> result = new ArrayList<String>();
-		for (int i=1 ; i<newEntitiesSet.size() ; i++)
+		for (int i = 1; i < newEntitiesSet.size(); i++)
 		{
-			for (int j=0 ; j<newEntitiesSet.get(i).size() ; j++)
+			for (int j = 0; j < newEntitiesSet.get(i).size(); j++)
 			{
 				if (!newEntitiesSet.get(i).get(j).equals(oldEntitiesSet.get(i).get(j)))
 				{
 					String word1 = oldEntitiesSet.get(i).get(j).getEntityName();
-					String size1 = "(" + (i+1) + "-"+(oldEntitiesSet.get(i).get(j).getSite()+1)+ ")";
+					String size1 = "(" + (i + 1) + "-" + (oldEntitiesSet.get(i).get(j).getSite() + 1) + ")";
 					String word2;
 					String size2;
-					int index = oldEntitiesSet.get(i-1).indexOf(newEntitiesSet.get(i).get(j));
-					Entity e = oldEntitiesSet.get(i-1).get(index);
+					int index = oldEntitiesSet.get(i - 1).indexOf(newEntitiesSet.get(i).get(j));
+					Entity e = oldEntitiesSet.get(i - 1).get(index);
 					word2 = e.getEntityName();
-					size2 = "(" + i + "-"+(e.getSite()+1)+ ")";
-					String str = word1 + size1 + SEPARATOR + word2+ size2;
-					
+					size2 = "(" + i + "-" + (e.getSite() + 1) + ")";
+					String str = word1 + size1 + SEPARATOR + word2 + size2;
+
 					result.add(str);
 				}
 			}
 		}
 		return result;
 	}
+
+	@Override
+	public List<String> anaph(List<TreeNode> sentences)
+	{
+		List<List<Entity>> eou = new ArrayList<List<Entity>>();
+
+		if (attributeFilter == null)
+		{
+			AttributeFilter af = new AttributeFilter(new PNFilter(new NodeNameFilter())); // 组合过滤器
+
+			af.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
+			attributeFilter = af;
+		}
+
+		for (int i = 0; i < sentences.size(); i++)
+		{
+			eou.add(Entity.sort(Entity.entities(sentences.get(i), grammaticalRoleRuleSet)));
+		}
+
+		this.entitiesOfUtterances = eou;
+		this.rootNodesOfUtterances = sentences;
+		List<List<Entity>> newEntities = run();
+		List<String> result = analysisResult(eou, newEntities);
+		return result;
+	}
+
 }

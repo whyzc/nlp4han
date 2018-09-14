@@ -16,18 +16,17 @@ public class Center
 	private Entity Cp; // 优选中心（preferred center）
 
 	/**
-	 * @param entities 
+	 * 通过会话中的实体集和将其中的代词替换成先行词后的实体集创建会话的Center类
+	 * 
+	 * @param entities
 	 * @param newEntities
-	 * @param anaphorEntities
 	 */
 	public Center(List<Entity> entities, List<Entity> newEntities)
-	{// 注意：参数不能为null，当两个参数相等时，为第一句话，Cb为undefined(null)  此处需修改
+	{// 注意：参数不能为null，当两个参数相等时，为第一句话，Cb为undefined(null) 此处需修改
 		generateCf(newEntities);
 		generateCb(entities, newEntities);
 		generateCp(entities, newEntities);
 	}
-	
-	//, List<Entity> anaphorEntities
 
 	public Entity getCb()
 	{
@@ -48,19 +47,19 @@ public class Center
 	 * 生成回指中心Cb
 	 * 
 	 * @param entities
-	 * @param newEntities 
+	 * @param newEntities
 	 */
 	public void generateCb(List<Entity> entities, List<Entity> newEntities)
 	{
 		if (!entities.equals(newEntities))
 		{
 			List<Entity> anaphorEntities = new ArrayList<Entity>();
-			for (Entity ne : newEntities)
+			for (int i = 0; i < newEntities.size(); i++)
 			{
-				if (!entities.contains(ne))
-					anaphorEntities.add(ne);
+				if (!entities.get(i).equals(newEntities.get(i)))
+					anaphorEntities.add(newEntities.get(i));
 			}
-			
+
 			List<Entity> es = Entity.sort(anaphorEntities);
 			if (es != null && es.size() > 0)
 				Cb = es.get(0);
@@ -69,7 +68,6 @@ public class Center
 		}
 		else
 			Cb = null;
-
 
 	}
 
@@ -87,8 +85,9 @@ public class Center
 
 	/**
 	 * 生成优选中心Cp
-	 * @param newEntities 
-	 * @param entities 
+	 * 
+	 * @param newEntities
+	 * @param entities
 	 */
 	public void generateCp(List<Entity> entities, List<Entity> newEntities)
 	{
@@ -128,7 +127,5 @@ public class Center
 		else
 			return "[Cf=" + strCf + ", Cp=" + Cp.getEntityName() + "]";
 	}
-	
-	
 
 }

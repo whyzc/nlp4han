@@ -49,18 +49,6 @@ public class AttributeFilter extends Filtering
 			this.referenceNodeAttribute = this.attributeGenerator.extractAttributes(referenceNode);
 	}
 
-	/**
-	 * 设置参考结点
-	 * 
-	 * @param referenceNode
-	 *            参考结点
-	 */
-	public void setReferenceNode(TreeNode referenceNode)
-	{
-		this.referenceNode = referenceNode;
-		if (this.attributeGenerator != null)
-			this.referenceNodeAttribute = this.attributeGenerator.extractAttributes(referenceNode);
-	}
 
 	public void setAttributeGenerator(AttributeGenerator attributeGenerator)
 	{
@@ -149,9 +137,19 @@ public class AttributeFilter extends Filtering
 	}
 
 	@Override
-	public void setUp(List<TreeNode> treeNodes)
+	public void setFilteredNodes(List<TreeNode> treeNodes)
 	{
-		filter.setUp(treeNodes);
+		filter.setFilteredNodes(treeNodes);
+	}
+
+	@Override
+	public void setReferenceConditions(Object obj)
+	{
+		TreeNode node = (TreeNode) obj;
+		this.referenceNode = node;
+		if (this.attributeGenerator != null)
+			this.referenceNodeAttribute = this.attributeGenerator.extractAttributes(referenceNode);
+		
 	}
 
 }
