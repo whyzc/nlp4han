@@ -46,7 +46,6 @@ public class Hobbs implements AnaphoraResolution
 	{
 		this.constituentTrees = constituentTrees;
 		TreeNode x;
-		Path path = new Path();
 
 		TreeNode tmp;
 		List<TreeNode> candidateNodes;
@@ -56,7 +55,7 @@ public class Hobbs implements AnaphoraResolution
 		x = TreeNodeUtil.getFirstNPNodeUp(tmp);
 		if (x != null)
 		{
-			path.getPath(x, tmp);
+			Path path = new Path(x, tmp);
 			candidateNodes = TreeNodeUtil.getNPNodeOnLeftOfPath(x, path);
 			filter.setFilteredNodes(candidateNodes);
 			filter.filtering();
@@ -99,7 +98,7 @@ public class Hobbs implements AnaphoraResolution
 			else
 			{
 				tmp = TreeNodeUtil.getFirstNPOrIPNodeUp(x);
-				path.getPath(x, tmp);
+				Path path = new Path(x, tmp);
 				x = tmp;
 				if (TreeNodeUtil.isNPNode(x) && !dominateNNode(x, path))
 				{// 若结点x为NP结点，且path没有穿过x直接支配的Nominal结点,则返回x
