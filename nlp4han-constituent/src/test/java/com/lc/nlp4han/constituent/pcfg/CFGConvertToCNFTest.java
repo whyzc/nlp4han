@@ -10,7 +10,6 @@ public class CFGConvertToCNFTest
 {
 	private CFG cfg;
 	private CFG cnf;
-	private ConvertCFGToCNF convert;
 
 	@Before
 	public void BeforeConvert()
@@ -52,8 +51,7 @@ public class CFGConvertToCNFTest
 
 		cfg.add(new RewriteRule("E", "e"));
 
-		convert = new ConvertCFGToCNF();
-		cnf = convert.convertToCNF(cfg);
+		cnf = new GrammarConvertor().convertCFGToCNF(cfg);
 
 	}
 

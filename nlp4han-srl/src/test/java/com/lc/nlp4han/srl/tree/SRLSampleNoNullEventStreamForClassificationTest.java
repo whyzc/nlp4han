@@ -13,6 +13,7 @@ import org.junit.Test;
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.HeadGeneratorCollins;
+import com.lc.nlp4han.constituent.HeadRuleSetPTB;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.TreePreprocessTool;
@@ -35,7 +36,7 @@ public class SRLSampleNoNullEventStreamForClassificationTest {
 	
 	@Test
 	public void test() throws IOException{
-		AbstractHeadGenerator ahg = new HeadGeneratorCollins();
+		AbstractHeadGenerator ahg = new HeadGeneratorCollins(new HeadRuleSetPTB());
 		String roles1 = "wsj/00/wsj0012.mrg 9 12 gold shore.01 i---a 4:1*10:0-ARG0 12:0,13:1-rel 14:2-ARG1";
 		AbstractParseStrategy<HeadTreeNode> ttss = new SRLParseNormal();
 		

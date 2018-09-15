@@ -7,7 +7,6 @@ import java.util.PriorityQueue;
 
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.HeadTreeNode;
-import com.lc.nlp4han.constituent.HeadRuleSetPTB;
 import com.lc.nlp4han.ml.model.ClassificationModel;
 import com.lc.nlp4han.ml.util.Cache;
 
@@ -618,10 +617,8 @@ public class ParserBeamSearch implements ParserSequenceClassificationModel
 												copy.get(k).getFirstChild().setParent(combine);
 											}
 											// 设置头结点
-											combine.setHeadWord(aghw.extractHeadWord(combine,
-													HeadRuleSetPTB.getNormalRuleSet(), HeadRuleSetPTB.getSpecialRuleSet()));
-											combine.setHeadPos(aghw.extractHeadPos(combine,
-													HeadRuleSetPTB.getNormalRuleSet(), HeadRuleSetPTB.getSpecialRuleSet()));
+											combine.setHeadWord(aghw.extractHeadWord(combine));
+											combine.setHeadPos(aghw.extractHeadPos(combine));
 											copy.set(record, combine);
 											// 删除用于合并的那些位置上的
 											for (int k = numSeq; k >= record + 1; k--)
@@ -726,10 +723,8 @@ public class ParserBeamSearch implements ParserSequenceClassificationModel
 												copy.get(k).getFirstChild().setParent(combine);
 											}
 											// 设置头结点
-											combine.setHeadWord(aghw.extractHeadWord(combine,
-													HeadRuleSetPTB.getNormalRuleSet(), HeadRuleSetPTB.getSpecialRuleSet()));
-											combine.setHeadPos(aghw.extractHeadPos(combine,
-													HeadRuleSetPTB.getNormalRuleSet(), HeadRuleSetPTB.getSpecialRuleSet()));
+											combine.setHeadWord(aghw.extractHeadWord(combine));
+											combine.setHeadPos(aghw.extractHeadPos(combine));
 											copy.set(record, combine);
 											// 删除用于合并的那些位置上的
 											for (int k = numSeq; k >= record + 1; k--)

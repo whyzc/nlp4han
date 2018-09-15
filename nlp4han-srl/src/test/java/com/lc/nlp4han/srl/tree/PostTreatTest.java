@@ -12,6 +12,7 @@ import org.junit.Test;
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.HeadGeneratorCollins;
+import com.lc.nlp4han.constituent.HeadRuleSetPTB;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.TreePreprocessTool;
@@ -55,7 +56,7 @@ public class PostTreatTest {
 	 */
 	@Test
 	public void test(){
-		AbstractHeadGenerator ahg = new HeadGeneratorCollins();
+		AbstractHeadGenerator ahg = new HeadGeneratorCollins(new HeadRuleSetPTB());
 		AbstractParseStrategy<HeadTreeNode> parse = new SRLParseNormal();
 		SRLSample<HeadTreeNode> sample = parse.parse(tree, roles, ahg);
 		
@@ -309,7 +310,7 @@ public class PostTreatTest {
 	 */
 	@Test
 	public void testForPruning(){
-		AbstractHeadGenerator ahg = new HeadGeneratorCollins();
+		AbstractHeadGenerator ahg = new HeadGeneratorCollins(new HeadRuleSetPTB());
 		AbstractParseStrategy<HeadTreeNode> parse = new SRLParseNormalWithPruning();
 		SRLSample<HeadTreeNode> sample = parse.parse(tree, roles, ahg);
 		

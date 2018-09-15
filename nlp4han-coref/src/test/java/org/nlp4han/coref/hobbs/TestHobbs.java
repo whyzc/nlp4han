@@ -34,7 +34,7 @@ public class TestHobbs
 		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		
 		Hobbs hobbs = new Hobbs(attributeFilter);
-		List<String> result = hobbs.anaph(constituentTrees);
+		List<String> result = hobbs.resolve(constituentTrees);
 		
 		List<String> goal = new ArrayList<String>();
 		goal.add("她(2-5)->妈妈(1-3)");
@@ -60,7 +60,7 @@ public class TestHobbs
 		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		
 		Hobbs hobbs = new Hobbs(attributeFilter);
-		List<String> result = hobbs.anaph(constituentTrees);
+		List<String> result = hobbs.resolve(constituentTrees);
 		
 		List<String> goal = new ArrayList<String>();
 		goal.add("她(2-5)->妈妈(1-3)");
@@ -85,7 +85,7 @@ public class TestHobbs
 		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		
 		Hobbs hobbs = new Hobbs(attributeFilter);
-		List<String> result = hobbs.anaph(constituentTrees);
+		List<String> result = hobbs.resolve(constituentTrees);
 		
 		List<String> goal = new ArrayList<String>();
 		goal.add("她(1-7)->黄秋雅(1-1)");

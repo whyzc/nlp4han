@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.HeadGeneratorCollins;
-import com.lc.nlp4han.constituent.HeadTreeNode;
+import com.lc.nlp4han.constituent.HeadRuleSetPTB;
 import com.lc.nlp4han.constituent.ConstituentMeasure;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ModelWrapper;
@@ -37,7 +37,7 @@ public class ParserMEEvalTool
 		long start = System.currentTimeMillis();
 		ParserContextGenerator contextGen = new ParserContextGeneratorConf();
 		System.out.println(contextGen);
-		AbstractHeadGenerator aghw = new HeadGeneratorCollins();
+		AbstractHeadGenerator aghw = new HeadGeneratorCollins(new HeadRuleSetPTB());
 //		ModelWrapper posmodel = new ModelWrapper(new File("data\\model\\pos\\en-pos-maxent.bin"));
 		ModelWrapper chunkmodel = ChunkerForParserME.train(trainFile, params, contextGen, encoding, aghw);
 		ModelWrapper buildmodel = BuilderAndCheckerME.trainForBuild(trainFile, params, contextGen,

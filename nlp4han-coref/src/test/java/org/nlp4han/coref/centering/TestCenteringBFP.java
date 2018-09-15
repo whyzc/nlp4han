@@ -37,7 +37,7 @@ public class TestCenteringBFP
 		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		bfp.setAttributeFilter(attributeFilter);	//设置属性过滤器，此过滤器为缺省值
 		
-		List<String> result = bfp.anaph(ss);
+		List<String> result = bfp.resolve(ss);
 
 		List<String> goal = new ArrayList<String>();
 		goal.add("他(2-1)->庞德(1-10)");
@@ -64,7 +64,7 @@ public class TestCenteringBFP
 		CenteringBFP bfp = new CenteringBFP();
 		bfp.setGrammaticalRoleRuleSet(GrammaticalRoleRuleSet.getGrammaticalRoleRuleSet());
 
-		List<String> result = bfp.anaph(ss);
+		List<String> result = bfp.resolve(ss);
 
 		List<String> goal = new ArrayList<String>();
 		goal.add("她(2-5)->妈妈(1-3)");

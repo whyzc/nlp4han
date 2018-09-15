@@ -42,7 +42,7 @@ public class P2NFModelTool
 	{
 		PCFG pcfg = GrammarExtractor.getPCFG(corpusFile, encoding);
 		
-		PCFG p2nf = new ConvertPCFGToP2NF().convertToCNF(pcfg);
+		PCFG p2nf = new GrammarConvertor().convertPCFGToP2NF(pcfg);
 		
 		if (topath == null)
 		{

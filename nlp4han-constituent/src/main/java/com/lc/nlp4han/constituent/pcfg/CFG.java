@@ -21,7 +21,6 @@ public class CFG
 	private Set<RewriteRule> ruleSet = new HashSet<RewriteRule>();// 规则集
 	private HashMap<String, HashSet<RewriteRule>> ruleMapStartWithlhs = new HashMap<String, HashSet<RewriteRule>>();// 以左部为key值的规则集map
 	private HashMap<ArrayList<String>, HashSet<RewriteRule>> ruleMapStartWithrhs = new HashMap<ArrayList<String>, HashSet<RewriteRule>>();// 以规则右部为key值的规则集map
-	private HashMap<ArrayList<String>, RewriteRule> pruleMap = new HashMap<ArrayList<String>, RewriteRule>();// 规则集map
 
 	/**
 	 * 构造函数,一步创建
@@ -171,11 +170,6 @@ public class CFG
 	/*
 	 * 方法
 	 */
-	public HashMap<ArrayList<String>, RewriteRule> getPruleMap()
-	{
-		return pruleMap;
-	}
-
 	public String getStartSymbol()
 	{
 		return startSymbol;
@@ -214,7 +208,6 @@ public class CFG
 		ArrayList<String> strList = new ArrayList<String>();
 		strList.add(rule.getLhs());
 		strList.addAll(rule.getRhs());
-		pruleMap.put(strList, rule);
 		ruleSet.add(rule);
 		if (ruleMapStartWithlhs.get(rule.getLhs()) != null)
 		{

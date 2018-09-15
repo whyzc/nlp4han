@@ -24,7 +24,7 @@ public class HeadGeneratorTest
 	public void testGenerateHeadWords()
 	{
 
-		AbstractHeadGenerator headGen = new HeadGeneratorCollins();
+		AbstractHeadGenerator headGen = new HeadGeneratorCollins(new HeadRuleSetPTB());
 		TreeNode tree1 = BracketExpUtil.generateTree(
 				"((S(NP(PRP I))(VP(VP(VBD saw)(NP(DT the)(NN man)))(PP(IN with)(NP(DT the)(NN telescope))))))");
 		HeadTreeNode headTree1 = TreeToHeadTree.treeToHeadTree(tree1, headGen);

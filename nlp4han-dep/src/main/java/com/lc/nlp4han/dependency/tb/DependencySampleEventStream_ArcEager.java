@@ -1,9 +1,6 @@
 package com.lc.nlp4han.dependency.tb;
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

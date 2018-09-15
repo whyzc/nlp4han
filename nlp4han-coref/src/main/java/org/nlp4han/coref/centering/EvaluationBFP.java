@@ -53,7 +53,7 @@ public class EvaluationBFP extends AbstractEvaluation
 
 		}
 
-		List<String> result = bfp.anaph(constituentTrees);
+		List<String> result = bfp.resolve(constituentTrees);
 
 		total++;
 		if (compare(result, information2, total))

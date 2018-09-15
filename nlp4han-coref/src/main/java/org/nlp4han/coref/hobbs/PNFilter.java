@@ -10,18 +10,18 @@ import com.lc.nlp4han.constituent.TreeNode;
  * @author 杨智超
  *
  */
-public class PNFilter extends Filtering
+public class PNFilter extends FilterWrapper
 {
 
-	public PNFilter(Filter filter)
+	public PNFilter(CandidateFilter filter)
 	{
 		this.filter = filter;
 	}
 
 	@Override
-	public List<TreeNode> filtering()
+	public List<TreeNode> filter()
 	{
-		List<TreeNode> treeNodes = filter.filtering();
+		List<TreeNode> treeNodes = filter.filter();
 		for (int i = 0; i < treeNodes.size(); i++)
 		{
 			TreeNode node = treeNodes.get(i);

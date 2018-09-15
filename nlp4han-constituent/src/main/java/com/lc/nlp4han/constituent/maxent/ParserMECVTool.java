@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.HeadGeneratorCollins;
-import com.lc.nlp4han.constituent.HeadTreeNode;
+import com.lc.nlp4han.constituent.HeadRuleSetPTB;
 import com.lc.nlp4han.constituent.PlainTextByTreeStream;
 import com.lc.nlp4han.constituent.ConstituentMeasure;
 import com.lc.nlp4han.ml.util.CrossValidationPartitioner;
@@ -184,7 +184,7 @@ public class ParserMECVTool
 		params.put(TrainingParameters.ALGORITHM_PARAM, type.toUpperCase());
 
 		ParserContextGenerator contextGen = new ParserContextGeneratorConf();
-		AbstractHeadGenerator headGen = new HeadGeneratorCollins();
+		AbstractHeadGenerator headGen = new HeadGeneratorCollins(new HeadRuleSetPTB());
 		System.out.println(contextGen);
 
 		ObjectStream<String> lineStream = new PlainTextByTreeStream(new FileInputStreamFactory(corpusFile), encoding);

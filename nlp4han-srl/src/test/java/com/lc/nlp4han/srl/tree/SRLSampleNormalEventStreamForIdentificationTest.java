@@ -13,6 +13,7 @@ import org.junit.Test;
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.HeadGeneratorCollins;
+import com.lc.nlp4han.constituent.HeadRuleSetPTB;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.TreePreprocessTool;
@@ -33,7 +34,7 @@ public class SRLSampleNormalEventStreamForIdentificationTest {
 	
 	@Test
 	public void test() throws IOException{
-		AbstractHeadGenerator ahg = new HeadGeneratorCollins();
+		AbstractHeadGenerator ahg = new HeadGeneratorCollins(new HeadRuleSetPTB());
 		TreeNode tree1 = BracketExpUtil.generateTree(""
 				+ "((S(S(NP-SBJ(NNP Mr.)(NNP Spoon))(VP(VBD said)(SBAR (-NONE- 0)(S(NP-SBJ(DT the)(NN plan))"
 				+ "(VP(VBZ is)(RB not)(NP-PRD(DT an)(NN attempt)(S(NP-SBJ(-NONE- *))(VP(TO to)(VP(VB shore)"

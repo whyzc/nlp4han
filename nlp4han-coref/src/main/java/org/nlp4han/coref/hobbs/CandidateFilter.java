@@ -10,14 +10,14 @@ import com.lc.nlp4han.constituent.TreeNode;
  * @author 杨智超
  *
  */
-public interface Filter
+public interface CandidateFilter
 {
 	/**
 	 * 进行过滤
 	 * 
 	 * @return
 	 */
-	public List<TreeNode> filtering();
+	public List<TreeNode> filter();
 
 	/**
 	 * 设置待过滤结点

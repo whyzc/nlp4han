@@ -48,8 +48,7 @@ public class TestTreeNodeUtil
 		TreeNode t1 = s.getChild(0).getChild(1).getChild(2).getChild(1).getChild(0);
 		TreeNode t2 = s.getChild(0).getChild(1);
 		
-		Path path1 = new Path();
-		path1.getPath(t1, t2);
+		Path path1 = new Path(t1, t2);
 		List<TreeNode> result = TreeNodeUtil.getNodesWithSpecifiedNameOnLeftOrRightOfPath(t2, path1, "LEfT", new String[]{"AD", "ADVP"});
 		
 		List<TreeNode> goal = new LinkedList<TreeNode>();
