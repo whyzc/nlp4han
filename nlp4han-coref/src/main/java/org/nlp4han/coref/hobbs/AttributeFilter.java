@@ -16,18 +16,18 @@ import com.lc.nlp4han.constituent.TreeNode;
  * @author 杨智超
  *
  */
-public class AttributeFilter extends Filtering
+public class AttributeFilter extends FilterWrapper
 {
 	private TreeNode referenceNode;
 	private MentionAttribute referenceNodeAttribute;
 	private AttributeGenerator attributeGenerator;
 
-	public AttributeFilter(Filter filter)
+	public AttributeFilter(CandidateFilter filter)
 	{
 		this.filter = filter;
 	}
 
-	public AttributeFilter(Filtering filter, AttributeGenerator attributeGenerator)
+	public AttributeFilter(FilterWrapper filter, AttributeGenerator attributeGenerator)
 	{
 		this(filter);
 		this.attributeGenerator = attributeGenerator;
@@ -112,9 +112,9 @@ public class AttributeFilter extends Filtering
 	}
 
 	@Override
-	public List<TreeNode> filtering()
+	public List<TreeNode> filter()
 	{
-		List<TreeNode> treeNodes = filter.filtering();
+		List<TreeNode> treeNodes = filter.filter();
 		if (this.referenceNode == null)
 			throw new RuntimeException("未设置基准结点");
 		if (this.attributeGenerator != null)

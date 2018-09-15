@@ -8,7 +8,7 @@ import java.util.List;
 import org.nlp4han.coref.hobbs.AnaphoraResolution;
 import org.nlp4han.coref.hobbs.AttributeFilter;
 import org.nlp4han.coref.hobbs.AttributeGeneratorByDic;
-import org.nlp4han.coref.hobbs.Filter;
+import org.nlp4han.coref.hobbs.CandidateFilter;
 import org.nlp4han.coref.hobbs.NodeNameFilter;
 import org.nlp4han.coref.hobbs.PNFilter;
 import org.nlp4han.coref.hobbs.TreeNodeUtil;
@@ -27,7 +27,7 @@ public class CenteringBFP implements AnaphoraResolution
 	private List<TreeNode> rootNodesOfUtterances; // 所有句子的根结点集
 	public static String SEPARATOR = "->"; // 指代结果中的分隔符
 	private HashMap<String, List<String>> grammaticalRoleRuleSet = GrammaticalRoleRuleSet.getGrammaticalRoleRuleSet(); // 语法角色规则集
-	private Filter attributeFilter;
+	private CandidateFilter attributeFilter;
 
 	public CenteringBFP()
 	{
@@ -352,7 +352,7 @@ public class CenteringBFP implements AnaphoraResolution
 	 * entity为Ui中的代词实体，在Ui-1的实体集entitiesOfUi_1中找出属性相容的实体
 	 * filter为属性过滤器，rootOfUi为Ui的结构树根结点，rootOfUi_1为Ui-1的结构树根结点
 	 */
-	private static List<Entity> getMatchingEntities(List<Entity> entitiesOfUi_1, Entity entity, Filter filter,
+	private static List<Entity> getMatchingEntities(List<Entity> entitiesOfUi_1, Entity entity, CandidateFilter filter,
 			TreeNode rootOfUi, TreeNode rootOfUi_1)
 	{
 		List<Entity> result = new ArrayList<Entity>();
@@ -370,7 +370,7 @@ public class CenteringBFP implements AnaphoraResolution
 
 		filter.setReferenceConditions(node);
 		filter.setFilteredNodes(nodes_copy);
-		filter.filtering();
+		filter.filter();
 
 		for (TreeNode n : nodes_copy)
 		{
@@ -480,7 +480,7 @@ public class CenteringBFP implements AnaphoraResolution
 	}
 
 	@Override
-	public List<String> anaph(List<TreeNode> sentences)
+	public List<String> resolve(List<TreeNode> sentences)
 	{
 		List<List<Entity>> eou = new ArrayList<List<Entity>>();
 

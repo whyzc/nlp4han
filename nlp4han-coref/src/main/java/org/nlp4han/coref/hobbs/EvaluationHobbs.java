@@ -47,7 +47,7 @@ public class EvaluationHobbs extends AbstractEvaluation
 			constituentTrees.add(ui);
 		}
 
-		List<String> results = hobbs.anaph(constituentTrees);
+		List<String> results = hobbs.resolve(constituentTrees);
 
 		total++;
 		if (EvaluationBFP.compare(results, information2, total))

@@ -17,5 +17,5 @@ public interface AnaphoraResolution
 	 * @param sentences 需要进行消解的句子
 	 * @return 返回代词消解的结果，字符串形式
 	 */
-	public List<String> anaph(List<TreeNode> sentences);
+	public List<String> resolve(List<TreeNode> sentences);
 }

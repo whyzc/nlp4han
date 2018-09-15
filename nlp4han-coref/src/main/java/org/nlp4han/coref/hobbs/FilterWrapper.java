@@ -6,8 +6,8 @@ package org.nlp4han.coref.hobbs;
  * @author 杨智超
  *
  */
-public abstract class Filtering implements Filter
+public abstract class FilterWrapper implements CandidateFilter
 {
-	protected Filter filter;
+	protected CandidateFilter filter;
 
 }

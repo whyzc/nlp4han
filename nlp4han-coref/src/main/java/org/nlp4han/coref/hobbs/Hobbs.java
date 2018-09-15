@@ -15,7 +15,7 @@ import com.lc.nlp4han.constituent.TreeNode;
 public class Hobbs implements AnaphoraResolution
 {
 
-	private Filter filter;
+	private CandidateFilter filter;
 	private List<TreeNode> constituentTrees;
 
 	public Hobbs()
@@ -23,12 +23,12 @@ public class Hobbs implements AnaphoraResolution
 
 	}
 
-	public Hobbs(Filter filter)
+	public Hobbs(CandidateFilter filter)
 	{
 		this.filter = filter;
 	}
 
-	public void setFilter(Filter filter)
+	public void setFilter(CandidateFilter filter)
 	{
 		this.filter = filter;
 	}
@@ -58,7 +58,7 @@ public class Hobbs implements AnaphoraResolution
 			Path path = new Path(x, tmp);
 			candidateNodes = TreeNodeUtil.getNPNodeOnLeftOfPath(x, path);
 			filter.setFilteredNodes(candidateNodes);
-			filter.filtering();
+			filter.filter();
 
 			if (!candidateNodes.isEmpty())
 			{ // 若存在NP结点，并且在x和该候选结点间存在NP或IP结点，则返回该结点
@@ -75,6 +75,7 @@ public class Hobbs implements AnaphoraResolution
 		}
 		else
 			x = tmp;
+		
 		while (index >= 0)
 		{
 			if (x == null || x.getParent() == null)
@@ -85,7 +86,7 @@ public class Hobbs implements AnaphoraResolution
 				x = constituentTrees.get(index);
 				candidateNodes = TreeNodeUtil.getNPNodes(x);
 				filter.setFilteredNodes(candidateNodes);
-				filter.filtering();
+				filter.filter();
 				if (!candidateNodes.isEmpty())
 				{
 					for (int k = 0; k < candidateNodes.size(); k++)
@@ -106,7 +107,7 @@ public class Hobbs implements AnaphoraResolution
 				}
 				candidateNodes = TreeNodeUtil.getNPNodeOnLeftOfPath(x, path);
 				filter.setFilteredNodes(candidateNodes);
-				filter.filtering();
+				filter.filter();
 				if (!candidateNodes.isEmpty())
 				{
 					for (int k = 0; k < candidateNodes.size(); k++)
@@ -115,11 +116,12 @@ public class Hobbs implements AnaphoraResolution
 							return candidateNodes.get(k);
 					}
 				}
+				
 				if (TreeNodeUtil.isIPNode(x))
 				{
 					candidateNodes = getNPNodeOnRightOfPath(x, path);
 					filter.setFilteredNodes(candidateNodes);
-					filter.filtering();
+					filter.filter();
 					if (!candidateNodes.isEmpty())
 					{
 						for (int k = 0; k < candidateNodes.size(); k++)
@@ -131,6 +133,7 @@ public class Hobbs implements AnaphoraResolution
 				}
 			}
 		}
+		
 		return null;
 	}
 
@@ -261,7 +264,7 @@ public class Hobbs implements AnaphoraResolution
 	}
 
 	@Override
-	public List<String> anaph(List<TreeNode> sentences)
+	public List<String> resolve(List<TreeNode> sentences)
 	{
 		List<String> result = new ArrayList<String>();
 		List<TreeNode> prons = new ArrayList<TreeNode>();
