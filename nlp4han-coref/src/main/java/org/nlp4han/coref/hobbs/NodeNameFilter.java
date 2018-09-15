@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.lc.nlp4han.constituent.TreeNode;
 
-public class NodeNameFilter implements CandidateFilter
+public class NodeNameFilter extends CandidateFilter
 {
 	private List<TreeNode> treeNodes;
 	private String[] treeNodeNames;
@@ -67,10 +67,4 @@ public class NodeNameFilter implements CandidateFilter
 		this.treeNodes = treeNodes;
 
 	}
-
-	@Override
-	public void setReferenceConditions(Object obj)
-	{
-	}
-
 }
