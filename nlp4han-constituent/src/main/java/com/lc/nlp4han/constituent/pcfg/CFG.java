@@ -77,7 +77,6 @@ public class CFG
 	 * @param in
 	 * @param encoding
 	 * @param type
-	 * @param pruleMap
 	 * @throws IOException
 	 */
 	public void readGrammar(InputStream in, String encoding, String type) throws IOException

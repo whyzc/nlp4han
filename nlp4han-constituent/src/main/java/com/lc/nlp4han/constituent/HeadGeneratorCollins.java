@@ -93,6 +93,8 @@ public class HeadGeneratorCollins extends AbstractHeadGenerator {
 						}
 					}
 				}
+				//决策列表中不存在，则从左方向开始找第一个
+				return node.getFirstChildHeadWord() + "_" + node.getFirstChildHeadWordPos();
 			} else if (normalRules.get(currentNodeName).getDirection().equals("right")) {
 				for (int i = 0; i < normalRules.get(currentNodeName).getRightRulesSize(); i++) {
 					for (int j = node.getChildrenNum() - 1; j >= 0; j--) {
@@ -101,6 +103,8 @@ public class HeadGeneratorCollins extends AbstractHeadGenerator {
 						}
 					}
 				}
+				//决策列表中不存在，则从右方向开始找第一个
+				return node.getLastChildHeadWord() + "_" + node.getLastChildHeadPos();
 			}
 			// 如果所有的规则都没有匹配，返回最左边的第一个
 			return node.getFirstChildHeadWord() + "_" + node.getFirstChildHeadWordPos();
