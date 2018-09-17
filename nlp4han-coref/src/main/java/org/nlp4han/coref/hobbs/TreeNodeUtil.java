@@ -167,7 +167,7 @@ public class TreeNodeUtil
 		return null;
 	}
 
-	public static List<TreeNode> getNodesWithSpecified(TreeNode treeNode, String[] treeNodeNames)
+	public static List<TreeNode> getNodesWithSpecifiedName(TreeNode treeNode, String[] treeNodeNames)
 	{
 		return getNodesWithSpecifiedNameOnLeftOrRightOfPath(treeNode, null, null, treeNodeNames);
 	}
@@ -280,35 +280,6 @@ public class TreeNodeUtil
 	 * @param nPNode
 	 * @return
 	 */
-	// public static TreeNode getHead(TreeNode nPNode)
-	// {
-	// TreeNode result = null;
-	// List<? extends TreeNode> children = nPNode.getChildren();
-	// int size = nPNode.getChildrenNum();
-	// if (size > 1 && nPNode.getLastChild().getNodeName().equals("NP") &&
-	// nPNode.getChild(size - 2).equals("DNP"))
-	// {
-	// TreeNode np = nPNode.getLastChild();
-	// if (np.getChildrenNum() == 1)
-	// return np.getChild(0);
-	// else
-	// return getHead(np);
-	// }
-	// else if ((result = getFirstNodeFromRightToLeft(children, new String[] { "NN",
-	// "NR", "POS" })) != null)
-	// {
-	// if (result.getNodeName().equals("NP"))
-	// return getHead(result);
-	// return result;
-	// }
-	// else if ((result = getFirstNodeFromLeftToRight(children, new String[] { "NP"
-	// })) != null)
-	// {
-	// return getHead(result);
-	// }
-	// return result;
-	// }
-
 	public static TreeNode getHead(TreeNode nPNode, HashMap<String, List<HeadRule>> NPRules)
 	{
 		String currNodeName = nPNode.getNodeName();
@@ -470,8 +441,8 @@ public class TreeNodeUtil
 
 		if (allNodeNames(childrenNodes, new String[] { "NN", "NR", "CC", "PU", "NP" }))
 		{
-			List<TreeNode> pus = getNodesWithSpecified(treeNode, new String[] { "、" });
-			List<TreeNode> ccs = getNodesWithSpecified(treeNode, new String[] { "CC" });
+			List<TreeNode> pus = getNodesWithSpecifiedName(treeNode, new String[] { "、" });
+			List<TreeNode> ccs = getNodesWithSpecifiedName(treeNode, new String[] { "CC" });
 			int num = pus.size() + ccs.size();
 			if (num >= childrenNodes.size() * 0.2)
 				return true;
@@ -618,7 +589,7 @@ public class TreeNodeUtil
 	 */
 	public static List<TreeNode> getNPNodes(TreeNode rootNode)
 	{
-		return TreeNodeUtil.getNodesWithSpecified(rootNode, new String[] { "NP" });
+		return TreeNodeUtil.getNodesWithSpecifiedName(rootNode, new String[] { "NP" });
 	}
 	
 	/**
@@ -725,6 +696,11 @@ public class TreeNodeUtil
 			return null;
 	}
 
+	/**
+	 * 找出叶子结点的位置
+	 * @param leaf
+	 * @return
+	 */
 	public static int siteOfLeaves(TreeNode leaf)
 	{
 		if (leaf == null)

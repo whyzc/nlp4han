@@ -16,18 +16,18 @@ import com.lc.nlp4han.constituent.TreeNode;
  * @author 杨智超
  *
  */
-public class AttributeFilter extends Filtering
+public class AttributeFilter extends FilterWrapper
 {
 	private TreeNode referenceNode;
 	private MentionAttribute referenceNodeAttribute;
 	private AttributeGenerator attributeGenerator;
 
-	public AttributeFilter(Filter filter)
+	public AttributeFilter(CandidateFilter filter)
 	{
 		this.filter = filter;
 	}
 
-	public AttributeFilter(Filtering filter, AttributeGenerator attributeGenerator)
+	public AttributeFilter(FilterWrapper filter, AttributeGenerator attributeGenerator)
 	{
 		this(filter);
 		this.attributeGenerator = attributeGenerator;
@@ -49,18 +49,6 @@ public class AttributeFilter extends Filtering
 			this.referenceNodeAttribute = this.attributeGenerator.extractAttributes(referenceNode);
 	}
 
-	/**
-	 * 设置参考结点
-	 * 
-	 * @param referenceNode
-	 *            参考结点
-	 */
-	public void setReferenceNode(TreeNode referenceNode)
-	{
-		this.referenceNode = referenceNode;
-		if (this.attributeGenerator != null)
-			this.referenceNodeAttribute = this.attributeGenerator.extractAttributes(referenceNode);
-	}
 
 	public void setAttributeGenerator(AttributeGenerator attributeGenerator)
 	{
@@ -124,9 +112,9 @@ public class AttributeFilter extends Filtering
 	}
 
 	@Override
-	public List<TreeNode> filtering()
+	public List<TreeNode> filter()
 	{
-		List<TreeNode> treeNodes = filter.filtering();
+		List<TreeNode> treeNodes = filter.filter();
 		if (this.referenceNode == null)
 			throw new RuntimeException("未设置基准结点");
 		if (this.attributeGenerator != null)
@@ -149,9 +137,19 @@ public class AttributeFilter extends Filtering
 	}
 
 	@Override
-	public void setUp(List<TreeNode> treeNodes)
+	public void setFilteredNodes(List<TreeNode> treeNodes)
 	{
-		filter.setUp(treeNodes);
+		filter.setFilteredNodes(treeNodes);
+	}
+
+	@Override
+	public void setReferenceConditions(Object obj)
+	{
+		TreeNode node = (TreeNode) obj;
+		this.referenceNode = node;
+		if (this.attributeGenerator != null)
+			this.referenceNodeAttribute = this.attributeGenerator.extractAttributes(referenceNode);
+		
 	}
 
 }

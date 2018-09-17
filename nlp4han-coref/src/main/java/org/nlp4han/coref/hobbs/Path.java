@@ -13,17 +13,12 @@ import com.lc.nlp4han.constituent.TreeNode;
  */
 public class Path
 {
-	private List<TreeNode> path;
+	private List<TreeNode> path = new LinkedList<TreeNode>();
 	private Direction dir = Direction.NONE;
 
 	public enum Direction
 	{
 		UP, DOWN, NONE;
-	}
-
-	public Path()
-	{
-		path = new LinkedList<TreeNode>();
 	}
 
 	/**
@@ -149,7 +144,7 @@ public class Path
 	 *            路径的终点
 	 * @return 返回startNode到endNode的路径
 	 */
-	public void getPath(TreeNode startNode, TreeNode endNode)
+	public Path(TreeNode startNode, TreeNode endNode)
 	{
 		this.dir = getDirection(startNode, endNode);
 		this.path.clear();

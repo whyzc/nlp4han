@@ -1,5 +1,6 @@
 package org.nlp4han.coref.hobbs;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,10 +12,10 @@ import com.lc.nlp4han.constituent.TreeNode;
  * @author 杨智超
  *
  */
-public class Hobbs
+public class Hobbs implements AnaphoraResolution
 {
 
-	private Filter filter;
+	private CandidateFilter filter;
 	private List<TreeNode> constituentTrees;
 
 	public Hobbs()
@@ -22,12 +23,12 @@ public class Hobbs
 
 	}
 
-	public Hobbs(Filter filter)
+	public Hobbs(CandidateFilter filter)
 	{
 		this.filter = filter;
 	}
 
-	public void setFilter(Filter filter)
+	public void setFilter(CandidateFilter filter)
 	{
 		this.filter = filter;
 	}
@@ -45,7 +46,6 @@ public class Hobbs
 	{
 		this.constituentTrees = constituentTrees;
 		TreeNode x;
-		Path path = new Path();
 
 		TreeNode tmp;
 		List<TreeNode> candidateNodes;
@@ -55,20 +55,27 @@ public class Hobbs
 		x = TreeNodeUtil.getFirstNPNodeUp(tmp);
 		if (x != null)
 		{
-			path.getPath(x, tmp);
+			Path path = new Path(x, tmp);
 			candidateNodes = TreeNodeUtil.getNPNodeOnLeftOfPath(x, path);
-			filter.setUp(candidateNodes);
-			filter.filtering();
+			filter.setFilteredNodes(candidateNodes);
+			filter.filter();
 
 			if (!candidateNodes.isEmpty())
 			{ // 若存在NP结点，并且在x和该候选结点间存在NP或IP结点，则返回该结点
 				candidateNodes = existNpOrIPNodeBetween2Nodes(candidateNodes, x);
 				if (!candidateNodes.isEmpty())
-					return candidateNodes.get(0);
+				{
+					for (int k = 0; k < candidateNodes.size(); k++)
+					{
+						if (TreeNodeUtil.getHead(candidateNodes.get(k), NPHeadRuleSetPTB.getNPRuleSet()) != null)
+							return candidateNodes.get(k);
+					}
+				}
 			}
 		}
 		else
 			x = tmp;
+		
 		while (index >= 0)
 		{
 			if (x == null || x.getParent() == null)
@@ -78,35 +85,56 @@ public class Hobbs
 					break;
 				x = constituentTrees.get(index);
 				candidateNodes = TreeNodeUtil.getNPNodes(x);
-				filter.setUp(candidateNodes);
-				filter.filtering();
+				filter.setFilteredNodes(candidateNodes);
+				filter.filter();
 				if (!candidateNodes.isEmpty())
-					return candidateNodes.get(0);
+				{
+					for (int k = 0; k < candidateNodes.size(); k++)
+					{
+						if (TreeNodeUtil.getHead(candidateNodes.get(k), NPHeadRuleSetPTB.getNPRuleSet()) != null)
+							return candidateNodes.get(k);
+					}
+				}
 			}
 			else
 			{
 				tmp = TreeNodeUtil.getFirstNPOrIPNodeUp(x);
-				path.getPath(x, tmp);
+				Path path = new Path(x, tmp);
 				x = tmp;
 				if (TreeNodeUtil.isNPNode(x) && !dominateNNode(x, path))
 				{// 若结点x为NP结点，且path没有穿过x直接支配的Nominal结点,则返回x
 					return x;
 				}
+				
 				candidateNodes = TreeNodeUtil.getNPNodeOnLeftOfPath(x, path);
-				filter.setUp(candidateNodes);
-				filter.filtering();
+				filter.setFilteredNodes(candidateNodes);
+				filter.filter();
 				if (!candidateNodes.isEmpty())
-					return candidateNodes.get(0);
+				{
+					for (int k = 0; k < candidateNodes.size(); k++)
+					{
+						if (TreeNodeUtil.getHead(candidateNodes.get(k), NPHeadRuleSetPTB.getNPRuleSet()) != null)
+							return candidateNodes.get(k);
+					}
+				}
+				
 				if (TreeNodeUtil.isIPNode(x))
 				{
 					candidateNodes = getNPNodeOnRightOfPath(x, path);
-					filter.setUp(candidateNodes);
-					filter.filtering();
+					filter.setFilteredNodes(candidateNodes);
+					filter.filter();
 					if (!candidateNodes.isEmpty())
-						return candidateNodes.get(0);
+					{
+						for (int k = 0; k < candidateNodes.size(); k++)
+						{
+							if (TreeNodeUtil.getHead(candidateNodes.get(k), NPHeadRuleSetPTB.getNPRuleSet()) != null)
+								return candidateNodes.get(k);
+						}
+					}
 				}
 			}
 		}
+		
 		return null;
 	}
 
@@ -144,8 +172,6 @@ public class Hobbs
 		return result;
 	}
 
-	
-
 	/**
 	 * 获得candidateNodes中与结点treeNode间存在NP或IP结点的结点
 	 * 
@@ -169,8 +195,6 @@ public class Hobbs
 		return result;
 	}
 
-	
-
 	/**
 	 * 路径path是否穿过结点treeNode直接支配的一个Nominal结点
 	 * 
@@ -180,7 +204,8 @@ public class Hobbs
 	 */
 	private boolean dominateNNode(TreeNode treeNode, Path path)
 	{
-		List<TreeNode> candidates = TreeNodeUtil.getChildNodeWithSpecifiedName(treeNode, new String[] { "NP", "NN", "NR" });
+		List<TreeNode> candidates = TreeNodeUtil.getChildNodeWithSpecifiedName(treeNode,
+				new String[] { "NP", "NN", "NR" });
 		for (TreeNode tn : candidates)
 		{
 			if (path.contains(tn))
@@ -188,7 +213,7 @@ public class Hobbs
 		}
 		return false;
 	}
-	
+
 	public String resultStr(TreeNode pronoun, TreeNode antecedent)
 	{
 		if (pronoun == null || antecedent == null)
@@ -204,7 +229,8 @@ public class Hobbs
 			List<TreeNode> leaves = TreeNodeUtil.getAllLeafNodes(root1);
 			site_s1 = site_s2 = constituentTrees.indexOf(root1);
 			site_pron = leafSite(TreeNodeUtil.getString(pronoun), leaves);
-			site_ante = leafSite(TreeNodeUtil.getString(TreeNodeUtil.getHead(antecedent, NPHeadRuleSetPTB.getNPRuleSet())), leaves);
+			site_ante = leafSite(
+					TreeNodeUtil.getString(TreeNodeUtil.getHead(antecedent, NPHeadRuleSetPTB.getNPRuleSet())), leaves);
 		}
 		else
 		{
@@ -213,26 +239,67 @@ public class Hobbs
 			site_s1 = constituentTrees.indexOf(root1);
 			site_s2 = constituentTrees.indexOf(root2);
 			site_pron = leafSite(TreeNodeUtil.getString(pronoun), leaves1);
-			site_ante = leafSite(TreeNodeUtil.getString(TreeNodeUtil.getHead(antecedent, NPHeadRuleSetPTB.getNPRuleSet())), leaves2);
+			site_ante = leafSite(
+					TreeNodeUtil.getString(TreeNodeUtil.getHead(antecedent, NPHeadRuleSetPTB.getNPRuleSet())), leaves2);
 		}
-		
+
 		String nodeName_pron = TreeNodeUtil.getString(pronoun);
-		String nodeName_ante = TreeNodeUtil.getString(TreeNodeUtil.getHead(antecedent, NPHeadRuleSetPTB.getNPRuleSet()));
-		String result = nodeName_pron+"("+ (site_s1+1) + "-" + (site_pron+1)+")"+CenteringBFP.SEPARATOR+nodeName_ante+"("+ (site_s2+1) + "-" + (site_ante+1)+")";
-		
+		String nodeName_ante = TreeNodeUtil
+				.getString(TreeNodeUtil.getHead(antecedent, NPHeadRuleSetPTB.getNPRuleSet()));
+		String result = nodeName_pron + "(" + (site_s1 + 1) + "-" + (site_pron + 1) + ")" + CenteringBFP.SEPARATOR
+				+ nodeName_ante + "(" + (site_s2 + 1) + "-" + (site_ante + 1) + ")";
+
 		return result;
 	}
-	
-	private int leafSite (String nodeName, List<TreeNode> nodes)
+
+	private int leafSite(String nodeName, List<TreeNode> nodes)
 	{
 		if (nodeName == null || nodes == null)
 			throw new RuntimeException("输入错误");
-		for (int i=0 ; i<nodes.size() ; i++)
+		for (int i = 0; i < nodes.size(); i++)
 		{
 			if (nodes.get(i).getNodeName().equals(nodeName))
 				return i;
 		}
 		return -1;
+	}
+
+	@Override
+	public List<String> resolve(List<TreeNode> sentences)
+	{
+		List<String> result = new ArrayList<String>();
+		List<TreeNode> prons = new ArrayList<TreeNode>();
+		for (int i=0 ; i<sentences.size() ; i++)
+		{
+			List<TreeNode> tmp = TreeNodeUtil.getNodesWithSpecifiedName(sentences.get(i), new String[] {"PN"});
+			if (tmp != null && !tmp.isEmpty())
+			{
+				prons.addAll(tmp);
+			}
+		}
+		
+		if (!prons.isEmpty())
+		{
+			if (filter == null)
+			{
+				AttributeFilter af = new AttributeFilter(new PNFilter(new NodeNameFilter())); // 组合过滤器
+				af.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
+				
+				filter = af;
+			}
+			
+			for (int i=0 ; i<prons.size() ; i++)
+			{
+				filter.setReferenceConditions(prons.get(i));
+				TreeNode anaphNode = hobbs(sentences, prons.get(i));
+				String resultStr = resultStr(prons.get(i), anaphNode);
+				
+				if (resultStr != null)
+					result.add(resultStr);
+			}//TODO
+		}
+		
+		return result;
 	}
 
 }
