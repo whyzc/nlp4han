@@ -22,17 +22,17 @@ public class LexPCFG
 	private HashMap<String, HashSet<String>> wordMapPos = new HashMap<String, HashSet<String>>();
 
 	// P(H|P,t,w)）相关的统计数据
-	private HashMap<RuleHeadChildGenerate, AmountAndSort> headGenMap = new HashMap<RuleHeadChildGenerate, AmountAndSort>();
-	private HashMap<RuleHeadChildGenerate, HashSet<String>> parentList = new HashMap<RuleHeadChildGenerate, HashSet<String>>();
+	private HashMap<RuleCollins, AmountAndSort> headGenMap = new HashMap<RuleCollins, AmountAndSort>();
+	private HashMap<RuleCollins, HashSet<String>> parentList = new HashMap<RuleCollins, HashSet<String>>();
 
 	// 用于生成headChild(包含其中心word和pos)相关统计数据
-	private HashMap<RuleSidesGenerate, AmountAndSort> sidesGeneratorMap = new HashMap<RuleSidesGenerate, AmountAndSort>();
+	private HashMap<RuleCollins, AmountAndSort> sidesGeneratorMap = new HashMap<RuleCollins, AmountAndSort>();
 	
 	// 用于生成Stop的相关统计数据
-	private HashMap<RuleStopGenerator, AmountAndSort> stopGenMap = new HashMap<RuleStopGenerator, AmountAndSort>();
+	private HashMap<RuleCollins, AmountAndSort> stopGenMap = new HashMap<RuleCollins, AmountAndSort>();
 
 	// 用于生成并列结构连词（如CC或者逗号和冒号,为简略，我将生成修饰符pos和生成修饰符word都放入此规则
-	private HashMap<RuleSpecialCase, AmountAndSort> specialGenMap = new HashMap<RuleSpecialCase, AmountAndSort>();
+	private HashMap<RuleCollins, AmountAndSort> specialGenMap = new HashMap<RuleCollins, AmountAndSort>();
 
 	public LexPCFG()
 	{
@@ -98,7 +98,7 @@ public class LexPCFG
 	 * @param rsg
 	 * @return
 	 */
-	public double getProForGenerateStop(RuleStopGenerator rsg)
+	public double getProForGenerateStop(RuleStopGenerate rsg)
 	{
 		return 1.0;
 	}
@@ -149,11 +149,6 @@ public class LexPCFG
 		return 1.0;
 	}
 
-	public void setPosSet(HashSet<String> posSet)
-	{
-		this.posSet = posSet;
-	}
-
 	public String getStartSymbol()
 	{
 		return StartSymbol;
@@ -184,54 +179,58 @@ public class LexPCFG
 		this.wordMapPos = wordMapPos;
 	}
 
-	public HashMap<RuleHeadChildGenerate, AmountAndSort> getHeadGenMap()
+	public HashMap<RuleCollins, AmountAndSort> getHeadGenMap()
 	{
 		return headGenMap;
 	}
 
-	public void setHeadGenMap(HashMap<RuleHeadChildGenerate, AmountAndSort> headGenMap)
+	public void setHeadGenMap(HashMap<RuleCollins, AmountAndSort> headGenMap)
 	{
 		this.headGenMap = headGenMap;
 	}
 
-	public HashMap<RuleHeadChildGenerate, HashSet<String>> getParentList()
+	public HashMap<RuleCollins, HashSet<String>> getParentList()
 	{
 		return parentList;
 	}
 
-	public void setParentList(HashMap<RuleHeadChildGenerate, HashSet<String>> parentList)
+	public void setParentList(HashMap<RuleCollins, HashSet<String>> parentList)
 	{
 		this.parentList = parentList;
 	}
 
-	public HashMap<RuleSidesGenerate, AmountAndSort> getSidesGeneratorMap()
+	public HashMap<RuleCollins, AmountAndSort> getSidesGeneratorMap()
 	{
 		return sidesGeneratorMap;
 	}
 
-	public void setSidesGeneratorMap(HashMap<RuleSidesGenerate, AmountAndSort> sidesGeneratorMap)
+	public void setSidesGeneratorMap(HashMap<RuleCollins, AmountAndSort> sidesGeneratorMap)
 	{
 		this.sidesGeneratorMap = sidesGeneratorMap;
 	}
 
-	public HashMap<RuleStopGenerator, AmountAndSort> getStopGenMap()
+	public HashMap<RuleCollins, AmountAndSort> getStopGenMap()
 	{
 		return stopGenMap;
 	}
 
-	public void setStopGenMap(HashMap<RuleStopGenerator, AmountAndSort> stopGenMap)
+	public void setStopGenMap(HashMap<RuleCollins, AmountAndSort> stopGenMap)
 	{
 		this.stopGenMap = stopGenMap;
 	}
 
-	public HashMap<RuleSpecialCase, AmountAndSort> getSpecialGenMap()
+	public HashMap<RuleCollins, AmountAndSort> getSpecialGenMap()
 	{
 		return specialGenMap;
 	}
 
-	public void setSpecialGenMap(HashMap<RuleSpecialCase, AmountAndSort> specialGenMap)
+	public void setSpecialGenMap(HashMap<RuleCollins, AmountAndSort> specialGenMap)
 	{
 		this.specialGenMap = specialGenMap;
 	}
-   
+
+	public void setPosSet(HashSet<String> posSet)
+	{
+		this.posSet = posSet;
+	} 
 }

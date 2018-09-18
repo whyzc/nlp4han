@@ -12,7 +12,7 @@ public class LexPCFGTest
 	private String word;
 	private RuleHeadChildGenerate rhcg0;
 	private RuleHeadChildGenerate rhcg1;
-	private RuleStopGenerator rsg;
+	private RuleStopGenerate rsg;
 	private RuleSidesGenerate sidesRule;
 	private RuleSidesGenerate npbRule;
 	private RuleSpecialCase specialRule;

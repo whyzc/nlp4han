@@ -37,7 +37,7 @@ public class HeadGeneratorCollins extends AbstractHeadGenerator {
 			}
 		}
 		if (flag == true && record != -1) {
-			return node.getChildHeadWord(record) + "_" + node.getChildHeadPos(record);
+			return node.getChildHeadWord(record) + "_" + node.getChildHeadPos(record)+"_" +record;
 		}
 		return null;
 	}
@@ -89,27 +89,27 @@ public class HeadGeneratorCollins extends AbstractHeadGenerator {
 				for (int i = 0; i < normalRules.get(currentNodeName).getRightRulesSize(); i++) {
 					for (int j = 0; j < node.getChildrenNum(); j++) {
 						if (node.getChildName(j).equals(normalRules.get(currentNodeName).getIRightRule(i))) {
-							return node.getChildHeadWord(j) + "_" + node.getChildHeadPos(j);
+							return node.getChildHeadWord(j) + "_" + node.getChildHeadPos(j)+ "_"+j;
 						}
 					}
 				}
 				//决策列表中不存在，则从左方向开始找第一个
-				return node.getFirstChildHeadWord() + "_" + node.getFirstChildHeadWordPos();
+				return node.getFirstChildHeadWord() + "_" + node.getFirstChildHeadWordPos()+ "_"+0;
 			} else if (normalRules.get(currentNodeName).getDirection().equals("right")) {
 				for (int i = 0; i < normalRules.get(currentNodeName).getRightRulesSize(); i++) {
 					for (int j = node.getChildrenNum() - 1; j >= 0; j--) {
 						if (node.getChildName(j).equals(normalRules.get(currentNodeName).getIRightRule(i))) {
-							return node.getChildHeadWord(j) + "_" + node.getChildHeadPos(j);
+							return node.getChildHeadWord(j) + "_" + node.getChildHeadPos(j)+ "_"+j;
 						}
 					}
 				}
 				//决策列表中不存在，则从右方向开始找第一个
-				return node.getLastChildHeadWord() + "_" + node.getLastChildHeadPos();
+				return node.getLastChildHeadWord() + "_" + node.getLastChildHeadPos()+ "_"+0;
 			}
 			// 如果所有的规则都没有匹配，返回最左边的第一个
-			return node.getFirstChildHeadWord() + "_" + node.getFirstChildHeadWordPos();
+			return node.getFirstChildHeadWord() + "_" + node.getFirstChildHeadWordPos()+ "_"+0;
 		} else {
-			return node.getFirstChildHeadWord() + "_" + node.getFirstChildHeadWordPos();
+			return node.getFirstChildHeadWord() + "_" + node.getFirstChildHeadWordPos()+ "_"+0;
 		}
 	}
 }

@@ -12,6 +12,10 @@ public class Distance
 	private boolean adjacency=false;
 	private boolean crossVerb=false;
 
+	
+	public Distance()
+	{
+	}
 	public Distance(boolean adjacency, boolean crossVerb)
 	{
 		this.adjacency = adjacency;

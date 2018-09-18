@@ -1,9 +1,10 @@
 package com.lc.nlp4han.constituent.lex;
 
 import com.lc.nlp4han.constituent.HeadTreeNode;
+
 public class HeadTreeNodeForCollins extends HeadTreeNode
 {
-    private boolean verb;//该节点是否包含动词
+    private boolean verb=false;//该节点是否包含动词
     private int headChildIndex;//该节点的headChild的索引值
 	public HeadTreeNodeForCollins(String nodename)
 	{
