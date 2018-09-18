@@ -43,6 +43,7 @@ public class PSTBankReportTool
 	private int sentenceCount = 0;// 句子数
 	private int wordCount = 0;// 总字数(包括标点符号)
 	private HashSet<String> nonTerminalSet = new HashSet<String>();// 非终结符集合
+	private static HashSet<String> posSet=new HashSet<String>();//词性标注集合
 
 	private PSTBankReport getTreeBankInformation(String frompath, String encoding) throws IOException
 	{
@@ -72,7 +73,7 @@ public class PSTBankReportTool
 		ptbt.close();
 		// 括号表达式生成文法
 		return new PSTBankReport(tokenCount, wordShapeSet.size(), sentenceCount, wordCount, nonTerminalSet.size(),
-				heighest, lowest, meanLevelOfTree);
+				heighest, lowest, meanLevelOfTree,posSet.size());
 	}
 
 	private int TraverseTree(TreeNode node)
@@ -88,6 +89,9 @@ public class PSTBankReportTool
 		else
 		{
 			nonTerminalSet.add(node.nodename);
+		}
+		if(node.getChildrenNum()==1&&node.getChild(0).getChildrenNum()==0) {
+			posSet.add(node.getNodeName());//添加词性标注
 		}
 		int height = 0;
 		for (TreeNode node1 : node.getChildren())

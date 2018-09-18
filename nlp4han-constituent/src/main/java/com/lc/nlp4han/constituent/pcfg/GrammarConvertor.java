@@ -15,19 +15,19 @@ public class GrammarConvertor
 	public CFG convertCFGToCNF(CFG cfg)
 	{
 		this.cnf = new CFG();
-		convertGrammar("CNF",cfg);
+		convertGrammar("CNF", cfg);
 		return cnf;
 	}
 
 	public PCFG convertPCFGToP2NF(PCFG pcfg)
 	{
 		this.cnf = new PCFG();
-		convertGrammar("P2NF",pcfg);
+		convertGrammar("P2NF", pcfg);
 		return (PCFG) cnf;
 	}
 
 	/**
-	 * 这里的转换为PCNF在消除单元规则时消除到POS层次即停止
+	 * 这里的转换为PCNF在消除单元规则时,消除到POS层次即停止
 	 * 
 	 * @param pcfg
 	 * @return
@@ -35,27 +35,33 @@ public class GrammarConvertor
 	public PCFG convertPCFGToPCNF(PCFG pcfg)
 	{
 		this.cnf = new PCFG();
-		convertGrammar("PCNF",pcfg);
+		convertGrammar("PCNF", pcfg);
 		return (PCFG) cnf;
 	}
+
 	/**
 	 * 转换的通用类
+	 * 
 	 * @param type
 	 * @param cfg
 	 */
-    private void convertGrammar(String type,CFG cfg) {
-    	this.type=type;
-    	convertTo2NF(cfg);
-    	if(type.contains("P")) {
-    		this.deletePRuleSet = new HashSet<RewriteRule>();
-    		getPOSSet();
-    		removeUnitProduction();
-    	}
-    }
-    /**
-     * 将规则转换为2nf形式（即不消除单元规则的乔姆斯基范式）
-     * @param cfg
-     */
+	private void convertGrammar(String type, CFG cfg)
+	{
+		this.type = type;
+		convertTo2NF(cfg);
+		if (type.contains("P"))
+		{
+			this.deletePRuleSet = new HashSet<RewriteRule>();
+			getPOSSet();
+			removeUnitProduction();
+		}
+	}
+
+	/**
+	 * 将规则转换为2nf形式（即不消除单元规则的乔姆斯基范式）
+	 * 
+	 * @param cfg
+	 */
 	private void convertTo2NF(CFG cfg)
 	{
 		cnf.setNonTerminalSet(cfg.getNonTerminalSet());
@@ -171,9 +177,10 @@ public class GrammarConvertor
 		// 递归，直到rhs的个数为2时
 		reduceRHSNum(rule);
 	}
-    /**
-     * 消除单元规则
-     */
+
+	/**
+	 * 消除单元规则
+	 */
 	private void removeUnitProduction()
 	{
 		Set<String> nonterSet = cnf.getNonTerminalSet();
@@ -258,7 +265,7 @@ public class GrammarConvertor
 	}
 
 	/**
-	 * 得到词性标注，
+	 * 得到词性标注
 	 */
 	private void getPOSSet()
 	{

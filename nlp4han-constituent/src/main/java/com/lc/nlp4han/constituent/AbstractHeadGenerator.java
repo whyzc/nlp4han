@@ -103,4 +103,14 @@ public abstract class AbstractHeadGenerator
 
 		return extractHeadWordAndPos(node).split("_")[1];
 	}
+	/**
+	 * 提取头结点的索引
+	 * 
+	 * @param node
+	 *            子节点带头结点，父节点不带头结点的树
+	 * @return 头结点的词性
+	 */
+	public int  extractHeadIndex(HeadTreeNode node) {
+		return Integer.parseInt(extractHeadWordAndPos(node).split("_")[2]);
+	}
 }

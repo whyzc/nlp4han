@@ -7,6 +7,7 @@ public class PSTBankReport
 	private int sentenceCount;// 句子数
 	private int wordCount;// 总字数(包括标点符号)
 	private int nonTerminalCount;// 非终结符的个数
+	private int POSCount;//词性标注数目
 	private int numOfHighestTree;// 库中句法树的最大高度
 	private int numOfLowestTree;// 库中句法树的最小高度
 	private int meanLevelOfTree;// 库中句法树的平均高度
@@ -17,7 +18,7 @@ public class PSTBankReport
 	}
 
 	public PSTBankReport(int tokenCount, int wordShapeCount, int sentenceCount, int wordCount, int nonTerminalCount,
-			int numOfHighestTree, int numOfLowestTree, int meanLevelOfTree)
+			int numOfHighestTree, int numOfLowestTree, int meanLevelOfTree,int POSCount)
 	{
 		this.tokenCount = tokenCount;
 		this.wordShapeCount = wordShapeCount;
@@ -27,6 +28,7 @@ public class PSTBankReport
 		this.numOfHighestTree = numOfHighestTree;
 		this.numOfLowestTree = numOfLowestTree;
 		this.meanLevelOfTree = meanLevelOfTree;
+		this.POSCount=POSCount;
 	}
 
 	public int getTokenCount()
@@ -108,6 +110,15 @@ public class PSTBankReport
 	{
 		this.meanLevelOfTree = meanLevelOfTree;
 	}
+	public int getPOSCount()
+	{
+		return POSCount;
+	}
+
+	public void setPOSCount(int pOSCount)
+	{
+		POSCount = pOSCount;
+	}
 
 	@Override
 	public String toString()
@@ -115,6 +126,6 @@ public class PSTBankReport
 		return "tokenCount=" + tokenCount + "\n" + "wordShapeCount=" + wordShapeCount + "\n" + "sentenceCount="
 				+ sentenceCount + "\n" + "wordCount=" + wordCount + "\n" + "nonTerminalCount=" + nonTerminalCount + "\n"
 				+ "numOfHighestTree=" + numOfHighestTree + "\n" + "numOfLowestTree=" + numOfLowestTree + "\n"
-				+ "meanLevelOfTree=" + meanLevelOfTree;
+				+ "meanLevelOfTree=" + meanLevelOfTree+"\n"+ "POSCount=" + POSCount;
 	}
 }
