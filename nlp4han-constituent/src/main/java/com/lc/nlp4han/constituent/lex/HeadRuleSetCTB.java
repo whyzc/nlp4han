@@ -183,38 +183,38 @@ public class HeadRuleSetCTB extends HeadRuleSet
 		String[] VCPStr = { "VCP", "VV", "VA", "VC", "VE" };
 		for (int i = 0; i < VCPStr.length; i++)
 		{
-			VCP.add(VSBStr[i]);
+			VCP.add(VCPStr[i]);
 		}
 		headRulesOfCTB.put("VCP", new HeadRule(VCP, "right"));
 
 		String[] VNVStr = { "VNV", "VV", "VA", "VC", "VE" };
 		for (int i = 0; i < VNVStr.length; i++)
 		{
-			VNV.add(VSBStr[i]);
+			VNV.add(VNVStr[i]);
 		}
 		headRulesOfCTB.put("VNV", new HeadRule(VNV, "right"));
 		String[] CLPStr = { "CLP", "M" };
 		for (int i = 0; i < CLPStr.length; i++)
 		{
-			CLP.add(VSBStr[i]);
+			CLP.add(CLPStr[i]);
 		}
 		headRulesOfCTB.put("CLP", new HeadRule(CLP, "right"));
 		String[] LSTStr = { "LST", "CD","OD" };
 		for (int i = 0; i < LSTStr.length; i++)
 		{
-			LST.add(VSBStr[i]);
+			LST.add(LSTStr[i]);
 		}
 		headRulesOfCTB.put("LST", new HeadRule(LST, "left"));
 		String[] VPTStr = { "VNV", "VV","VA","VC","VE" };
 		for (int i = 0; i < VPTStr.length; i++)
 		{
-			VPT.add(VSBStr[i]);
+			VPT.add(VPTStr[i]);
 		}
 		headRulesOfCTB.put("VPT", new HeadRule(VPT, "right"));
 		String[] PRNStr = { "NP", "IP", "VP","NT","NR","NN" };
 		for (int i = 0; i < PRNStr.length; i++)
 		{
-			PRN.add(VSBStr[i]);
+			PRN.add(PRNStr[i]);
 		}
 		headRulesOfCTB.put("PRN", new HeadRule(PRN, "right"));
 		String[] DVPStr = { "DVP","DEV" };
@@ -222,7 +222,7 @@ public class HeadRuleSetCTB extends HeadRuleSet
 		{
 			DVP.add(DVPStr[i]);
 		}
-		headRulesOfCTB.put("CLP", new HeadRule(DVP, "right"));
+		headRulesOfCTB.put("DVP", new HeadRule(DVP, "right"));
 		String[] WHPPStr = { "WHPP","PP","P" };
 		for (int i = 0; i < DVPStr.length; i++)
 		{
@@ -236,7 +236,7 @@ public class HeadRuleSetCTB extends HeadRuleSet
 		}
 		headRulesOfCTB.put("FRAG", new HeadRule(FRAG, "right"));
 		String[] UCPStr = { "UCP"};
-		for (int i = 0; i < DVPStr.length; i++)
+		for (int i = 0; i < UCPStr.length; i++)
 		{
 			UCP.add(UCPStr[i]);
 		}

@@ -24,7 +24,7 @@ public class CTBPreprocessTool
 	}*/
 	/**
 	 * 在句法树中添加基本名词短语节点
-	 * 该节点为NP，并且以该节点为根的结构树中不存在NP(或者存在类似NP->NN->word)
+	 * 该节点为NP，并且以该节点为根的结构树中不存在NP
 	 * @param node
 	 */
 	public static void AddNPBNode(TreeNode node)
@@ -34,11 +34,11 @@ public class CTBPreprocessTool
 			node.setNewName("NPB");
 			TreeNode newNode = new TreeNode("NP");
 			newNode.setParent(node.getParent());
-			newNode.setChild(0, node);
+			newNode.addChild(node);
 			node.setParent(newNode);
 		}
 	}
-	private static boolean IsNPB(TreeNode node)
+	public static boolean IsNPB(TreeNode node)
 	{
 		if (!node.getNodeName().equals("NP"))
 		{
@@ -55,8 +55,7 @@ public class CTBPreprocessTool
 		}
 	}
 	private static boolean  traverseNode(TreeNode node) {
-		if(node.getNodeName().equals("NP")&&!(node.getChildrenNum() == 1 && node.getChild(0).getChildrenNum() == 1
-				&& node.getChild(0).getChild(0).getChildrenNum() == 0)) {
+		if(node.getNodeName().equals("NP")) {
 			return false;
 		}else {
 			for(TreeNode child:node.getChildren()) {
