@@ -20,13 +20,7 @@ public class EvaluationHobbs extends AbstractEvaluation
 	public static int total = 0; // 所有样本的数量,公有属性，子类可继承使用
 	public static int correctNumber = 0; // 符合预期的数量,公有属性，子类可继承使用
 	private Hobbs hobbs = new Hobbs();
-	private static AttributeFilter attributeFilter = new AttributeFilter(new PNFilter(new NodeNameFilter())); // 组合过滤器
-
-	static
-	{
-		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
-	}
-
+	
 	public static void main(String[] args)
 	{
 		EvaluationHobbs e = new EvaluationHobbs();
