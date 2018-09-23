@@ -65,4 +65,10 @@ public class Distance
 			return false;
 		return true;
 	}
+	@Override
+	public String toString()
+	{
+		return adjacency + " " + crossVerb;
+	}
+	
 }

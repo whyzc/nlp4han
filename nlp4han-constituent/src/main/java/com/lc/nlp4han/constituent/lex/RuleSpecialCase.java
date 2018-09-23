@@ -1,6 +1,6 @@
 package com.lc.nlp4han.constituent.lex;
 /**
- * 此类特殊规则为并列结构和PU(标点符号：逗号和冒号)相关
+ * 此类特殊规则为并列结构和PU(标点符号：顿号)相关
  * @author qyl
  *
  */
@@ -24,7 +24,76 @@ public class RuleSpecialCase extends RuleCollins
 		this.lheadWord = lheadWord;
 		this.rheadWord = rheadWord;
 	}
- 
+    
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((CCPOS == null) ? 0 : CCPOS.hashCode());
+		result = prime * result + ((CCword == null) ? 0 : CCword.hashCode());
+		result = prime * result + ((leftPOS == null) ? 0 : leftPOS.hashCode());
+		result = prime * result + ((lheadWord == null) ? 0 : lheadWord.hashCode());
+		result = prime * result + ((rheadWord == null) ? 0 : rheadWord.hashCode());
+		result = prime * result + ((rightPOS == null) ? 0 : rightPOS.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		RuleSpecialCase other = (RuleSpecialCase) obj;
+		if (CCPOS == null)
+		{
+			if (other.CCPOS != null)
+				return false;
+		}
+		else if (!CCPOS.equals(other.CCPOS))
+			return false;
+		if (CCword == null)
+		{
+			if (other.CCword != null)
+				return false;
+		}
+		else if (!CCword.equals(other.CCword))
+			return false;
+		if (leftPOS == null)
+		{
+			if (other.leftPOS != null)
+				return false;
+		}
+		else if (!leftPOS.equals(other.leftPOS))
+			return false;
+		if (lheadWord == null)
+		{
+			if (other.lheadWord != null)
+				return false;
+		}
+		else if (!lheadWord.equals(other.lheadWord))
+			return false;
+		if (rheadWord == null)
+		{
+			if (other.rheadWord != null)
+				return false;
+		}
+		else if (!rheadWord.equals(other.rheadWord))
+			return false;
+		if (rightPOS == null)
+		{
+			if (other.rightPOS != null)
+				return false;
+		}
+		else if (!rightPOS.equals(other.rightPOS))
+			return false;
+		return true;
+	}
+
 	@Override
 	public String toString()
 	{

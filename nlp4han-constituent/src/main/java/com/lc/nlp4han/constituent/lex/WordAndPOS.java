@@ -68,6 +68,5 @@ public class WordAndPOS
 	public String toString()
 	{
 		return word+" "+pos;
-	}
-       
+	}    
 }

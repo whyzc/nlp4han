@@ -32,10 +32,144 @@ public class RuleSidesGenerate extends  RuleHeadChildGenerate
 		this.sideHeadPOS = sideHeadPOS;
 		this.sideHeadWord = sideHeadWord;
 	}
+	
+	
+    
+	public int getDirection()
+	{
+		return direction;
+	}
+
+	public void setDirection(int direction)
+	{
+		this.direction = direction;
+	}
+
+	public String getSideLabel()
+	{
+		return sideLabel;
+	}
+
+	public void setSideLabel(String sideLabel)
+	{
+		this.sideLabel = sideLabel;
+	}
+
+	public String getSideHeadPOS()
+	{
+		return sideHeadPOS;
+	}
+
+	public void setSideHeadPOS(String sideHeadPOS)
+	{
+		this.sideHeadPOS = sideHeadPOS;
+	}
+
+	public String getSideHeadWord()
+	{
+		return sideHeadWord;
+	}
+
+	public void setSideHeadWord(String sideHeadWord)
+	{
+		this.sideHeadWord = sideHeadWord;
+	}
+
+	public int getCoor()
+	{
+		return coor;
+	}
+
+	public void setCoor(int coor)
+	{
+		this.coor = coor;
+	}
+
+	public int getPu()
+	{
+		return pu;
+	}
+
+	public void setPu(int pu)
+	{
+		this.pu = pu;
+	}
+
+	public Distance getDistance()
+	{
+		return distance;
+	}
+
+	public void setDistance(Distance distance)
+	{
+		this.distance = distance;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + coor;
+		result = prime * result + direction;
+		result = prime * result + ((distance == null) ? 0 : distance.hashCode());
+		result = prime * result + pu;
+		result = prime * result + ((sideHeadPOS == null) ? 0 : sideHeadPOS.hashCode());
+		result = prime * result + ((sideHeadWord == null) ? 0 : sideHeadWord.hashCode());
+		result = prime * result + ((sideLabel == null) ? 0 : sideLabel.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		RuleSidesGenerate other = (RuleSidesGenerate) obj;
+		if (coor != other.coor)
+			return false;
+		if (direction != other.direction)
+			return false;
+		if (distance == null)
+		{
+			if (other.distance != null)
+				return false;
+		}
+		else if (!distance.equals(other.distance))
+			return false;
+		if (pu != other.pu)
+			return false;
+		if (sideHeadPOS == null)
+		{
+			if (other.sideHeadPOS != null)
+				return false;
+		}
+		else if (!sideHeadPOS.equals(other.sideHeadPOS))
+			return false;
+		if (sideHeadWord == null)
+		{
+			if (other.sideHeadWord != null)
+				return false;
+		}
+		else if (!sideHeadWord.equals(other.sideHeadWord))
+			return false;
+		if (sideLabel == null)
+		{
+			if (other.sideLabel != null)
+				return false;
+		}
+		else if (!sideLabel.equals(other.sideLabel))
+			return false;
+		return true;
+	}
 
 	@Override
 	public String toString()
 	{
-		return direction+" "+sideLabel+" "+sideHeadPOS+" "+ sideHeadWord+" "+coor+" "+pu+" "+super.toString()+" "+distance.isAdjacency()+" "+distance.isCrossVerb();
+		return direction+" "+sideLabel+" "+sideHeadPOS+" "+ sideHeadWord+" "+coor+" "+pu+" "+super.toString()+" "+distance;
 	}
 }
