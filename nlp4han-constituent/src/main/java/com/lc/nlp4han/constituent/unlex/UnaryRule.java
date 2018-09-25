@@ -1,0 +1,46 @@
+package com.lc.nlp4han.constituent.unlex;
+
+import java.util.LinkedList;
+
+/**
+ * @author 王宁
+ * @version 创建时间：2018年9月24日 下午6:45:16 一元规则
+ */
+public class UnaryRule extends Rule
+{
+	private short child;
+	LinkedList<LinkedList<Double>> score;// 保存规则例如A -> B 的概率
+
+	
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + child;
+		return result;
+	}
+
+
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		UnaryRule other = (UnaryRule) obj;
+		if (child != other.child)
+			return false;
+		return true;
+	}
+
+
+	public boolean isSameRule(short parent, short child)
+	{
+		if(this.parent == parent && this.child == child)
+			return true;
+		else
+			return false;
+	}
+}
