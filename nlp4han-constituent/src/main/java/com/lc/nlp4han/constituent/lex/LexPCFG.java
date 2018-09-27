@@ -155,7 +155,7 @@ public class LexPCFG
 				sideHeadPOS, null, coor, pu, distance);
 		RuleSidesGenerate rule2 = new RuleSidesGenerate(headLabel, parentLabel, headPOS, headWord, direction, sideLabel,
 				sideHeadPOS, sideHeadWord, coor, pu, distance);
-		return getProOfBackOff(rule1, sidesGenMap, "lside") * getProOfBackOff(rule2, sidesGenMap, "rside");
+		return getProOfBackOff(rule1, sidesGenMap, "1side") * getProOfBackOff(rule2, sidesGenMap, "2side");
 	}
 
 	/**
@@ -178,8 +178,17 @@ public class LexPCFG
 		w2 = pw2[1];
 
 		rule.setHeadWord(null);
-		double[] pw3 = getProAndWeight(rule, map, type);
-		e3 = pw3[0];
+		if (type.equals("2side"))
+		{
+			RuleSidesGenerate sideRule = (RuleSidesGenerate) rule;
+			e3 = wordMap.get(new WordAndPOS(sideRule.getHeadWord(), sideRule.getHeadPOS()))
+					/ wordMap.get(new WordAndPOS(null, sideRule.getHeadPOS()));
+		}
+		else
+		{
+			double[] pw3 = getProAndWeight(rule, map, type);
+			e3 = pw3[0];
+		}
 
 		return w1 * e1 + (1 - w1) * (w2 * e2 + (1 - w2) * e3);
 	}
@@ -191,6 +200,7 @@ public class LexPCFG
 	 */
 	private double[] getProAndWeight(RuleCollins rhcg, HashMap<RuleCollins, AmountAndSort> map, String type)
 	{
+		int x,y,u;
 		double[] pw = new double[2];
 		if (map.get(rhcg) == null)
 		{
@@ -199,10 +209,37 @@ public class LexPCFG
 		}
 		else
 		{
-			int x = map.get(rhcg).getAmount();
-			rhcg.setParentLabel(null);
-			int y = map.get(rhcg).getAmount();
-			int u = map.get(rhcg).getSort();
+			x = map.get(rhcg).getAmount();
+			switch(type) {
+			case "head":
+				   RuleHeadChildGenerate rhcg1=(RuleHeadChildGenerate)rhcg;
+				   rhcg1.setHeadLabel(null);
+					y = map.get(rhcg1).getAmount();
+					u = map.get(rhcg1).getSort();
+				   break;
+			case "1side":
+				RuleSidesGenerate rsg1=(RuleSidesGenerate)rhcg;
+				   rsg1.setSideLabel(null);
+				   rsg1.setSideHeadPOS(null);
+					y = map.get(rsg1).getAmount();
+					u = map.get(rsg1).getSort();
+				   break;
+			case "2side":
+				RuleSidesGenerate rsg2=(RuleSidesGenerate)rhcg;
+				  rsg2.setSideHeadWord(null);
+					y = map.get(rsg2).getAmount();
+					u = map.get(rsg2).getSort();
+				   break;
+			case "stop":
+				RuleStopGenerate rsg3=(RuleStopGenerate)rhcg;
+				   rsg3.setHeadLabel(null);
+					y = map.get(rsg3).getAmount();
+					u = map.get(rsg3).getSort();
+				   break;
+			default:
+				y=0;
+				u=0;
+			}
 			pw[0] = 1.0 * x / (y + 5 * u);
 			pw[1] = 1.0 * x / y;
 		}
