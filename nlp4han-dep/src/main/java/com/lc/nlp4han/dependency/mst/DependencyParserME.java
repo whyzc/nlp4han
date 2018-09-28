@@ -29,7 +29,6 @@ import com.lc.nlp4han.ml.util.ObjectStream;
 import com.lc.nlp4han.ml.util.TrainerFactory;
 import com.lc.nlp4han.ml.util.TrainerFactory.TrainerType;
 import com.lc.nlp4han.ml.util.TrainingParameters;
-import com.lc.nlp4han.ml.util.PlainTextByLineStream;
 
 /**
  * 基于最大熵的依存解析器

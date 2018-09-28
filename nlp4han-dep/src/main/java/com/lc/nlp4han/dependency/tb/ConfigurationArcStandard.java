@@ -2,6 +2,15 @@ package com.lc.nlp4han.dependency.tb;
 
 import java.util.LinkedList;
 
+/**
+ * Arc Standard方法配置
+ * 
+ * 三种动作:
+ * 左弧:栈顶第一个和第二次词形成主从关系,第二个出栈
+ * 右弧:栈顶第二个和第一个词形成主从关系,第一个出栈
+ * shift:缓冲区头的词入栈
+ *
+ */
 public class ConfigurationArcStandard extends Configuration
 {
 
