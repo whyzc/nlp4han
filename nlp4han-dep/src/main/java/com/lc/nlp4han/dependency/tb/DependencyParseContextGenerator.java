@@ -476,7 +476,7 @@ abstract class DependencyParseContextGenerator implements BeamSearchContextGener
 			features.add("s3wt_s2wt_s1wt_b1wt=" + s3w + s3t + s2w + s2t + s1w + s1t + b1w + b1t);
 
 		// 动态特征
-		if (conf instanceof Configuration_ArcEager)
+		if (conf instanceof ConfigurationArcEager)
 		{
 			String s1_h_w, s1_h_t, pre_action_1, pre_action_2;
 			s1_h_w = s1_h_t = pre_action_1 = pre_action_2 = null;
@@ -572,7 +572,7 @@ abstract class DependencyParseContextGenerator implements BeamSearchContextGener
 					pre_head_2 = conf.getStack().peek();
 					conf.getStack().push(tempVer);
 				}
-				else if (ActionType.toType(priorDecisions[indexOfPriorDecision]).getBaseAction()
+				else if (Action.toType(priorDecisions[indexOfPriorDecision]).getBaseAction()
 						.equals("LEFTARC_REDUCE"))
 				{
 					pre_head_2 = conf.getStack().peek();

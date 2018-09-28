@@ -36,11 +36,11 @@ public class DependencyEvalTool
 		{
 			if (transitionType.equals("arceager"))
 			{
-				model = DependencyParserTB.train(trainFile, params, new DependencyParseContextGeneratorConf_ArcEager(), encoding);
+				model = DependencyParserTB.train(trainFile, params, new DependencyParseContextGeneratorConfArcEager(), encoding);
 			}
 			else
 			{
-				model = DependencyParserTB.train(trainFile, params, new DependencyParseContextGeneratorConf_ArcStandard(), encoding);
+				model = DependencyParserTB.train(trainFile, params, new DependencyParseContextGeneratorConfArcStandard(), encoding);
 			}
 		}
 		else
@@ -61,11 +61,11 @@ public class DependencyEvalTool
 		
 		if (transitionType.equals("arceager"))
 		{
-			tagger = new DependencyParserTB(model, new DependencyParseContextGeneratorConf_ArcEager(),new Configuration_ArcEager(),new DependencyParseSequenceValidator_ArcEager());
+			tagger = new DependencyParserTB(model, new DependencyParseContextGeneratorConfArcEager(),new ConfigurationArcEager(),new DependencyParseSequenceValidatorArcEager());
 		}
 		else
 		{
-			tagger = new DependencyParserTB(model, new DependencyParseContextGeneratorConf_ArcStandard(),new Configuration_ArcStandard(),new DependencyParseSequenceValidator_ArcStandard());
+			tagger = new DependencyParserTB(model, new DependencyParseContextGeneratorConfArcStandard(),new ConfigurationArcStandard(),new DependencyParseSequenceValidatorArcStandard());
 		}
 		
 

@@ -3,20 +3,20 @@ package com.lc.nlp4han.dependency.tb;
 
 import java.util.LinkedList;
 
-public class Configuration_ArcEager extends Configuration
+public class ConfigurationArcEager extends Configuration
 {
 
-	public Configuration_ArcEager(LinkedList<Vertice> wordsBuffer)
+	public ConfigurationArcEager(LinkedList<Vertice> wordsBuffer)
 	{
 		super(wordsBuffer);
 	}
 
-	public Configuration_ArcEager(String[] words, String[] pos)
+	public ConfigurationArcEager(String[] words, String[] pos)
 	{
 		super(words,pos);
 	}
 
-	public Configuration_ArcEager()
+	public ConfigurationArcEager()
 	{
 	}
 
@@ -48,7 +48,7 @@ public class Configuration_ArcEager extends Configuration
 	}
 
 	// 共四类基本操作RIGHTARC_SHIFT、LEFTARC_REDUCE、SHIFT、REDUCE
-	public void transfer(ActionType actType)
+	public void transfer(Action actType)
 	{
 		switch (actType.getBaseAction())
 		{
@@ -87,7 +87,7 @@ public class Configuration_ArcEager extends Configuration
 		String[] words = { "根", "我", "爱", "自然", "语言", "处理" };
 		String[] pos = { "0", "1", "2", "3", "4", "5" };
 		LinkedList<Vertice> buffer = Vertice.getWordsBuffer(words, pos);
-		Configuration_ArcEager conf = new Configuration_ArcEager(buffer);
+		ConfigurationArcEager conf = new ConfigurationArcEager(buffer);
 		System.out.println(conf.toString());
 		conf.shift();
 		System.out.println(conf.toString());

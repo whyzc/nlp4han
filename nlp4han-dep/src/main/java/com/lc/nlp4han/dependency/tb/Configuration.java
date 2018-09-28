@@ -43,7 +43,7 @@ public abstract class Configuration
 	 * 
 	 * @return 转换后的conf
 	 */
-	public abstract void transfer(ActionType actType);
+	public abstract void transfer(Action actType);
 
 	/**
 	 * 判断是否reduce
@@ -78,7 +78,7 @@ public abstract class Configuration
 		initialConf(words, poses);
 		for (String preAction : priorActions)
 		{
-			ActionType at = ActionType.toType(preAction);
+			Action at = Action.toType(preAction);
 			transfer(at);
 		}
 	}
@@ -96,6 +96,9 @@ public abstract class Configuration
 		arcs.add(arc);
 	}
 
+	/**
+	 * 缓冲区头词移入到栈
+	 */
 	public void shift()
 	{
 		if (wordsBuffer.size() != 0)

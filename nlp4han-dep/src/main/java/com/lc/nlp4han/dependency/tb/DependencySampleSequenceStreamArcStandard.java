@@ -14,12 +14,12 @@ import com.lc.nlp4han.ml.util.ObjectStream;
 * @version 创建时间：2018年8月19日 上午9:56:19
 * 类说明
 */
-public class DependencySampleSequenceStream_ArcStandard implements SequenceStream
+public class DependencySampleSequenceStreamArcStandard implements SequenceStream
 {
 	private DependencyParseContextGenerator contextGenerator;
 	private ObjectStream<DependencySample> samples;
 
-	public DependencySampleSequenceStream_ArcStandard(ObjectStream<DependencySample> samples,
+	public DependencySampleSequenceStreamArcStandard(ObjectStream<DependencySample> samples,
 			DependencyParseContextGenerator contextGenerator)
 	{
 		this.contextGenerator = contextGenerator;

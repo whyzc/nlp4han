@@ -94,7 +94,7 @@ public class DependencyParserTB implements DependencyParser
 	public static ModelWrapper train(ObjectStream<DependencySample> samples, TrainingParameters trainParams)
 			throws IOException
 	{
-		return train(samples, trainParams, new DependencyParseContextGeneratorConf_ArcEager());
+		return train(samples, trainParams, new DependencyParseContextGeneratorConfArcEager());
 	}
 
 	public static ModelWrapper train(File fileData, TrainingParameters params,
@@ -130,10 +130,10 @@ public class DependencyParserTB implements DependencyParser
 		if (TrainerType.EVENT_MODEL_TRAINER.equals(trainerType))
 		{
 			ObjectStream<Event> es;
-			if (contextGenerator instanceof DependencyParseContextGeneratorConf_ArcEager)
-				es = new DependencySampleEventStream_ArcEager(sampleStream, contextGenerator);
+			if (contextGenerator instanceof DependencyParseContextGeneratorConfArcEager)
+				es = new DependencySampleEventStreamArcEager(sampleStream, contextGenerator);
 			else
-				es = new DependencySampleEventStream_ArcStandard(sampleStream, contextGenerator);
+				es = new DependencySampleEventStreamArcStandard(sampleStream, contextGenerator);
 			EventTrainer trainer = TrainerFactory.getEventTrainer(params.getSettings(), manifestInfoEntries);
 			depModel = trainer.train(es);
 			System.out.println("训练完毕：");
@@ -141,9 +141,9 @@ public class DependencyParserTB implements DependencyParser
 		else if (TrainerType.EVENT_MODEL_SEQUENCE_TRAINER.equals(trainerType))
 		{
 			System.err.println(TrainerType.EVENT_MODEL_SEQUENCE_TRAINER);
-			DependencySampleSequenceStream_ArcEager ss;
+			DependencySampleSequenceStreamArcEager ss;
 			// if (contextGenerator instanceof DependencyParseContextGeneratorConf_ArcEager)
-			ss = new DependencySampleSequenceStream_ArcEager(sampleStream, contextGenerator);
+			ss = new DependencySampleSequenceStreamArcEager(sampleStream, contextGenerator);
 			// else
 			// ss=new DependencySampleSequenceStream_ArcStandard(sampleStream,
 			// contextGenerator);
@@ -154,9 +154,9 @@ public class DependencyParserTB implements DependencyParser
 		else if (TrainerType.SEQUENCE_TRAINER.equals(trainerType))
 		{
 			SequenceTrainer trainer = TrainerFactory.getSequenceModelTrainer(params.getSettings(), manifestInfoEntries);
-			DependencySampleSequenceStream_ArcEager ss;
+			DependencySampleSequenceStreamArcEager ss;
 			// if (contextGenerator instanceof DependencyParseContextGeneratorConf_ArcEager)
-			ss = new DependencySampleSequenceStream_ArcEager(sampleStream, contextGenerator);
+			ss = new DependencySampleSequenceStreamArcEager(sampleStream, contextGenerator);
 			seqDepModel = trainer.train(ss);
 		}
 		else
@@ -178,7 +178,7 @@ public class DependencyParserTB implements DependencyParser
 		poses = allPoses.toArray(new String[allPoses.size()]);
 
 		Oracle oracleMEBased = new Oracle(model, contextGenerator);
-		ActionType action = new ActionType();
+		Action action = new Action();
 		conf.initialConf(words, poses);
 		String[] priorDecisions = new String[2 * (words.length - 1)];
 		int indexOfConf = 0;
@@ -233,7 +233,7 @@ public class DependencyParserTB implements DependencyParser
 			conf.initialConf(words, poses);
 			for (String outcome : allSequence[i].getOutcomes())
 			{
-				conf.transfer(ActionType.toType(outcome));
+				conf.transfer(Action.toType(outcome));
 			}
 			DependencyTree depTree = DependencyTreeTBUtil.getTree(conf, words, poses);
 			allTree[i] = depTree;
