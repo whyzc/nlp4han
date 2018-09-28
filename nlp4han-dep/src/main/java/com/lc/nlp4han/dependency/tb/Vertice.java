@@ -57,7 +57,7 @@ public class Vertice
 	@Override
 	public String toString()
 	{
-		return word + "/" + indexOfWord;
+		return word + "/" + pos + "-" + indexOfWord;
 	}
 
 }
