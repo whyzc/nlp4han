@@ -3,6 +3,7 @@ package com.lc.nlp4han.chunk.svm;
 import com.lc.nlp4han.chunk.svm.libsvm.*;
 import java.io.*;
 import java.util.*;
+import java.util.Map.Entry;
 
 public class svm_train {
 	private svm_parameter param;		// set by parse_command_line
@@ -63,7 +64,7 @@ public class svm_train {
 		}
 	}
 
-	public void run(String argv[], List<String> standardInput) throws IOException
+	public void run(String argv[], String[] standardInput) throws IOException
 	{
 		parse_command_line(argv);
 		read_problem(standardInput);
@@ -83,7 +84,53 @@ public class svm_train {
 		{
 			model = svm.svm_train(prob,param);
 			svm.svm_save_model(model_file_name,model);
+			save_data_format_conversion(SVMStandardInput.getFeatureStructure() ,SVMStandardInput.getClassificationResults(), SVMStandardInput.getFeatures(), model_file_name+".dfc", "utf-8");
 		}
+	}
+
+	private void save_data_format_conversion(List<String> featureStructure, List<String> classificationResults, Map<String, Map<String, Integer>> features, String filePath, String encoding) throws IOException
+	{
+		// TODO Auto-generated method stub
+		BufferedWriter bf = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), encoding));;
+		
+		bf.write("featureNum=" + featureStructure.size() + "\n");
+		for (int i=0 ; i<featureStructure.size() ; i++)
+		{
+			bf.write(featureStructure.get(i)+"\n");
+		}
+		
+		bf.write("classificationNum=" + classificationResults.size() + "\n");
+		for (int i=0 ; i<classificationResults.size() ; i++)
+		{
+			bf.write(classificationResults.get(i)+"\n");
+		}
+		
+		Set<Entry<String, Map<String, Integer>>> entry = features.entrySet();
+		for (Entry<String, Map<String, Integer>> e : entry)
+		{
+			String k = e.getKey();
+			Map<String, Integer> m = e.getValue();
+			
+			bf.write(k + " " + m.size() + "\n");
+			
+			int i = 1;
+			for (Entry<String, Integer> en : m.entrySet())
+			{
+				bf.write(en.getKey() + "=" + en.getValue());
+				if (i>=100)
+				{
+					bf.write("\n");
+					i = 1;
+				}
+				else
+				{
+					bf.write(" ");
+					i++;
+				}
+			}
+			bf.write("\n");
+		}
+		bf.close();
 	}
 
 	public static void main(String argv[]) throws IOException
@@ -240,16 +287,16 @@ public class svm_train {
 
 	// read in a problem (in svmlight format)
 
-	private void read_problem(List<String> standardInput) throws IOException
+	private void read_problem(String[] standardInput) throws IOException
 	{
 		//BufferedReader fp = new BufferedReader(new FileReader(input_file_name));	//training_set_file
 		Vector<Double> vy = new Vector<Double>();
 		Vector<svm_node[]> vx = new Vector<svm_node[]>();
 		int max_index = 0;
 
-		for (int i=0 ; i<standardInput.size() ; i++)
+		for (int i=0 ; i<standardInput.length ; i++)
 		{
-			String line = standardInput.get(i);
+			String line = standardInput[i];
 
 			StringTokenizer st = new StringTokenizer(line," \t\n\r\f:");
 
