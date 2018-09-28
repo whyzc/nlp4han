@@ -1,5 +1,11 @@
 package com.lc.nlp4han.dependency.tb;
 
+/**
+ * 依存树边-带标记（关系）的有向边
+ *
+ * 边有两个节点和关系组成
+ * 
+ */
 public class Arc
 {
 	private String relation;

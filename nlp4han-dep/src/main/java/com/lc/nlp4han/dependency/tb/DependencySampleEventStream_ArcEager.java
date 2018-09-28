@@ -13,15 +13,15 @@ import com.lc.nlp4han.ml.util.AbstractEventStream;
 import com.lc.nlp4han.ml.util.ObjectStream;
 
 /**
- * @author hp
+ * 依存样本事件流
+ * 
+ * 从依存样本产生事件流
  *
  */
 public class DependencySampleEventStream_ArcEager extends AbstractEventStream<DependencySample>
 {
-
 	// 上下文产生器
 	private static DependencyParseContextGenerator pcg;
-	private int errCount = 0;
 
 	/**
 	 * 构造
@@ -57,21 +57,8 @@ public class DependencySampleEventStream_ArcEager extends AbstractEventStream<De
 		List<Event> events = generateEvents(words, pos, dependency, dependencyWords, dependencyIndices, ac);
 		if (events.isEmpty() && sample != null)
 		{
-			errCount++;
-//			try
-//			{
-//				FileOutputStream s;
-//				s = new FileOutputStream("C:\\Users\\hp\\Desktop\\erroSample\\erroSample" + errCount + ".txt");
-//				OutputStreamWriter ow = new OutputStreamWriter(s, "utf-8");
-//				BufferedWriter fr = new BufferedWriter(ow);
-//				fr.write(sample.toCoNLLString());
-//				fr.close();
-//			}
-//			catch (IOException e)
-//			{
-//				e.printStackTrace();
-//			}
 		}
+		
 		return events.iterator();
 	}
 
@@ -97,7 +84,8 @@ public class DependencySampleEventStream_ArcEager extends AbstractEventStream<De
 	{
 
 		if (words.length == 0)
-			return new ArrayList<Event>(words.length);
+			return new ArrayList<Event>();
+		
 		Configuration_ArcEager conf_ArcEager = new Configuration_ArcEager();
 		conf_ArcEager.initialConf(words, pos);
 		String[] priorDecisions = new String[2 * (words.length - 1) ];

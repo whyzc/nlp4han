@@ -4,6 +4,10 @@ import java.util.LinkedList;
 
 import com.lc.nlp4han.dependency.DependencySample;
 
+/**
+ * 依存树中节点
+ *
+ */
 public class Vertice
 {
 	private String word;
