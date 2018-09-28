@@ -1,18 +1,14 @@
 package com.lc.nlp4han.dependency.tb;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+
 import java.util.LinkedList;
 
 public class Configuration_ArcEager extends Configuration
 {
 
-	public Configuration_ArcEager(ArrayDeque<Vertice> stack, LinkedList<Vertice> wordsBuffer, ArrayList<Arc> arcs)
+	public Configuration_ArcEager(LinkedList<Vertice> wordsBuffer)
 	{
-
-		super(stack,wordsBuffer,arcs);
+		super(wordsBuffer);
 	}
 
 	public Configuration_ArcEager(String[] words, String[] pos)
@@ -52,7 +48,7 @@ public class Configuration_ArcEager extends Configuration
 	}
 
 	// 共四类基本操作RIGHTARC_SHIFT、LEFTARC_REDUCE、SHIFT、REDUCE
-	public void transition(ActionType actType)
+	public void transfer(ActionType actType)
 	{
 		switch (actType.getBaseAction())
 		{
@@ -91,8 +87,7 @@ public class Configuration_ArcEager extends Configuration
 		String[] words = { "根", "我", "爱", "自然", "语言", "处理" };
 		String[] pos = { "0", "1", "2", "3", "4", "5" };
 		LinkedList<Vertice> buffer = Vertice.getWordsBuffer(words, pos);
-		ArrayDeque<Vertice> stack = new ArrayDeque<Vertice>();
-		Configuration_ArcEager conf = new Configuration_ArcEager(stack, buffer, new ArrayList<Arc>());
+		Configuration_ArcEager conf = new Configuration_ArcEager(buffer);
 		System.out.println(conf.toString());
 		conf.shift();
 		System.out.println(conf.toString());

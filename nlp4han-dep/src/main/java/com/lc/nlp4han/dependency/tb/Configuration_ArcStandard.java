@@ -1,20 +1,13 @@
 package com.lc.nlp4han.dependency.tb;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.LinkedList;
 
-/**
-* @author 作者
-* @version 创建时间：2018年8月19日 上午9:59:53
-* 类说明
-*/
 public class Configuration_ArcStandard extends Configuration
 {
 
-	public Configuration_ArcStandard(ArrayDeque<Vertice> stack, LinkedList<Vertice> wordsBuffer, ArrayList<Arc> arcs)
+	public Configuration_ArcStandard(LinkedList<Vertice> wordsBuffer)
 	{
-		super(stack,wordsBuffer,arcs);
+		super(wordsBuffer);
 	}
 
 	public Configuration_ArcStandard(String[] words, String[] pos)
@@ -46,7 +39,7 @@ public class Configuration_ArcStandard extends Configuration
 	}
 	
 	//共三类基本操作RIGHTARC_REDUCE、LEFTARC_REDUCE、SHIFT
-	public void transition(ActionType actType) {
+	public void transfer(ActionType actType) {
 		Vertice S1 = stack.pop();
 		Vertice S2 = stack.peek();
 		stack.push(S1);

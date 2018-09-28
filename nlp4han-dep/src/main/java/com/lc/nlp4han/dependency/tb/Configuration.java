@@ -4,22 +4,26 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-public abstract class Configuration {
+/**
+ * 转换配置类
+ * 
+ * 配置由三部分构成：词栈、词缓冲区和关系集合
+ *
+ */
+public abstract class Configuration
+{
 	protected ArrayDeque<Vertice> stack = new ArrayDeque<Vertice>();
 	protected LinkedList<Vertice> wordsBuffer = new LinkedList<Vertice>();
 	protected ArrayList<Arc> arcs = new ArrayList<Arc>();
-	
-	
-	public Configuration(ArrayDeque<Vertice> stack, LinkedList<Vertice> wordsBuffer, ArrayList<Arc> arcs)
-	{
 
+	public Configuration(LinkedList<Vertice> wordsBuffer)
+	{
 		stack.push(wordsBuffer.get(0));
 		wordsBuffer.remove(0);
-		this.stack = stack;
+
 		this.wordsBuffer = wordsBuffer;
-		this.arcs = arcs;
 	}
-	
+
 	public Configuration(String[] words, String[] pos)
 	{
 		if (words.length != 0)
@@ -29,26 +33,25 @@ public abstract class Configuration {
 			wordsBuffer.remove(0);
 		}
 	}
-	
+
 	public Configuration()
 	{
 	}
-	
-	
-//	public abstract  Configuration generateConfByActions(String[] wordpos, String[] priorActions) ;
+
 	/**
 	 * 通过基本操作对当前conf进行转换
 	 * 
 	 * @return 转换后的conf
 	 */
-	public abstract void transition(ActionType actType);
+	public abstract void transfer(ActionType actType);
+
 	/**
 	 * 判断是否reduce
 	 * 
 	 * @return 有关系返回true
 	 */
 	public abstract boolean canReduce(String[] dependencyIndices);
-	
+
 	public void initialConf(String[] words, String[] pos)
 	{
 		wordsBuffer.clear();
@@ -61,7 +64,7 @@ public abstract class Configuration {
 			wordsBuffer.remove(0);
 		}
 	}
-	
+
 	public void generateConfByActions(String[] wordpos, String[] priorActions)
 	{
 		String[] words = new String[wordpos.length / 2 + 1];
@@ -76,11 +79,10 @@ public abstract class Configuration {
 		for (String preAction : priorActions)
 		{
 			ActionType at = ActionType.toType(preAction);
-			transition(at);
+			transfer(at);
 		}
 	}
-	
-	
+
 	public boolean isFinalConf()
 	{
 		if (wordsBuffer.isEmpty() && stack.size() == 1)
@@ -88,40 +90,38 @@ public abstract class Configuration {
 		else
 			return false;
 	}
-	
+
 	public void addArc(Arc arc)
 	{
 		arcs.add(arc);
 	}
-	
+
 	public void shift()
 	{
 		if (wordsBuffer.size() != 0)
 		{
 			stack.push(wordsBuffer.remove(0));
 		}
-		else
-		{
-		}
-
 	}
-	
+
 	public String toString()
 	{
 		Vertice[] vS = stack.toArray(new Vertice[stack.size()]);
 		Vertice[] vB = wordsBuffer.toArray(new Vertice[wordsBuffer.size()]);
+		
 		StringBuilder stackStr = new StringBuilder();
 		StringBuilder bufferStr = new StringBuilder();
 		for (int i = 0; i < stack.size(); i++)
 		{
 			stackStr.append(vS[stack.size() - i - 1].toString() + " ");
 		}
+		
 		for (int i = 0; i < wordsBuffer.size(); i++)
 		{
 			bufferStr.append(vB[i].toString() + " ");
 		}
 
-		return "栈底至栈顶元素：" + stackStr.toString() + " ___" + "buffer:" + bufferStr.toString();
+		return "栈底至栈顶元素：" + stackStr.toString() + " ___" + "buffer: " + bufferStr.toString();
 	}
 
 	public String arcsToString()
@@ -132,6 +132,7 @@ public abstract class Configuration {
 		{
 			allArc.append(arcs.get(arcs.size() - i - 1).toString() + "\r\n");
 		}
+		
 		return allArc.toString();
 	}
 

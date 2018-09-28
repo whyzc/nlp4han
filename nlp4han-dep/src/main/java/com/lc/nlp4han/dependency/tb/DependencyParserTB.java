@@ -187,7 +187,7 @@ public class DependencyParserTB implements DependencyParser
 			action = oracleMEBased.classify(conf, priorDecisions, null);
 			// System.out.println(currentConf.toString() + "*****" + "preAction =" +
 			// action.typeToString());
-			conf.transition(action);
+			conf.transfer(action);
 			priorDecisions[indexOfConf] = action.typeToString();
 			indexOfConf++;
 		}
@@ -233,7 +233,7 @@ public class DependencyParserTB implements DependencyParser
 			conf.initialConf(words, poses);
 			for (String outcome : allSequence[i].getOutcomes())
 			{
-				conf.transition(ActionType.toType(outcome));
+				conf.transfer(ActionType.toType(outcome));
 			}
 			DependencyTree depTree = DependencyTreeTBUtil.getTree(conf, words, poses);
 			allTree[i] = depTree;
