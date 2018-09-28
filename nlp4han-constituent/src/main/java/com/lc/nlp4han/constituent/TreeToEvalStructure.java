@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 将一颗完整的树转成非终端节点和包含的词语的开始结束序号的一个序列，用于比较
+ * 将一颗完整的树转成非终端节点和它支配的词语序列跨度
  * 
+ * 预终结符（词性非终结符）不生成评价跨度
+ * 
+ * @author 刘小峰
  * @author 王馨苇
  *
  */
@@ -31,7 +34,7 @@ public class TreeToEvalStructure
 		{
 			if (node.getChildrenNum() == 1 && node.getFirstChild().getChildrenNum() == 0)
 			{
-
+				 // 不添加预终结符，这比添加会大大降低效果
 			}
 			else
 			{
