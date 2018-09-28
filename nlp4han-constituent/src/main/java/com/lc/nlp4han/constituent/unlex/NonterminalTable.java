@@ -9,9 +9,10 @@ import java.util.HashMap;
  */
 public class NonterminalTable
 {
-	private HashMap<String, Short> str_intMap;
+	private HashMap<String, Short> str_intMap;// "ROOT" -  0
 	private HashMap<Short, String> int_strMap;
 	private short numSymbol;
+	private ArrayList<Short> intValueOfPreterminalArr;
 	private ArrayList<Short> numSubsymbolArr;
 
 	public NonterminalTable()
@@ -19,6 +20,7 @@ public class NonterminalTable
 		str_intMap = new HashMap<String, Short>();
 		int_strMap = new HashMap<Short, String>();
 		numSymbol = 0;
+		intValueOfPreterminalArr = new ArrayList<Short>();
 		numSubsymbolArr = new ArrayList<Short>();
 	}
 
@@ -33,19 +35,20 @@ public class NonterminalTable
 	/**
 	 * 
 	 * @param 要添加的symbol
-	 * @return 返回新symbol对应的整数，返回0表示已有symbol/int对
+	 * @return 返回新symbol对应的整数，返回-1表示已有symbol/short对
 	 */
-	public int putSymbol(String symbol)
+	public short putSymbol(String symbol)
 	{
 		if (hasSymbol(symbol))
-			return 0;
-		str_intMap.put(symbol, ++numSymbol);
+			return -1;
+		str_intMap.put(symbol, numSymbol);
 		int_strMap.put(numSymbol, symbol);
 		numSubsymbolArr.add((short) 1);
-		return numSymbol;
+		numSymbol++;
+		return (short)(numSymbol - 1);
 	}
 
-	public int intValue(String symbol)
+	public short intValue(String symbol)
 	{
 		return str_intMap.get(symbol);
 	}
@@ -60,17 +63,34 @@ public class NonterminalTable
 	 * @param symbol
 	 * @return 返回该symbol分裂的个数
 	 */
-	public int numSubsymbol(String symbol)
+	public short numSubsymbol(String symbol)
 	{
 		if (hasSymbol(symbol))
 		{
-			int intVlaue = str_intMap.get(symbol);
-			return numSubsymbolArr.get(intVlaue - 1);
+			short intVlaue = str_intMap.get(symbol);
+			return numSubsymbolArr.get(intVlaue );
 		}
 		else
 		{
-			return 0;
+			return -1;
 		}
+	}
+
+	
+	
+	public short getNumSymbol()
+	{
+		return this.numSymbol;
+	}
+	
+	public ArrayList<Short> getIntValueOfPreterminalArr()
+	{
+		return intValueOfPreterminalArr;
+	}
+
+	public void setIntValueOfPreterminalArr(ArrayList<Short> intValueOfPreterminalArr)
+	{
+		this.intValueOfPreterminalArr = intValueOfPreterminalArr;
 	}
 
 	public ArrayList<Short> getNumSubsymbolArr()

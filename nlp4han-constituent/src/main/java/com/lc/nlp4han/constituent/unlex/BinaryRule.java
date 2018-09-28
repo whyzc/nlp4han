@@ -12,7 +12,13 @@ public class BinaryRule extends Rule
 	private short rightChild;
 	LinkedList<LinkedList<LinkedList<Double>>> scores;// 保存规则例如A -> BC 的概率
 
-	
+	public BinaryRule(short parent, short lChild, short rChild)
+	{
+		super.parent = parent;
+		this.leftChild = lChild;
+		this.rightChild = rChild;
+	}
+
 	
 	public boolean isSameRule(short parent, short lChild, short rChild)
 	{
