@@ -45,14 +45,17 @@ public class ChunkAnalysisSVMTrainerTool
 		Map<String, String[]> as = decompositionArgs(args);
 		
 		String[] inputArgs = as.get("input");
-		List<String> input = SVMStandardInput.getStandarInput(inputArgs);
-		System.out.println("样本总数：" + input.size());
+		String[] input = SVMStandardInput.getStandardInput(inputArgs);
+		
+		System.out.println("样本总数：" + input.length);
+		System.out.println("类别总数：" + SVMStandardInput.getClassificationResults().size());
 		
 		String[] trainArgs = as.get("train");
 		svm_train t = new svm_train();
 		t.run(trainArgs, input);
+		
 		long endTime = System.currentTimeMillis();
-		System.out.println("共耗时：" + (endTime-startTime)/60000 + "mins");
+		System.out.println("共耗时：" + (endTime-startTime)*1.0/60000 + "mins");
 	}
 	
 	/**
