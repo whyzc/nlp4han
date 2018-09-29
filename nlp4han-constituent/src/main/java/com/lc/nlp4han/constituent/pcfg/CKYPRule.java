@@ -33,7 +33,7 @@ public class CKYPRule extends PRule
 	{
 		super.setlhs(prule.getLhs());
 		super.setRhs(prule.getRhs());
-		super.setProOfRule(prule.getProOfRule());
+		super.setProb(prule.getProb());
 		this.k = k;
 		this.i = i;
 		this.j = j;

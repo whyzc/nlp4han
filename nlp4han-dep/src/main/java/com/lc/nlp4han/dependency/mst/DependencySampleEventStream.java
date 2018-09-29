@@ -1,9 +1,11 @@
-package com.lc.nlp4han.dependency;
+package com.lc.nlp4han.dependency.mst;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.lc.nlp4han.dependency.DependencyParseContextGenerator;
+import com.lc.nlp4han.dependency.DependencySample;
 import com.lc.nlp4han.ml.model.Event;
 import com.lc.nlp4han.ml.util.AbstractEventStream;
 import com.lc.nlp4han.ml.util.ObjectStream;

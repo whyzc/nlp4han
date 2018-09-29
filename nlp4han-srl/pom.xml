@@ -18,5 +18,10 @@
   		<artifactId>nlp4han-constituent</artifactId>
   		<version>0.1</version>
   	</dependency>
+  	<dependency>
+  		<groupId>com.lc</groupId>
+  		<artifactId>nlp4han-chunk</artifactId>
+  		<version>0.1</version>
+  	</dependency>
   </dependencies>
 </project>

@@ -236,7 +236,7 @@ public class GrammarConvertor
 				PRule prule1 = (PRule) rule1;
 				PRule prule = (PRule) rule;
 
-				rule2 = new PRule(prule.getProOfRule() * prule1.getProOfRule(), prule.getLhs() + "@" + prule1.getLhs(),
+				rule2 = new PRule(prule.getProb() * prule1.getProb(), prule.getLhs() + "@" + prule1.getLhs(),
 						prule1.getRhs());
 			}
 			else

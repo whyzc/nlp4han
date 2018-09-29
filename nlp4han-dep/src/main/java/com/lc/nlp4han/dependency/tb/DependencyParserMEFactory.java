@@ -18,7 +18,7 @@ public class DependencyParserMEFactory
 		InputStream modelIn = DependencyParserMEFactory.class.getClassLoader()
 				.getResourceAsStream("com/lc/nlp4han/dependency/tb_cpostag2.model");
 		ModelWrapper modelWrapper = new ModelWrapper(modelIn);
-		return new DependencyParserTB(modelWrapper,new DependencyParseContextGeneratorConf_ArcEager(),new Configuration_ArcEager(),new DependencyParseSequenceValidator_ArcEager());
+		return new DependencyParserTB(modelWrapper,new DependencyParseContextGeneratorConfArcEager(),new ConfigurationArcEager(),new DependencyParseSequenceValidatorArcEager());
 	}
 
 	public static DependencyParserTB getDependencyParser_ArcStandard() throws IOException
@@ -26,7 +26,7 @@ public class DependencyParserMEFactory
 		InputStream modelIn = DependencyParserMEFactory.class.getClassLoader()
 				.getResourceAsStream("com/lc/nlp4han/dependency/arc_standard.model");
 		ModelWrapper modelWrapper = new ModelWrapper(modelIn);
-		return new DependencyParserTB(modelWrapper,new DependencyParseContextGeneratorConf_ArcStandard(),new Configuration_ArcStandard(),new DependencyParseSequenceValidator_ArcStandard());
+		return new DependencyParserTB(modelWrapper,new DependencyParseContextGeneratorConfArcStandard(),new ConfigurationArcStandard(),new DependencyParseSequenceValidatorArcStandard());
 	}
 	public static void main(String[] args)
 	{

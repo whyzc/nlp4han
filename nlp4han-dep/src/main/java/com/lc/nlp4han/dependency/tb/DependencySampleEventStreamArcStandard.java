@@ -14,12 +14,12 @@ import com.lc.nlp4han.ml.util.ObjectStream;
  * @author 作者
  * @version 创建时间：2018年8月19日 上午9:55:22 类说明
  */
-public class DependencySampleEventStream_ArcStandard extends AbstractEventStream<DependencySample>
+public class DependencySampleEventStreamArcStandard extends AbstractEventStream<DependencySample>
 {
 	// 上下文产生器
-	private static DependencyParseContextGenerator pcg;
+	private DependencyParseContextGenerator pcg;
 
-	public DependencySampleEventStream_ArcStandard(ObjectStream<DependencySample> samples,
+	public DependencySampleEventStreamArcStandard(ObjectStream<DependencySample> samples,
 			DependencyParseContextGenerator pcg)
 	{
 		super(samples);
@@ -62,14 +62,14 @@ public class DependencySampleEventStream_ArcStandard extends AbstractEventStream
 	 *            额外的信息
 	 * @return 事件列表
 	 */
-	public static List<Event> generateEvents(String[] words, String[] pos, String[] dependency,
+	public List<Event> generateEvents(String[] words, String[] pos, String[] dependency,
 			String[] dependencyWords, String[] dependencyIndices, String[][] ac)
 	{
-		Configuration_ArcStandard conf_ArcStandard =new Configuration_ArcStandard();
+		ConfigurationArcStandard conf_ArcStandard =new ConfigurationArcStandard();
 		conf_ArcStandard.initialConf(words, pos);
 		String[] priorDecisions = new String[2 * (words.length - 1)];
 		List<Event> events = new ArrayList<Event>();
-		ActionType at;
+		Action at;
 		String strOfAType;
 
 		int indexOfWord_S1;// 该单词在words中索引
@@ -81,13 +81,13 @@ public class DependencySampleEventStream_ArcStandard extends AbstractEventStream
 		while (!conf_ArcStandard.isFinalConf() && count < priorDecisions.length)
 		{
 			count++;
-			String[] context = ((DependencyParseContextGeneratorConf_ArcStandard) pcg).getContext(conf_ArcStandard,
+			String[] context = ((DependencyParseContextGeneratorConfArcStandard) pcg).getContext(conf_ArcStandard,
 					priorDecisions, null);
 			if (conf_ArcStandard.getStack().size() == 1
 					&& conf_ArcStandard.getStack().peek().getWord().equals(DependencyParser.RootWord))
 			{
 				// S1,S2没关系。SHIFT
-				at = new ActionType("null", "SHIFT");
+				at = new Action("null", "SHIFT");
 //				System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" + at.typeToString());
 				strOfAType = at.typeToString();
 				conf_ArcStandard.shift();
@@ -111,7 +111,7 @@ public class DependencySampleEventStream_ArcStandard extends AbstractEventStream
 
 				if (indexOfWord_S1 == headIndexOfWord_S2)
 				{// 左弧
-					at = new ActionType(dependency[indexOfWord_S2 - 1], "LEFTARC_REDUCE");
+					at = new Action(dependency[indexOfWord_S2 - 1], "LEFTARC_REDUCE");
 //					System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" + at.typeToString());
 					strOfAType = at.typeToString();
 					conf_ArcStandard.addArc(new Arc(dependency[indexOfWord_S2 - 1], S1, S2));
@@ -121,7 +121,7 @@ public class DependencySampleEventStream_ArcStandard extends AbstractEventStream
 				{
 					if (conf_ArcStandard.canReduce(dependencyIndices))
 					{// RIGHTARC_REDUCE
-						at = new ActionType(dependency[indexOfWord_S1 - 1], "RIGHTARC_REDUCE");
+						at = new Action(dependency[indexOfWord_S1 - 1], "RIGHTARC_REDUCE");
 //						System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" + at.typeToString());
 						strOfAType = at.typeToString();
 						conf_ArcStandard.addArc(new Arc(dependency[indexOfWord_S1 - 1], S2, S1));
@@ -130,7 +130,7 @@ public class DependencySampleEventStream_ArcStandard extends AbstractEventStream
 					else
 					{
 						// S1还有依存词在buffer中，先SHIFT
-						at = new ActionType("null", "SHIFT");
+						at = new Action("null", "SHIFT");
 //						System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" + at.typeToString());
 						strOfAType = at.typeToString();
 						conf_ArcStandard.shift();
@@ -139,7 +139,7 @@ public class DependencySampleEventStream_ArcStandard extends AbstractEventStream
 				else
 				{
 					// S1,S2没关系。SHIFT
-					at = new ActionType("null", "SHIFT");
+					at = new Action("null", "SHIFT");
 //					System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" + at.typeToString());
 					strOfAType = at.typeToString();
 					conf_ArcStandard.shift();

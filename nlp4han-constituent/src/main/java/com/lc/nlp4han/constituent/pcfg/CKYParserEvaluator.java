@@ -63,10 +63,11 @@ public class CKYParserEvaluator extends Evaluator<ConstituentTree>
 		
 		ConstituentTree treePre = cky.parseTree(words1, poses1);
 		
-		totalTime += (System.currentTimeMillis() - start);	
+		long thisTime = System.currentTimeMillis() - start;
+		totalTime += thisTime;	
 		count++;
 		
-		System.out.println("平均解析时间：" + (totalTime/count) + "ms");
+		System.out.println("句子长度：" + words.size() + " 平均解析时间：" + (totalTime/count) + "ms" + " 本句解析时间：" + thisTime + "ms");
 		
 		try
 		{

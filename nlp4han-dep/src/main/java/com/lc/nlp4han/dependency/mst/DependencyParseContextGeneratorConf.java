@@ -1,10 +1,12 @@
-package com.lc.nlp4han.dependency;
+package com.lc.nlp4han.dependency.mst;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
+import com.lc.nlp4han.dependency.DependencyParseContextGenerator;
 
 /**
  * 根据配置文件的信息提取特征，并组合
