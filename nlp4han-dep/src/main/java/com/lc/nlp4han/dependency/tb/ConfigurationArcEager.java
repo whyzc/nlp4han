@@ -1,8 +1,17 @@
 package com.lc.nlp4han.dependency.tb;
 
-
 import java.util.LinkedList;
 
+/**
+ * Arc Eager方法配置
+ * 
+ * 4种动作:
+ * 左弧: 缓冲区头和栈顶词形成主从关系，出栈
+ * 右弧: 栈顶和缓冲区头词形成主从关系，缓冲区头词入栈
+ * shift: 缓冲区头的词入栈
+ * reduce: 出栈
+ *
+ */
 public class ConfigurationArcEager extends Configuration
 {
 
@@ -23,17 +32,18 @@ public class ConfigurationArcEager extends Configuration
 	/**
 	 * 当栈顶元素和buffer第一个单词没有关系时，判断是否reduce
 	 * 
-	 * @return 有关系返回true
+	 * @return 当栈顶元素和buffer第一个单词有关系返回true
 	 */
 	public boolean canReduce(String[] dependencyIndices)
 	{// words包括人工添加的“核心”
-		// if (wordsBuffer.isEmpty())
-		// return false;
 		Vertice[] wordsInStack = stack.toArray(new Vertice[stack.size()]);
+		
 		int indexOfWord_Si;// 该单词在words中索引
 		int indexOfWord_B1 = wordsBuffer.get(0).getIndexOfWord();
+		
 		int headIndexOfWord_Si;// 栈顶单词中心词在words中的索引
 		int headIndexOfWord_B1 = Integer.parseInt(dependencyIndices[indexOfWord_B1 - 1]);
+		
 		for (int i = 1; i < stack.size(); i++)
 		{
 			indexOfWord_Si = wordsInStack[i].getIndexOfWord();// 该单词在words中索引
@@ -41,9 +51,11 @@ public class ConfigurationArcEager extends Configuration
 				headIndexOfWord_Si = -1;
 			else
 				headIndexOfWord_Si = Integer.parseInt(dependencyIndices[indexOfWord_Si - 1]);// 栈顶第i个单词中心词在words中的索引
+			
 			if (indexOfWord_Si == headIndexOfWord_B1 || indexOfWord_B1 == headIndexOfWord_Si)
 				return true;
 		}
+		
 		return false;
 	}
 
@@ -76,9 +88,6 @@ public class ConfigurationArcEager extends Configuration
 		if (!stack.isEmpty())
 		{
 			stack.pop();
-		}
-		else
-		{
 		}
 	}
 
