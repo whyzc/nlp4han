@@ -17,7 +17,12 @@ public class PCFG extends CFG
 
 	public PCFG(InputStream in, String encoding) throws IOException
 	{
-		super.readGrammar(in, encoding, "PCFG");
+		super.readGrammar(in, encoding);
+	}
+	
+	protected RewriteRule readRule(String ruleStr)
+	{
+		return new PRule(ruleStr);
 	}
 
 	/**
