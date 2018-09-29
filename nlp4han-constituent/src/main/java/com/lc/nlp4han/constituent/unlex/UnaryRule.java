@@ -11,6 +11,11 @@ public class UnaryRule extends Rule
 	private short child;
 	LinkedList<LinkedList<Double>> score;// 保存规则例如A -> B 的概率
 
+	public UnaryRule(short parent, short child)
+	{
+		super.parent = parent;
+		this.child = child;
+	}
 	
 	public int hashCode()
 	{
