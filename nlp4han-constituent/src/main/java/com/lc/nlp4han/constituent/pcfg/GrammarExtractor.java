@@ -146,7 +146,7 @@ public class GrammarExtractor
 			for (RewriteRule rule : set)
 			{
 				PRule pr = (PRule)rule;
-				pr.setProOfRule(1.0 * ruleCounter.get(rule) / allNum);
+				pr.setProb(1.0 * ruleCounter.get(rule) / allNum);
 			}
 		}
 	}

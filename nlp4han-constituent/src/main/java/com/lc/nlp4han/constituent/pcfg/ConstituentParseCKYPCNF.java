@@ -146,9 +146,9 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 				{
 					PRule rule = (PRule) rule0;
 					String lhs = rule.getLhs().split("@")[0];
-					CKYPRule ckyrule = new CKYPRule(rule.getProOfRule(), rule.getLhs(), rule.getRhs(), 0, 0, 0);
+					CKYPRule ckyrule = new CKYPRule(rule.getProb(), rule.getLhs(), rule.getRhs(), 0, 0, 0);
 					ruleMap.put(lhs, ckyrule);
-					updateCellRules(rule.getProOfRule(), ruleMap, rule.getLhs(), words[j - 1], null, 0);
+					updateCellRules(rule.getProb(), ruleMap, rule.getLhs(), words[j - 1], null, 0);
 				}
 			}
 			else
@@ -205,7 +205,7 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 				while (itrKj.hasNext())
 				{
 					String kjStr = itrKj.next();
-					double pro = ikRuleMap.get(ikStr).getProOfRule() * kjRuleMap.get(kjStr).getProOfRule();
+					double pro = ikRuleMap.get(ikStr).getProb() * kjRuleMap.get(kjStr).getProb();
 					updateCellRules(pro, table[i][j].getPruleMap(), null, ikStr, kjStr, k);
 				}
 			}
@@ -256,14 +256,14 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 				{
 					lhsOfckyrule1 += "@" + lhs0;
 				}
-				CKYPRule ckyrule1 = new CKYPRule(prule.getProOfRule() * pro, lhsOfckyrule1, rhs, k, 0, 0);
+				CKYPRule ckyrule1 = new CKYPRule(prule.getProb() * pro, lhsOfckyrule1, rhs, k, 0, 0);
 				String lhs = prule.getLhs().split("@")[0];// 取左侧第一个为ruleMap的key值，如NP@NN中的NP
 				
 				if (!ruleMap.keySet().contains(lhs))
 				{// 该非终结符对应的规则不存在，直接添加
 					ruleMap.put(lhs, ckyrule1);
 				}
-				else if (ruleMap.get(lhs).getProOfRule() < ckyrule1.getProOfRule()) // 只取最好的结果
+				else if (ruleMap.get(lhs).getProb() < ckyrule1.getProb()) // 只取最好的结果
 				{
 					ruleMap.put(lhs, ckyrule1);
 				}

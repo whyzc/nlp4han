@@ -32,7 +32,7 @@ public class PCFG extends CFG
 			for (RewriteRule rule : getRuleBylhs(string))
 			{
 				PRule prule = (PRule) rule;
-				pro += prule.getProOfRule();
+				pro += prule.getProb();
 			}
 			if (Math.abs(1.0 - pro) > MaxErrorOfPCNF)
 			{
@@ -87,7 +87,7 @@ public class PCFG extends CFG
 			}
 			else
 			{// 根据规则集合直接搜索最大概率规则
-				if (prule.getProOfRule() > bestPRule.getProOfRule())
+				if (prule.getProb() > bestPRule.getProb())
 				{
 					bestPRule = prule;
 				}

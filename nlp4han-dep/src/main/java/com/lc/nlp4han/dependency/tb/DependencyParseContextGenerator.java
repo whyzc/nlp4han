@@ -118,9 +118,11 @@ abstract class DependencyParseContextGenerator implements BeamSearchContextGener
 	protected boolean s3w_s2w_s1t_b1tset;
 	protected boolean s3t_s2t_s1w_b1wset;
 	protected boolean s3wt_s2wt_s1wt_b1wtset;
+	
 	// 动态特征
 	protected boolean pre_action_1set;
 	protected boolean pre_action_2set;
+	
 	// arcEager动态特征
 	protected boolean s1_h_wset;
 	protected boolean s1_h_tset;
