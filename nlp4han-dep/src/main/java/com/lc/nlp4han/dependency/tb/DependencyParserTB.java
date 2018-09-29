@@ -31,12 +31,8 @@ import com.lc.nlp4han.ml.util.TrainerFactory.TrainerType;
 
 public class DependencyParserTB implements DependencyParser
 {
-
 	public static final int DEFAULT_BEAM_SIZE = 3;
 
-	/**
-	 * 上下文产生器
-	 */
 	private DependencyParseContextGenerator contextGenerator;
 
 	private ClassificationModel model;
@@ -47,21 +43,22 @@ public class DependencyParserTB implements DependencyParser
 
 	private Configuration conf;
 
-	public DependencyParserTB(String modelPath, DependencyParseContextGenerator contextGenerator ,Configuration conf,SequenceValidator<String> sequenceValidator) throws IOException
+	public DependencyParserTB(String modelPath, DependencyParseContextGenerator contextGenerator, Configuration conf,
+			SequenceValidator<String> sequenceValidator) throws IOException
 	{
-		this(new File(modelPath), contextGenerator,conf,sequenceValidator);
+		this(new File(modelPath), contextGenerator, conf, sequenceValidator);
 	}
 
-
-	public DependencyParserTB(File file, DependencyParseContextGenerator contextGenerator,Configuration conf,SequenceValidator<String> sequenceValidator) throws IOException
+	public DependencyParserTB(File file, DependencyParseContextGenerator contextGenerator, Configuration conf,
+			SequenceValidator<String> sequenceValidator) throws IOException
 	{
-		this(new ModelWrapper(file), contextGenerator,conf,sequenceValidator);
+		this(new ModelWrapper(file), contextGenerator, conf, sequenceValidator);
 	}
 
-
-	public DependencyParserTB(ModelWrapper model, DependencyParseContextGenerator contextGenerator,Configuration conf,SequenceValidator<String> sequenceValidator)
+	public DependencyParserTB(ModelWrapper model, DependencyParseContextGenerator contextGenerator, Configuration conf,
+			SequenceValidator<String> sequenceValidator)
 	{
-		init(model, contextGenerator,conf,sequenceValidator);
+		init(model, contextGenerator, conf, sequenceValidator);
 	}
 
 	/**
@@ -72,16 +69,17 @@ public class DependencyParserTB implements DependencyParser
 	 * @param contextGen
 	 *            特征
 	 */
-	private void init(ModelWrapper model, DependencyParseContextGenerator contextGenerator,Configuration conf,SequenceValidator<String> sequenceValidator)
+	private void init(ModelWrapper model, DependencyParseContextGenerator contextGenerator, Configuration conf,
+			SequenceValidator<String> sequenceValidator)
 	{
 		this.model = model.getModel();
 
 		this.SModel = model.getSequenceModel();
 
 		this.conf = conf;
-		
+
 		this.contextGenerator = contextGenerator;
-		
+
 		this.sequenceValidator = sequenceValidator;
 	}
 

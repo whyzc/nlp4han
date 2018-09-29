@@ -4,10 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-/**
- * @author 作者
- * @version 创建时间：2018年8月19日 上午9:51:19 类说明
- */
+
 public class DependencyParseContextGeneratorConfArcStandard extends DependencyParseContextGenerator
 {
 

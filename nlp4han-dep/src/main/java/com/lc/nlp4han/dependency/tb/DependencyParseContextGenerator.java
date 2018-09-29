@@ -572,8 +572,7 @@ abstract class DependencyParseContextGenerator implements BeamSearchContextGener
 					pre_head_2 = conf.getStack().peek();
 					conf.getStack().push(tempVer);
 				}
-				else if (Action.toType(priorDecisions[indexOfPriorDecision]).getBaseAction()
-						.equals("LEFTARC_REDUCE"))
+				else if (Action.toType(priorDecisions[indexOfPriorDecision]).getBaseAction().equals("LEFTARC_REDUCE"))
 				{
 					pre_head_2 = conf.getStack().peek();
 				}
