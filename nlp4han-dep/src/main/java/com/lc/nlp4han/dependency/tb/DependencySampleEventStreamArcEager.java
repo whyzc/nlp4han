@@ -13,15 +13,15 @@ import com.lc.nlp4han.ml.util.AbstractEventStream;
 import com.lc.nlp4han.ml.util.ObjectStream;
 
 /**
- * @author hp
+ * 依存样本事件流
+ * 
+ * 从依存样本产生事件流
  *
  */
-public class DependencySampleEventStream_ArcEager extends AbstractEventStream<DependencySample>
+public class DependencySampleEventStreamArcEager extends AbstractEventStream<DependencySample>
 {
-
 	// 上下文产生器
 	private static DependencyParseContextGenerator pcg;
-	private int errCount = 0;
 
 	/**
 	 * 构造
@@ -31,11 +31,11 @@ public class DependencySampleEventStream_ArcEager extends AbstractEventStream<De
 	 * @param pcg
 	 *            特征
 	 */
-	public DependencySampleEventStream_ArcEager(ObjectStream<DependencySample> samples, DependencyParseContextGenerator pcg)
+	public DependencySampleEventStreamArcEager(ObjectStream<DependencySample> samples, DependencyParseContextGenerator pcg)
 	{
 
 		super(samples);
-		DependencySampleEventStream_ArcEager.pcg = pcg;
+		DependencySampleEventStreamArcEager.pcg = pcg;
 	}
 
 	/**
@@ -57,21 +57,8 @@ public class DependencySampleEventStream_ArcEager extends AbstractEventStream<De
 		List<Event> events = generateEvents(words, pos, dependency, dependencyWords, dependencyIndices, ac);
 		if (events.isEmpty() && sample != null)
 		{
-			errCount++;
-//			try
-//			{
-//				FileOutputStream s;
-//				s = new FileOutputStream("C:\\Users\\hp\\Desktop\\erroSample\\erroSample" + errCount + ".txt");
-//				OutputStreamWriter ow = new OutputStreamWriter(s, "utf-8");
-//				BufferedWriter fr = new BufferedWriter(ow);
-//				fr.write(sample.toCoNLLString());
-//				fr.close();
-//			}
-//			catch (IOException e)
-//			{
-//				e.printStackTrace();
-//			}
 		}
+		
 		return events.iterator();
 	}
 
@@ -97,13 +84,14 @@ public class DependencySampleEventStream_ArcEager extends AbstractEventStream<De
 	{
 
 		if (words.length == 0)
-			return new ArrayList<Event>(words.length);
-		Configuration_ArcEager conf_ArcEager = new Configuration_ArcEager();
+			return new ArrayList<Event>();
+		
+		ConfigurationArcEager conf_ArcEager = new ConfigurationArcEager();
 		conf_ArcEager.initialConf(words, pos);
 		String[] priorDecisions = new String[2 * (words.length - 1) ];
 
 		List<Event> events = new ArrayList<Event>();
-		ActionType at;
+		Action at;
 		String strOfAType;
 		int indexOfWord_S1;// 该单词在words中索引
 		int indexOfWord_B1;
@@ -115,12 +103,12 @@ public class DependencySampleEventStream_ArcEager extends AbstractEventStream<De
 		{// buffer为空是终止配置
 			// System.out.println(conf_ArcEager.toString());
 			//因为这个方法不是继承超类的方法，故适用强制转换
-			String[] context = ((DependencyParseContextGeneratorConf_ArcEager)pcg).getContext(conf_ArcEager, priorDecisions, null);
+			String[] context = ((DependencyParseContextGeneratorConfArcEager)pcg).getContext(conf_ArcEager, priorDecisions, null);
 
 			if (conf_ArcEager.getWordsBuffer().size() == 0 && conf_ArcEager.getStack().size() > 1)
 			{
 				// Reduce
-				at = new ActionType("null", "REDUCE");
+				at = new Action("null", "REDUCE");
 //				System.out.println(conf_ArcEager.toString() + "*****" + "goldAction =" + at.typeToString());
 				strOfAType = at.typeToString();
 				conf_ArcEager.reduce();
@@ -143,7 +131,7 @@ public class DependencySampleEventStream_ArcEager extends AbstractEventStream<De
 
 				if (indexOfWord_B1 == headIndexOfWord_S1)
 				{// 左弧
-					at = new ActionType(dependency[indexOfWord_S1 - 1], "LEFTARC_REDUCE");
+					at = new Action(dependency[indexOfWord_S1 - 1], "LEFTARC_REDUCE");
 //					System.out.println(conf_ArcEager.toString() + "*****" + "goldAction =" + at.typeToString());
 					strOfAType = at.typeToString();
 					conf_ArcEager.addArc(new Arc(dependency[indexOfWord_S1 - 1], conf_ArcEager.getWordsBuffer().get(0),
@@ -156,11 +144,11 @@ public class DependencySampleEventStream_ArcEager extends AbstractEventStream<De
 					{
 						if (!conf_ArcEager.getStack().peek().getWord().equals(DependencyParser.RootWord))
 							System.err.println("不是gold句子。");
-						at = new ActionType(DependencyParser.RootDep, "RIGHTARC_SHIFT");
+						at = new Action(DependencyParser.RootDep, "RIGHTARC_SHIFT");
 					}
 					else
 					{
-						at = new ActionType(dependency[indexOfWord_B1 - 1], "RIGHTARC_SHIFT");
+						at = new Action(dependency[indexOfWord_B1 - 1], "RIGHTARC_SHIFT");
 					}
 //					System.out.println(conf_ArcEager.toString() + "*****" + "goldAction =" + at.typeToString());
 					strOfAType = at.typeToString();
@@ -172,7 +160,7 @@ public class DependencySampleEventStream_ArcEager extends AbstractEventStream<De
 				else if (conf_ArcEager.canReduce(dependencyIndices))
 				{
 					// Reduce
-					at = new ActionType("null", "REDUCE");
+					at = new Action("null", "REDUCE");
 //					System.out.println(conf_ArcEager.toString() + "*****" + "goldAction =" + at.typeToString());
 					strOfAType = at.typeToString();
 					conf_ArcEager.reduce();
@@ -181,7 +169,7 @@ public class DependencySampleEventStream_ArcEager extends AbstractEventStream<De
 				else
 				{
 					// Shift
-					at = new ActionType("null", "SHIFT");
+					at = new Action("null", "SHIFT");
 //					System.out.println(conf_ArcEager.toString() + "*****" + "goldAction =" + at.typeToString());
 					strOfAType = at.typeToString();
 					conf_ArcEager.shift();

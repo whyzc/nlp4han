@@ -5,19 +5,22 @@ import java.util.List;
 
 import com.lc.nlp4han.constituent.TreeNode;
 
+/**
+ * CFG文法规则
+ *
+ */
 public class RewriteRule
 {
-
 	private String lhs;// 规则左部
 	private ArrayList<String> rhs = new ArrayList<String>();// 规则右部
 
-	
 	/**
 	 * 初始化RewriteRule
+	 * 
 	 * @param lhs
-	 *          规则左侧字符串
+	 *            规则左侧字符串
 	 * @param list
-	 *          规则右侧字符串列表
+	 *            规则右侧字符串列表
 	 */
 	public RewriteRule(String lhs, ArrayList<String> list)
 	{
@@ -30,8 +33,9 @@ public class RewriteRule
 
 	/**
 	 * 初始化RewriteRule
+	 * 
 	 * @param args
-	 *          规则左侧和右侧string
+	 *            规则左侧和右侧string
 	 */
 	public RewriteRule(String... args)
 	{
@@ -41,30 +45,37 @@ public class RewriteRule
 			this.rhs.add(args[i]);
 		}
 	}
+
 	/**
 	 * 由规则字符串构造规则
+	 * 
 	 * @param ruleStr
-	 *             规则的字符串形式
+	 *            规则的字符串形式
 	 */
-	public RewriteRule (String ruleStr) {
-		String[] strArray=ruleStr.split("->");
-		lhs=strArray[0];
-		rhs=new ArrayList<String>();
-		for(String string:strArray[1].split(" ")) {
+	public RewriteRule(String ruleStr)
+	{
+		String[] strArray = ruleStr.split("->");
+		lhs = strArray[0];
+		rhs = new ArrayList<String>();
+		for (String string : strArray[1].split(" "))
+		{
 			rhs.add(string);
 		}
 	}
-	public static RewriteRule getRewriteRule(String ruleStr) {
+
+	public static RewriteRule getRewriteRule(String ruleStr)
+	{
 		return new RewriteRule(ruleStr);
 	}
+
 	/**
 	 * 由树结构中的节点值和子节点初始化RewriteRule
+	 * 
 	 * @param lhs
 	 * @param children
 	 */
 	public RewriteRule(String lhs, List<? extends TreeNode> children)
 	{
-		super();
 		this.lhs = lhs;
 		for (TreeNode node : children)
 		{
@@ -116,6 +127,7 @@ public class RewriteRule
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		
 		RewriteRule other = (RewriteRule) obj;
 		if (lhs == null)
 		{
@@ -124,6 +136,7 @@ public class RewriteRule
 		}
 		else if (!lhs.equals(other.lhs))
 			return false;
+		
 		if (rhs == null)
 		{
 			if (other.rhs != null)
@@ -131,6 +144,7 @@ public class RewriteRule
 		}
 		else if (!rhs.equals(other.rhs))
 			return false;
+		
 		return true;
 	}
 

@@ -2,13 +2,9 @@ package com.lc.nlp4han.dependency.tb;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 
-public class DependencyParseContextGeneratorConf_ArcEager extends DependencyParseContextGenerator
+public class DependencyParseContextGeneratorConfArcEager extends DependencyParseContextGenerator
 {
 	/**
 	 * 无参构造
@@ -16,10 +12,10 @@ public class DependencyParseContextGeneratorConf_ArcEager extends DependencyPars
 	 * @throws IOException
 	 *             IO异常
 	 */
-	public DependencyParseContextGeneratorConf_ArcEager() throws IOException
+	public DependencyParseContextGeneratorConfArcEager() throws IOException
 	{
 		Properties featureConf = new Properties();
-		InputStream featureStream = DependencyParseContextGeneratorConf_ArcEager.class.getClassLoader()
+		InputStream featureStream = DependencyParseContextGeneratorConfArcEager.class.getClassLoader()
 				.getResourceAsStream("com/lc/nlp4han/dependency/tbfeature.properties");
 		featureConf.load(featureStream);
 
@@ -32,7 +28,7 @@ public class DependencyParseContextGeneratorConf_ArcEager extends DependencyPars
 	 * @param config
 	 *            配置文件
 	 */
-	public DependencyParseContextGeneratorConf_ArcEager(Properties config)
+	public DependencyParseContextGeneratorConfArcEager(Properties config)
 	{
 		init(config);
 	}
@@ -50,7 +46,7 @@ public class DependencyParseContextGeneratorConf_ArcEager extends DependencyPars
 	@Override
 	public String[] getContext(int index, String[] wordpos, String[] priorDecisions, Object[] additionalContext)
 	{
-		Configuration_ArcEager conf = new Configuration_ArcEager();
+		ConfigurationArcEager conf = new ConfigurationArcEager();
 		conf.generateConfByActions(wordpos, priorDecisions);
 		return getContext(conf, priorDecisions, additionalContext);
 	}

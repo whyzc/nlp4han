@@ -7,16 +7,16 @@ import com.lc.nlp4han.ml.util.SequenceValidator;
  * @author 作者
  * @version 创建时间：2018年8月27日 上午6:34:42 类说明
  */
-public class DependencyParseSequenceValidator_ArcStandard implements SequenceValidator<String>
+public class DependencyParseSequenceValidatorArcStandard implements SequenceValidator<String>
 {
 
 	@Override
 	public boolean validSequence(int indexOfCurrentConf, String[] wordpos, String[] priorOutcomes, String preOutcome)
 	{
-		Configuration_ArcStandard conf = new Configuration_ArcStandard();
+		ConfigurationArcStandard conf = new ConfigurationArcStandard();
 		conf.generateConfByActions(wordpos, priorOutcomes);
 
-		ActionType preAct = ActionType.toType(preOutcome);
+		Action preAct = Action.toType(preOutcome);
 		if (preAct != null)
 		{
 			if (preAct.getBaseAction().equals("LEFTARC_REDUCE"))

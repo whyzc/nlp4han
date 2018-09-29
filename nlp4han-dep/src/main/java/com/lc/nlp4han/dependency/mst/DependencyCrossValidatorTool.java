@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 
 import com.lc.nlp4han.dependency.DependencyParseContextGenerator;
-import com.lc.nlp4han.dependency.DependencyParseContextGeneratorConf;
 import com.lc.nlp4han.dependency.DependencySample;
 import com.lc.nlp4han.dependency.DependencySampleParser;
 import com.lc.nlp4han.dependency.DependencySampleParserCoNLL;

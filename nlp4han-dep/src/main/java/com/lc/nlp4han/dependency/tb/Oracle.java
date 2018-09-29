@@ -21,7 +21,7 @@ public class Oracle
 		this.contextGenerator = contextGenerator;
 	}
 
-	public ActionType classify(Configuration currentConf, String[] priorDecisions, Object[] additionalContext)
+	public Action classify(Configuration currentConf, String[] priorDecisions, Object[] additionalContext)
 	{// 将当前的Configuration分类
 		String[] context;
 		context =  contextGenerator.getContext( currentConf, priorDecisions, null);
@@ -34,9 +34,9 @@ public class Oracle
 		}
 
 		int indexOfBestOutcome = getBestIndexOfOutcome(allPredicates);
-		if (contextGenerator instanceof DependencyParseContextGeneratorConf_ArcEager)
+		if (contextGenerator instanceof DependencyParseContextGeneratorConfArcEager)
 		{
-			while (!DependencyTBValidator.validate((Configuration_ArcEager)currentConf, tempAllType[indexOfBestOutcome]))
+			while (!DependencyTBValidator.validate((ConfigurationArcEager)currentConf, tempAllType[indexOfBestOutcome]))
 			{// ActionType不符合依存转换关系
 				allPredicates[indexOfBestOutcome] = -1;
 				indexOfBestOutcome = getBestIndexOfOutcome(allPredicates);
@@ -44,14 +44,14 @@ public class Oracle
 		}
 		else
 		{
-			while (!DependencyTBValidator.validate((Configuration_ArcStandard)currentConf, tempAllType[indexOfBestOutcome]))
+			while (!DependencyTBValidator.validate((ConfigurationArcStandard)currentConf, tempAllType[indexOfBestOutcome]))
 			{// ActionType不符合依存转换关系
 				allPredicates[indexOfBestOutcome] = -1;
 				indexOfBestOutcome = getBestIndexOfOutcome(allPredicates);
 			}
 		}
 
-		ActionType action = ActionType.toType(tempAllType[indexOfBestOutcome]);
+		Action action = Action.toType(tempAllType[indexOfBestOutcome]);
 		return action;
 	}
 

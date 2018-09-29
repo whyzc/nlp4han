@@ -7,17 +7,17 @@ import com.lc.nlp4han.ml.util.SequenceValidator;
  * @author 王宁
  * @version 创建时间：2018年7月25日 下午10:35:28 类说明
  */
-public class DependencyParseSequenceValidator_ArcEager implements SequenceValidator<String>
+public class DependencyParseSequenceValidatorArcEager implements SequenceValidator<String>
 {
 
 	@Override
 	public boolean validSequence(int indexOfCurrentConf, String[] wordpos, String[] priorOutcomes,
 			String preOutcome)
 	{
-		Configuration_ArcEager conf = new Configuration_ArcEager();
+		ConfigurationArcEager conf = new ConfigurationArcEager();
 		conf.generateConfByActions(wordpos, priorOutcomes);
 
-		ActionType preAct = ActionType.toType(preOutcome);
+		Action preAct = Action.toType(preOutcome);
 		if (preAct != null)
 		{
 			if (preAct.getBaseAction().equals("LEFTARC_REDUCE"))

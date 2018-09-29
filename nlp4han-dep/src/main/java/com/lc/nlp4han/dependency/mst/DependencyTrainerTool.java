@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import com.lc.nlp4han.dependency.DependencyParseContextGenerator;
-import com.lc.nlp4han.dependency.DependencyParseContextGeneratorConf;
 import com.lc.nlp4han.ml.util.ModelWrapper;
 import com.lc.nlp4han.ml.util.TrainingParameters;
 

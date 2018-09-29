@@ -14,10 +14,10 @@ public class DependencyTBValidator
 	 *            基于当前配置的预测结果
 	 * @return 返回预测结果的合法性
 	 */
-	public static boolean validate(Configuration_ArcEager conf, String outCome)// 需要检查
+	public static boolean validate(ConfigurationArcEager conf, String outCome)// 需要检查
 	{
 		// System.out.println("执行了validate方法");
-		ActionType preAct = ActionType.toType(outCome);
+		Action preAct = Action.toType(outCome);
 		if (preAct != null)
 		{
 			if (preAct.getBaseAction().equals("LEFTARC_REDUCE"))
@@ -100,9 +100,9 @@ public class DependencyTBValidator
 		return false;
 	}
 
-	public static boolean validate(Configuration_ArcStandard conf, String outCome)
+	public static boolean validate(ConfigurationArcStandard conf, String outCome)
 	{
-		ActionType preAct = ActionType.toType(outCome);
+		Action preAct = Action.toType(outCome);
 		if (preAct != null)
 		{
 			if (preAct.getBaseAction().equals("LEFTARC_REDUCE"))

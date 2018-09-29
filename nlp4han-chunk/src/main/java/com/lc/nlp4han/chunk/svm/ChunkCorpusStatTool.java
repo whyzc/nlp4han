@@ -20,6 +20,7 @@ public class ChunkCorpusStatTool
 	private static Set<String> words = new HashSet<String>();
 	private static Set<String> POSs = new HashSet<String>();
 	
+	
 	private static double avgChunkLen = 0;
 
 	public static void main(String[] args)
@@ -275,4 +276,20 @@ public class ChunkCorpusStatTool
 			this.averageLength = averageLength;
 		}
 	}
+	
+	public static Map<String, Info> getChunks()
+	{
+		return chunks;
+	}
+
+	public static Set<String> getWords()
+	{
+		return words;
+	}
+
+	public static Set<String> getPOSs()
+	{
+		return POSs;
+	}
+
 }

@@ -252,7 +252,7 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 			ruleMap.put(lhs, tempList);
 		} // 若该非终结符对应的映射表已满，而且其中概率最小的比ckyPRuleList中最大的还要大则不处理
 		else if (ruleMap.get(lhs).size() == numOfResulets && ruleMap.get(lhs).get(numOfResulets - 1)
-				.getProOfRule() >= ckyPRuleList.get(0).getProOfRule() * rule.getProOfRule())
+				.getProb() >= ckyPRuleList.get(0).getProb() * rule.getProb())
 		{
 
 		} // 将ckyPRuleList和ruleMap中该非终结符对应的规则表联合再排序
@@ -279,14 +279,14 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 			}
 		}
 		int size = ruleMap.get(lhs).size();
-		lhsAndProMap.put(lhs, ruleMap.get(lhs).get(size - 1).getProOfRule());
+		lhsAndProMap.put(lhs, ruleMap.get(lhs).get(size - 1).getProb());
 		Set<RewriteRule> ruleSet = pcnf.getRuleByrhs(lhs);
 		if (ruleSet != null)
 		{
 			for (RewriteRule rule0 : ruleSet)
 			{
 				PRule prule = (PRule) rule0;
-				double pro1 = prule.getProOfRule() * rule.getProOfRule() * ckyPRuleList.get(0).getProOfRule();
+				double pro1 = prule.getProb() * rule.getProb() * ckyPRuleList.get(0).getProb();
 				if (lhsAndProMap.containsKey(prule.getLhs()))
 				{
 					if (lhsAndProMap.get(prule.getLhs()) >= pro1)
@@ -294,7 +294,7 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 						continue;
 					}
 				}
-				PRule prule1 = new PRule(prule.getProOfRule() * rule.getProOfRule(),
+				PRule prule1 = new PRule(prule.getProb() * rule.getProb(),
 						prule.getLhs() + "@" + rule.getLhs(), rule.getRhs());
 				updateRuleMapOfTable(prule1, ruleMap, prule.getLhs(), ckyPRuleList, numOfResulets, lhsAndProMap);
 			}
@@ -327,7 +327,7 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 			for (int j = 0; j < kjCKYPRuleList.size(); j++)
 			{
 				CKYPRule kjCKYPRule = kjCKYPRuleList.get(j);
-				tempList.add(new CKYPRule(ikCKYPRule.getProOfRule() * kjCKYPRule.getProOfRule(), lhs, prule.getRhs(), k,
+				tempList.add(new CKYPRule(ikCKYPRule.getProb() * kjCKYPRule.getProb(), lhs, prule.getRhs(), k,
 						i, j));
 			}
 		}
@@ -488,7 +488,7 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 		for (int i = 0; i < ckyPRuleList.size(); i++)
 		{
 			CKYPRule ckyprule = ckyPRuleList.get(i);
-			tempList.add(new CKYPRule(rule.getProOfRule() * ckyprule.getProOfRule(), rule.getLhs(), ckyprule.getRhs(),
+			tempList.add(new CKYPRule(rule.getProb() * ckyprule.getProb(), rule.getLhs(), ckyprule.getRhs(),
 					ckyprule.getK(), ckyprule.getI(), ckyprule.getJ()));
 		}
 		return tempList;
