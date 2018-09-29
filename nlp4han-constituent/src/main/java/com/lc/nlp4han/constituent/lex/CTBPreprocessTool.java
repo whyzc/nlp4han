@@ -1,5 +1,6 @@
 package com.lc.nlp4han.constituent.lex;
 
+import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.TreeNode;
 
 public class CTBPreprocessTool
@@ -27,15 +28,11 @@ public class CTBPreprocessTool
 	 * 该节点为NP，并且以该节点为根的结构树中不存在NP
 	 * @param node
 	 */
-	public static void AddNPBNode(TreeNode node)
+	public static void AddNPBNode(HeadTreeNode node)
 	{
 		if (IsNPB(node))
-		{// 若从中间插入NPB则需要继承node节点的所有孩子,显得繁琐，故选择在上层插入
+		{// 若从中间插入NPB则需要继承node节点的所有孩子,显得繁琐，故选择在上层插入		
 			node.setNewName("NPB");
-			TreeNode newNode = new TreeNode("NP");
-			newNode.setParent(node.getParent());
-			newNode.addChild(node);
-			node.setParent(newNode);
 		}
 	}
 	public static boolean IsNPB(TreeNode node)

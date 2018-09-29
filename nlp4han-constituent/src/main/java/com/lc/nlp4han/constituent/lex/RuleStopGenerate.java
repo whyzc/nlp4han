@@ -1,15 +1,25 @@
 package com.lc.nlp4han.constituent.lex;
+
 /**
  * 虽然在处理基本名词短语与一般的生成stop方式不同，但是其数据形式相同
+ * 
  * @author qyl
  *
  */
 public class RuleStopGenerate extends RuleHeadChildGenerate
 {
-	private int direction = 0;//终止符生成方向,左侧为1，右侧为2
+	private int direction = 0;// 终止符生成方向,左侧为1，右侧为2
 	private boolean stop;
-	private Distance distance=null;
-	
+	private Distance distance = null;
+
+	public RuleStopGenerate(String[] strs)
+	{
+		super(strs);
+		this.direction = Integer.parseInt(strs[4]);
+		this.stop = Boolean.parseBoolean(strs[5]);
+		this.distance = new Distance(Boolean.parseBoolean(strs[6]), Boolean.parseBoolean(strs[7]));
+	}
+
 	public RuleStopGenerate(String headLabel, String parentLabel, String headPOS, String headWord, int direction,
 			boolean stop, Distance distance)
 	{
@@ -18,7 +28,7 @@ public class RuleStopGenerate extends RuleHeadChildGenerate
 		this.stop = stop;
 		this.distance = distance;
 	}
-     
+
 	@Override
 	public int hashCode()
 	{
@@ -57,7 +67,7 @@ public class RuleStopGenerate extends RuleHeadChildGenerate
 	@Override
 	public String toString()
 	{
-		return direction +" " + stop +" " + super.toString()+" " + distance;
+		return super.toString() + " " + direction + " " + stop + " " + distance;
 	}
-	
+
 }

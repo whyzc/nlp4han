@@ -13,6 +13,20 @@ public class RuleSidesGenerate extends  RuleHeadChildGenerate
 	private int  coor=0;//并列结构
 	private int  pu=0;//标点符号，由于只保留了顿号所以我们可以把它当做并列结构
 	private Distance distance=new Distance();//距离度量
+	
+	
+	public RuleSidesGenerate(String[] strs)
+	{
+		super(strs);
+		this.direction = Integer.parseInt(strs[4]);
+		this.sideLabel = strs[5];
+		this.sideHeadPOS = strs[6];
+		this.sideHeadWord = strs[7];
+		this.coor = Integer.parseInt(strs[8]);
+		this.pu = Integer.parseInt(strs[9]);
+		this.distance = new Distance(Boolean.parseBoolean(strs[10]), Boolean.parseBoolean(strs[11]));
+	}
+
 	public RuleSidesGenerate(String headLabel, String parentLabel, String headPOS, String headWord, int direction,
 			String sideLabel, String sideHeadPOS, String sideHeadWord, int coor, int  pu, Distance distance)
 	{
@@ -170,6 +184,6 @@ public class RuleSidesGenerate extends  RuleHeadChildGenerate
 	@Override
 	public String toString()
 	{
-		return direction+" "+sideLabel+" "+sideHeadPOS+" "+ sideHeadWord+" "+coor+" "+pu+" "+super.toString()+" "+distance;
+		return super.toString()+" "+direction+" "+sideLabel+" "+sideHeadPOS+" "+ sideHeadWord+" "+coor+" "+pu+" "+distance;
 	}
 }

@@ -505,7 +505,6 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 
 		public CKYTreeNode(HashMap<String, ArrayList<CKYPRule>> pruleMap, boolean flag)
 		{
-			super();
 			this.pruleMap = pruleMap;
 			this.flag = flag;
 		}
