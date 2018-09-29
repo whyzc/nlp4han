@@ -126,7 +126,7 @@ public class SVMStandardInput
 	/**
 	 * 获取默认的特征配置文件
 	 */
-	private static Properties getDefaultConf() throws IOException
+	public static Properties getDefaultConf() throws IOException
 	{
 		Properties featureConf = new Properties();
 		InputStream featureStream = ChunkAnalysisWordPosContextGeneratorConf.class.getClassLoader()

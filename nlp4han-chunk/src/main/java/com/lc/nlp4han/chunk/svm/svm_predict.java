@@ -37,19 +37,29 @@ class svm_predict {
 		return Integer.parseInt(s);
 	}
 
-	private static void predict(BufferedReader input, DataOutputStream output, svm_model model, int predict_probability) throws IOException
+	/**
+	 * @param line 2 1:5 3:6 ......
+	 * @param model
+	 * @param predict_probability 暂不支持概率预测，此处设为0
+	 * @throws IOException
+	 */
+	public static String predict(String line, svm_model model, int predict_probability) throws IOException
 	{
-		int correct = 0;
-		int total = 0;
-		double error = 0;
-		double sumv = 0, sumy = 0, sumvv = 0, sumyy = 0, sumvy = 0;
+//		int correct = 0;
+//		int total = 0;
+//		double error = 0;
+//		double sumv = 0, sumy = 0, sumvv = 0, sumyy = 0, sumvy = 0;
 
 		int svm_type=svm.svm_get_svm_type(model);
-		int nr_class=svm.svm_get_nr_class(model);
-		double[] prob_estimates=null;
-
+		//int nr_class=svm.svm_get_nr_class(model);
+		//double[] prob_estimates=null;
+		
+		// 此处为原代码中的概率预测，要预测结果的概率，在训练模型时就要训练与之对应的模型		
 		if(predict_probability == 1)
 		{
+			System.out.println("暂不支持概率预测！");
+			System.exit(1);
+			/*
 			if(svm_type == svm_parameter.EPSILON_SVR ||
 			   svm_type == svm_parameter.NU_SVR)
 			{
@@ -64,51 +74,56 @@ class svm_predict {
 				for(int j=0;j<nr_class;j++)
 					output.writeBytes(" "+labels[j]);
 				output.writeBytes("\n");
-			}
+			}*/
 		}
-		while(true)
+		
+		
+
+		StringTokenizer st = new StringTokenizer(line," \t\n\r\f:");
+
+		double target = atof(st.nextToken());
+		int m = st.countTokens()/2;
+		svm_node[] x = new svm_node[m];
+		for(int j=0;j<m;j++)
 		{
-			String line = input.readLine();
-			if(line == null) break;
-
-			StringTokenizer st = new StringTokenizer(line," \t\n\r\f:");
-
-			double target = atof(st.nextToken());
-			int m = st.countTokens()/2;
-			svm_node[] x = new svm_node[m];
-			for(int j=0;j<m;j++)
-			{
-				x[j] = new svm_node();
-				x[j].index = atoi(st.nextToken());
-				x[j].value = atof(st.nextToken());
-			}
-
-			double v;
-			if (predict_probability==1 && (svm_type==svm_parameter.C_SVC || svm_type==svm_parameter.NU_SVC))
-			{
-				v = svm.svm_predict_probability(model,x,prob_estimates);
-				output.writeBytes(v+" ");
-				for(int j=0;j<nr_class;j++)
-					output.writeBytes(prob_estimates[j]+" ");
-				output.writeBytes("\n");
-			}
-			else
-			{
-				v = svm.svm_predict(model,x);
-				output.writeBytes(v+"\n");
-			}
-
-			if(v == target)
-				++correct;
-			error += (v-target)*(v-target);
-			sumv += v;
-			sumy += target;
-			sumvv += v*v;
-			sumyy += target*target;
-			sumvy += v*target;
-			++total;
+			x[j] = new svm_node();
+			x[j].index = atoi(st.nextToken());
+			x[j].value = atof(st.nextToken());
 		}
-		if(svm_type == svm_parameter.EPSILON_SVR ||
+
+		double v;
+		if (predict_probability==1 && (svm_type==svm_parameter.C_SVC || svm_type==svm_parameter.NU_SVC))
+		{ 
+			System.out.println("暂不支持概率预测！");
+			System.exit(1);
+			/*v = svm.svm_predict_probability(model,x,prob_estimates);
+			output.writeBytes(v+" ");
+			for(int j=0;j<nr_class;j++)
+				output.writeBytes(prob_estimates[j]+" ");
+			output.writeBytes("\n");*/
+		}
+		else
+		{
+			v = svm.svm_predict(model,x);
+			return Double.toString(v);
+		}
+		
+		
+
+		/* 此处为原代码中的计数
+		 * if(v == target)
+			++correct;
+		error += (v-target)*(v-target);
+		sumv += v;
+		sumy += target;
+		sumvv += v*v;
+		sumyy += target*target;
+		sumvy += v*target;
+		++total;*/
+		
+		
+		//回归
+		/*if(svm_type == svm_parameter.EPSILON_SVR ||
 		   svm_type == svm_parameter.NU_SVR)
 		{
 			svm_predict.info("Mean squared error = "+error/total+" (regression)\n");
@@ -119,7 +134,8 @@ class svm_predict {
 		}
 		else
 			svm_predict.info("Accuracy = "+(double)correct/total*100+
-				 "% ("+correct+"/"+total+") (classification)\n");
+				 "% ("+correct+"/"+total+") (classification)\n");*/
+		return null;
 	}
 
 	private static void exit_with_help()
@@ -131,7 +147,7 @@ class svm_predict {
 		System.exit(1);
 	}
 
-	public static void main(String argv[]) throws IOException
+	/*public static void main(String argv[]) throws IOException
 	{
 		int i, predict_probability=0;
         	svm_print_string = svm_print_stdout;
@@ -162,7 +178,7 @@ class svm_predict {
 		{
 			BufferedReader input = new BufferedReader(new FileReader(argv[i])); //test_file
 			DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(argv[i+2])));	//output_file
-			svm_model model = svm.svm_load_model(argv[i+1]);	//model_file
+			//svm_model model = svm.svm_load_model(argv[i+1]);	//model_file
 			if (model == null)
 			{
 				System.err.print("can't open model file "+argv[i+1]+"\n");
@@ -183,7 +199,7 @@ class svm_predict {
 					svm_predict.info("Model supports probability estimates, but disabled in prediction.\n");
 				}
 			}
-			predict(input,output,model,predict_probability);
+			//predict(input,output,model,predict_probability);
 			input.close();
 			output.close();
 		}
@@ -195,5 +211,5 @@ class svm_predict {
 		{
 			exit_with_help();
 		}
-	}
+	}*/
 }

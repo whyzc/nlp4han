@@ -46,6 +46,7 @@ public class ChunkAnalysisSVMTrainerTool
 		
 		String[] inputArgs = as.get("input");
 		String[] input = SVMStandardInput.getStandardInput(inputArgs);
+		
 		System.out.println("样本总数：" + input.length);
 		System.out.println("类别总数：" + SVMStandardInput.getClassificationResults().size());
 		
