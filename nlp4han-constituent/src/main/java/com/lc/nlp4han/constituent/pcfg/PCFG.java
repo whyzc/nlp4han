@@ -8,6 +8,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
+/**
+ * 概率上下文无关文法
+ *
+ */
 public class PCFG extends CFG
 {
 	public PCFG()
@@ -39,11 +43,13 @@ public class PCFG extends CFG
 				PRule prule = (PRule) rule;
 				pro += prule.getProb();
 			}
+			
 			if (Math.abs(1.0 - pro) > MaxErrorOfPCNF)
 			{
 				MaxErrorOfPCNF = Math.abs(1.0 - pro);
 			}
 		}
+		
 		return MaxErrorOfPCNF;
 	}
 
@@ -66,7 +72,7 @@ public class PCFG extends CFG
 	 * @param k
 	 * @return
 	 */
-	public ArrayList<PRule> getHighestProRuleFromMap(HashMap<RewriteRule, Integer> ruleMap, int k)
+	public ArrayList<PRule> getHighestProRule(HashMap<RewriteRule, Integer> ruleMap, int k)
 	{
 		Iterator<RewriteRule> itr = ruleMap.keySet().iterator();
 		return getHighestProRuleByItr(itr, k);
@@ -98,6 +104,7 @@ public class PCFG extends CFG
 				}
 			}
 		}
+		
 		if (k == 1)
 		{
 			pruleList.add(bestPRule);
@@ -106,6 +113,7 @@ public class PCFG extends CFG
 		{
 			Collections.sort(pruleList);
 		}
+		
 		/*
 		 * 若结果集中多余k个，则截取其中的前k个
 		 */
@@ -113,6 +121,7 @@ public class PCFG extends CFG
 		{
 			return (ArrayList<PRule>) pruleList.subList(0, k);
 		}
+		
 		return pruleList;
 	}
 }

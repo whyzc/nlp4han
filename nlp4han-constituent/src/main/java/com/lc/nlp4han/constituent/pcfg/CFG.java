@@ -11,7 +11,9 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * 文法包含包含重写规则，非终结符集，终结符集
+ * 上下文无关文法
+ * 
+ * 包含：开始符，重写规则，非终结符集，终结符集
  */
 public class CFG
 {
