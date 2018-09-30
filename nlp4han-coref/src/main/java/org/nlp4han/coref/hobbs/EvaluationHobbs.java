@@ -2,6 +2,7 @@ package org.nlp4han.coref.hobbs;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.nlp4han.coref.centering.CenteringBFP;
 import org.nlp4han.coref.centering.EvaluationBFP;
@@ -40,11 +41,13 @@ public class EvaluationHobbs extends AbstractEvaluation
 			TreeNode ui = BracketExpUtil.generateTree("(" + str + ")");
 			constituentTrees.add(ui);
 		}
+		
 
-		List<String> results = hobbs.resolve(constituentTrees);
+		Map<TreeNode, TreeNode> results = hobbs.resolve(constituentTrees);
+		List<String> resultStr = toStringFormat(results, constituentTrees);
 
 		total++;
-		if (EvaluationBFP.compare(results, information2, total))
+		if (EvaluationBFP.compare(resultStr, information2, total))
 			correctNumber++;
 
 	}
@@ -68,4 +71,5 @@ public class EvaluationHobbs extends AbstractEvaluation
 		else
 			return true;
 	}
+	
 }

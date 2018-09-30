@@ -4,9 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import org.junit.Test;
+import java.util.Map;
 
+import org.junit.Test;
+import org.nlp4han.coref.centering.EvaluationBFP;
 import org.nlp4han.coref.hobbs.Hobbs;
 
 import com.lc.nlp4han.constituent.BracketExpUtil;
@@ -34,11 +37,14 @@ public class TestHobbs
 		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		
 		Hobbs hobbs = new Hobbs(attributeFilter);
-		List<String> result = hobbs.resolve(constituentTrees);
+		Map<TreeNode, TreeNode> result = hobbs.resolve(constituentTrees);
+		
+		List<String> resultStr = EvaluationBFP.toStringFormat(result, constituentTrees);
 		
 		List<String> goal = new ArrayList<String>();
 		goal.add("她(2-5)->妈妈(1-3)");
-		assertEquals(goal, result);
+		
+		assertEquals(goal, resultStr);
 	}
 
 	@Test
@@ -60,12 +66,13 @@ public class TestHobbs
 		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		
 		Hobbs hobbs = new Hobbs(attributeFilter);
-		List<String> result = hobbs.resolve(constituentTrees);
+		Map<TreeNode, TreeNode> result = hobbs.resolve(constituentTrees);
+		List<String> resultStr = EvaluationBFP.toStringFormat(result, constituentTrees);
 		
 		List<String> goal = new ArrayList<String>();
 		goal.add("她(2-5)->妈妈(1-3)");
 		
-		assertNotEquals(goal, result);
+		assertNotEquals(goal, resultStr);
 	}
 
 	//
@@ -85,12 +92,13 @@ public class TestHobbs
 		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		
 		Hobbs hobbs = new Hobbs(attributeFilter);
-		List<String> result = hobbs.resolve(constituentTrees);
+		Map<TreeNode, TreeNode> result = hobbs.resolve(constituentTrees);
+		List<String> resultStr = EvaluationBFP.toStringFormat(result, constituentTrees);
 		
 		List<String> goal = new ArrayList<String>();
 		goal.add("她(1-7)->黄秋雅(1-1)");
 		
-		assertEquals(goal, result);
+		assertEquals(goal, resultStr);
 	}
 	
 }

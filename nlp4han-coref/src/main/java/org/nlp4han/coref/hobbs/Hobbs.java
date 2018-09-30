@@ -1,8 +1,12 @@
 package org.nlp4han.coref.hobbs;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.nlp4han.coref.centering.CenteringBFP;
 
@@ -264,9 +268,9 @@ public class Hobbs implements AnaphoraResolution
 	}
 
 	@Override
-	public List<String> resolve(List<TreeNode> sentences)
+	public Map<TreeNode, TreeNode> resolve(List<TreeNode> sentences)
 	{
-		List<String> result = new ArrayList<String>();
+		Map<TreeNode, TreeNode> result = new HashMap<TreeNode, TreeNode>();
 		List<TreeNode> prons = new ArrayList<TreeNode>();
 		for (int i=0 ; i<sentences.size() ; i++)
 		{
@@ -289,13 +293,28 @@ public class Hobbs implements AnaphoraResolution
 			{
 				filter.setReferenceConditions(prons.get(i));
 				TreeNode anaphNode = hobbs(sentences, prons.get(i));
-				String resultStr = resultStr(prons.get(i), anaphNode);
+				//String resultStr = resultStr(prons.get(i), anaphNode);
 				
-				if (resultStr != null)
-					result.add(resultStr);
-			}//TODO
+				result.put(prons.get(i), anaphNode);
+			}
 		}
 		return result;
 	}
 
+	@Override
+	public TreeNode resolve(List<TreeNode> sentences, TreeNode pronoun)
+	{
+		if (filter == null)
+		{
+			AttributeFilter af = new AttributeFilter(new PNFilter(new NodeNameFilter())); // 组合过滤器
+			af.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
+			
+			filter = af;
+		}
+		filter.setReferenceConditions(pronoun);
+		TreeNode anaphNode = hobbs(sentences, pronoun);
+		//String resultStr = resultStr(pronoun, anaphNode);
+		return anaphNode;
+	}
+	
 }

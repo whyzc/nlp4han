@@ -2,6 +2,7 @@ package org.nlp4han.coref.centering;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.nlp4han.coref.hobbs.AbstractEvaluation;
 
@@ -53,10 +54,12 @@ public class EvaluationBFP extends AbstractEvaluation
 
 		}
 
-		List<String> result = bfp.resolve(constituentTrees);
+		Map<TreeNode, TreeNode> result = bfp.resolve(constituentTrees);
+		
+		List<String> resultStr = toStringFormat(result, constituentTrees);
 
 		total++;
-		if (compare(result, information2, total))
+		if (compare(resultStr, information2, total))
 			correctNumber++;
 	}
 

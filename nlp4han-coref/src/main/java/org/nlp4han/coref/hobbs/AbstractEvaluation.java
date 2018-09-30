@@ -7,6 +7,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
+import com.lc.nlp4han.constituent.TreeNode;
 
 public abstract class AbstractEvaluation
 {
@@ -156,5 +161,54 @@ public abstract class AbstractEvaluation
 	 */
 	public abstract boolean extractAnEvaluationSample(String oneLine, List<String> information1,
 			List<String> information2, List<String> information3);
+	
+	
+	/**
+	 * 将指代消解结果转换成字符串格式的结果
+	 * @param resolveResult
+	 * @param trees
+	 * @return
+	 */
+	public static List<String> toStringFormat(Map<TreeNode, TreeNode> resolveResult, List<TreeNode> trees)
+	{
+		List<String> result = new ArrayList<String>();
+		Set<Entry<TreeNode, TreeNode>> es = resolveResult.entrySet();
+		
+		for (Entry<TreeNode, TreeNode> e : es)
+		{
+			TreeNode ponoun = e.getKey();
+			TreeNode antecedent = e.getValue();
+			
+			TreeNode p1;
+			TreeNode a1;
+			
+			p1 = TreeNodeUtil.getAllLeafNodes(ponoun).get(0);
+			
+			List<TreeNode> ts = TreeNodeUtil.getAllLeafNodes(antecedent);
+			if (ts.size() > 1)
+			{
+				//p1 = TreeNodeUtil.getAllLeafNodes(TreeNodeUtil.getHead(ponoun, NPHeadRuleSetPTB.getNPRuleSet())).get(0);
+				a1 = TreeNodeUtil.getAllLeafNodes(TreeNodeUtil.getHead(antecedent, NPHeadRuleSetPTB.getNPRuleSet())).get(0);
+			}
+			else
+			{
+				//p1 = TreeNodeUtil.getAllLeafNodes(ponoun).get(0);
+				a1 = TreeNodeUtil.getAllLeafNodes(antecedent).get(0);
+			}
+			
+			TreeNode root = TreeNodeUtil.getRootNode(ponoun);
+			int index1 = trees.indexOf(root);
+			int size1 = TreeNodeUtil.getAllLeafNodes(root).indexOf(p1);
+			
+			root = TreeNodeUtil.getRootNode(antecedent);
+			int index2 = trees.indexOf(root);
+			int size2 = TreeNodeUtil.getAllLeafNodes(root).indexOf(a1);
+			
+			String temp = p1.getNodeName() + "(" + (index1+1) + "-" + (size1+1) + ")" + "->" + a1.getNodeName() + "(" + (index2+1) + "-" + (size2+1) + ")";
+			
+			result.add(temp);
+		}
+		return result;
+	}
 
 }
