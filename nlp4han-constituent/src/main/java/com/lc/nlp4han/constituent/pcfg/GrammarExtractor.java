@@ -11,36 +11,23 @@ import com.lc.nlp4han.constituent.PlainTextByTreeStream;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 
+/**
+ * 文法抽取工具类
+ */
 public class GrammarExtractor
 {
-	/**
-	 * 定义文法的变量
-	 */
-	private CFG grammar = null;
-	private HashMap<PRule, Integer> ruleCounter = null;
-
 	public static CFG getCFG(String fileName, String enCoding) throws IOException
 	{
-
-		return new GrammarExtractor().CreateGrammar(fileName, enCoding,"CFG");
+		return extractGrammar(fileName, enCoding, "CFG");
 	}
 
 	public static PCFG getPCFG(String fileName, String enCoding) throws IOException
 	{
 
-		return (PCFG)new GrammarExtractor().CreateGrammar(fileName, enCoding,"PCFG");
+		return (PCFG) extractGrammar(fileName, enCoding, "PCFG");
 	}
-	/**
-	 * 返回文法集，便于测试
-	 */
-	public CFG getCFG()
-	{
-		return this.grammar;
-	}
-	/**
-	 * 生成文法集
-	 */
-	public CFG CreateGrammar(String fileName, String enCoding, String type) throws IOException
+
+	private static CFG extractGrammar(String fileName, String enCoding, String type) throws IOException
 	{
 		// 括号表达式树拼接成括号表达式String数组
 		PlainTextByTreeStream ptbt = new PlainTextByTreeStream(new FileInputStreamFactory(new File(fileName)),
@@ -53,18 +40,19 @@ public class GrammarExtractor
 			bracketStr = ptbt.read();
 		}
 		ptbt.close();
+
 		// 括号表达式生成文法
-		bracketStrListConvertToGrammar(bracketStrList,type);
-		if(type.contains("P")) {
-			ComputeProOfRule();
-		}
+		CFG grammar = brackets2Grammar(bracketStrList, type);
+
 		return grammar;
 
 	}
 
 	// 由括号表达式的list得到对应的文法集合
-	public void bracketStrListConvertToGrammar(ArrayList<String> bracketStrList,String type) throws IOException
+	private static CFG brackets2Grammar(ArrayList<String> bracketStrList, String type) throws IOException
 	{
+		HashMap<PRule, Integer> ruleCounter = null;
+		CFG grammar = null;
 		if (type.contains("P"))
 		{
 			grammar = new PCFG();
@@ -74,49 +62,58 @@ public class GrammarExtractor
 		{
 			grammar = new CFG();
 		}
+
 		for (String bracketStr : bracketStrList)
 		{
 			TreeNode rootNode1 = BracketExpUtil.generateTreeNotDeleteBracket(bracketStr);
-			traverseTree(rootNode1,type);
+			traverse(rootNode1, grammar, ruleCounter);
 		}
+
+		if (type.contains("P"))
+		{
+			ComputeProOfRule(grammar, ruleCounter);
+		}
+
+		return grammar;
 	}
 
 	/**
 	 * 遍历树得到基本文法
 	 */
-	private void traverseTree(TreeNode node,String type)
+	private static void traverse(TreeNode node, CFG grammar, HashMap<PRule, Integer> ruleCounter)
 	{
 		if (grammar.getStartSymbol() == null)
 		{// 起始符提取
 			grammar.setStartSymbol(node.getNodeName());
 		}
+
 		if (node.getChildren().size() == 0)
 		{
 			grammar.addTerminal(node.getNodeName());// 终结符提取
 			return;
 		}
+
 		grammar.addNonTerminal(node.getNodeName());// 非终结符提取
 
 		if (node.getChildren() != null && node.getChildren().size() > 0)
 		{
 			RewriteRule rule = new RewriteRule(node.getNodeName(), node.getChildren());
-			if(type.contains("P")) {
-				rule = new PRule(rule,0);
-				addRuleCount((PRule)rule);
+			if (grammar instanceof PCFG)
+			{
+				rule = new PRule(rule, 0);
+				addRuleCount((PRule) rule, ruleCounter);
 			}
-			grammar.add(rule);
-			;// 添加规则
+
+			grammar.add(rule);// 添加规则
+
 			for (TreeNode node1 : node.getChildren())
 			{// 深度优先遍历
-				traverseTree(node1,type);
+				traverse(node1, grammar, ruleCounter);
 			}
 		}
 	}
 
-	/**
-	 * 添加规则的计数
-	 */
-	private void addRuleCount(PRule rule)
+	private static void addRuleCount(PRule rule, HashMap<PRule, Integer> ruleCounter)
 	{
 		if (ruleCounter.containsKey(rule))
 		{
@@ -128,45 +125,33 @@ public class GrammarExtractor
 		}
 	}
 
-	/**
-	 * 计算规则概率
-	 */
-	private void ComputeProOfRule()
+	private static void ComputeProOfRule(CFG grammar, HashMap<PRule, Integer> ruleCounter)
 	{
 		for (String nonTer : grammar.getNonTerminalSet())
 		{
-//			Set<PRule> set = PCFG.convertRewriteRuleSetToPRuleSet(grammar.getRuleBylhs(nonTer));
 			Set<RewriteRule> set = grammar.getRuleBylhs(nonTer);
 			int allNum = 0;
 			for (RewriteRule rule : set)
 			{
-				PRule pr = (PRule)rule;
+				PRule pr = (PRule) rule;
 				allNum += ruleCounter.get(pr);
 			}
+
 			for (RewriteRule rule : set)
 			{
-				PRule pr = (PRule)rule;
+				PRule pr = (PRule) rule;
 				pr.setProb(1.0 * ruleCounter.get(rule) / allNum);
 			}
 		}
 	}
+
 	/**
-	 * @throws IOException
 	 * 由括号表达式列表直接得到PCFG
 	 */
-	public PCFG getPCFG(ArrayList<String> bracketStrList) throws IOException
+	public static PCFG getPCFG(ArrayList<String> bracketStrList) throws IOException
 	{
-		grammar = new PCFG();
-		ruleCounter = new HashMap<PRule, Integer>();
-		bracketStrListConvertToGrammar(bracketStrList,"PCFG");
-		ComputeProOfRule();
-		return (PCFG)grammar;
-	}
-	/**
-	 * 获得计数器
-	 */
-	public HashMap<PRule, Integer> getRuleCounter()
-	{
-		return ruleCounter;
+		CFG grammar = brackets2Grammar(bracketStrList, "PCFG");
+
+		return (PCFG) grammar;
 	}
 }

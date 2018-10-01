@@ -5,11 +5,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
+/**
+ * 文法提取应用
+ *
+ */
 public class GrammarExractorTool
 {
-	/**
-	 * 提取Grammar的命令行应用程序
-	 */
 	public static void main(String[] args) throws IOException
 	{
 		if (args.length < 1)
