@@ -13,6 +13,9 @@ import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 
 /**
  * 文法抽取工具类
+ * 
+ * 从树库中抽取CFG或PCFG文法
+ * 
  */
 public class GrammarExtractor
 {

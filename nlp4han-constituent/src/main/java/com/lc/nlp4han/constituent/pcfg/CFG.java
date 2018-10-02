@@ -183,6 +183,11 @@ public class CFG
 		
 		return isCNF;
 	}
+	
+	public boolean isNoTerminal(String symbol)
+	{
+		return nonTerminalSet.contains(symbol);
+	}
 
 	public String getStartSymbol()
 	{
