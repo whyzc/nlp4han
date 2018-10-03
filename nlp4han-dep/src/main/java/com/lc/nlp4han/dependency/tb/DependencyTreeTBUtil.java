@@ -6,8 +6,10 @@ import com.lc.nlp4han.dependency.DependencySample;
 import com.lc.nlp4han.dependency.DependencyTree;
 
 /**
+ * 
+ * 将解析来的conf解析为树和sample
+ * 
  * @author 王宁
- * @version 创建时间：2018年7月24日 下午3:35:20 将解析来的conf解析为树和sample
  */
 public class DependencyTreeTBUtil
 {
@@ -50,6 +52,7 @@ public class DependencyTreeTBUtil
 			dependencyWords[i] = "_null";
 			dependencyIndices[i] = "-1";
 		}
+		
 		for (Arc arc : arcs)
 		{
 			words[arc.getHead().getIndexOfWord()] = arc.getHead().getWord();

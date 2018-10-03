@@ -22,10 +22,10 @@ public class Oracle
 	}
 
 	public Action classify(Configuration currentConf, String[] priorDecisions, Object[] additionalContext)
-	{// 将当前的Configuration分类
-		String[] context;
-		context =  contextGenerator.getContext( currentConf, priorDecisions, null);
+	{
+		String[] context =  contextGenerator.getContext(currentConf, priorDecisions, null);
 		double allPredicates[] = model.eval(context);
+		
 		String tempAllType[] = new String[allPredicates.length];// 存储所有的分类
 
 		for (int k = 0; k < allPredicates.length; k++)
@@ -34,6 +34,7 @@ public class Oracle
 		}
 
 		int indexOfBestOutcome = getBestIndexOfOutcome(allPredicates);
+		
 		if (contextGenerator instanceof DependencyParseContextGeneratorConfArcEager)
 		{
 			while (!DependencyTBValidator.validate((ConfigurationArcEager)currentConf, tempAllType[indexOfBestOutcome]))
