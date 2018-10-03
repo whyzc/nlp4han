@@ -4,8 +4,7 @@ import com.lc.nlp4han.dependency.DependencyParser;
 import com.lc.nlp4han.ml.util.SequenceValidator;
 
 /**
- * @author 作者
- * @version 创建时间：2018年8月27日 上午6:34:42 类说明
+ * ArcStandard依存系列验证
  */
 public class DependencyParseSequenceValidatorArcStandard implements SequenceValidator<String>
 {
@@ -46,6 +45,7 @@ public class DependencyParseSequenceValidatorArcStandard implements SequenceVali
 				{
 					if (conf.getWordsBuffer().size() != 0)// 因为ArcStanfard最后一次操作必然是 核心成分/RIGHTARC_REDUCE
 						return false;
+					
 					for (int i = 0; i < conf.getArcs().size(); i++)
 					{
 						if (conf.getArcs().get(i).getHead().getWord().equals(DependencyParser.RootWord))

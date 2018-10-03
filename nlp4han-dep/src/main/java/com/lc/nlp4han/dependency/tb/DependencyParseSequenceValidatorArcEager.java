@@ -4,8 +4,7 @@ import com.lc.nlp4han.dependency.DependencyParser;
 import com.lc.nlp4han.ml.util.SequenceValidator;
 
 /**
- * @author 王宁
- * @version 创建时间：2018年7月25日 下午10:35:28 类说明
+ * ArcEager依存序列验证
  */
 public class DependencyParseSequenceValidatorArcEager implements SequenceValidator<String>
 {
@@ -24,8 +23,10 @@ public class DependencyParseSequenceValidatorArcEager implements SequenceValidat
 			{// 确保一个单词的中心词只能有一个
 				if (conf.getStack().peek().getIndexOfWord() == 0)
 					return false;
+				
 				if (conf.getWordsBuffer().size() == 0)
 					return false;
+				
 				for (Arc arc : conf.getArcs())
 				{
 					if (arc.getDependent() == conf.getStack().peek())
@@ -34,6 +35,7 @@ public class DependencyParseSequenceValidatorArcEager implements SequenceValidat
 						return false;
 					}
 				}
+				
 				return true;
 			}
 
@@ -44,17 +46,20 @@ public class DependencyParseSequenceValidatorArcEager implements SequenceValidat
 //					System.out.println("因为buffer位空，故不能有RIGHTARC_SHIFT操作");
 					return false;
 				}
+				
 				if (preAct.getRelation().equals(DependencyParser.RootDep))// 分类中只有rightarc才有可能是核心成分
 				{// 确保“核心”只能作为一个词语的中心词
 					if (conf.getStack().peek().getIndexOfWord() != 0)
 					{
 						return false;
 					}
+					
 					for (Arc arc : conf.getArcs())
 					{
 						if (arc.getRelation().equals(DependencyParser.RootDep))
 							return false;
 					}
+					
 					return true;
 				}
 				else

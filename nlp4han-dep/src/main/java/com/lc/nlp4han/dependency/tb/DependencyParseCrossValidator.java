@@ -11,6 +11,10 @@ import com.lc.nlp4han.ml.util.ObjectStream;
 import com.lc.nlp4han.ml.util.SequenceValidator;
 import com.lc.nlp4han.ml.util.TrainingParameters;
 
+/**
+ * 交叉验证类LL
+ *
+ */
 public class DependencyParseCrossValidator
 {
 	private final TrainingParameters params;

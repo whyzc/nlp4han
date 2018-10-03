@@ -75,7 +75,9 @@ public abstract class Configuration
 			words[i] = word_pos[0];
 			poses[i] = word_pos[1];
 		}
+		
 		initialConf(words, poses);
+		
 		for (String preAction : priorActions)
 		{
 			Action at = Action.toType(preAction);

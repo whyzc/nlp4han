@@ -46,16 +46,6 @@ public class DependencyParseEvaluator extends Evaluator<DependencySample>
 		return preSample;
 	}
 
-	public DependencyParser getTagger()
-	{
-		return tagger;
-	}
-
-	public void setTagger(DependencyParserTB tagger)
-	{
-		this.tagger = tagger;
-	}
-
 	public DependencyParseMeasure getMeasure()
 	{
 		return measure;
