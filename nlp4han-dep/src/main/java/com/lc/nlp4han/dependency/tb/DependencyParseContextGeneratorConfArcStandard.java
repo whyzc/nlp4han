@@ -63,6 +63,7 @@ public class DependencyParseContextGeneratorConfArcStandard extends DependencyPa
 	{
 		ConfigurationArcStandard conf = new ConfigurationArcStandard();
 		conf.generateConfByActions(wordpos, priorDecisions);
+		
 		return getContext(conf, priorDecisions, additionalContext);
 	}
 

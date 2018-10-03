@@ -238,6 +238,14 @@ abstract class DependencyParseContextGenerator implements BeamSearchContextGener
 		s3wt_s2wt_s1wt_b1wtset = config.getProperty("feature.s3wt_s2wt_s1wt_b1wt", "false").equals("true");
 	}
 
+	/**
+	 * 从配置产生上下午
+	 * 
+	 * @param conf
+	 * @param priorDecisions
+	 * @param additionalContext
+	 * @return
+	 */
 	public String[] getContext(Configuration conf, String[] priorDecisions, Object[] additionalContext)
 	{
 		String s1w, s1t, s2w, s2t, s3w, s3t, s4w, s4t, b1w, b1t, b2w, b2t, b3w, b3t;

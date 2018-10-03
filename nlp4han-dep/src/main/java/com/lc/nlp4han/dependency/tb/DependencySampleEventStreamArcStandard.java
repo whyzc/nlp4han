@@ -11,8 +11,7 @@ import com.lc.nlp4han.ml.util.AbstractEventStream;
 import com.lc.nlp4han.ml.util.ObjectStream;
 
 /**
- * @author 作者
- * @version 创建时间：2018年8月19日 上午9:55:22 类说明
+ * ArcStandard依存样本事件流
  */
 public class DependencySampleEventStreamArcStandard extends AbstractEventStream<DependencySample>
 {
@@ -41,7 +40,9 @@ public class DependencySampleEventStreamArcStandard extends AbstractEventStream<
 		String[] dependencyWords = sample.getDependencyWords();
 		String[] dependencyIndices = sample.getDependencyIndices();
 		String[][] ac = sample.getAditionalContext();
+
 		List<Event> events = generateEvents(words, pos, dependency, dependencyWords, dependencyIndices, ac);
+
 		return events.iterator();
 	}
 
@@ -62,11 +63,12 @@ public class DependencySampleEventStreamArcStandard extends AbstractEventStream<
 	 *            额外的信息
 	 * @return 事件列表
 	 */
-	public List<Event> generateEvents(String[] words, String[] pos, String[] dependency,
-			String[] dependencyWords, String[] dependencyIndices, String[][] ac)
+	public List<Event> generateEvents(String[] words, String[] pos, String[] dependency, String[] dependencyWords,
+			String[] dependencyIndices, String[][] ac)
 	{
-		ConfigurationArcStandard conf_ArcStandard =new ConfigurationArcStandard();
+		ConfigurationArcStandard conf_ArcStandard = new ConfigurationArcStandard();
 		conf_ArcStandard.initialConf(words, pos);
+
 		String[] priorDecisions = new String[2 * (words.length - 1)];
 		List<Event> events = new ArrayList<Event>();
 		Action at;
@@ -81,14 +83,15 @@ public class DependencySampleEventStreamArcStandard extends AbstractEventStream<
 		while (!conf_ArcStandard.isFinalConf() && count < priorDecisions.length)
 		{
 			count++;
-			String[] context = ((DependencyParseContextGeneratorConfArcStandard) pcg).getContext(conf_ArcStandard,
-					priorDecisions, null);
+			String[] context = pcg.getContext(conf_ArcStandard, priorDecisions, null);
+
 			if (conf_ArcStandard.getStack().size() == 1
 					&& conf_ArcStandard.getStack().peek().getWord().equals(DependencyParser.RootWord))
 			{
 				// S1,S2没关系。SHIFT
 				at = new Action("null", "SHIFT");
-//				System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" + at.typeToString());
+				// System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" +
+				// at.typeToString());
 				strOfAType = at.typeToString();
 				conf_ArcStandard.shift();
 			}
@@ -112,7 +115,8 @@ public class DependencySampleEventStreamArcStandard extends AbstractEventStream<
 				if (indexOfWord_S1 == headIndexOfWord_S2)
 				{// 左弧
 					at = new Action(dependency[indexOfWord_S2 - 1], "LEFTARC_REDUCE");
-//					System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" + at.typeToString());
+					// System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" +
+					// at.typeToString());
 					strOfAType = at.typeToString();
 					conf_ArcStandard.addArc(new Arc(dependency[indexOfWord_S2 - 1], S1, S2));
 					conf_ArcStandard.reduce(at);
@@ -122,7 +126,8 @@ public class DependencySampleEventStreamArcStandard extends AbstractEventStream<
 					if (conf_ArcStandard.canReduce(dependencyIndices))
 					{// RIGHTARC_REDUCE
 						at = new Action(dependency[indexOfWord_S1 - 1], "RIGHTARC_REDUCE");
-//						System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" + at.typeToString());
+						// System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" +
+						// at.typeToString());
 						strOfAType = at.typeToString();
 						conf_ArcStandard.addArc(new Arc(dependency[indexOfWord_S1 - 1], S2, S1));
 						conf_ArcStandard.reduce(at);
@@ -131,7 +136,8 @@ public class DependencySampleEventStreamArcStandard extends AbstractEventStream<
 					{
 						// S1还有依存词在buffer中，先SHIFT
 						at = new Action("null", "SHIFT");
-//						System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" + at.typeToString());
+						// System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" +
+						// at.typeToString());
 						strOfAType = at.typeToString();
 						conf_ArcStandard.shift();
 					}
@@ -140,24 +146,30 @@ public class DependencySampleEventStreamArcStandard extends AbstractEventStream<
 				{
 					// S1,S2没关系。SHIFT
 					at = new Action("null", "SHIFT");
-//					System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" + at.typeToString());
+					// System.out.println(conf_ArcStandard.toString() + "*****" + "goldAction =" +
+					// at.typeToString());
 					strOfAType = at.typeToString();
 					conf_ArcStandard.shift();
 				}
 			}
+			
 			priorDecisions[indexOfConf] = strOfAType;
 			indexOfConf++;
 
 			Event event = new Event(strOfAType, context);
 			events.add(event);
-
 		}
-		 if(conf_ArcStandard.getArcs().size() == dependency.length) {
-//				 System.out.println(TBDepTree.getSample(conf_ArcStandard.getArcs(),
-//				 words,pos).toCoNLLString());
-				 }else {
-				 return new ArrayList<Event>();
-				 }
+
+		if (conf_ArcStandard.getArcs().size() == dependency.length)
+		{
+			// System.out.println(TBDepTree.getSample(conf_ArcStandard.getArcs(),
+			// words,pos).toCoNLLString());
+		}
+		else
+		{
+			return new ArrayList<Event>();
+		}
+		
 		return events;
 	}
 }
