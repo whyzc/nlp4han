@@ -7,6 +7,8 @@ import java.io.OutputStreamWriter;
 
 /**
  * 文法提取应用
+ * 
+ * 支持提取CFG和PCFG文法
  *
  */
 public class GrammarExractorTool
