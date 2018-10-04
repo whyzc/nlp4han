@@ -4,13 +4,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import org.nlp4han.coref.hobbs.AttributeFilter;
 import org.nlp4han.coref.hobbs.AttributeGeneratorByDic;
+import org.nlp4han.coref.hobbs.EvaluationHobbs;
+import org.nlp4han.coref.hobbs.Hobbs;
 import org.nlp4han.coref.hobbs.NodeNameFilter;
 import org.nlp4han.coref.hobbs.PNFilter;
+import org.nlp4han.coref.hobbs.TreeNodeUtil;
 
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.TreeNode;
@@ -37,10 +42,10 @@ public class TestCenteringBFP
 		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		bfp.setAttributeFilter(attributeFilter);	//设置属性过滤器，此过滤器为缺省值
 		
-		List<String> result = bfp.resolve(ss);
-
-		List<String> goal = new ArrayList<String>();
-		goal.add("他(2-1)->庞德(1-10)");
+		Map<TreeNode, TreeNode> result = bfp.resolve(ss);
+		
+		Map<TreeNode, TreeNode> goal = new HashMap<TreeNode, TreeNode>();
+		goal.put(TreeNodeUtil.getAllLeafNodes(s2).get(0), TreeNodeUtil.getAllLeafNodes(s1).get(9));
 
 		assertEquals(goal, result);
 
@@ -64,10 +69,10 @@ public class TestCenteringBFP
 		CenteringBFP bfp = new CenteringBFP();
 		bfp.setGrammaticalRoleRuleSet(GrammaticalRoleRuleSet.getGrammaticalRoleRuleSet());
 
-		List<String> result = bfp.resolve(ss);
+		Map<TreeNode, TreeNode> result = bfp.resolve(ss);
 
-		List<String> goal = new ArrayList<String>();
-		goal.add("她(2-5)->妈妈(1-3)");
+		Map<TreeNode, TreeNode> goal = new HashMap<TreeNode, TreeNode>();
+		goal.put(TreeNodeUtil.getAllLeafNodes(s2).get(4), TreeNodeUtil.getAllLeafNodes(s1).get(2));
 
 		assertNotEquals(goal, result);
 	}

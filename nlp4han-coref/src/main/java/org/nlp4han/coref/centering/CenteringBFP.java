@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.nlp4han.coref.hobbs.AnaphoraResolution;
 import org.nlp4han.coref.hobbs.AttributeFilter;
@@ -23,8 +24,8 @@ import com.lc.nlp4han.constituent.TreeNode;
  */
 public class CenteringBFP implements AnaphoraResolution
 {
-	private List<List<Entity>> entitiesOfUtterances; // 所有句子的实体集
-	private List<TreeNode> rootNodesOfUtterances; // 所有句子的根结点集
+	private List<List<Entity>> entitiesOfUtterances = null; // 所有句子的实体集
+	private List<TreeNode> rootNodesOfUtterances = null; // 所有句子的根结点集
 	public static String SEPARATOR = "->"; // 指代结果中的分隔符
 	private HashMap<String, List<String>> grammaticalRoleRuleSet = GrammaticalRoleRuleSet.getGrammaticalRoleRuleSet(); // 语法角色规则集
 	private CandidateFilter attributeFilter;
@@ -478,9 +479,39 @@ public class CenteringBFP implements AnaphoraResolution
 		}
 		return result;
 	}
+	
+	public static Map<TreeNode, TreeNode> analysisResult(List<List<Entity>> oldEntitiesSet, List<List<Entity>> newEntitiesSet, List<TreeNode> rootNodesOfUtterances)
+	{
+		if (newEntitiesSet == null || oldEntitiesSet == null || newEntitiesSet.size() != oldEntitiesSet.size())
+			throw new RuntimeException("输入错误");
+		if (newEntitiesSet.size() < 2)
+			return new HashMap<TreeNode, TreeNode>();
+		Map<TreeNode, TreeNode> result = new HashMap<TreeNode, TreeNode>();
+		for (int i = 1; i < newEntitiesSet.size(); i++)
+		{
+			for (int j = 0; j < newEntitiesSet.get(i).size(); j++)
+			{
+				if (!newEntitiesSet.get(i).get(j).equals(oldEntitiesSet.get(i).get(j)))
+				{
+					TreeNode root1 = rootNodesOfUtterances.get(i);
+					TreeNode ponoun = TreeNodeUtil.getAllLeafNodes(root1).get(oldEntitiesSet.get(i).get(j).getSite());
+					
+					int index = oldEntitiesSet.get(i - 1).indexOf(newEntitiesSet.get(i).get(j));
+					Entity e = oldEntitiesSet.get(i - 1).get(index);
+					TreeNode root2 = rootNodesOfUtterances.get(i-1);
+					TreeNode antecedent = TreeNodeUtil.getAllLeafNodes(root2).get(e.getSite());
+					
+					
+
+					result.put(ponoun, antecedent);
+				}
+			}
+		}
+		return result;
+	}
 
 	@Override
-	public List<String> resolve(List<TreeNode> sentences)
+	public Map<TreeNode, TreeNode> resolve(List<TreeNode> sentences)
 	{
 		List<List<Entity>> eou = new ArrayList<List<Entity>>();
 
@@ -500,8 +531,15 @@ public class CenteringBFP implements AnaphoraResolution
 		this.entitiesOfUtterances = eou;
 		this.rootNodesOfUtterances = sentences;
 		List<List<Entity>> newEntities = run();
-		List<String> result = analysisResult(eou, newEntities);
+		Map<TreeNode, TreeNode> result = analysisResult(eou, newEntities, rootNodesOfUtterances);
 		return result;
+	}
+
+	@Override
+	public TreeNode resolve(List<TreeNode> sentences, TreeNode pronoun)
+	{
+		//TODO
+		return null;
 	}
 
 }
