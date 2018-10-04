@@ -81,16 +81,20 @@ public class ConstituentMeasure
 		{
 			trueSentence++;
 		}
+		
 		if (CBs_2_temp == 0)
 		{
 			CBs_0++;
 		}
+		
 		if (CBs_2_temp <= 2)
 		{
 			CBs_2++;
 		}
+		
 		selected += etPre.size();
 		target += etRef.size();
+		
 		sentences++;
 	}
 

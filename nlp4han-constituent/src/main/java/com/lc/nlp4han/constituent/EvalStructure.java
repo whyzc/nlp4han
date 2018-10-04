@@ -23,6 +23,17 @@ public class EvalStructure{
 		this.begin = begin;
 		this.end = end;
 	}
+	
+	public boolean cross(EvalStructure es)
+	{
+		if (getBegin() < es.getBegin()
+				&& getEnd() > es.getBegin())
+		{
+			return true;
+		}
+		
+		return false;
+	}
 
 	public void setNonterminal(String nonterminal){
 		this.nonterminal = nonterminal;
@@ -68,20 +79,26 @@ public class EvalStructure{
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
+		
 		if (obj == null)
 			return false;
+		
 		if (getClass() != obj.getClass())
 			return false;
+		
 		EvalStructure other = (EvalStructure) obj;
 		if (begin != other.begin)
 			return false;
+		
 		if (end != other.end)
 			return false;
+		
 		if (nonterminal == null) {
 			if (other.nonterminal != null)
 				return false;
 		} else if (!nonterminal.equals(other.nonterminal))
 			return false;
+		
 		return true;
 	}
 
