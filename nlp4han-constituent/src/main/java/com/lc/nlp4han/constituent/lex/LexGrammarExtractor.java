@@ -229,7 +229,7 @@ public class LexGrammarExtractor
 		int pu = 0;// 标点符号，由于只保留了顿号所以我们可以把它当做并列结构，并列结构,0为不设值，1和2为有或者没有
 		Distance distance = getDistance(node, direction, i, headIndex);
 		// 若为基本名词短语，则headChild变为前一个修饰符
-		if (CTBPreprocessTool.IsNPB(node))
+		if (node.getNodeName().equals("NPB"))
 		{
 			distance = new Distance();// NPB不需要距离度量，故将其设置为固定值（此处为false）
 			if (i > headIndex)
@@ -239,7 +239,7 @@ public class LexGrammarExtractor
 				headPOS = node.getChildHeadPos(i - 1);
 				headWord = node.getChildHeadWord(i - 1);
 			}
-			else
+			else if(i<headIndex)
 			{
 				// 修饰符在headChild左侧
 				headLabel = node.getChildName(i + 1);

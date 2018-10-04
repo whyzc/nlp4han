@@ -9,6 +9,13 @@ public class RuleHeadChildGenerate  extends RuleCollins
 {
 
 	private String headLabel = null;//中心节点标记
+	
+	public RuleHeadChildGenerate(String[] strs)
+	{
+		super(strs[0], strs[1], strs[2]);
+		this.headLabel=strs[3];
+	}
+
 	public RuleHeadChildGenerate(String headLabel,String parentLabel, String headPOS, String headWord)
 	{
 		super(parentLabel, headPOS, headWord);

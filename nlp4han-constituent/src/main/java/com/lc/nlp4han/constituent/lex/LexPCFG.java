@@ -1,6 +1,9 @@
 package com.lc.nlp4han.constituent.lex;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -14,10 +17,11 @@ import java.util.Set;
  */
 public class LexPCFG
 {
-	// 词性标注集
-	private HashSet<String> posSet = new HashSet<String>();
 	// 句法树的起始符，该值为预处理句子时设置的起始符ROOT
 	private String StartSymbol = null;
+	
+	// 词性标注集
+	private HashSet<String> posSet = new HashSet<String>();
 
 	// 词性标注和词，以及数目
 	private HashMap<WordAndPOS, Integer> wordMap = new HashMap<WordAndPOS, Integer>();
@@ -47,12 +51,90 @@ public class LexPCFG
 	 * 
 	 * @param in
 	 * @param encoding
+	 * @throws IOException 
 	 */
-	public LexPCFG(InputStream in, String encoding)
+	public LexPCFG(InputStream in, String encoding) throws IOException
 	{
-
+		BufferedReader buffer = new BufferedReader(new InputStreamReader(in, encoding));
+		String str = buffer.readLine().trim();
+		if (str.equals("--起始符--"))
+		{
+			setStartSymbol(buffer.readLine().trim());
+		}
+		buffer.readLine();
+		str = buffer.readLine().trim();
+		while (!str.equals("--POS-Word集--"))
+		{//添加词性标注集
+			posSet.add(str);
+			str = buffer.readLine().trim();
+		}
+		str = buffer.readLine();
+		while (!str.equals("--生成头结点的规则集--"))
+		{//POS-Word集
+			String[] strs=str.split(" ");
+			wordMap.put(new WordAndPOS(strs[0],strs[1]), Integer.parseInt(strs[2]));
+			if(str.equals("M null 14050")) {
+				System.out.println(wordMap.get(new WordAndPOS("M","null")));
+			}
+			str = buffer.readLine().trim();
+		}
+		str = buffer.readLine();
+		while (!str.equals("--头结点向上延伸的标记集--"))
+		{//生成头结点的规则集
+			String[] strs=str.split(" ");
+			int amount=Integer.parseInt(strs[strs.length-2]);
+			int sort=Integer.parseInt(strs[strs.length-1]);
+			headGenMap.put(new RuleHeadChildGenerate(strs), new AmountAndSort(amount,sort));
+			str = buffer.readLine();
+		}
+		str = buffer.readLine();
+		while (!str.equals("--生成两侧孩子的规则集--"))
+		{//头结点向上延伸的标记集
+			String[] strs=str.split(" ");
+            HashSet<String> set=new HashSet<String>();
+            for(int i=4;i<strs.length;i++) {
+            	set.add(strs[i]);
+            }
+			parentList.put(new RuleHeadChildGenerate(strs), set);
+			str = buffer.readLine();
+		}
+		str = buffer.readLine();
+		while (!str.equals("--生成两侧Stop的规则集--"))
+		{//生成两侧孩子的规则集
+			String[] strs=str.split(" ");
+			int amount=Integer.parseInt(strs[strs.length-2]);
+			int sort=Integer.parseInt(strs[strs.length-1]);
+			sidesGenMap.put(new RuleSidesGenerate(strs), new AmountAndSort(amount,sort));
+			str = buffer.readLine();
+		}
+		str = buffer.readLine();
+		while (!str.equals("--特殊规则集--"))
+		{//生成两侧Stop的规则集
+			String[] strs=str.split(" ");
+			int amount=1;
+			try {
+				amount=Integer.parseInt(strs[strs.length-2]);
+			}catch(ArrayIndexOutOfBoundsException e){
+				for(String str1:strs) {
+					System.out.print(str1);
+				}
+			}
+			int sort=Integer.parseInt(strs[strs.length-1]);
+			stopGenMap.put(new RuleStopGenerate(strs), new AmountAndSort(amount,sort));
+			str = buffer.readLine();
+		}
+		str = buffer.readLine();
+		while (str!=null)
+		{//特殊规则集
+			System.out.println("空的出现错误");
+			String[] strs=str.split(" ");
+			int amount=Integer.parseInt(strs[strs.length-2]);
+			int sort=Integer.parseInt(strs[strs.length-1]);
+			specialGenMap.put(new RuleSpecialCase(strs), new AmountAndSort(amount,sort));
+			str = buffer.readLine();
+		}
+		buffer.close();
 	}
-
 	/**
 	 * 得到词性标注集合
 	 * 
@@ -399,7 +481,11 @@ public class LexPCFG
 		for (RuleCollins rule : set1)
 		{
 			RuleHeadChildGenerate rule1 = (RuleHeadChildGenerate) rule;
-			stb.append(rule1.toString() + " " + parentList.get(rule1).toString() + '\n');
+			stb.append(rule1.toString() + " " );
+			for(String str:parentList.get(rule1)) {
+				stb.append(str.toString()+" ");
+			}
+			stb.append('\n');
 		}
 
 		stb.append("--生成两侧孩子的规则集--" + '\n');
@@ -427,4 +513,98 @@ public class LexPCFG
 		}
 		return stb.toString();
 	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((StartSymbol == null) ? 0 : StartSymbol.hashCode());
+		result = prime * result + ((headGenMap == null) ? 0 : headGenMap.hashCode());
+		result = prime * result + ((parentList == null) ? 0 : parentList.hashCode());
+		result = prime * result + ((posSet == null) ? 0 : posSet.hashCode());
+		result = prime * result + ((posesOfWord == null) ? 0 : posesOfWord.hashCode());
+		result = prime * result + ((sidesGenMap == null) ? 0 : sidesGenMap.hashCode());
+		result = prime * result + ((specialGenMap == null) ? 0 : specialGenMap.hashCode());
+		result = prime * result + ((stopGenMap == null) ? 0 : stopGenMap.hashCode());
+		result = prime * result + ((wordMap == null) ? 0 : wordMap.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		LexPCFG other = (LexPCFG) obj;
+		if (StartSymbol == null)
+		{
+			if (other.StartSymbol != null)
+				return false;
+		}
+		else if (!StartSymbol.equals(other.StartSymbol))
+			return false;
+		if (headGenMap == null)
+		{
+			if (other.headGenMap != null)
+				return false;
+		}
+		else if (!headGenMap.equals(other.headGenMap))
+			return false;
+		if (parentList == null)
+		{
+			if (other.parentList != null)
+				return false;
+		}
+		else if (!parentList.equals(other.parentList))
+			return false;
+		if (posSet == null)
+		{
+			if (other.posSet != null)
+				return false;
+		}
+		else if (!posSet.equals(other.posSet))
+			return false;
+		if (posesOfWord == null)
+		{
+			if (other.posesOfWord != null)
+				return false;
+		}
+		else if (!posesOfWord.equals(other.posesOfWord))
+			return false;
+		if (sidesGenMap == null)
+		{
+			if (other.sidesGenMap != null)
+				return false;
+		}
+		else if (!sidesGenMap.equals(other.sidesGenMap))
+			return false;
+		if (specialGenMap == null)
+		{
+			if (other.specialGenMap != null)
+				return false;
+		}
+		else if (!specialGenMap.equals(other.specialGenMap))
+			return false;
+		if (stopGenMap == null)
+		{
+			if (other.stopGenMap != null)
+				return false;
+		}
+		else if (!stopGenMap.equals(other.stopGenMap))
+			return false;
+		if (wordMap == null)
+		{
+			if (other.wordMap != null)
+				return false;
+		}
+		else if (!wordMap.equals(other.wordMap))
+			return false;
+		return true;
+	}
+	
 }

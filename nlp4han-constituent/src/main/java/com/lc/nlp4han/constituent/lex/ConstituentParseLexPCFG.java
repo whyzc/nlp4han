@@ -14,8 +14,6 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	private LexNode[][] chart = null;
 	private LexPCFG lexpcfg = null;
 
-	private BackNode[][] back = null;
-
 	public ConstituentParseLexPCFG(LexPCFG lexpcfg)
 	{
 		this.lexpcfg = lexpcfg;
@@ -135,7 +133,6 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	{
 		int n = words.length;
 		chart = new LexNode[n + 1][n + 1];
-		back = new BackNode[n + 1][n + 1];
 		for (int i = 0; i < n; i++)
 		{
 			for (int j = 1; j <= n; j++)
@@ -216,14 +213,12 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 * @param start
 	 * @param end
 	 */
-	private boolean addEdge(Edge edge, int start, int end)
+	private void addEdge(Edge edge, int start, int end)
 	{
 		if (chart[start][end].getEdgeMap().get(edge) < edge.getPro())
 		{
 			chart[start][end].getEdgeMap().put(edge, edge.getPro());
-			return true;
 		}
-		return false;
 
 	}
 
@@ -300,7 +295,6 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 		double pro = e1.getPro() + e2.getPro();
 		RuleSidesGenerate rsg;
 		Edge edge;
-		int index;
 		if (direction == 2)
 		{
 			lc = e2.getLc();
@@ -308,7 +302,6 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 					|| verbs.contains(e2.getHeadPOS()));
 			rc = new Distance(false, rcVerb);
 			children.addAll(e1.getChildren());
-			index = e1.getChildren().size();
 			children.add(e2);
 			rsg = new RuleSidesGenerate(e1.getHeadLabel(), e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(), direction,
 					e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(), 0, 0, rc);
@@ -324,17 +317,13 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 			lc = new Distance(false, lcVerb);
 			children.addAll(e2.getChildren());
 			children.add(e1);
-			index = 0;
 			rsg = new RuleSidesGenerate(e2.getHeadLabel(), e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(), direction,
 					e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(), 0, 0, rc);
 			pro += lexpcfg.getGeneratePro(rsg, "sides");
 			edge = new Edge(e2.getLabel(), e2.getHeadLabel(), e2.getHeadWord(), e2.getHeadPOS(), e1.getStart(),
 					e2.getEnd(), lc, rc, false, pro, children);
 		}
-		if (addEdge(edge, edge.getStart(), edge.getEnd()))
-		{
-			back[e1.start][e2.getEnd()].getMap().put(edge, new BackInfor(direction, e1.getEnd(), index));
-		}
+		addEdge(edge, edge.getStart(), edge.getEnd());
 	}
 
 	class LexNode
@@ -370,299 +359,6 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 		public void setEdgeMap(HashMap<Edge, Double> edgeMap)
 		{
 			this.edgeMap = edgeMap;
-		}
-	}
-
-	class Edge
-	{
-		private String label;
-		private String headLabel;
-		private String headWord;
-		private String headPOS;
-		private int start;
-		private int end;
-		private Distance lc;
-		private Distance rc;
-		private boolean stop;
-		private double pro;
-		private ArrayList<Edge> children;
-
-		public String getLabel()
-		{
-			return label;
-		}
-
-		public void setLabel(String label)
-		{
-			this.label = label;
-		}
-
-		public String getHeadLabel()
-		{
-			return headLabel;
-		}
-
-		public void setHeadLabel(String headLabel)
-		{
-			this.headLabel = headLabel;
-		}
-
-		public String getHeadWord()
-		{
-			return headWord;
-		}
-
-		public void setHeadWord(String headWord)
-		{
-			this.headWord = headWord;
-		}
-
-		public String getHeadPOS()
-		{
-			return headPOS;
-		}
-
-		public void setHeadPOS(String headPOS)
-		{
-			this.headPOS = headPOS;
-		}
-
-		public int getStart()
-		{
-			return start;
-		}
-
-		public void setStart(int start)
-		{
-			this.start = start;
-		}
-
-		public int getEnd()
-		{
-			return end;
-		}
-
-		public void setEnd(int end)
-		{
-			this.end = end;
-		}
-
-		public Distance getLc()
-		{
-			return lc;
-		}
-
-		public void setLc(Distance lc)
-		{
-			this.lc = lc;
-		}
-
-		public Distance getRc()
-		{
-			return rc;
-		}
-
-		public void setRc(Distance rc)
-		{
-			this.rc = rc;
-		}
-
-		public boolean isStop()
-		{
-			return stop;
-		}
-
-		public void setStop(boolean stop)
-		{
-			this.stop = stop;
-		}
-
-		public double getPro()
-		{
-			return pro;
-		}
-
-		public void setPro(double pro)
-		{
-			this.pro = pro;
-		}
-
-		public ArrayList<Edge> getChildren()
-		{
-			return children;
-		}
-
-		public void setChildren(ArrayList<Edge> children)
-		{
-			this.children = children;
-		}
-
-		public Edge()
-		{
-		}
-
-		public Edge(String label, String headLabel, String headWord, String headPOS, int start, int end, Distance lc,
-				Distance rc, boolean stop, double pro, ArrayList<Edge> children)
-		{
-			this.label = label;
-			this.headLabel = headLabel;
-			this.headWord = headWord;
-			this.headPOS = headPOS;
-			this.start = start;
-			this.end = end;
-			this.lc = lc;
-			this.rc = rc;
-			this.stop = stop;
-			this.pro = pro;
-			this.children = children;
-		}
-
-		@Override
-		public int hashCode()
-		{
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + getOuterType().hashCode();
-			result = prime * result + ((headLabel == null) ? 0 : headLabel.hashCode());
-			result = prime * result + ((headPOS == null) ? 0 : headPOS.hashCode());
-			result = prime * result + ((headWord == null) ? 0 : headWord.hashCode());
-			result = prime * result + ((label == null) ? 0 : label.hashCode());
-			result = prime * result + ((lc == null) ? 0 : lc.hashCode());
-			result = prime * result + ((rc == null) ? 0 : rc.hashCode());
-			result = prime * result + (stop ? 1231 : 1237);
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj)
-		{
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			Edge other = (Edge) obj;
-			if (!getOuterType().equals(other.getOuterType()))
-				return false;
-			if (headLabel == null)
-			{
-				if (other.headLabel != null)
-					return false;
-			}
-			else if (!headLabel.equals(other.headLabel))
-				return false;
-			if (headPOS == null)
-			{
-				if (other.headPOS != null)
-					return false;
-			}
-			else if (!headPOS.equals(other.headPOS))
-				return false;
-			if (headWord == null)
-			{
-				if (other.headWord != null)
-					return false;
-			}
-			else if (!headWord.equals(other.headWord))
-				return false;
-			if (label == null)
-			{
-				if (other.label != null)
-					return false;
-			}
-			else if (!label.equals(other.label))
-				return false;
-			if (lc == null)
-			{
-				if (other.lc != null)
-					return false;
-			}
-			else if (!lc.equals(other.lc))
-				return false;
-			if (rc == null)
-			{
-				if (other.rc != null)
-					return false;
-			}
-			else if (!rc.equals(other.rc))
-				return false;
-			if (stop != other.stop)
-				return false;
-			return true;
-		}
-
-		private ConstituentParseLexPCFG getOuterType()
-		{
-			return ConstituentParseLexPCFG.this;
-		}
-	}
-
-	class BackNode
-	{
-		private HashMap<Edge, BackInfor> map;
-
-		public BackNode()
-		{
-		}
-
-		public BackNode(HashMap<Edge, BackInfor> map)
-		{
-			this.map = map;
-		}
-
-		public HashMap<Edge, BackInfor> getMap()
-		{
-			return map;
-		}
-
-		public void setMap(HashMap<Edge, BackInfor> map)
-		{
-			this.map = map;
-		}
-	}
-
-	class BackInfor
-	{
-		private int direction;// 分裂方向
-		private int split;// 分裂节点
-		private int index;// 在此节点时被合并的两侧孩子的索引值
-
-		public BackInfor(int direction, int split, int index)
-		{
-			this.direction = direction;
-			this.split = split;
-			this.index = index;
-		}
-
-		public int getDirection()
-		{
-			return direction;
-		}
-
-		public void setDirection(int direction)
-		{
-			this.direction = direction;
-		}
-
-		public int getSplit()
-		{
-			return split;
-		}
-
-		public void setSplit(int split)
-		{
-			this.split = split;
-		}
-
-		public int getIndex()
-		{
-			return index;
-		}
-
-		public void setIndex(int index)
-		{
-			this.index = index;
 		}
 	}
 }
