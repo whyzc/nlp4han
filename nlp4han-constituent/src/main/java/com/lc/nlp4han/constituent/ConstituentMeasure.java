@@ -47,8 +47,8 @@ public class ConstituentMeasure
 	 */
 	public void update(TreeNode treeRef, TreeNode treePre) throws CloneNotSupportedException
 	{
-		List<EvalStructure> etRef = TreeToEvalStructure.getNonterminalAndSpan(treeRef);
-		List<EvalStructure> etPre = TreeToEvalStructure.getNonterminalAndSpan(treePre);
+		List<EvalStructure> etRef = EvalStructure.getEvalStructures(treeRef);
+		List<EvalStructure> etPre = EvalStructure.getEvalStructures(treePre);
 		int trueSentencetemp = 0;
 		int CBs_2_temp = 0;
 		for (int j = 0; j < etPre.size(); j++)
