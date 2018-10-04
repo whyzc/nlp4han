@@ -1,11 +1,15 @@
 package com.lc.nlp4han.constituent;
 
+/**
+ * 短语结构树树库统计报告
+ *
+ */
 public class PSTBankReport
 {
 	private int tokenCount;// 词条数
 	private int wordShapeCount;// 词形数
 	private int sentenceCount;// 句子数
-	private int wordCount;// 总字数(包括标点符号)
+	private int charCount;// 总字数(包括标点符号)
 	private int nonTerminalCount;// 非终结符的个数
 	private int POSCount;//词性标注数目
 	private int numOfHighestTree;// 库中句法树的最大高度
@@ -17,13 +21,13 @@ public class PSTBankReport
 
 	}
 
-	public PSTBankReport(int tokenCount, int wordShapeCount, int sentenceCount, int wordCount, int nonTerminalCount,
+	public PSTBankReport(int tokenCount, int wordShapeCount, int sentenceCount, int charCount, int nonTerminalCount,
 			int numOfHighestTree, int numOfLowestTree, int meanLevelOfTree,int POSCount)
 	{
 		this.tokenCount = tokenCount;
 		this.wordShapeCount = wordShapeCount;
 		this.sentenceCount = sentenceCount;
-		this.wordCount = wordCount;
+		this.charCount = charCount;
 		this.nonTerminalCount = nonTerminalCount;
 		this.numOfHighestTree = numOfHighestTree;
 		this.numOfLowestTree = numOfLowestTree;
@@ -63,12 +67,12 @@ public class PSTBankReport
 
 	public int getWordCount()
 	{
-		return wordCount;
+		return charCount;
 	}
 
 	public void setWordCount(int wordCount)
 	{
-		this.wordCount = wordCount;
+		this.charCount = wordCount;
 	}
 
 	public int getNonTerminalCount()
@@ -124,7 +128,7 @@ public class PSTBankReport
 	public String toString()
 	{
 		return "tokenCount=" + tokenCount + "\n" + "wordShapeCount=" + wordShapeCount + "\n" + "sentenceCount="
-				+ sentenceCount + "\n" + "wordCount=" + wordCount + "\n" + "nonTerminalCount=" + nonTerminalCount + "\n"
+				+ sentenceCount + "\n" + "charCount=" + charCount + "\n" + "nonTerminalCount=" + nonTerminalCount + "\n"
 				+ "numOfHighestTree=" + numOfHighestTree + "\n" + "numOfLowestTree=" + numOfLowestTree + "\n"
 				+ "meanLevelOfTree=" + meanLevelOfTree+"\n"+ "POSCount=" + POSCount;
 	}
