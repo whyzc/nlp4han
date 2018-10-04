@@ -44,6 +44,8 @@ public class DependencyParserTB implements DependencyParser
 	private SequenceClassificationModel<String> seqModel;
 
 	private SequenceValidator<String> sequenceValidator;
+	
+	private Oracle oracleMEBased;
 
 	private Configuration conf;
 
@@ -85,6 +87,8 @@ public class DependencyParserTB implements DependencyParser
 		this.contextGenerator = contextGenerator;
 
 		this.sequenceValidator = sequenceValidator;
+		
+		this.oracleMEBased = new Oracle(this.model, contextGenerator);
 	}
 
 	public static ModelWrapper train(String trainDatePath, TrainingParameters params,
@@ -178,7 +182,7 @@ public class DependencyParserTB implements DependencyParser
 		
 		conf.initialConf(words, poses);
 
-		Oracle oracleMEBased = new Oracle(model, contextGenerator);
+//		Oracle oracleMEBased = new Oracle(model, contextGenerator);
 		
 //		Action action = new Action();
 //		conf.initialConf(words, poses);
