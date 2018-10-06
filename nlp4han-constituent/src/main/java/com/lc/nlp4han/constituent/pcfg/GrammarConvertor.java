@@ -50,6 +50,7 @@ public class GrammarConvertor
 	private void convertGrammar(String type, CFG cfg)
 	{
 		this.type = type;
+		
 		convertTo2NF(cfg);
 		
 		if (type.contains("P"))
@@ -79,6 +80,8 @@ public class GrammarConvertor
 
 	/**
 	 * 前期处理，遍历的将规则加入pcnf 将字符串个数多于两个的递归的减为两个 将终结符和非终结符混合转换为两个非终结符 直接添加右侧只有一个字符串的规则
+	 * 
+	 * 转换后包括：单元规则（包括非法的CNF单元规则）、合法的二元规则
 	 */
 	private void priorDisposal(CFG cfg)
 	{
@@ -123,7 +126,7 @@ public class GrammarConvertor
 		ArrayList<String> rhs = new ArrayList<String>();
 		for (String string : rule.getRhs())
 		{
-			if (!cnf.getNonTerminalSet().contains(string))
+			if (cnf.isTerminal(string))
 			{
 				String newString = "$" + string + "$";
 				cnf.addNonTerminal(newString);// 添加新的伪非终结符

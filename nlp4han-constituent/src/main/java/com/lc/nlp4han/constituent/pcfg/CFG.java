@@ -188,6 +188,11 @@ public class CFG
 	{
 		return nonTerminalSet.contains(symbol);
 	}
+	
+	public boolean isTerminal(String symbol)
+	{
+		return terminalSet.contains(symbol);
+	}
 
 	public String getStartSymbol()
 	{
