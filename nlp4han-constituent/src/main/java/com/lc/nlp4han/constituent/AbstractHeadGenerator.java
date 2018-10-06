@@ -23,8 +23,6 @@ public abstract class AbstractHeadGenerator
 	 * 
 	 * @param node
 	 *            子节点带头结点，父节点不带头结点的树
-	 * @param specialRules
-	 *            生成头结点的特殊规则
 	 * @return
 	 */
 	protected abstract String generateHeadPosForSpecialRules(HeadTreeNode node);
@@ -34,8 +32,6 @@ public abstract class AbstractHeadGenerator
 	 * 
 	 * @param node
 	 *            子节点带头结点，父节点不带头结点的树
-	 * @param normalRules
-	 *            生成头结点的一般规则
 	 * @return
 	 */
 	protected abstract String generateHeadPosForNormalRules(HeadTreeNode node);
@@ -47,10 +43,6 @@ public abstract class AbstractHeadGenerator
 	 * 
 	 * @param node
 	 *            子节点带头结点，父节点不带头结点的树
-	 * @param normalRules
-	 *            生成头结点的一般规则
-	 * @param specialRules
-	 *            生成头结点的特殊规则
 	 * @return 头结点和头结点对应的词性
 	 */
 	private String extractHeadWordAndPos(HeadTreeNode node)
@@ -76,10 +68,6 @@ public abstract class AbstractHeadGenerator
 	 * 
 	 * @param node
 	 *            子节点带头结点，父节点不带头结点的树
-	 * @param normalRules
-	 *            生成头结点的一般规则
-	 * @param specialRules
-	 *            生成头结点的特殊规则
 	 * @return 头结点词
 	 */
 	public String extractHeadWord(HeadTreeNode node)
@@ -93,10 +81,6 @@ public abstract class AbstractHeadGenerator
 	 * 
 	 * @param node
 	 *            子节点带头结点，父节点不带头结点的树
-	 * @param normalRules
-	 *            生成头结点的一般规则
-	 * @param specialRules
-	 *            生成头结点的特殊规则
 	 * @return 头结点的词性
 	 */
 	public String extractHeadPos(HeadTreeNode node)
