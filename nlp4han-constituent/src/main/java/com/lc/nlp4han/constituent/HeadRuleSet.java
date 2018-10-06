@@ -4,12 +4,14 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * 为了更好的使用PTB和CTB的头规则集
- * @author qyl
+ * 头结点生成规则集
+ * 
+ * @author 邱宜龙
  *
  */
 public abstract class HeadRuleSet
 {
 	protected abstract HashMap<String, HeadRule> getNormalRuleSet();
+	
 	protected abstract HashMap<String, List<HeadRule>> getSpecialRuleSet();
 }

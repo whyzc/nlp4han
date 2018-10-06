@@ -1,4 +1,5 @@
 package com.lc.nlp4han.constituent;
+
 /**
  * 生成头结点
  * 
@@ -66,7 +67,7 @@ public abstract class AbstractHeadGenerator
 		{
 			headWithPOS = generateHeadPosForNormalRules(node);
 		}
-		
+
 		return headWithPOS;
 	}
 
@@ -100,17 +101,18 @@ public abstract class AbstractHeadGenerator
 	 */
 	public String extractHeadPos(HeadTreeNode node)
 	{
-
 		return extractHeadWordAndPos(node).split("_")[1];
 	}
+
 	/**
 	 * 提取头结点的索引
 	 * 
 	 * @param node
 	 *            子节点带头结点，父节点不带头结点的树
-	 * @return 头结点的词性
+	 * @return 头结点的索引
 	 */
-	public int  extractHeadIndex(HeadTreeNode node) {
+	public int extractHeadIndex(HeadTreeNode node)
+	{
 		return Integer.parseInt(extractHeadWordAndPos(node).split("_")[2]);
 	}
 }

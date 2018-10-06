@@ -7,6 +7,7 @@ import org.junit.Test;
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.HeadGeneratorCollins;
+import com.lc.nlp4han.constituent.HeadRuleSetCTB;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.TreeToHeadTree;

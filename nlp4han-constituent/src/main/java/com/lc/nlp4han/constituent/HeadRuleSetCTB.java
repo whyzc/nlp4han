@@ -1,15 +1,13 @@
-package com.lc.nlp4han.constituent.lex;
+package com.lc.nlp4han.constituent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.lc.nlp4han.constituent.HeadRule;
-import com.lc.nlp4han.constituent.HeadRuleSet;
-
 /**
+ * 面向CTB树库的头结点生成规则集
  * 
- * @author qyl
+ * @author 邱宜龙
  *
  */
 public class HeadRuleSetCTB extends HeadRuleSet
@@ -26,6 +24,7 @@ public class HeadRuleSetCTB extends HeadRuleSet
 	private static List<String> PP = new ArrayList<String>();
 	private static List<String> QP = new ArrayList<String>();
 	private static List<String> VP = new ArrayList<String>();
+	
 	private static List<String> VV = new ArrayList<String>();
 	private static List<String> VA = new ArrayList<String>();
 	private static List<String> VE = new ArrayList<String>();
@@ -35,16 +34,18 @@ public class HeadRuleSetCTB extends HeadRuleSet
 	private static List<String> VSB = new ArrayList<String>();
 	private static List<String> VCP = new ArrayList<String>();
 	private static List<String> VNV = new ArrayList<String>();
-	
+
 	private static List<String> CLP = new ArrayList<String>();
 	private static List<String> PRN = new ArrayList<String>();// 插入句子
 	private static List<String> LST = new ArrayList<String>();
 	private static List<String> VPT = new ArrayList<String>();
 	private static List<String> DVP = new ArrayList<String>();
-	private static List<String> WHPP=new ArrayList<String>();
-	private static List<String> FRAG=new ArrayList<String>();
-	private static List<String> UCP= new ArrayList<String>();
+	private static List<String> WHPP = new ArrayList<String>();
+	private static List<String> FRAG = new ArrayList<String>();
+	private static List<String> UCP = new ArrayList<String>();
+	
 	private static HashMap<String, HeadRule> headRulesOfCTB = new HashMap<String, HeadRule>();
+	
 	// 静态代码块
 	static
 	{
@@ -199,43 +200,43 @@ public class HeadRuleSetCTB extends HeadRuleSet
 			CLP.add(CLPStr[i]);
 		}
 		headRulesOfCTB.put("CLP", new HeadRule(CLP, "right"));
-		String[] LSTStr = { "LST", "CD","OD" };
+		String[] LSTStr = { "LST", "CD", "OD" };
 		for (int i = 0; i < LSTStr.length; i++)
 		{
 			LST.add(LSTStr[i]);
 		}
 		headRulesOfCTB.put("LST", new HeadRule(LST, "left"));
-		String[] VPTStr = { "VNV", "VV","VA","VC","VE" };
+		String[] VPTStr = { "VNV", "VV", "VA", "VC", "VE" };
 		for (int i = 0; i < VPTStr.length; i++)
 		{
 			VPT.add(VPTStr[i]);
 		}
 		headRulesOfCTB.put("VPT", new HeadRule(VPT, "right"));
-		String[] PRNStr = { "NP", "IP", "VP","NT","NR","NN" };
+		String[] PRNStr = { "NP", "IP", "VP", "NT", "NR", "NN" };
 		for (int i = 0; i < PRNStr.length; i++)
 		{
 			PRN.add(PRNStr[i]);
 		}
 		headRulesOfCTB.put("PRN", new HeadRule(PRN, "right"));
-		String[] DVPStr = { "DVP","DEV" };
+		String[] DVPStr = { "DVP", "DEV" };
 		for (int i = 0; i < DVPStr.length; i++)
 		{
 			DVP.add(DVPStr[i]);
 		}
 		headRulesOfCTB.put("DVP", new HeadRule(DVP, "right"));
-		String[] WHPPStr = { "WHPP","PP","P" };
+		String[] WHPPStr = { "WHPP", "PP", "P" };
 		for (int i = 0; i < DVPStr.length; i++)
 		{
 			WHPP.add(WHPPStr[i]);
 		}
 		headRulesOfCTB.put("WHPP", new HeadRule(WHPP, "left"));
-		String[] FRAGStr = { "VV","NR","NN" };
+		String[] FRAGStr = { "VV", "NR", "NN" };
 		for (int i = 0; i < DVPStr.length; i++)
 		{
 			FRAG.add(FRAGStr[i]);
 		}
 		headRulesOfCTB.put("FRAG", new HeadRule(FRAG, "right"));
-		String[] UCPStr = { "UCP"};
+		String[] UCPStr = { "UCP" };
 		for (int i = 0; i < UCPStr.length; i++)
 		{
 			UCP.add(UCPStr[i]);
