@@ -22,7 +22,7 @@ public class TreeToHeadTree
 	{
 		String treeStr = "(" + treeNode.toStringWordIndexNoNone() + ")";
 		treeStr = BracketExpUtil.format(treeStr);
-		
+
 		int indexTree;// 记录当前是第几颗子树
 		List<String> parts = BracketExpUtil.stringToList(treeStr);
 		Stack<HeadTreeNode> tree = new Stack<HeadTreeNode>();
@@ -85,25 +85,37 @@ public class TreeToHeadTree
 				tree.push(node);
 			}
 		}
-		HeadTreeNode headTreeNode=tree.pop();
-		TraverseTreeConvertRRBAndLRB(headTreeNode);
+		HeadTreeNode headTreeNode = tree.pop();
+		unescapeBracket(headTreeNode);
 		return headTreeNode;
 	}
-	private static void TraverseTreeConvertRRBAndLRB(HeadTreeNode node) {
-		if(node.getChildrenNum()==0) {
-			if(node.getNodeName().equals("-LRB-")) {
-				   node.setNewName("(");
-				}else if(node.getNodeName().equals("-RRB-")) {
-				   node.setNewName(")");
-				}
+
+	private static void unescapeBracket(HeadTreeNode node)
+	{
+		if (node.getChildrenNum() == 0)
+		{
+			if (node.getNodeName().equals("-LRB-"))
+			{
+				node.setNewName("(");
+			}
+			else if (node.getNodeName().equals("-RRB-"))
+			{
+				node.setNewName(")");
+			}
 			return;
-		}else if(node.getHeadWord().equals("-LRB-")) {
-			  node.setHeadWord("(");
-		}else if(node.getHeadWord().equals("-RRB-")) {
+		}
+		else if (node.getHeadWord().equals("-LRB-"))
+		{
+			node.setHeadWord("(");
+		}
+		else if (node.getHeadWord().equals("-RRB-"))
+		{
 			node.setHeadWord(")");
 		}
-		for(HeadTreeNode childNode:node.getChildren()) {
-			TraverseTreeConvertRRBAndLRB(childNode);
+		
+		for (HeadTreeNode childNode : node.getChildren())
+		{
+			unescapeBracket(childNode);
 		}
 	}
 }
