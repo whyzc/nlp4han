@@ -451,7 +451,7 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 			{
 				String[] s = text.split("\\s+");
 				ConstituentTree tree = parser.parse(s);
-				System.out.println(tree);
+				System.out.println(tree.toPrettyString());
 			}
 		}
 		
