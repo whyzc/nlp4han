@@ -22,7 +22,9 @@ public class GrammarConvertor
 	public PCFG convertPCFGToP2NF(PCFG pcfg)
 	{
 		this.cnf = new PCFG();
+		
 		convertGrammar("P2NF", pcfg);
+		
 		return (PCFG) cnf;
 	}
 
@@ -258,7 +260,7 @@ public class GrammarConvertor
 				rule2 = new RewriteRule(rule.getLhs() + "@" + rule1.getLhs(), rule1.getRhs());
 			}
 			
-			if (rule1.getRhs().size() == 2 || !cnf.getNonTerminalSet().contains(rule1.getRhs().get(0)))
+			if (rule1.getRhs().size() == 2 || cnf.isTerminal(rule1.getRhs().get(0)))
 			{
 				cnf.add(rule2);
 			}
