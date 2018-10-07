@@ -61,7 +61,7 @@ public class CKYParserEvaluator extends Evaluator<ConstituentTree>
 		
 		long start = System.currentTimeMillis();
 		
-		ConstituentTree treePre = cky.parseTree(words1, poses1);
+		ConstituentTree treePre = cky.parse(words1, poses1);
 		
 		long thisTime = System.currentTimeMillis() - start;
 		totalTime += thisTime;	

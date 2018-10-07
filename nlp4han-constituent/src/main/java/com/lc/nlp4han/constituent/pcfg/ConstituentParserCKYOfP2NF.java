@@ -31,7 +31,7 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 	 * @return
 	 */
 	@Override
-	public ConstituentTree parseTree(String[] words, String[] poses)
+	public ConstituentTree parse(String[] words, String[] poses)
 	{
 		return getParseResult(words, poses, 1)[0];
 	}
@@ -44,7 +44,7 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 	 * @return
 	 */
 	@Override
-	public ConstituentTree parseTree(String[] words)
+	public ConstituentTree parse(String[] words)
 	{
 		return getParseResult(words, null, 1)[0];
 	}
@@ -61,7 +61,7 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 	 * @return
 	 */
 	@Override
-	public ConstituentTree[] parseKTree(String[] words, String[] poses, int k)
+	public ConstituentTree[] parse(String[] words, String[] poses, int k)
 	{
 		return getParseResult(words, poses, k);
 	}
@@ -76,7 +76,7 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 	 * @return
 	 */
 	@Override
-	public ConstituentTree[] parseKTree(String[] words, int k)
+	public ConstituentTree[] parse(String[] words, int k)
 	{
 		return getParseResult(words, null, k);
 	}

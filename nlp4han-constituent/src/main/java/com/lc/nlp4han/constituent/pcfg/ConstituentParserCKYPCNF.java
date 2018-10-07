@@ -1,20 +1,25 @@
 package com.lc.nlp4han.constituent.pcfg;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Scanner;
 import java.util.Set;
+
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
 
-public class ConstituentParseCKYPCNF implements ConstituentParser
+public class ConstituentParserCKYPCNF implements ConstituentParser
 {
 	private CKYCell[][] table;// 存储在该点的映射表
 	private PCFG pcnf;
 
-	public ConstituentParseCKYPCNF(PCFG pcnf)
+	public ConstituentParserCKYPCNF(PCFG pcnf)
 	{
 		this.pcnf = pcnf;
 	}
@@ -28,7 +33,7 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 	 *            词性标记
 	 * @return
 	 */
-	public ConstituentTree parseTree(String[] words, String[] poses)
+	public ConstituentTree parse(String[] words, String[] poses)
 	{
 		return parse(words, poses, 1)[0];
 	}
@@ -40,26 +45,11 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 	 * 
 	 * @return
 	 */
-	public ConstituentTree parseTree(String[] words)
+	public ConstituentTree parse(String[] words)
 	{
 		return parse(words, null, 1)[0];
 	}
 
-	/**
-	 * 得到概率最高k个的成分树
-	 * 
-	 * @param words
-	 *            分词序列
-	 * @param poses
-	 *            词性标记
-	 * @param k
-	 *            结果数目
-	 * @return
-	 */
-	public ConstituentTree[] parseKTree(String[] words, String[] poses, int k)
-	{
-		return parse(words, poses, k);
-	}
 
 	/**
 	 * 得到概率最高k个的成分树
@@ -70,7 +60,7 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 	 *            结果数目
 	 * @return
 	 */
-	public ConstituentTree[] parseKTree(String[] words, int k)
+	public ConstituentTree[] parse(String[] words, int k)
 	{
 		return parse(words, null, k);
 	}
@@ -86,7 +76,7 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 	 *            结果数目
 	 * @return
 	 */
-	private ConstituentTree[] parse(String[] words, String[] poses, int k)
+	public ConstituentTree[] parse(String[] words, String[] poses, int k)
 	{
 		ConstituentTree[] treeArray = new ConstituentTree[k];
 		ArrayList<String> bracketList = parseCKY(words, poses, k);
@@ -434,5 +424,37 @@ public class ConstituentParseCKYPCNF implements ConstituentParser
 		{
 			this.flag = flag;
 		}
+	}
+	
+	public static void main(String[] args) throws IOException
+	{
+		PCFG p2nf = new PCFG(new FileInputStream(new File(args[0])), args[1]);
+		
+		ConstituentParser parser = new ConstituentParserCKYPCNF(p2nf);
+		
+		Scanner input = new Scanner(System.in);
+		String text = "";
+		while (true)
+		{
+			System.out.println("请输入待分析的文本：");
+			text = input.nextLine();
+			
+			if (text.equals(""))
+			{
+				System.out.println("内容为空，请重新输入！");
+			}
+			else if (text.equals("exit"))
+			{
+				break;
+			}
+			else
+			{
+				String[] s = text.split("\\s+");
+				ConstituentTree tree = parser.parse(s);
+				System.out.println(tree);
+			}
+		}
+		
+		input.close();
 	}
 }

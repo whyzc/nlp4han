@@ -19,7 +19,7 @@ public interface ConstituentParser
 	 *            词性标记
 	 * @return
 	 */
-	ConstituentTree parseTree(String[] words, String[] poses);
+	ConstituentTree parse(String[] words, String[] poses);
 
 	/**
 	 * 得到最好的成分树
@@ -28,7 +28,7 @@ public interface ConstituentParser
 	 *            分词序列
 	 * @return
 	 */
-	ConstituentTree parseTree(String[] words);
+	ConstituentTree parse(String[] words);
 
 	/**
 	 * 得到最好的K个成分树
@@ -41,7 +41,7 @@ public interface ConstituentParser
 	 * 
 	 * @return
 	 */
-	ConstituentTree[] parseKTree(String[] words, String[] poses, int k);
+	ConstituentTree[] parse(String[] words, String[] poses, int k);
 
 	/**
 	 * 得到最好的K个成分树
@@ -52,5 +52,5 @@ public interface ConstituentParser
 	 * 
 	 * @return
 	 */
-	ConstituentTree[] parseKTree(String[] words, int k);
+	ConstituentTree[] parse(String[] words, int k);
 }

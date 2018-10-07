@@ -37,7 +37,7 @@ public class CKYCrossValidatorTool
 		System.out.println("对文法进行转换...");
 		PCFG pcnf = new GrammarConvertor().convertPCFGToPCNF(pcfg);
 
-		return new ConstituentParseCKYPCNF(pcnf);
+		return new ConstituentParserCKYPCNF(pcnf);
 	}
 
 	/**
