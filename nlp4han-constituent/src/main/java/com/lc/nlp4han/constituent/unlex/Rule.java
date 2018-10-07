@@ -28,5 +28,13 @@ public abstract class Rule
 			return false;
 		return true;
 	}
+	public short getParent()
+	{
+		return parent;
+	}
+	public void setParent(short parent)
+	{
+		this.parent = parent;
+	}
 	
 }

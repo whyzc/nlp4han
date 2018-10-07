@@ -9,7 +9,7 @@ import java.util.LinkedList;
 public class UnaryRule extends Rule
 {
 	private short child;
-	LinkedList<LinkedList<Double>> score;// 保存规则例如A -> B 的概率
+	LinkedList<LinkedList<Double>> scores = new LinkedList<LinkedList<Double>>();// 保存规则例如A -> B 的概率
 
 	public UnaryRule(short parent, short child)
 	{
@@ -40,6 +40,25 @@ public class UnaryRule extends Rule
 		return true;
 	}
 
+	public short getChild()
+	{
+		return child;
+	}
+
+	public void setChild(short child)
+	{
+		this.child = child;
+	}
+
+	public LinkedList<LinkedList<Double>> getScores()
+	{
+		return scores;
+	}
+
+	public void setScores(LinkedList<LinkedList<Double>> score)
+	{
+		this.scores = score;
+	}
 
 	public boolean isSameRule(short parent, short child)
 	{

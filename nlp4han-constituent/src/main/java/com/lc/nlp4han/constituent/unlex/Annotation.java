@@ -7,7 +7,7 @@ package com.lc.nlp4han.constituent.unlex;
 public class Annotation
 {
 	private String word;// 表示句中词语，非终端节点才有
-	private short symbol = -1;
+	private short symbol = -1;// 表示树上非终端节点
 	private short numSubSymbol;
 	private short spanFrom, spanTo;
 	private double[] innerScores;// 内向概率

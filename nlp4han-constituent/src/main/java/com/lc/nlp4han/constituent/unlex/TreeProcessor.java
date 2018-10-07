@@ -3,17 +3,20 @@ package com.lc.nlp4han.constituent.unlex;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.lc.nlp4han.constituent.TreeNode;
+
 /**
  * @author 王宁 version 创建时间：2018年9月27日 上午9:22:02 处理树
  */
 public class TreeProcessor
 {
-/**
- * 将Tree<String>>转化为Tree<Annotation>
- * @param trees
- * @param convertTable
- * @return 获得树库的Tree<Annotation>表示
- */
+	/**
+	 * 将Tree<String>>转化为Tree<Annotation>
+	 * 
+	 * @param trees
+	 * @param convertTable
+	 * @return 获得树库的Tree<Annotation>表示
+	 */
 	public static List<Tree<Annotation>> getAnnotationTrees(List<Tree<String>> trees, NonterminalTable convertTable)
 	{
 		if (trees.isEmpty() || trees == null)
@@ -28,27 +31,59 @@ public class TreeProcessor
 		return annotationTrees;
 	}
 
-	private static Tree<Annotation> getAnnotationTreesHelper(Tree<String> tree, NonterminalTable convertTable)
+	public static Tree<Annotation> getAnnotationTreesHelper(Tree<String> tree, NonterminalTable convertTable)
 	{
+		if (tree == null)
+			return null;
 		if (tree.isLeaf())
 		{
 			return new Tree<Annotation>(new Annotation(tree.getLabel()));
 		}
-		short inValueOfLabel;
+		short intValueOfLabel;
 		if (convertTable.hasSymbol(tree.getLabel()))
 		{
-			inValueOfLabel = convertTable.intValue(tree.getLabel());
+			intValueOfLabel = convertTable.intValue(tree.getLabel());
 		}
-		inValueOfLabel = convertTable.putSymbol(tree.getLabel());
+		else
+		{
+			intValueOfLabel = convertTable.putSymbol(tree.getLabel());
+		}
 
-		Tree<Annotation> annotationTree = new Tree<Annotation>(new Annotation(inValueOfLabel, (short) 1));
-		ArrayList<Tree<Annotation>> children = new ArrayList<Tree<Annotation>>();
+		if (tree.isPreterminal() && !convertTable.getIntValueOfPreterminalArr().contains(intValueOfLabel))
+		{
+			convertTable.addToPreterminalArr(intValueOfLabel);
+		}
+
+		Tree<Annotation> annotationTree = new Tree<Annotation>(new Annotation(intValueOfLabel, (short) 1));
+		ArrayList<Tree<Annotation>> children = new ArrayList<Tree<Annotation>>(tree.getChildren().size());
 		for (Tree<String> child : tree.getChildren())
 		{
 			children.add(getAnnotationTreesHelper(child, convertTable));
 		}
 		annotationTree.setChildren(children);
 		return annotationTree;
+	}
+
+	/**
+	 * 将TreeNode转化为Tree<String>
+	 * 
+	 * @param tree
+	 * @return Tree<String>
+	 */
+	public static Tree<String> getNormalTree(TreeNode treeNode)
+	{
+		if (treeNode == null)
+			return null;
+		if (treeNode.isLeaf())
+			return new Tree<String>(treeNode.getNodeName());
+		Tree<String> tree = new Tree<String>(treeNode.getNodeName());
+		ArrayList<Tree<String>> children = new ArrayList<Tree<String>>(treeNode.getChildren().size());
+		for (TreeNode child : treeNode.getChildren())
+		{
+			children.add(getNormalTree(child));
+		}
+		tree.setChildren(children);
+		return tree;
 	}
 
 	public static Tree<String> binarizeTree(Tree<String> normalTree)

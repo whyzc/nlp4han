@@ -9,7 +9,7 @@ import java.util.LinkedList;
 public class PreterminalRule extends Rule
 {
 	String word;
-	LinkedList<Double> score;
+	LinkedList<Double> scores = new LinkedList<Double>();
 
 	public PreterminalRule(short parent,String word)
 	{

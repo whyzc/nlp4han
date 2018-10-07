@@ -10,7 +10,7 @@ public class BinaryRule extends Rule
 {
 	private short leftChild;
 	private short rightChild;
-	LinkedList<LinkedList<LinkedList<Double>>> scores;// 保存规则例如A -> BC 的概率
+	LinkedList<LinkedList<LinkedList<Double>>> scores = new LinkedList<LinkedList<LinkedList<Double>>>() ;// 保存规则例如A -> BC 的概率
 
 	public BinaryRule(short parent, short lChild, short rChild)
 	{
@@ -51,6 +51,42 @@ public class BinaryRule extends Rule
 		if (rightChild != other.rightChild)
 			return false;
 		return true;
+	}
+
+
+	public short getLeftChild()
+	{
+		return leftChild;
+	}
+
+
+	public void setLeftChild(short leftChild)
+	{
+		this.leftChild = leftChild;
+	}
+
+
+	public short getRightChild()
+	{
+		return rightChild;
+	}
+
+
+	public void setRightChild(short rightChild)
+	{
+		this.rightChild = rightChild;
+	}
+
+
+	public LinkedList<LinkedList<LinkedList<Double>>> getScores()
+	{
+		return scores;
+	}
+
+
+	public void setScores(LinkedList<LinkedList<LinkedList<Double>>> scores)
+	{
+		this.scores = scores;
 	}
 
 }

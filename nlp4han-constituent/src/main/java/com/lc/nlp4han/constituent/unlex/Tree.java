@@ -59,6 +59,14 @@ public class Tree<T>
 			return false;
 	}
 
+	public boolean isPreterminal()
+	{
+		if(getChildren().size() == 1 && getChildren().get(0).isLeaf())
+			return true;
+		else
+			return false;
+	}
+
 	public T getLabel()
 	{
 		return label;

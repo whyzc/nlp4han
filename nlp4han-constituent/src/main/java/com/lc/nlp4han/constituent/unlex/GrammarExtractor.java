@@ -1,10 +1,14 @@
 package com.lc.nlp4han.constituent.unlex;
 
+import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 王宁
@@ -17,21 +21,34 @@ public class GrammarExtractor
 	protected NonterminalTable nonterminalTable;
 
 	protected List<Short> preterminal;// 词性标注对应的整数
-	protected List<HashMap<PreterminalRule, Integer>> preRuleBySameHead;// 长度与preterminal相同
-
-	protected List<HashMap<BinaryRule, Integer>> bRuleBySameHead;// 数组下标表示nonterminal对应的整数
-	protected List<HashMap<UnaryRule, Integer>> uRuleBySameHead;// 数组下标表示nonterminal对应的整数
+	protected HashMap<PreterminalRule, Integer>[] preRuleBySameHead;// 长度与preterminal相同
+	String[] a = new String[10];
+	protected HashMap<BinaryRule, Integer>[] bRuleBySameHead;// 数组下标表示nonterminal对应的整数
+	protected HashMap<UnaryRule, Integer>[] uRuleBySameHead;// 数组下标表示nonterminal对应的整数
 
 	public int[] numOfSameHeadRule;
 
+	@SuppressWarnings("unchecked")
 	public GrammarExtractor(List<Tree<Annotation>> treeBank, NonterminalTable nonterminalTable)
 	{
 		this.treeBank = treeBank;
 		this.nonterminalTable = nonterminalTable;
 		preterminal = nonterminalTable.getIntValueOfPreterminalArr();
-		preRuleBySameHead = new ArrayList<HashMap<PreterminalRule, Integer>>(preterminal.size());
-		bRuleBySameHead = new ArrayList<HashMap<BinaryRule, Integer>>(this.nonterminalTable.getNumSymbol());
-		uRuleBySameHead = new ArrayList<HashMap<UnaryRule, Integer>>();
+		preRuleBySameHead = new HashMap[preterminal.size()];
+		for (int i = 0; i < preterminal.size(); i++)
+		{
+			preRuleBySameHead[i] = new HashMap<PreterminalRule,Integer>();
+		}
+		bRuleBySameHead = new HashMap[nonterminalTable.getNumSymbol()];
+		for (int i = 0; i < nonterminalTable.getNumSymbol(); i++)
+		{
+			bRuleBySameHead[i] = new HashMap<BinaryRule,Integer>();
+		}
+		uRuleBySameHead = new HashMap[nonterminalTable.getNumSymbol()];
+		for (int i = 0; i < nonterminalTable.getNumSymbol(); i++)
+		{
+			uRuleBySameHead[i] = new HashMap<UnaryRule,Integer>();
+		}
 		numOfSameHeadRule = new int[this.nonterminalTable.getNumSymbol()];
 	}
 
@@ -55,17 +72,17 @@ public class GrammarExtractor
 					if (leftChild != -1 && rightChild != -1)
 					{
 						BinaryRule bRule = new BinaryRule(parent, leftChild, rightChild);
-						if (!bRuleBySameHead.get(parent).containsKey(bRule))
+						if (!bRuleBySameHead[parent].containsKey(bRule))
 						{
-							bRuleBySameHead.get(parent).put(bRule, 1);
+							bRuleBySameHead[parent].put(bRule, 1);
 						}
 						else
 						{
-							bRuleBySameHead.get(parent).put(bRule, bRuleBySameHead.get(parent).get(bRule) + 1);
+							bRuleBySameHead[parent].put(bRule, bRuleBySameHead[parent].get(bRule) + 1);
 						}
 					}
 				}
-				else// if (queue.peek().getChildren().size() == 1)
+				else if (queue.peek().getChildren().size() == 1)
 				{
 					if (queue.peek().getChildren().get(0).getLabel().getWord() == null)
 					{
@@ -73,13 +90,13 @@ public class GrammarExtractor
 						if (leftChild != -1)
 						{
 							UnaryRule uRule = new UnaryRule(parent, leftChild);
-							if (!uRuleBySameHead.get(parent).containsKey(uRule))
+							if (!uRuleBySameHead[parent].containsKey(uRule))
 							{
-								uRuleBySameHead.get(parent).put(uRule, 1);
+								uRuleBySameHead[parent].put(uRule, 1);
 							}
 							else
 							{
-								uRuleBySameHead.get(parent).put(uRule, uRuleBySameHead.get(parent).get(uRule) + 1);
+								uRuleBySameHead[parent].put(uRule, uRuleBySameHead[parent].get(uRule) + 1);
 							}
 						}
 
@@ -88,13 +105,13 @@ public class GrammarExtractor
 					{
 						String child = queue.peek().getChildren().get(0).getLabel().getWord();
 						PreterminalRule preRule = new PreterminalRule(parent, child);
-						if (!preRuleBySameHead.get(parent).containsKey(preRule))
+						if (!preRuleBySameHead[preterminal.indexOf(parent)].containsKey(preRule))
 						{
-							preRuleBySameHead.get(parent).put(preRule, 1);
+							preRuleBySameHead[preterminal.indexOf(parent)].put(preRule, 1);
 						}
 						else
 						{
-							preRuleBySameHead.get(parent).put(preRule, preRuleBySameHead.get(parent).get(preRule) + 1);
+							preRuleBySameHead[preterminal.indexOf(parent)].put(preRule, preRuleBySameHead[preterminal.indexOf(parent)].get(preRule) + 1);
 						}
 					}
 				}
@@ -110,9 +127,43 @@ public class GrammarExtractor
 		calculateRuleScores();
 	}
 
-	//计算初始文法的概率
-	public static void calculateRuleScores()
+	// 计算初始文法的概率
+	public void calculateRuleScores()
 	{
+		for (HashMap<BinaryRule, Integer> map : bRuleBySameHead)
+		{
+			for (Map.Entry<BinaryRule, Integer> entry : map.entrySet())
+			{
+				BigDecimal b1 = BigDecimal.valueOf(entry.getValue());
+				BigDecimal b2 = BigDecimal.valueOf(numOfSameHeadRule[entry.getKey().parent]);
+				double score = b1.divide(b2, 15, BigDecimal.ROUND_HALF_UP).doubleValue();
+				entry.getKey().scores.add(new LinkedList<LinkedList<Double>>());
+				entry.getKey().scores.get(0).add(new LinkedList<Double>());
+				entry.getKey().scores.get(0).get(0).add(score);
+			}
+		}
+		for (HashMap<PreterminalRule, Integer> map : preRuleBySameHead)
+		{
+			for (Map.Entry<PreterminalRule, Integer> entry : map.entrySet())
+			{
+				BigDecimal b1 = BigDecimal.valueOf(entry.getValue());
+				BigDecimal b2 = BigDecimal.valueOf(numOfSameHeadRule[entry.getKey().parent]);
+				double score = b1.divide(b2, 15, BigDecimal.ROUND_HALF_UP).doubleValue();
+				entry.getKey().scores.add(score);
+
+			}
+		}
+		for (HashMap<UnaryRule, Integer> map : uRuleBySameHead)
+		{
+			for (Map.Entry<UnaryRule, Integer> entry : map.entrySet())
+			{
+				BigDecimal b1 = BigDecimal.valueOf(entry.getValue());
+				BigDecimal b2 = BigDecimal.valueOf(numOfSameHeadRule[entry.getKey().parent]);
+				double score = b1.divide(b2, 15, BigDecimal.ROUND_HALF_UP).doubleValue();
+				entry.getKey().scores.add(new LinkedList<Double>());
+				entry.getKey().scores.get(0).add(score);
+			}
+		}
 	}
 
 	public class WordCount

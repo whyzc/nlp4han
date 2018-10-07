@@ -9,7 +9,7 @@ import java.util.HashMap;
  */
 public class NonterminalTable
 {
-	private HashMap<String, Short> str_intMap;// "ROOT" -  0
+	private HashMap<String, Short> str_intMap;// "ROOT" - 0
 	private HashMap<Short, String> int_strMap;
 	private short numSymbol;
 	private ArrayList<Short> intValueOfPreterminalArr;
@@ -32,9 +32,21 @@ public class NonterminalTable
 			return false;
 	}
 
+	public void addToPreterminalArr(String preterminalSymbol)
+	{
+		short intValue = str_intMap.get(preterminalSymbol);
+		addToPreterminalArr(intValue);
+	}
+
+	public void addToPreterminalArr(short preterminalSymbol)
+	{
+		intValueOfPreterminalArr.add(preterminalSymbol);
+	}
+
 	/**
 	 * 
-	 * @param 要添加的symbol
+	 * @param symbol
+	 *            要添加的符号对应的short值
 	 * @return 返回新symbol对应的整数，返回-1表示已有symbol/short对
 	 */
 	public short putSymbol(String symbol)
@@ -45,7 +57,7 @@ public class NonterminalTable
 		int_strMap.put(numSymbol, symbol);
 		numSubsymbolArr.add((short) 1);
 		numSymbol++;
-		return (short)(numSymbol - 1);
+		return (short) (numSymbol - 1);
 	}
 
 	public short intValue(String symbol)
@@ -57,7 +69,7 @@ public class NonterminalTable
 	{
 		return int_strMap.get(intValue);
 	}
-	
+
 	/**
 	 * 
 	 * @param symbol
@@ -68,7 +80,7 @@ public class NonterminalTable
 		if (hasSymbol(symbol))
 		{
 			short intVlaue = str_intMap.get(symbol);
-			return numSubsymbolArr.get(intVlaue );
+			return numSubsymbolArr.get(intVlaue);
 		}
 		else
 		{
@@ -76,13 +88,11 @@ public class NonterminalTable
 		}
 	}
 
-	
-	
 	public short getNumSymbol()
 	{
 		return this.numSymbol;
 	}
-	
+
 	public ArrayList<Short> getIntValueOfPreterminalArr()
 	{
 		return intValueOfPreterminalArr;
