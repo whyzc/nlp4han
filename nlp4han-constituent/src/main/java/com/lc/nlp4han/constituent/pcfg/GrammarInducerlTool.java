@@ -5,7 +5,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
-public class P2NFModelTool
+/**
+ * 语法归纳应用
+ * 
+ * 从树库中归纳解析器需要的文法模型
+ * 
+ * 和交叉验证使用相同的文法
+ * 
+ *
+ */
+public class GrammarInducerlTool
 {
 	public static void main(String[] args) throws IOException
 	{
@@ -14,8 +23,8 @@ public class P2NFModelTool
 			return;
 		}
 		String corpusFile = null;
-		String encoding = null;
-		String topath = null;
+		String encoding = "UTF-8";
+		String modelFile = null;
 		for (int i = 0; i < args.length; i++)
 		{
 			if (args[i].equals("-data"))
@@ -28,29 +37,29 @@ public class P2NFModelTool
 				encoding = args[i + 1];
 				i++;
 			}
-			else if (args[i].equals("-topath"))
+			else if (args[i].equals("-model"))
 			{
-				topath = args[i + 1];
+				modelFile = args[i + 1];
 				i++;
 			}
 		}
 		
-		GetP2NFModel(corpusFile, encoding, topath);
+		GetP2NFModel(corpusFile, encoding, modelFile);
 	}
 
-	private static void GetP2NFModel(String corpusFile, String encoding, String topath) throws IOException
+	private static void GetP2NFModel(String corpusFile, String encoding, String modelFile) throws IOException
 	{
 		PCFG pcfg = GrammarExtractor.getPCFG(corpusFile, encoding);
 		
-		PCFG p2nf = new GrammarConvertor().convertPCFGToP2NF(pcfg);
+		PCFG p2nf = new GrammarConvertor().convertPCFGToPCNF(pcfg);
 		
-		if (topath == null)
+		if (modelFile == null)
 		{
 			System.out.println(p2nf.toString());
 		}
 		else
 		{
-			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(topath), encoding));
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(modelFile), encoding));
 			bw.append(p2nf.toString());
 			bw.close();
 		}
