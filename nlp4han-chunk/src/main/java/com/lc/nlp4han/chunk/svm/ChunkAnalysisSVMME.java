@@ -22,8 +22,8 @@ public class ChunkAnalysisSVMME implements Chunker
 	private List<String> FeatureStructure = new ArrayList<String>();		//存储用到的特征，如w_2, p_2，用以记录各特征对应的序号，特征的（index+1）为SVM标准输入格式中该特征的序号
 	private List<String> ClassificationResults = new ArrayList<String>();	//存储分类结果，如BNP_B, BNP_I, BNP_E, O，（index+1）为SVM标准分类结果
 	private Map<String, Map<String, Integer>> Features = new HashMap<String, Map<String, Integer>>();	//记录所有具体的特征，为每一特征赋值
-	private ChunkAnalysisContextGenerator contextgenerator;		//ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisWordPosContextGeneratorConf(properties);
-	private svm_model model;	//svm_model model = svm.svm_load_model(model_file);
+	private ChunkAnalysisContextGenerator contextgenerator;
+	private svm_model model;
 	private String label;
 	
 	public ChunkAnalysisSVMME(ChunkAnalysisContextGenerator contextgenerator, svm_model model, String filePath, String label)

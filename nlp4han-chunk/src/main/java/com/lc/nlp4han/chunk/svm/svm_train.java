@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 
 public class svm_train {
 	private svm_parameter param;		// set by parse_command_line
-	private svm_problem prob;		// set by read_problem
+	private svm_problem prob;			// set by read_problem
 	private svm_model model;
 	private String input_file_name;		// set by parse_command_line
 	private String model_file_name;		// set by parse_command_line
@@ -90,7 +90,6 @@ public class svm_train {
 
 	private void save_data_format_conversion(List<String> featureStructure, List<String> classificationResults, Map<String, Map<String, Integer>> features, String filePath, String encoding) throws IOException
 	{
-		// TODO Auto-generated method stub
 		BufferedWriter bf = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), encoding));;
 		
 		bf.write("featureNum=" + featureStructure.size() + "\n");
@@ -131,12 +130,6 @@ public class svm_train {
 			bf.write("\n");
 		}
 		bf.close();
-	}
-
-	public static void main(String argv[]) throws IOException
-	{
-		svm_train t = new svm_train();
-		//t.run(argv); TODO
 	}
 
 	private static double atof(String s)
@@ -269,13 +262,6 @@ public class svm_train {
 		
 		svm.svm_set_print_string_function(print_func);
 
-		// determine filenames
-
-//		if(i>=argv.length)
-//			exit_with_help();
-
-		//model_file_name = argv[i];
-
 		if (model_file_name == null)
 		{
 			int p = input_file_name.lastIndexOf('/');
@@ -289,7 +275,6 @@ public class svm_train {
 
 	private void read_problem(String[] standardInput) throws IOException
 	{
-		//BufferedReader fp = new BufferedReader(new FileReader(input_file_name));	//training_set_file
 		Vector<Double> vy = new Vector<Double>();
 		Vector<svm_node[]> vx = new Vector<svm_node[]>();
 		int max_index = 0;
@@ -340,6 +325,5 @@ public class svm_train {
 				}
 			}
 
-		//fp.close();
 	}
 }
