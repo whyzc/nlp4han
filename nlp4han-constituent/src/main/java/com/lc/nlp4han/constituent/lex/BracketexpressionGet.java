@@ -6,13 +6,12 @@ import com.lc.nlp4han.constituent.lex.ConstituentParseLexPCFG.LexNode;
 
 public class BracketexpressionGet
 {
-	private StringBuilder strBuilder;
+	private StringBuilder strBuilder=new StringBuilder();
 	private LexNode[][] chart;
 	private int n;
 
-	public BracketexpressionGet(StringBuilder strBuilder, LexNode[][] chart, int n)
+	public BracketexpressionGet(LexNode[][] chart, int n)
 	{
-		this.strBuilder = strBuilder;
 		this.chart = chart;
 		this.n = n;
 	}
@@ -38,6 +37,7 @@ public class BracketexpressionGet
 
 	private void getParseResultString(Edge edge)
 	{
+		System.out.println(edge.toString());
 		if (edge.isStop())
 		{
 			strBuilder.append("(");
@@ -61,6 +61,11 @@ public class BracketexpressionGet
 		}
 		else
 		{// 若该edge两侧的stop不为true,无论有几个孩子都直接忽略
+/*			try {
+				Edge edge3=edge.getChildren().get(0);
+			}catch(NullPointerException e) {
+				System.out.println(edge.toString());
+			}*/
 			for (Edge edge1 : edge.getChildren())
 			{
 				getParseResultString(edge1);

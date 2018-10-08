@@ -13,6 +13,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 {
 	private LexNode[][] chart = null;
 	private LexPCFG lexpcfg = null;
+	private ArrayList<Edge> tempEdgeList = new ArrayList<Edge>();
 
 	public ConstituentParseLexPCFG(LexPCFG lexpcfg)
 	{
@@ -110,17 +111,26 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 */
 	private ArrayList<String> parseLex(String[] words, String[] poses, int k)
 	{
+		//初始化
 		initializeChart(words, poses);
 		int n = words.length;
+        
+		//填充chart图中的边
 		for (int span = 2; span < words.length; span++)
 		{
-			for (int i = 1; i < n - span + 1; i++)
+			for (int i = 0; i < n - span; i++)
 			{
 				int j = i + span - 1;
 				fillEdgeOfChart(i, j);
 			}
 		}
-		return null;
+
+		/*
+		 * for (int i = 0; i < n; i++) { for (int j = 1; j <= n; j++) { if (j >= i + 1)
+		 * { for (Edge edge : chart[i][j].getEdgeMap().keySet()) {
+		 * System.out.println(edge.toString()); } } } }
+		 */
+		return new BracketexpressionGet(chart, words.length).bracketexpressionGet();
 	}
 
 	/**
@@ -145,10 +155,10 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 				{
 					Distance lc = new Distance(true, false);
 					Distance rc = new Distance(true, false);
-					Edge edge = new Edge(poses[i], null, words[i], poses[i], i + 1, i + 1, lc, rc, true, 1.0, null);
+					Edge edge = new Edge(poses[i], null, words[i], poses[i], i, i + 1, lc, rc, true, 1.0, null);
 					chart[i][j].setFlag(true);
-					addSinglesAndStops(i, j);
 					chart[i][j].getEdgeMap().put(edge, 1.0);
+					addSinglesAndStops(i, j);
 				}
 			}
 		}
@@ -173,10 +183,17 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 		// 添加单元规则
 		for (i = 1; i < 4; i++)
 		{
+			for (Edge edge : tempEdgeList)
+			{
+				map.put(edge, edge.getPro());
+			}
+			tempEdgeList.removeAll(tempEdgeList);
 			for (Edge edge : map.keySet())
 			{
-				addSingle(edge);
-				addStop(edge);
+				if (edge.isStop())
+				{
+					addSingle(edge);
+				}
 			}
 		}
 	}
@@ -191,6 +208,10 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 		RuleHeadChildGenerate rhcg = new RuleHeadChildGenerate(edge.getLabel(), null, edge.getHeadPOS(),
 				edge.getHeadWord());
 		HashSet<String> parentSet = lexpcfg.getParentSet(rhcg);
+		if (parentSet == null)
+		{// 若没有可以向上延伸的则直接返回
+			return;
+		}
 		for (String str : parentSet)
 		{
 			ArrayList<Edge> children = new ArrayList<Edge>();
@@ -199,10 +220,12 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 			Distance rc = new Distance(true, false);
 			int start = edge.getStart();
 			int end = edge.getEnd();
-			double pro = lexpcfg.getGeneratePro(rhcg, "head");
+			rhcg.setParentLabel(str);
+			double pro = lexpcfg.getGeneratePro(rhcg, "head") * edge.getPro();
 			Edge e1 = new Edge(str, edge.getLabel(), edge.getHeadWord(), edge.getHeadPOS(), start, end, lc, rc, false,
 					pro, children);
 			addEdge(e1, start, end);
+			addStop(e1);
 		}
 	}
 
@@ -215,11 +238,11 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 */
 	private void addEdge(Edge edge, int start, int end)
 	{
-		if (chart[start][end].getEdgeMap().get(edge) < edge.getPro())
+		if (!chart[start][end].getEdgeMap().containsKey(edge)
+				|| chart[start][end].getEdgeMap().get(edge) < edge.getPro())
 		{
-			chart[start][end].getEdgeMap().put(edge, edge.getPro());
+			tempEdgeList.add(edge);
 		}
-
 	}
 
 	/**
@@ -229,11 +252,20 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 */
 	private void addStop(Edge edge)
 	{
+		// 分别初始化两侧的stop规则
 		RuleStopGenerate rsg1 = new RuleStopGenerate(edge.getHeadLabel(), edge.getLabel(), edge.getHeadPOS(),
 				edge.getHeadWord(), 1, true, edge.getLc());
 		RuleStopGenerate rsg2 = new RuleStopGenerate(edge.getHeadLabel(), edge.getLabel(), edge.getHeadPOS(),
 				edge.getHeadWord(), 2, true, edge.getRc());
+
+		// 将原始概率与两侧规则的概率相乘即可得
 		double pro = edge.getPro() * lexpcfg.getGeneratePro(rsg1, "stop") * lexpcfg.getGeneratePro(rsg2, "stop");
+		// 如果概率为零则不添加
+		if (pro == 0)
+		{
+			return;
+		}
+
 		Edge e1 = new Edge(edge.getLabel(), edge.getHeadLabel(), edge.getHeadWord(), edge.getHeadPOS(), edge.getStart(),
 				edge.getEnd(), edge.getLc(), edge.getRc(), true, pro, edge.getChildren());
 		addEdge(e1, e1.getStart(), e1.getEnd());
@@ -249,7 +281,11 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 */
 	private void fillEdgeOfChart(int i, int j)
 	{
-		for (int split = i; split < j; split++)
+		if ((j - i) <= 1)
+		{// 矩阵中下三角不用合并两侧
+			return;
+		}
+		for (int split = i + 1; split < j; split++)
 		{
 			HashMap<Edge, Double> map1 = chart[i][split].getEdgeMap();
 			HashMap<Edge, Double> map2 = chart[split][j].getEdgeMap();
