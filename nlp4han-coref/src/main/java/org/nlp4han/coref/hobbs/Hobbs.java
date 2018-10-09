@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.nlp4han.coref.AnaphoraResolution;
 import org.nlp4han.coref.centering.CenteringBFP;
 
 import com.lc.nlp4han.constituent.TreeNode;

@@ -1,4 +1,4 @@
-package org.nlp4han.coref.hobbs;
+package org.nlp4han.coref;
 
 import java.util.List;
 import java.util.Map;
