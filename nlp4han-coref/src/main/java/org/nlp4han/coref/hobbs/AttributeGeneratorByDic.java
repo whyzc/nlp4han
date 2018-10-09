@@ -61,6 +61,7 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 	public Set<Gender> getGender(TreeNode treeNode)
 	{
 		Set<Gender> result = new HashSet<Gender>();
+		// 非动物性无性别
 		if (this.attribute != null && attribute.getAnimacy().size() > 0)
 		{
 			if (this.attribute.getAnimacy().contains(Animacy.INANIMACY))
@@ -77,6 +78,7 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 				return result;
 			}
 		}
+		
 		try
 		{
 			String value = null;
@@ -280,6 +282,7 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 					}
 				}
 			}
+			
 			if (value != null)
 			{
 				String[] values = value.split("_");
