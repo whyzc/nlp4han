@@ -19,7 +19,7 @@ public class LexPCFG
 {
 	// 句法树的起始符，该值为预处理句子时设置的起始符ROOT
 	private String StartSymbol = null;
-	
+
 	// 词性标注集
 	private HashSet<String> posSet = new HashSet<String>();
 
@@ -51,7 +51,7 @@ public class LexPCFG
 	 * 
 	 * @param in
 	 * @param encoding
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public LexPCFG(InputStream in, String encoding) throws IOException
 	{
@@ -64,77 +64,80 @@ public class LexPCFG
 		buffer.readLine();
 		str = buffer.readLine().trim();
 		while (!str.equals("--POS-Word集--"))
-		{//添加词性标注集
+		{// 添加词性标注集
 			posSet.add(str);
 			str = buffer.readLine().trim();
 		}
 		str = buffer.readLine();
 		while (!str.equals("--生成头结点的规则集--"))
-		{//POS-Word集
-			String[] strs=str.split(" ");
-			wordMap.put(new WordAndPOS(strs[0],strs[1]), Integer.parseInt(strs[2]));
-			if(str.equals("M null 14050")) {
-				System.out.println(wordMap.get(new WordAndPOS("M","null")));
-			}
+		{// POS-Word集
+			String[] strs = str.split(" ");
+			wordMap.put(new WordAndPOS(strs[0], strs[1]), Integer.parseInt(strs[2]));
 			str = buffer.readLine().trim();
 		}
 		str = buffer.readLine();
 		while (!str.equals("--头结点向上延伸的标记集--"))
-		{//生成头结点的规则集
-			String[] strs=str.split(" ");
-			int amount=Integer.parseInt(strs[strs.length-2]);
-			int sort=Integer.parseInt(strs[strs.length-1]);
-			headGenMap.put(new RuleHeadChildGenerate(strs), new AmountAndSort(amount,sort));
+		{// 生成头结点的规则集
+			String[] strs = str.split(" ");
+			int amount = Integer.parseInt(strs[strs.length - 2]);
+			int sort = Integer.parseInt(strs[strs.length - 1]);
+			headGenMap.put(new RuleHeadChildGenerate(strs), new AmountAndSort(amount, sort));
 			str = buffer.readLine();
 		}
 		str = buffer.readLine();
 		while (!str.equals("--生成两侧孩子的规则集--"))
-		{//头结点向上延伸的标记集
-			String[] strs=str.split(" ");
-            HashSet<String> set=new HashSet<String>();
-            for(int i=4;i<strs.length;i++) {
-            	set.add(strs[i]);
-            }
+		{// 头结点向上延伸的标记集
+			String[] strs = str.split(" ");
+			HashSet<String> set = new HashSet<String>();
+			for (int i = 4; i < strs.length; i++)
+			{
+				set.add(strs[i]);
+			}
 			parentList.put(new RuleHeadChildGenerate(strs), set);
 			str = buffer.readLine();
 		}
 		str = buffer.readLine();
 		while (!str.equals("--生成两侧Stop的规则集--"))
-		{//生成两侧孩子的规则集
-			String[] strs=str.split(" ");
-			int amount=Integer.parseInt(strs[strs.length-2]);
-			int sort=Integer.parseInt(strs[strs.length-1]);
-			sidesGenMap.put(new RuleSidesGenerate(strs), new AmountAndSort(amount,sort));
+		{// 生成两侧孩子的规则集
+			String[] strs = str.split(" ");
+			int amount = Integer.parseInt(strs[strs.length - 2]);
+			int sort = Integer.parseInt(strs[strs.length - 1]);
+			sidesGenMap.put(new RuleSidesGenerate(strs), new AmountAndSort(amount, sort));
 			str = buffer.readLine();
 		}
 		str = buffer.readLine();
 		while (!str.equals("--特殊规则集--"))
-		{//生成两侧Stop的规则集
-			String[] strs=str.split(" ");
-			int amount=1;
-			try {
-				amount=Integer.parseInt(strs[strs.length-2]);
-			}catch(ArrayIndexOutOfBoundsException e){
-				for(String str1:strs) {
+		{// 生成两侧Stop的规则集
+			String[] strs = str.split(" ");
+			int amount = 1;
+			try
+			{
+				amount = Integer.parseInt(strs[strs.length - 2]);
+			}
+			catch (ArrayIndexOutOfBoundsException e)
+			{
+				for (String str1 : strs)
+				{
 					System.out.print(str1);
 				}
 			}
-			int sort=Integer.parseInt(strs[strs.length-1]);
-			stopGenMap.put(new RuleStopGenerate(strs), new AmountAndSort(amount,sort));
+			int sort = Integer.parseInt(strs[strs.length - 1]);
+			stopGenMap.put(new RuleStopGenerate(strs), new AmountAndSort(amount, sort));
 			str = buffer.readLine();
 		}
 		str = buffer.readLine();
-		while (str!=null)
-		{//特殊规则集
+		while (str != null)
+		{// 特殊规则集
 			System.out.println("空的出现错误");
-			String[] strs=str.split(" ");
-			int amount=Integer.parseInt(strs[strs.length-2]);
-			int sort=Integer.parseInt(strs[strs.length-1]);
-			specialGenMap.put(new RuleSpecialCase(strs), new AmountAndSort(amount,sort));
+			String[] strs = str.split(" ");
+			int amount = Integer.parseInt(strs[strs.length - 2]);
+			int sort = Integer.parseInt(strs[strs.length - 1]);
+			specialGenMap.put(new RuleSpecialCase(strs), new AmountAndSort(amount, sort));
 			str = buffer.readLine();
 		}
 		buffer.close();
 	}
+
 	/**
 	 * 得到词性标注集合
 	 * 
@@ -164,7 +167,6 @@ public class LexPCFG
 	public HashSet<String> getParentSet(RuleHeadChildGenerate rhcg)
 	{
 		return parentList.get(rhcg);
-
 	}
 
 	/**
@@ -250,28 +252,33 @@ public class LexPCFG
 	private double getProOfBackOff(RuleCollins rule, HashMap<RuleCollins, AmountAndSort> map, String type)
 	{
 		double e1, e2, e3, w1, w2;
-		double[] pw1 = getProAndWeight(rule, map, type);
-		e1 = pw1[0];
-		w1 = pw1[1];
-
-		rule.setHeadPOS(null);
-		double[] pw2 = getProAndWeight(rule, map, type);
-		e2 = pw2[0];
-		w2 = pw2[1];
-
-		rule.setHeadWord(null);
+		e3 = 0;
 		if (type.equals("2side"))
 		{
-			RuleSidesGenerate sideRule = (RuleSidesGenerate) rule;
-			e3 = wordMap.get(new WordAndPOS(sideRule.getHeadWord(), sideRule.getHeadPOS()))
-					/ wordMap.get(new WordAndPOS(null, sideRule.getHeadPOS()));
-		}
-		else
-		{
-			double[] pw3 = getProAndWeight(rule, map, type);
-			e3 = pw3[0];
+			e3 = wordMap.get(new WordAndPOS(rule.getHeadWord(), rule.getHeadPOS()))
+					/ wordMap.get(new WordAndPOS(null, rule.getHeadPOS()));
 		}
 
+		double[] pw1 = getProAndWeight(rule, map, type);
+		if (type.equals("stop"))
+		{
+			System.out.println(rule.toString());
+			System.out.println("生成stop的概率===" + pw1[0] + "  " + pw1[1]);
+		}
+		e1 = pw1[1];
+		w1 = pw1[0];
+
+		rule.setHeadWord(null);
+		double[] pw2 = getProAndWeight(rule, map, type);
+		e2 = pw2[1];
+		w2 = pw2[0];
+
+		rule.setHeadPOS(null);
+		if (!type.equals("2side"))
+		{
+			double[] pw3 = getProAndWeight(rule, map, type);
+			e3 = pw3[1];
+		}
 		return w1 * e1 + (1 - w1) * (w2 * e2 + (1 - w2) * e3);
 	}
 
@@ -282,7 +289,7 @@ public class LexPCFG
 	 */
 	private double[] getProAndWeight(RuleCollins rhcg, HashMap<RuleCollins, AmountAndSort> map, String type)
 	{
-		int x,y,u;
+		int x, y, u;
 		double[] pw = new double[2];
 		if (map.get(rhcg) == null)
 		{
@@ -292,37 +299,57 @@ public class LexPCFG
 		else
 		{
 			x = map.get(rhcg).getAmount();
-			switch(type) {
+			switch (type)
+			{
 			case "head":
-				   RuleHeadChildGenerate rhcg1=(RuleHeadChildGenerate)rhcg;
-				   rhcg1.setHeadLabel(null);
-					y = map.get(rhcg1).getAmount();
-					u = map.get(rhcg1).getSort();
-				   break;
+				RuleHeadChildGenerate rhcg1 = (RuleHeadChildGenerate) rhcg;
+				rhcg1 = new RuleHeadChildGenerate(rhcg1.getHeadLabel(), rhcg1.getParentLabel(), rhcg1.getHeadPOS(),
+						rhcg1.getHeadWord());
+				rhcg1.setHeadLabel(null);
+				y = map.get(rhcg1).getAmount();
+				u = map.get(rhcg1).getSort();
+				break;
 			case "1side":
-				RuleSidesGenerate rsg1=(RuleSidesGenerate)rhcg;
-				   rsg1.setSideLabel(null);
-				   rsg1.setSideHeadPOS(null);
-					y = map.get(rsg1).getAmount();
-					u = map.get(rsg1).getSort();
-				   break;
+				RuleSidesGenerate rsg1 = (RuleSidesGenerate) rhcg;
+				rsg1 = new RuleSidesGenerate(rsg1.getHeadLabel(), rsg1.getParentLabel(), rsg1.getHeadPOS(),
+						rsg1.getHeadWord(), rsg1.getDirection(), rsg1.getSideLabel(), rsg1.getSideHeadPOS(),
+						rsg1.getSideHeadWord(), rsg1.getCoor(), rsg1.getPu(), rsg1.getDistance());
+				rsg1.setSideLabel(null);
+				rsg1.setSideHeadPOS(null);
+				y = map.get(rsg1).getAmount();
+				u = map.get(rsg1).getSort();
+				break;
 			case "2side":
-				RuleSidesGenerate rsg2=(RuleSidesGenerate)rhcg;
-				  rsg2.setSideHeadWord(null);
-					y = map.get(rsg2).getAmount();
-					u = map.get(rsg2).getSort();
-				   break;
+				RuleSidesGenerate rsg2 = (RuleSidesGenerate) rhcg;
+				rsg2 = new RuleSidesGenerate(rsg2.getHeadLabel(), rsg2.getParentLabel(), rsg2.getHeadPOS(),
+						rsg2.getHeadWord(), rsg2.getDirection(), rsg2.getSideLabel(), rsg2.getSideHeadPOS(),
+						rsg2.getSideHeadWord(), rsg2.getCoor(), rsg2.getPu(), rsg2.getDistance());
+				rsg2.setSideHeadWord(null);
+				y = map.get(rsg2).getAmount();
+				u = map.get(rsg2).getSort();
+				break;
 			case "stop":
-				RuleStopGenerate rsg3=(RuleStopGenerate)rhcg;
-				   rsg3.setHeadLabel(null);
-					y = map.get(rsg3).getAmount();
-					u = map.get(rsg3).getSort();
-				   break;
+				y = 0;
+				RuleStopGenerate rsg3 = (RuleStopGenerate) rhcg;
+				rsg3 = new RuleStopGenerate(rsg3.getHeadLabel(), rsg3.getParentLabel(), rsg3.getHeadPOS(),
+						rsg3.getHeadWord(), rsg3.getDirection(), true, rsg3.getDistance());
+				RuleStopGenerate rsg4 = new RuleStopGenerate(rsg3.getHeadLabel(), rsg3.getParentLabel(),
+						rsg3.getHeadPOS(), rsg3.getHeadWord(), rsg3.getDirection(), false, rsg3.getDistance());
+				if (map.containsKey(rsg3))
+				{
+					y += map.get(rsg3).getAmount();
+				}
+				if (map.containsKey(rsg4))
+				{
+					y += map.get(rsg4).getAmount();
+				}
+				u = 2;
+				break;
 			default:
-				y=0;
-				u=0;
+				y = 0;
+				u = 0;
 			}
-			pw[0] = 1.0 * x / (y + 5 * u);
+			pw[0] = 1.0 * y / (y + 5 * u);
 			pw[1] = 1.0 * x / y;
 		}
 		return pw;
@@ -481,9 +508,10 @@ public class LexPCFG
 		for (RuleCollins rule : set1)
 		{
 			RuleHeadChildGenerate rule1 = (RuleHeadChildGenerate) rule;
-			stb.append(rule1.toString() + " " );
-			for(String str:parentList.get(rule1)) {
-				stb.append(str.toString()+" ");
+			stb.append(rule1.toString() + " ");
+			for (String str : parentList.get(rule1))
+			{
+				stb.append(str.toString() + " ");
 			}
 			stb.append('\n');
 		}
@@ -606,5 +634,5 @@ public class LexPCFG
 			return false;
 		return true;
 	}
-	
+
 }

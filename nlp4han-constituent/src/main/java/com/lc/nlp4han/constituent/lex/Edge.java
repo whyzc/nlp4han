@@ -217,4 +217,13 @@ public class Edge
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "Edge [label=" + label + ", headLabel=" + headLabel + ", headWord=" + headWord + ", headPOS=" + headPOS
+				+ ", start=" + start + ", end=" + end + ", lc=" + lc + ", rc=" + rc + ", stop=" + stop + ", pro=" + pro
+				+ ", children=" + children + "]";
+	}
+	
 }

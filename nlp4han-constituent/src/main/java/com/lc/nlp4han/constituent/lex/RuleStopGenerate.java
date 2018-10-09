@@ -29,6 +29,36 @@ public class RuleStopGenerate extends RuleHeadChildGenerate
 		this.distance = distance;
 	}
 
+	public int getDirection()
+	{
+		return direction;
+	}
+
+	public void setDirection(int direction)
+	{
+		this.direction = direction;
+	}
+
+	public boolean isStop()
+	{
+		return stop;
+	}
+
+	public void setStop(boolean stop)
+	{
+		this.stop = stop;
+	}
+
+	public Distance getDistance()
+	{
+		return distance;
+	}
+
+	public void setDistance(Distance distance)
+	{
+		this.distance = distance;
+	}
+
 	@Override
 	public int hashCode()
 	{

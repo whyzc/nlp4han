@@ -74,6 +74,7 @@ public class LexGrammarExtractor
 		if (node.getChildrenNum() == 1 && node.getChild(0).getChildrenNum() == 0)
 		{
 			posSet.add(node.getNodeName());
+						
 			WordAndPOS wap = new WordAndPOS(node.getNodeName(), node.getFirstChildName());
 			WordAndPOS pos = new WordAndPOS(node.getNodeName(), null);
 			if (!wordMap.containsKey(pos))
@@ -202,7 +203,7 @@ public class LexGrammarExtractor
 		String headWord = node.getHeadWord();
 		String headPOS = node.getHeadPos();
 		Distance leftDistance = getDistance(node, 1, headIndex, -1);// 左侧距离
-		Distance rightDistance = getDistance(node, 1, headIndex, node.getChildrenNum());// 右侧距离
+		Distance rightDistance = getDistance(node, 2, headIndex, node.getChildrenNum());// 右侧距离
 
 		getOneSideStopGRule(true, parentLabel, headLabel, headPOS, headWord, leftDistance, 1);// 左侧 Stop符号
 		getOneSideStopGRule(true, parentLabel, headLabel, headPOS, headWord, rightDistance, 2);// 右侧Stop符号
@@ -311,11 +312,12 @@ public class LexGrammarExtractor
 	 * 
 	 * @param node
 	 * @param direction
-	 * @param i
 	 * @param headIndex
+	 * @param i
+	 *                   左右两侧的距离，因为存在stop所以i的范围为[-1，n],n为孩子的数目
 	 * @return
 	 */
-	private Distance getDistance(HeadTreeNodeForCollins node, int direction, int i, int headIndex)
+	private Distance getDistance(HeadTreeNodeForCollins node, int direction, int headIndex, int i)
 	{
 		Distance distance = new Distance();
 		// 邻接
