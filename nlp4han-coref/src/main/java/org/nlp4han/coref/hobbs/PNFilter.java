@@ -5,7 +5,7 @@ import java.util.List;
 import com.lc.nlp4han.constituent.TreeNode;
 
 /**
- * 用于过滤中性词为代词的NP候选词
+ * 用于过滤中心词为代词的NP候选词
  * 
  * @author 杨智超
  *
