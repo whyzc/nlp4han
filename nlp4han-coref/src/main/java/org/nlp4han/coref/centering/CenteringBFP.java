@@ -24,8 +24,6 @@ import com.lc.nlp4han.constituent.TreeNode;
  */
 public class CenteringBFP implements AnaphoraResolution
 {
-	// private List<List<Entity>> entitiesOfUtterances = null; // 所有句子的实体集
-	// private List<TreeNode> rootNodesOfUtterances = null; // 所有句子的根结点集
 	public static String SEPARATOR = "->"; // 指代结果中的分隔符
 	private HashMap<String, List<String>> grammaticalRoleRuleSet = GrammaticalRoleRuleSet.getGrammaticalRoleRuleSet(); // 语法角色规则集
 	private CandidateFilter attributeFilter;
