@@ -20,6 +20,14 @@ public class BinaryRule extends Rule
 	}
 
 	
+	
+	@Override
+	public void split()
+	{
+	}
+
+
+
 	public boolean isSameRule(short parent, short lChild, short rChild)
 	{
 		if (this.parent == parent && this.leftChild == lChild && this.rightChild == rChild)

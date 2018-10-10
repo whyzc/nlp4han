@@ -4,9 +4,6 @@ import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -41,16 +38,60 @@ public class Grammar
 		// splitNonterminal(); //for all annotationTree
 		// splitRule();// get new scores for each splitted rule
 		// calculate Inner/outer Score for each Annotation of each tree
-
 		// EM -> new Rules
-
 		// calculate likelihood of hole treebank
+
+		// 分裂树库中树的Annotation
+		for (Tree<Annotation> tree : treeBank)
+		{
+			splitTreeAnnotation(tree);
+		}
+
+		// 修改记录每个非终结符分裂后的个数的数组
+		for (int i = 0; i < nonterminalTable.getNumSubsymbolArr().size(); i++)
+		{
+			nonterminalTable.getNumSubsymbolArr().add(i, (short) (2 * nonterminalTable.getNumSubsymbolArr().get(i)));
+		}
+
+		// splitRule();
+
+		EM();
+	}
+
+	/**
+	 * 修改该分裂后的规则的概率
+	 * 
+	 * @param rule
+	 */
+	public void splitRule(Rule rule)
+	{
+		rule.split();
+	}
+
+	public void splitTreeAnnotation(Tree<Annotation> tree)
+	{
+		if (tree == null)
+			return;
+		if (tree.isLeaf())
+			return;
+		tree.getLabel().setNumSubSymbol((short) (tree.getLabel().getNumSubSymbol() * 2));
+		for (Tree<Annotation> child : tree.getChildren())
+		{
+			splitTreeAnnotation(child);
+		}
 	}
 
 	public void merger()
 	{
 		// assume a nonterminal without split
 
+	}
+
+	/**
+	 * 将分裂后的语法期望最大化，得到新的规则
+	 */
+	public void EM()
+	{
 	}
 
 	public double calculateLikelihood()
@@ -68,7 +109,7 @@ public class Grammar
 			String leftChildStr = nonterminalTable.stringValue(bRule.getLeftChild());
 			String rightChildStr = nonterminalTable.stringValue(bRule.getRightChild());
 			Double score = bRule.scores.get(0).get(0).get(0);
-			allBAndURules.put(parentStr + " ->" + leftChildStr + " " +rightChildStr, score);
+			allBAndURules.put(parentStr + " ->" + leftChildStr + " " + rightChildStr, score);
 		}
 		for (UnaryRule uRule : uRules)
 		{
@@ -94,11 +135,11 @@ public class Grammar
 		BufferedWriter preRuleWriter = new BufferedWriter(osw2);
 		for (Map.Entry<String, Double> entry : allBAndURules.entrySet())
 		{
-			bAndURuleWriter.write(entry.getKey() + " " + entry.getValue().toString()+"\r");
+			bAndURuleWriter.write(entry.getKey() + " " + entry.getValue().toString() + "\r");
 		}
 		for (Map.Entry<String, Double> entry : allPreRules.entrySet())
 		{
-			preRuleWriter.write(entry.getKey() + " " + entry.getValue().toString()+"\r");
+			preRuleWriter.write(entry.getKey() + " " + entry.getValue().toString() + "\r");
 		}
 		bAndURuleWriter.close();
 		preRuleWriter.close();

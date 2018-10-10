@@ -8,6 +8,8 @@ public abstract class Rule
 {
 	protected short parent;
 	
+	public void split() {}
+	
 	public int hashCode()
 	{
 		final int prime = 31;

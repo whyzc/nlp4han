@@ -5,13 +5,13 @@ import java.util.HashMap;
 
 /**
  * @author 王宁
- * @version 创建时间：2018年9月24日 下午8:00:38 记录树中的标记和与之对应整数
+ * @version 创建时间：2018年9月24日 下午8:00:38 记录二叉化后得到的树中的标记（非终结符）和与之对应整数
  */
 public class NonterminalTable
 {
 	private HashMap<String, Short> str_intMap;// "ROOT" - 0
 	private HashMap<Short, String> int_strMap;
-	private short numSymbol;
+	private short numInitialSymbol;//二叉化后得到的所有非终结符个数
 	private ArrayList<Short> intValueOfPreterminalArr;
 	private ArrayList<Short> numSubsymbolArr;
 
@@ -19,7 +19,7 @@ public class NonterminalTable
 	{
 		str_intMap = new HashMap<String, Short>();
 		int_strMap = new HashMap<Short, String>();
-		numSymbol = 0;
+		numInitialSymbol = 0;
 		intValueOfPreterminalArr = new ArrayList<Short>();
 		numSubsymbolArr = new ArrayList<Short>();
 	}
@@ -53,11 +53,11 @@ public class NonterminalTable
 	{
 		if (hasSymbol(symbol))
 			return -1;
-		str_intMap.put(symbol, numSymbol);
-		int_strMap.put(numSymbol, symbol);
+		str_intMap.put(symbol, numInitialSymbol);
+		int_strMap.put(numInitialSymbol, symbol);
 		numSubsymbolArr.add((short) 1);
-		numSymbol++;
-		return (short) (numSymbol - 1);
+		numInitialSymbol++;
+		return (short) (numInitialSymbol - 1);
 	}
 
 	public short intValue(String symbol)
@@ -90,7 +90,7 @@ public class NonterminalTable
 
 	public short getNumSymbol()
 	{
-		return this.numSymbol;
+		return this.numInitialSymbol;
 	}
 
 	public ArrayList<Short> getIntValueOfPreterminalArr()

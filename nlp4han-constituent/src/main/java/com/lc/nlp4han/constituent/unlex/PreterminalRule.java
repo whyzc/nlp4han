@@ -17,6 +17,15 @@ public class PreterminalRule extends Rule
 		this.word = word;
 	}
 
+	
+	
+	@Override
+	public void split()
+	{
+	}
+
+
+
 	public int hashCode()
 	{
 		final int prime = 31;

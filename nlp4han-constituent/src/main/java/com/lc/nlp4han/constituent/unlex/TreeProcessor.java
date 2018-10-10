@@ -70,7 +70,7 @@ public class TreeProcessor
 	 * @param tree
 	 * @return Tree<String>
 	 */
-	public static Tree<String> getNormalTree(TreeNode treeNode)
+	public static Tree<String> getStringTree(TreeNode treeNode)
 	{
 		if (treeNode == null)
 			return null;
@@ -80,7 +80,7 @@ public class TreeProcessor
 		ArrayList<Tree<String>> children = new ArrayList<Tree<String>>(treeNode.getChildren().size());
 		for (TreeNode child : treeNode.getChildren())
 		{
-			children.add(getNormalTree(child));
+			children.add(getStringTree(child));
 		}
 		tree.setChildren(children);
 		return tree;
@@ -162,6 +162,43 @@ public class TreeProcessor
 		{
 			recoverBinaryTree(binaryTree.getChildren().get(i));
 		}
+	}
+
+	/**
+	 * 一棵树除了根节点以外，其他所有的节点均添加父节点的label
+	 * 
+	 * @param tree
+	 * @return 一棵树除了根节点以外，其他所有的节点均添加了父节点label的树
+	 */
+	public static Tree<String> addParentLabel(Tree<String> tree)
+	{
+		if (tree == null || tree.isLeaf())
+			return tree;
+		for (Tree<String> child : tree.getChildren())
+		{
+			addParentLabel(child);
+			child.setLabel(child.getLabel() + "^" + tree.getLabel());
+		}
+		return tree;
+	}
+
+	/**
+	 * 由带父节点label的树的得到不带父节点label的树
+	 * @param tree
+	 * @return 不带父节点label的树
+	 */
+	public static Tree<String> removeParentLabel(Tree<String> tree)
+	{
+		if (tree == null || tree.isLeaf())
+		{
+			return tree;
+		}
+		for (Tree<String> child : tree.getChildren())
+		{
+			removeParentLabel(child);
+		}
+		tree.setLabel(tree.getLabel().split("\\^")[0]);
+		return tree;
 	}
 
 	/**

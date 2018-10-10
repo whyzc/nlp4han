@@ -17,6 +17,15 @@ public class UnaryRule extends Rule
 		this.child = child;
 	}
 	
+	
+	
+	@Override
+	public void split()
+	{
+	}
+
+
+
 	public int hashCode()
 	{
 		final int prime = 31;

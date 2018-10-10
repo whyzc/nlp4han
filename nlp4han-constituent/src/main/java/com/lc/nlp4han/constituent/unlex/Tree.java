@@ -1,9 +1,7 @@
 package com.lc.nlp4han.constituent.unlex;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author 王宁
@@ -14,10 +12,6 @@ public class Tree<T>
 	private T label;
 	private List<Tree<T>> children;
 
-	// private static Map<String, Integer> wordStatistics;
-	// private static Map<Integer, Map<Rule, Integer>> ruleStatistics;
-
-	private static NonterminalTable nonterminalTable;
 
 	public Tree(T label)
 	{
