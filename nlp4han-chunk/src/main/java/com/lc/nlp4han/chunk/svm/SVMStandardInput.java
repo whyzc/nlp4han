@@ -49,11 +49,7 @@ public class SVMStandardInput
 
 		ObjectStream<Event> es = getEventStream(params[0], params[1], params[2], featureConf);
 
-		List<String> inputList = standardInput(es);
-
-		String[] input = new String[inputList.size()];
-
-		inputList.toArray(input);
+		String[] input = standardInput(es);
 
 		return input;
 	}
@@ -160,7 +156,7 @@ public class SVMStandardInput
 				docPath = args[i + 1];
 				i++;
 			}
-			else if ("-tag".equals(args[i]))
+			else if ("-label".equals(args[i]))
 			{
 				scheme = args[i + 1];
 				i++;
@@ -228,9 +224,9 @@ public class SVMStandardInput
 	/**
 	 * 生成SVM标准的输入格式
 	 */
-	private static List<String> standardInput(ObjectStream<Event> es)
+	public static String[] standardInput(ObjectStream<Event> es)
 	{
-		List<String> result = new ArrayList<String>();
+		List<String> inputList = new ArrayList<String>();
 
 		Event temp = null;
 
@@ -239,35 +235,39 @@ public class SVMStandardInput
 			while ((temp = es.read()) != null)
 			{
 				String sample = convert2StandardFormat(temp, Features);
-				result.add(sample);
+				inputList.add(sample);
 			}
 
-			es.close();
+
 		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
-		finally
-		{
+//		finally
+//		{
+//
+//			if (es != null)
+//			{
+//
+//				try
+//				{
+//					es.close();
+//				}
+//				catch (IOException e1)
+//				{
+//
+//				}
+//
+//			}
+//
+//		}
+		
+		String[] input = new String[inputList.size()];
 
-			if (es != null)
-			{
+		inputList.toArray(input);
 
-				try
-				{
-					es.close();
-				}
-				catch (IOException e1)
-				{
-
-				}
-
-			}
-
-		}
-
-		return result;
+		return input;
 	}
 
 	/**

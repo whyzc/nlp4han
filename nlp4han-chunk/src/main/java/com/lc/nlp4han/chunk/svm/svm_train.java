@@ -6,14 +6,37 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public class svm_train {
+	private static String usage = null;
 	private svm_parameter param;		// set by parse_command_line
 	private svm_problem prob;			// set by read_problem
 	private svm_model model;
 	private String input_file_name;		// set by parse_command_line
 	private String model_file_name;		// set by parse_command_line
 	private String error_msg;
-	private int cross_validation;
-	private int nr_fold;
+	
+	public static final String OPTIONS = "-model model_file : set model file path\n"
+			+"-s svm_type : set type of SVM (default 0)\n"
+			+"	0 -- C-SVC		(multi-class classification)\n"
+			+"	1 -- nu-SVC		(multi-class classification)\n"
+			+"	2 -- one-class SVM\n"
+			+"-t kernel_type : set type of kernel function (default 2)\n"
+			+"	0 -- linear: u'*v\n"
+			+"	1 -- polynomial: (gamma*u'*v + coef0)^degree\n"
+			+"	2 -- radial basis function: exp(-gamma*|u-v|^2)\n"
+			+"	3 -- sigmoid: tanh(gamma*u'*v + coef0)\n"
+			+"	4 -- precomputed kernel (kernel values in training_set_file)\n"
+			+"-d degree : set degree in kernel function (default 3)\n"
+			+"-g gamma : set gamma in kernel function (default 1/num_features)\n"
+			+"-r coef0 : set coef0 in kernel function (default 0)\n"
+			+"-c cost : set the parameter C of C-SVC, epsilon-SVR, and nu-SVR (default 1)\n"
+			+"-n nu : set the parameter nu of nu-SVC, one-class SVM, and nu-SVR (default 0.5)\n"
+			+"-p epsilon : set the epsilon in loss function of epsilon-SVR (default 0.1)\n"
+			+"-m cachesize : set cache memory size in MB (default 100)\n"
+			+"-e epsilon : set tolerance of termination criterion (default 0.001)\n"
+			+"-h shrinking : whether to use the shrinking heuristics, 0 or 1 (default 1)\n"
+			+"-b probability_estimates : whether to train a SVC or SVR model for probability estimates, 0 or 1 (default 0)\n"
+			+"-wi weight : set the parameter C of class i to weight*C, for C-SVC (default 1)\n"
+			+"-q : quiet mode (no outputs)\n";
 
 	private static svm_print_interface svm_print_null = new svm_print_interface()
 	{
@@ -22,49 +45,17 @@ public class svm_train {
 
 	private static void exit_with_help()
 	{
-		System.out.print(ChunkAnalysisSVMTrainerTool.USAGE);
+		System.out.print(usage);
 		System.exit(1);
 	}
-
-	private void do_cross_validation()
+	
+	public void setUsage(String usage)
 	{
-		int i;
-		int total_correct = 0;
-		double total_error = 0;
-		double sumv = 0, sumy = 0, sumvv = 0, sumyy = 0, sumvy = 0;
-		double[] target = new double[prob.l];
-
-		svm.svm_cross_validation(prob,param,nr_fold,target);
-		if(param.svm_type == svm_parameter.EPSILON_SVR ||
-		   param.svm_type == svm_parameter.NU_SVR)
-		{
-			for(i=0;i<prob.l;i++)
-			{
-				double y = prob.y[i];
-				double v = target[i];
-				total_error += (v-y)*(v-y);
-				sumv += v;
-				sumy += y;
-				sumvv += v*v;
-				sumyy += y*y;
-				sumvy += v*y;
-			}
-			System.out.print("Cross Validation Mean squared error = "+total_error/prob.l+"\n");
-			System.out.print("Cross Validation Squared correlation coefficient = "+
-				((prob.l*sumvy-sumv*sumy)*(prob.l*sumvy-sumv*sumy))/
-				((prob.l*sumvv-sumv*sumv)*(prob.l*sumyy-sumy*sumy))+"\n"
-				);
-		}
-		else
-		{
-			for(i=0;i<prob.l;i++)
-				if(target[i] == prob.y[i])
-					++total_correct;
-			System.out.print("Cross Validation Accuracy = "+100.0*total_correct/prob.l+"%\n");
-		}
+		this.usage = usage;
 	}
 
-	public void run(String argv[], String[] standardInput) throws IOException
+
+	public svm_model run(String argv[], String[] standardInput, boolean serialization) throws IOException
 	{
 		parse_command_line(argv);
 		read_problem(standardInput);
@@ -76,16 +67,20 @@ public class svm_train {
 			System.exit(1);
 		}
 
-		if(cross_validation != 0)
+		
+		model = svm.svm_train(prob,param);
+		if (serialization)
 		{
-			do_cross_validation();
-		}
-		else
-		{
-			model = svm.svm_train(prob,param);
 			svm.svm_save_model(model_file_name,model);
 			save_data_format_conversion(SVMStandardInput.getFeatureStructure() ,SVMStandardInput.getClassificationResults(), SVMStandardInput.getFeatures(), model_file_name+".dfc", "utf-8");
 		}
+		return model;
+		
+	}
+	
+	public svm_model run(String argv[], String[] standardInput) throws IOException
+	{
+		return run(argv, standardInput, true);
 	}
 
 	private void save_data_format_conversion(List<String> featureStructure, List<String> classificationResults, Map<String, Map<String, Integer>> features, String filePath, String encoding) throws IOException
@@ -170,7 +165,6 @@ public class svm_train {
 		param.nr_weight = 0;
 		param.weight_label = new int[0];
 		param.weight = new double[0];
-		cross_validation = 0;
 
 		// parse options
 		for(i=0;i<argv.length;i++)
@@ -220,15 +214,6 @@ public class svm_train {
 					print_func = svm_print_null;
 					i--;
 					break;
-				case "-v":
-					cross_validation = 1;
-					nr_fold = atoi(argv[i]);
-					if(nr_fold < 2)
-					{
-						System.err.print("n-fold cross validation: n must >= 2\n");
-						exit_with_help();
-					}
-					break;
 				case "-w":
 					++param.nr_weight;
 					{
@@ -252,10 +237,6 @@ public class svm_train {
 				case "-data":
 					input_file_name = argv[i];
 					break;
-					
-				default:
-					System.err.print("Unknown option: " + argv[i-1] + "\n");
-					exit_with_help();
 			}
 		}
 
