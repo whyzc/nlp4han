@@ -24,8 +24,6 @@ import com.lc.nlp4han.constituent.TreeNode;
  */
 public class CenteringBFP implements AnaphoraResolution
 {
-	private List<List<Entity>> entitiesOfUtterances = null; // 所有句子的实体集
-	private List<TreeNode> rootNodesOfUtterances = null; // 所有句子的根结点集
 	public static String SEPARATOR = "->"; // 指代结果中的分隔符
 	private HashMap<String, List<String>> grammaticalRoleRuleSet = GrammaticalRoleRuleSet.getGrammaticalRoleRuleSet(); // 语法角色规则集
 	private CandidateFilter attributeFilter;
@@ -36,23 +34,15 @@ public class CenteringBFP implements AnaphoraResolution
 	}
 
 	/**
-	 * 通过实体集和结构树创建类
-	 * 
-	 * @param entitiesOfUtterances
-	 * @param rootNodesOfUtterances
-	 */
-	public CenteringBFP(List<List<Entity>> entitiesOfUtterances, List<TreeNode> rootNodesOfUtterances)
-	{
-		this.entitiesOfUtterances = entitiesOfUtterances;
-		this.rootNodesOfUtterances = rootNodesOfUtterances;
-	}
-
-	/**
 	 * 运行BFP算法
 	 * 
-	 * @return
+	 * @param entitiesOfUtterances
+	 *            话语的实体集
+	 * @param rootNodesOfUtterances
+	 *            话语的结构树集
+	 * @return 生成消解后，新的实体集
 	 */
-	public List<List<Entity>> run()
+	private List<List<Entity>> run(List<List<Entity>> entitiesOfUtterances, List<TreeNode> rootNodesOfUtterances)
 	{
 		List<Center> centersOfUtterances = new ArrayList<Center>(); // Utterances的Center集合
 		if (entitiesOfUtterances.size() > 1)
@@ -73,8 +63,10 @@ public class CenteringBFP implements AnaphoraResolution
 	/**
 	 * 实体e是否为代词
 	 * 
-	 * @param e 待检测实体
-	 * @param root 实体e对应结点的根结点
+	 * @param e
+	 *            待检测实体
+	 * @param root
+	 *            实体e对应结点的根结点
 	 * @return
 	 */
 	private static boolean isPronoun(Entity e, TreeNode root)
@@ -110,25 +102,6 @@ public class CenteringBFP implements AnaphoraResolution
 	}
 
 	/**
-	 * 设置实体集
-	 * 
-	 * @param entitiesOfUtterances
-	 */
-	public void setEntitiesOfUtterances(List<List<Entity>> entitiesOfUtterances)
-	{
-		this.entitiesOfUtterances = entitiesOfUtterances;
-	}
-
-	/**
-	 * 设置句子的结构树
-	 * @param rootNodesOfUtterances
-	 */
-	public void setRootNodesOfUtterances(List<TreeNode> rootNodesOfUtterances)
-	{
-		this.rootNodesOfUtterances = rootNodesOfUtterances;
-	}
-
-	/**
 	 * 设置语法角色规则集
 	 * 
 	 * @param grammaticalRoleRuleSet
@@ -151,10 +124,14 @@ public class CenteringBFP implements AnaphoraResolution
 	/**
 	 * 生成话语的中心数值（Cb、Cf、Cp）
 	 * 
-	 * @param entitiesOfUi 当前会话的实体集
-	 * @param centerOfUi_1 前句会话的实体集
-	 * @param rootOfUi 当前会话的根节点
-	 * @param rootOfUi_1 前句会话的根节点
+	 * @param entitiesOfUi
+	 *            当前会话的实体集
+	 * @param centerOfUi_1
+	 *            前句会话的实体集
+	 * @param rootOfUi
+	 *            当前会话的根节点
+	 * @param rootOfUi_1
+	 *            前句会话的根节点
 	 * @return
 	 */
 	public Center generateCenter(List<Entity> entitiesOfUi, Center centerOfUi_1, TreeNode rootOfUi, TreeNode rootOfUi_1)
@@ -226,6 +203,7 @@ public class CenteringBFP implements AnaphoraResolution
 
 	/**
 	 * 得到实体集中的代词实体
+	 * 
 	 * @param entitiesOfUi
 	 * @param rootOfUi
 	 * @return
@@ -446,6 +424,7 @@ public class CenteringBFP implements AnaphoraResolution
 
 	/**
 	 * 根据会话的实体集与将其中的代词替换成先行词的实体后的实体集，得出以字符串形式表示的指代消解结果
+	 * 
 	 * @param oldEntitiesSet
 	 * @param newEntitiesSet
 	 * @return
@@ -479,8 +458,9 @@ public class CenteringBFP implements AnaphoraResolution
 		}
 		return result;
 	}
-	
-	public static Map<TreeNode, TreeNode> analysisResult(List<List<Entity>> oldEntitiesSet, List<List<Entity>> newEntitiesSet, List<TreeNode> rootNodesOfUtterances)
+
+	public static Map<TreeNode, TreeNode> analysisResult(List<List<Entity>> oldEntitiesSet,
+			List<List<Entity>> newEntitiesSet, List<TreeNode> rootNodesOfUtterances)
 	{
 		if (newEntitiesSet == null || oldEntitiesSet == null || newEntitiesSet.size() != oldEntitiesSet.size())
 			throw new RuntimeException("输入错误");
@@ -495,13 +475,11 @@ public class CenteringBFP implements AnaphoraResolution
 				{
 					TreeNode root1 = rootNodesOfUtterances.get(i);
 					TreeNode ponoun = TreeNodeUtil.getAllLeafNodes(root1).get(oldEntitiesSet.get(i).get(j).getSite());
-					
+
 					int index = oldEntitiesSet.get(i - 1).indexOf(newEntitiesSet.get(i).get(j));
 					Entity e = oldEntitiesSet.get(i - 1).get(index);
-					TreeNode root2 = rootNodesOfUtterances.get(i-1);
+					TreeNode root2 = rootNodesOfUtterances.get(i - 1);
 					TreeNode antecedent = TreeNodeUtil.getAllLeafNodes(root2).get(e.getSite());
-					
-					
 
 					result.put(ponoun, antecedent);
 				}
@@ -528,17 +506,15 @@ public class CenteringBFP implements AnaphoraResolution
 			eou.add(Entity.sort(Entity.entities(sentences.get(i), grammaticalRoleRuleSet)));
 		}
 
-		this.entitiesOfUtterances = eou;
-		this.rootNodesOfUtterances = sentences;
-		List<List<Entity>> newEntities = run();
-		Map<TreeNode, TreeNode> result = analysisResult(eou, newEntities, rootNodesOfUtterances);
+		List<List<Entity>> newEntities = run(eou, sentences);
+		Map<TreeNode, TreeNode> result = analysisResult(eou, newEntities, sentences);
 		return result;
 	}
 
 	@Override
 	public TreeNode resolve(List<TreeNode> sentences, TreeNode pronoun)
 	{
-		//TODO
+		// TODO
 		return null;
 	}
 
