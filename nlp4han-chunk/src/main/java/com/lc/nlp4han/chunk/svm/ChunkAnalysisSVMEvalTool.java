@@ -1,11 +1,8 @@
 package com.lc.nlp4han.chunk.svm;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisMeasure;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.chunk.AbstractChunkSampleParser;
@@ -17,9 +14,6 @@ import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIEOS;
 import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIO;
 import com.lc.nlp4han.chunk.svm.libsvm.svm;
 import com.lc.nlp4han.chunk.svm.libsvm.svm_model;
-import com.lc.nlp4han.chunk.word.ChunkAnalysisSequenceValidatorBIEO;
-import com.lc.nlp4han.chunk.word.ChunkAnalysisSequenceValidatorBIEOS;
-import com.lc.nlp4han.chunk.word.ChunkAnalysisSequenceValidatorBIO;
 import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosContextGeneratorConf;
 import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosParserBIEO;
 import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosParserBIEOS;
@@ -28,7 +22,6 @@ import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosSampleStream;
 import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 import com.lc.nlp4han.ml.util.PlainTextByLineStream;
-import com.lc.nlp4han.ml.util.SequenceValidator;
 
 public class ChunkAnalysisSVMEvalTool
 {
@@ -37,6 +30,7 @@ public class ChunkAnalysisSVMEvalTool
 			+"-data training_set_file : set training set file path\n"
 			+"-encoding encoding : set encoding form\n"
 			+"-model model_file : set model path\n"
+			+"-transform transformation_file : set transformation file, end with '.dfc' "
 			;
 	
 	public static void eval(String modelFile, String goldFile, String path, String encoding, File errorFile,
@@ -78,7 +72,7 @@ public class ChunkAnalysisSVMEvalTool
 		String usage = USAGE;
 		String encoding = "utf-8";
 		String scheme = "BIEOS";
-		String format = null;
+		String transformationFile = null;
 		String modelpath = null;
 		String errorFile = null;
 		String goldFile = null;
@@ -95,9 +89,9 @@ public class ChunkAnalysisSVMEvalTool
 				scheme = args[i + 1];
 				i++;
 			}
-			else if ("-format".equals(args[i]))
+			else if ("-transform".equals(args[i]))
 			{
-				format = args[i + 1];
+				transformationFile = args[i + 1];
 				i++;
 			}
 			else if ("-modelpath".equals(args[i]))
@@ -152,9 +146,9 @@ public class ChunkAnalysisSVMEvalTool
 		}
 
 		if (errorFile != null)
-			eval(modelpath, goldFile, format, encoding, new File(errorFile), parse, measure, scheme);
+			eval(modelpath, goldFile, transformationFile, encoding, new File(errorFile), parse, measure, scheme);
 		else
-			eval(modelpath, goldFile, format, encoding, null, parse, measure, scheme);
+			eval(modelpath, goldFile, transformationFile, encoding, null, parse, measure, scheme);
 
 	}
 }

@@ -9,13 +9,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.chunk.Chunk;
 import com.lc.nlp4han.chunk.ChunkAnalysisContextGenerator;
 import com.lc.nlp4han.chunk.Chunker;
 import com.lc.nlp4han.chunk.svm.libsvm.svm_model;
 import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosSample;
+import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosSampleEvent;
+import com.lc.nlp4han.ml.model.Event;
+import com.lc.nlp4han.ml.util.ObjectStream;
 
 public class ChunkAnalysisSVMME implements Chunker
 {
@@ -26,16 +28,57 @@ public class ChunkAnalysisSVMME implements Chunker
 	private svm_model model;
 	private String label;
 	
+	public ChunkAnalysisSVMME()
+	{
+		
+	}
 	public ChunkAnalysisSVMME(ChunkAnalysisContextGenerator contextgenerator, svm_model model, String filePath, String label)
+	{
+		this(contextgenerator, model, label);
+		init(filePath);
+	}
+	
+	public ChunkAnalysisSVMME(ChunkAnalysisContextGenerator contextgenerator, svm_model model, String label)
 	{
 		super();
 		this.contextgenerator = contextgenerator;
 		this.model = model;
 		this.label = label;
-		init(filePath);
+	}
+	
+	public List<String> getFeatureStructure()
+	{
+		return FeatureStructure;
+	}
+	
+	public List<String> getClassificationResults()
+	{
+		return ClassificationResults;
+	}
+	
+	public Map<String, Map<String, Integer>> getFeatures()
+	{
+		return Features;
+	}
+	
+	/**
+	 * 直接初始化用于将文本转换成svm输入格式的三个参数
+	 * @param FeatureStructure
+	 * @param ClassificationResults
+	 * @param Features
+	 */
+	public void init(List<String> FeatureStructure, List<String> ClassificationResults, Map<String, Map<String, Integer>> Features)
+	{
+		this.Features = Features;
+		this.FeatureStructure = FeatureStructure;
+		this.ClassificationResults = ClassificationResults;
 	}
 
-	private void init(String filePath)
+	/**
+	 * 从文件中初始化用于将文本转换成svm输入格式的三个参数
+	 * @param filePath
+	 */
+	public void init(String filePath)
 	{
 		FileInputStream fis = null;
 		BufferedReader reader = null;
@@ -231,10 +274,16 @@ public class ChunkAnalysisSVMME implements Chunker
 		return Integer.valueOf(str.trim().split("\\.")[0]);
 	}
 	
-	private double str2dou(String str)
+	public svm_model train(ObjectStream<AbstractChunkAnalysisSample> sampleStream, String[] arg,
+			ChunkAnalysisContextGenerator contextGen) throws IOException
 	{
-		return Double.valueOf(str.trim());
+		ObjectStream<Event> es = new ChunkAnalysisWordPosSampleEvent(sampleStream, contextGen);
+		String[] input = SVMStandardInput.standardInput(es);
+		init(SVMStandardInput.getFeatureStructure(), SVMStandardInput.getClassificationResults(), SVMStandardInput.getFeatures());
+		
+		svm_train t = new svm_train();
+		svm_model m = t.run(arg, input, false);
+		return m;
+		
 	}
-	
-
 }

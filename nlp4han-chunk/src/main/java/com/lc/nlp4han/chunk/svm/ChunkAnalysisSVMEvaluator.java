@@ -4,9 +4,6 @@ import java.io.IOException;
 
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisMeasure;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
-import com.lc.nlp4han.chunk.ChunkAnalysisEvaluateMonitor;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosEvaluator;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosME;
 import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosSample;
 import com.lc.nlp4han.ml.util.EvaluationMonitor;
 import com.lc.nlp4han.ml.util.Evaluator;
