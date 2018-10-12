@@ -68,32 +68,31 @@ public class ConstituentParserME implements ConstituentParser
 		return constituent;
 	}
 
-//	/**
-//	 * 得到最好的成分树
-//	 * 
-//	 * @param words
-//	 *            分词序列
-//	 * @return
-//	 */
-//	@Override
-//	public ConstituentTree parse(String[] words)
-//	{
-//		List<HeadTreeNode> postree = postagger.posTree(words);
-//		
-//		List<List<HeadTreeNode>> postrees = new ArrayList<>();
-//		postrees.add(postree);
-//		
-//		List<HeadTreeNode> chunkTree = chunktagger.tagChunk(postrees, null);
-//		List<List<HeadTreeNode>> kchunkTree = new ArrayList<>();
-//		kchunkTree.add(chunkTree);
-//		
-//		HeadTreeNode headTreeNode = buildAndChecktagger.tagBuildAndCheck(kchunkTree, null);
-//		
-//		ConstituentTree constituent = new ConstituentTree();
-//		constituent.setRoot(headTreeNode);
-//		
-//		return constituent;
-//	}
+	/**
+	 * 得到最好的成分树
+	 * 
+	 * @param words
+	 *            分词序列
+	 * @return
+	 */
+	public ConstituentTree parse(String[] words)
+	{
+		List<HeadTreeNode> postree = postagger.posTree(words);
+		
+		List<List<HeadTreeNode>> postrees = new ArrayList<>();
+		postrees.add(postree);
+		
+		List<HeadTreeNode> chunkTree = chunktagger.tagChunk(postrees, null);
+		List<List<HeadTreeNode>> kchunkTree = new ArrayList<>();
+		kchunkTree.add(chunkTree);
+		
+		HeadTreeNode headTreeNode = buildAndChecktagger.tagBuildAndCheck(kchunkTree, null);
+		
+		ConstituentTree constituent = new ConstituentTree();
+		constituent.setRoot(headTreeNode);
+		
+		return constituent;
+	}
 
 	/**
 	 * 得到最好的K个成分树
@@ -130,28 +129,27 @@ public class ConstituentParserME implements ConstituentParser
 		return constituent.toArray(new ConstituentTree[constituent.size()]);
 	}
 
-//	/**
-//	 * 得到最好的K个成分树
-//	 * 
-//	 * @param words
-//	 *            分词序列
-//	 * @param k
-//	 *            最好的K个结果
-//	 * @return
-//	 */
-//	@Override
-//	public ConstituentTree[] parse(String[] words, int k)
-//	{
-//		List<List<HeadTreeNode>> postree = postagger.posTree(words, k);
-//		List<List<HeadTreeNode>> chunkTree = chunktagger.tagKChunk(k, postree, null);
-//		List<HeadTreeNode> headTreeNode = buildAndChecktagger.tagBuildAndCheck(k, chunkTree, null);
-//		List<ConstituentTree> constituent = new ArrayList<>();
-//		for (int i = 0; i < headTreeNode.size(); i++)
-//		{
-//			ConstituentTree con = new ConstituentTree();
-//			con.setRoot(headTreeNode.get(i));
-//			constituent.add(con);
-//		}
-//		return constituent.toArray(new ConstituentTree[constituent.size()]);
-//	}
+	/**
+	 * 得到最好的K个成分树
+	 * 
+	 * @param words
+	 *            分词序列
+	 * @param k
+	 *            最好的K个结果
+	 * @return
+	 */
+	public ConstituentTree[] parse(String[] words, int k)
+	{
+		List<List<HeadTreeNode>> postree = postagger.posTree(words, k);
+		List<List<HeadTreeNode>> chunkTree = chunktagger.tagKChunk(k, postree, null);
+		List<HeadTreeNode> headTreeNode = buildAndChecktagger.tagBuildAndCheck(k, chunkTree, null);
+		List<ConstituentTree> constituent = new ArrayList<>();
+		for (int i = 0; i < headTreeNode.size(); i++)
+		{
+			ConstituentTree con = new ConstituentTree();
+			con.setRoot(headTreeNode.get(i));
+			constituent.add(con);
+		}
+		return constituent.toArray(new ConstituentTree[constituent.size()]);
+	}
 }

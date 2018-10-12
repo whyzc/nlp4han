@@ -21,14 +21,6 @@ public interface ConstituentParser
 	 */
 	ConstituentTree parse(String[] words, String[] poses);
 
-//	/**
-//	 * 得到最好的成分树
-//	 * 
-//	 * @param words
-//	 *            分词序列
-//	 * @return
-//	 */
-//	ConstituentTree parse(String[] words);
 
 	/**
 	 * 得到最好的K个成分树
@@ -42,15 +34,4 @@ public interface ConstituentParser
 	 * @return
 	 */
 	ConstituentTree[] parse(String[] words, String[] poses, int k);
-
-//	/**
-//	 * 得到最好的K个成分树
-//	 * @param words
-//	 *            分词序列
-//	 * @param k
-//	 *            最好的K个结果
-//	 * 
-//	 * @return
-//	 */
-//	ConstituentTree[] parse(String[] words, int k);
 }
