@@ -5,7 +5,7 @@ import java.util.List;
 import com.lc.nlp4han.constituent.TreeNode;
 
 /**
- * 用于过滤中性词为代词的NP候选词
+ * 用于过滤中心词为代词的NP候选词
  * 
  * @author 杨智超
  *
@@ -22,6 +22,7 @@ public class PNFilter extends FilterWrapper
 	public List<TreeNode> filter()
 	{
 		List<TreeNode> treeNodes = filter.filter();
+		
 		for (int i = 0; i < treeNodes.size(); i++)
 		{
 			TreeNode node = treeNodes.get(i);
@@ -55,12 +56,6 @@ public class PNFilter extends FilterWrapper
 					return true;
 			}
 		return false;
-	}
-
-	@Override
-	public void setReferenceConditions(Object obj)
-	{
-		
 	}
 
 }

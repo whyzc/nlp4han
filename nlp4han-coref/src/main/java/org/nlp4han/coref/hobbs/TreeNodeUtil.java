@@ -295,7 +295,7 @@ public class TreeNodeUtil
 					{
 						for (int j = 0; j < nPNode.getChildrenNum(); j++)
 						{
-							if (nPNode.getChildName(j).equals(NPRules.get(currNodeName).get(k).getIRightRule(i)))
+							if (nPNode.getChildName(j).equals(NPRules.get(currNodeName).get(k).getRightRule(i)))
 							{
 								result = nPNode.getChild(j);
 								if (result.getNodeName().equals("NP"))
@@ -316,7 +316,7 @@ public class TreeNodeUtil
 					{
 						for (int j = nPNode.getChildrenNum() - 1; j >= 0; j--)
 						{
-							if (nPNode.getChildName(j).equals(NPRules.get(currNodeName).get(k).getIRightRule(i)))
+							if (nPNode.getChildName(j).equals(NPRules.get(currNodeName).get(k).getRightRule(i)))
 							{
 								result = nPNode.getChild(j);
 								if (result.getNodeName().equals("NP"))

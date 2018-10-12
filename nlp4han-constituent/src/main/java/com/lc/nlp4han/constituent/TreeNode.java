@@ -518,7 +518,7 @@ public class TreeNode implements Cloneable
 		}
 		if (flag)
 		{
-			System.out.println("所有孩子都是词性标注tree.getChildren()==" + tree.getChildren());
+//			System.out.println("所有孩子都是词性标注tree.getChildren()==" + tree.getChildren());
 		}
 		return flag;
 	}

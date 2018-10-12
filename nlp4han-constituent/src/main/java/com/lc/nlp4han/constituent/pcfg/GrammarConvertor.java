@@ -15,19 +15,21 @@ public class GrammarConvertor
 	public CFG convertCFGToCNF(CFG cfg)
 	{
 		this.cnf = new CFG();
-		convertGrammar("CNF",cfg);
+		convertGrammar("CNF", cfg);
 		return cnf;
 	}
 
 	public PCFG convertPCFGToP2NF(PCFG pcfg)
 	{
 		this.cnf = new PCFG();
-		convertGrammar("P2NF",pcfg);
+		
+		convertGrammar("P2NF", pcfg);
+		
 		return (PCFG) cnf;
 	}
 
 	/**
-	 * 这里的转换为PCNF在消除单元规则时消除到POS层次即停止
+	 * 这里的转换为PCNF在消除单元规则时,消除到POS层次即停止
 	 * 
 	 * @param pcfg
 	 * @return
@@ -35,27 +37,39 @@ public class GrammarConvertor
 	public PCFG convertPCFGToPCNF(PCFG pcfg)
 	{
 		this.cnf = new PCFG();
-		convertGrammar("PCNF",pcfg);
+		
+		convertGrammar("PCNF", pcfg);
+		
 		return (PCFG) cnf;
 	}
+
 	/**
 	 * 转换的通用类
+	 * 
 	 * @param type
 	 * @param cfg
 	 */
-    private void convertGrammar(String type,CFG cfg) {
-    	this.type=type;
-    	convertTo2NF(cfg);
-    	if(type.contains("P")) {
-    		this.deletePRuleSet = new HashSet<RewriteRule>();
-    		getPOSSet();
-    		removeUnitProduction();
-    	}
-    }
-    /**
-     * 将规则转换为2nf形式（即不消除单元规则的乔姆斯基范式）
-     * @param cfg
-     */
+	private void convertGrammar(String type, CFG cfg)
+	{
+		this.type = type;
+		
+		convertTo2NF(cfg);
+		
+		if (type.contains("P"))
+		{
+			this.deletePRuleSet = new HashSet<RewriteRule>();
+			
+			getPOSSet();
+			
+			removeUnitProduction();
+		}
+	}
+
+	/**
+	 * 将规则转换为2nf形式（即不消除单元规则的乔姆斯基范式）
+	 * 
+	 * @param cfg
+	 */
 	private void convertTo2NF(CFG cfg)
 	{
 		cnf.setNonTerminalSet(cfg.getNonTerminalSet());
@@ -68,6 +82,8 @@ public class GrammarConvertor
 
 	/**
 	 * 前期处理，遍历的将规则加入pcnf 将字符串个数多于两个的递归的减为两个 将终结符和非终结符混合转换为两个非终结符 直接添加右侧只有一个字符串的规则
+	 * 
+	 * 转换后包括：单元规则（包括非法的CNF单元规则）、合法的二元规则
 	 */
 	private void priorDisposal(CFG cfg)
 	{
@@ -78,7 +94,7 @@ public class GrammarConvertor
 				// 如果右侧中有终结符，则转换为伪非终结符
 				if (!cnf.getNonTerminalSet().containsAll(rule.getRhs()))
 				{
-					ConvertToNonTerRHS(rule);
+					convertToNonTerRHS(rule);
 				}
 
 				reduceRHSNum(rule);
@@ -90,7 +106,7 @@ public class GrammarConvertor
 				// 如果右侧中有终结符，则转换为伪非终结符
 				if (!cnf.getNonTerminalSet().containsAll(rule.getRhs()))
 				{
-					ConvertToNonTerRHS(rule);
+					convertToNonTerRHS(rule);
 				}
 
 				cnf.add(rule);
@@ -107,12 +123,12 @@ public class GrammarConvertor
 	/**
 	 * 将右侧全部转换为非终结符，并添加新的非终结符，新的规则
 	 */
-	private void ConvertToNonTerRHS(RewriteRule rule)
+	private void convertToNonTerRHS(RewriteRule rule)
 	{
 		ArrayList<String> rhs = new ArrayList<String>();
 		for (String string : rule.getRhs())
 		{
-			if (!cnf.getNonTerminalSet().contains(string))
+			if (cnf.isTerminal(string))
 			{
 				String newString = "$" + string + "$";
 				cnf.addNonTerminal(newString);// 添加新的伪非终结符
@@ -171,9 +187,10 @@ public class GrammarConvertor
 		// 递归，直到rhs的个数为2时
 		reduceRHSNum(rule);
 	}
-    /**
-     * 消除单元规则
-     */
+
+	/**
+	 * 消除单元规则
+	 */
 	private void removeUnitProduction()
 	{
 		Set<String> nonterSet = cnf.getNonTerminalSet();
@@ -181,22 +198,25 @@ public class GrammarConvertor
 		{
 			for (RewriteRule rule : cnf.getRuleBylhs(nonTer))
 			{
-				if (rule.getRhs().size() == 1)
+				if (rule.getRhs().size() == 1) //单元规则
 				{
 					String rhs = rule.getRhs().get(0);
-					if (posSet.contains(rhs))
+					if (posSet.contains(rhs)) // 右部是词性
 					{// 消除单元规则终止与POS层次
 						continue;
 					}
+					
 					if (nonterSet.contains(rhs))
 					{
 						deletePRuleSet.add(rule);
+						
 						removeUPAndAddNewRule(rule);
 					}
 				}
 			}
 		}
-		DeletePRuleSet();
+		
+		deletePRuleSet();
 	}
 
 	private void removeUPAndAddNewRule(RewriteRule rule)
@@ -204,23 +224,26 @@ public class GrammarConvertor
 		String lhs = rule.getLhs();
 		String rhs = rule.getRhs().get(0);
 
-		String[] lhs1 = lhs.split("@");
-		if (lhs1.length >= 3)
+		String[] lhsList = lhs.split("@");
+		if (lhsList.length >= 3)
 		{
 			return;// 如果单元规则迭代有3次以上，则返回
 		}
+		
 		if (posSet.contains(rule.getRhs().get(0)))
 		{
 			cnf.add(rule);// 若该规则右侧为词性标注则直接添加
 			return;
 		}
-		for (String lhs2 : lhs1)
+		
+		for (String lhs2 : lhsList)
 		{
 			if (lhs2.equals(rhs))
 			{
 				return;// 如果出现循环非终结符则返回
 			}
 		}
+		
 		for (RewriteRule rule1 : cnf.getRuleBylhs(rule.getRhs().get(0)))
 		{
 			RewriteRule rule2;
@@ -229,14 +252,15 @@ public class GrammarConvertor
 				PRule prule1 = (PRule) rule1;
 				PRule prule = (PRule) rule;
 
-				rule2 = new PRule(prule.getProOfRule() * prule1.getProOfRule(), prule.getLhs() + "@" + prule1.getLhs(),
+				rule2 = new PRule(prule.getProb() * prule1.getProb(), prule.getLhs() + "@" + prule1.getLhs(),
 						prule1.getRhs());
 			}
 			else
 			{
 				rule2 = new RewriteRule(rule.getLhs() + "@" + rule1.getLhs(), rule1.getRhs());
 			}
-			if (rule1.getRhs().size() == 2 || !cnf.getNonTerminalSet().contains(rule1.getRhs().get(0)))
+			
+			if (rule1.getRhs().size() == 2 || cnf.isTerminal(rule1.getRhs().get(0)))
 			{
 				cnf.add(rule2);
 			}
@@ -247,7 +271,7 @@ public class GrammarConvertor
 		}
 	}
 
-	private void DeletePRuleSet()
+	private void deletePRuleSet()
 	{
 		for (RewriteRule rule : deletePRuleSet)
 		{
@@ -258,7 +282,7 @@ public class GrammarConvertor
 	}
 
 	/**
-	 * 得到词性标注，
+	 * 得到词性标注
 	 */
 	private void getPOSSet()
 	{

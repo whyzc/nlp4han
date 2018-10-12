@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.nlp4han.coref.hobbs.AnaphoraResolution;
+import org.nlp4han.coref.AnaphoraResolution;
 import org.nlp4han.coref.hobbs.AttributeFilter;
 import org.nlp4han.coref.hobbs.AttributeGeneratorByDic;
 import org.nlp4han.coref.hobbs.CandidateFilter;

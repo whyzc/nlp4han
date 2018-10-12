@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.nlp4han.coref.AnaphoraResolution;
 import org.nlp4han.coref.centering.CenteringBFP;
 
 import com.lc.nlp4han.constituent.TreeNode;
@@ -109,6 +110,7 @@ public class Hobbs implements AnaphoraResolution
 				{// 若结点x为NP结点，且path没有穿过x直接支配的Nominal结点,则返回x
 					return x;
 				}
+				
 				candidateNodes = TreeNodeUtil.getNPNodeOnLeftOfPath(x, path);
 				filter.setFilteredNodes(candidateNodes);
 				filter.filter();
@@ -280,6 +282,7 @@ public class Hobbs implements AnaphoraResolution
 				prons.addAll(tmp);
 			}
 		}
+		
 		if (!prons.isEmpty())
 		{
 			if (filter == null)
@@ -289,6 +292,7 @@ public class Hobbs implements AnaphoraResolution
 				
 				filter = af;
 			}
+			
 			for (int i=0 ; i<prons.size() ; i++)
 			{
 				filter.setReferenceConditions(prons.get(i));
@@ -298,6 +302,7 @@ public class Hobbs implements AnaphoraResolution
 				result.put(prons.get(i), anaphNode);
 			}
 		}
+		
 		return result;
 	}
 

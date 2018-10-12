@@ -11,7 +11,9 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * 文法包含包含重写规则，非终结符集，终结符集
+ * 上下文无关文法
+ * 
+ * 包含：开始符，重写规则，非终结符集，终结符集
  */
 public class CFG
 {
@@ -19,8 +21,9 @@ public class CFG
 	private Set<String> nonTerminalSet = new HashSet<String>();// 非终结符集
 	private Set<String> terminalSet = new HashSet<String>();// 终结符集
 	private Set<RewriteRule> ruleSet = new HashSet<RewriteRule>();// 规则集
-	private HashMap<String, HashSet<RewriteRule>> ruleMapStartWithlhs = new HashMap<String, HashSet<RewriteRule>>();// 以左部为key值的规则集map
-	private HashMap<ArrayList<String>, HashSet<RewriteRule>> ruleMapStartWithrhs = new HashMap<ArrayList<String>, HashSet<RewriteRule>>();// 以规则右部为key值的规则集map
+	
+	private HashMap<String, HashSet<RewriteRule>> LHS2Rules = new HashMap<String, HashSet<RewriteRule>>();// 以左部为key值的规则集map
+	private HashMap<ArrayList<String>, HashSet<RewriteRule>> RHS2Rules = new HashMap<ArrayList<String>, HashSet<RewriteRule>>();// 以规则右部为key值的规则集map
 
 	/**
 	 * 构造函数,一步创建
@@ -32,8 +35,10 @@ public class CFG
 		this.startSymbol = startSymbol;
 		this.nonTerminalSet = nonTerminalSet;
 		this.terminalSet = terminalSet;
-		this.ruleMapStartWithlhs = ruleMapStartWithlhs;
-		this.ruleMapStartWithrhs = ruleMapStartWithrhs;
+		
+		this.LHS2Rules = ruleMapStartWithlhs;
+		this.RHS2Rules = ruleMapStartWithrhs;
+		
 		for (String lhs : ruleMapStartWithlhs.keySet())
 		{
 			ruleSet.addAll(ruleMapStartWithlhs.get(lhs));
@@ -68,7 +73,7 @@ public class CFG
 	 */
 	public CFG(InputStream in, String encoding) throws IOException
 	{
-		readGrammar(in, encoding, "CFG");
+		readGrammar(in, encoding);
 	}
 
 	/**
@@ -76,11 +81,9 @@ public class CFG
 	 * 
 	 * @param in
 	 * @param encoding
-	 * @param type
-	 * @param pruleMap
 	 * @throws IOException
 	 */
-	public void readGrammar(InputStream in, String encoding, String type) throws IOException
+	public void readGrammar(InputStream in, String encoding) throws IOException
 	{
 		BufferedReader buffer = new BufferedReader(new InputStreamReader(in, encoding));
 		String str = buffer.readLine().trim();
@@ -88,6 +91,7 @@ public class CFG
 		{
 			setStartSymbol(buffer.readLine().trim());
 		}
+		
 		buffer.readLine();
 		str = buffer.readLine().trim();
 		while (!str.equals("--终结符集--"))
@@ -95,28 +99,38 @@ public class CFG
 			addNonTerminal(str);
 			str = buffer.readLine().trim();
 		}
+		
 		str = buffer.readLine();
 		while (!str.equals("--规则集--"))
 		{
 			addTerminal(str);
 			str = buffer.readLine().trim();
 		}
+		
 		str = buffer.readLine();
 		while (str != null)
 		{
 			str = str.trim();
-			if (!type.contains("P"))
-			{
-				add(new RewriteRule(str));
-			}
-			else
-			{
-				add(new PRule(str));
-			}
+//			if (!type.contains("P"))
+//			{
+//				add(new RewriteRule(str));
+//			}
+//			else
+//			{
+//				add(new PRule(str));
+//			}
+			
+			add(readRule(str));
 
 			str = buffer.readLine();
 		}
+		
 		buffer.close();
+	}
+	
+	protected RewriteRule readRule(String ruleStr)
+	{
+		return new RewriteRule(ruleStr);
 	}
 
 	/**
@@ -138,38 +152,48 @@ public class CFG
 			ArrayList<String> list = rule.getRhs();
 			if (list.size() >= 3)
 			{
-				System.out.println("rhs数量大于2" + rule);
+//				System.out.println("rhs数量大于2" + rule);
 				isCNF = false;
 				break;
 			}
+			
 			if (list.size() == 2)
 			{
 				for (String string : list)
 				{
 					if (!nonTerminalSet.contains(string))
 					{
-						System.out.println("rhs包含终结符和非终结符" + rule);
+//						System.out.println("rhs包含终结符和非终结符" + rule);
 						isCNF = false;
 						break;
 					}
 				}
 			}
+			
 			if (list.size() == 1)
 			{
 				if (nonTerminalSet.contains(list.get(0)))
 				{
-					System.out.println("rhs只有一个终结符" + rule);
+//					System.out.println("rhs只有一个终结符" + rule);
 					isCNF = false;
 					break;
 				}
 			}
 		}
+		
 		return isCNF;
 	}
+	
+	public boolean isNoTerminal(String symbol)
+	{
+		return nonTerminalSet.contains(symbol);
+	}
+	
+	public boolean isTerminal(String symbol)
+	{
+		return terminalSet.contains(symbol);
+	}
 
-	/*
-	 * 方法
-	 */
 	public String getStartSymbol()
 	{
 		return startSymbol;
@@ -205,29 +229,27 @@ public class CFG
 	 */
 	public void add(RewriteRule rule)
 	{
-		ArrayList<String> strList = new ArrayList<String>();
-		strList.add(rule.getLhs());
-		strList.addAll(rule.getRhs());
 		ruleSet.add(rule);
-		if (ruleMapStartWithlhs.get(rule.getLhs()) != null)
+		if (LHS2Rules.get(rule.getLhs()) != null)
 		{
-			ruleMapStartWithlhs.get(rule.getLhs()).add(rule);
+			LHS2Rules.get(rule.getLhs()).add(rule);
 		}
 		else
 		{
 			HashSet<RewriteRule> set = new HashSet<RewriteRule>();
 			set.add(rule);
-			ruleMapStartWithlhs.put(rule.getLhs(), set);
+			LHS2Rules.put(rule.getLhs(), set);
 		}
-		if (ruleMapStartWithrhs.keySet().contains(rule.getRhs()))
+		
+		if (RHS2Rules.keySet().contains(rule.getRhs()))
 		{
-			ruleMapStartWithrhs.get(rule.getRhs()).add(rule);
+			RHS2Rules.get(rule.getRhs()).add(rule);
 		}
 		else
 		{
 			HashSet<RewriteRule> set = new HashSet<RewriteRule>();
 			set.add(rule);
-			ruleMapStartWithrhs.put(rule.getRhs(), set);
+			RHS2Rules.put(rule.getRhs(), set);
 		}
 	}
 
@@ -240,7 +262,7 @@ public class CFG
 	}
 
 	/**
-	 * 添加非中介符
+	 * 添加非终结符
 	 */
 	public void addNonTerminal(String nonTer)
 	{
@@ -266,7 +288,7 @@ public class CFG
 	 */
 	public Set<RewriteRule> getRuleBylhs(String lhs)
 	{
-		return ruleMapStartWithlhs.get(lhs);
+		return LHS2Rules.get(lhs);
 	}
 
 	/**
@@ -278,7 +300,7 @@ public class CFG
 	 */
 	public Set<RewriteRule> getRuleByrhs(ArrayList<String> rhsList)
 	{
-		return ruleMapStartWithrhs.get(rhsList);
+		return RHS2Rules.get(rhsList);
 	}
 
 	/**
@@ -295,7 +317,8 @@ public class CFG
 		{
 			list.add(string);
 		}
-		return ruleMapStartWithrhs.get(list);
+		
+		return RHS2Rules.get(list);
 	}
 
 	@Override
@@ -319,7 +342,9 @@ public class CFG
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		
 		CFG other = (CFG) obj;
+		
 		if (nonTerminalSet == null)
 		{
 			if (other.nonTerminalSet != null)
@@ -327,6 +352,7 @@ public class CFG
 		}
 		else if (!nonTerminalSet.equals(other.nonTerminalSet))
 			return false;
+		
 		if (ruleSet == null)
 		{
 			if (other.ruleSet != null)
@@ -334,6 +360,7 @@ public class CFG
 		}
 		else if (!ruleSet.equals(other.ruleSet))
 			return false;
+		
 		if (startSymbol == null)
 		{
 			if (other.startSymbol != null)
@@ -341,6 +368,7 @@ public class CFG
 		}
 		else if (!startSymbol.equals(other.startSymbol))
 			return false;
+		
 		if (terminalSet == null)
 		{
 			if (other.terminalSet != null)
@@ -348,6 +376,7 @@ public class CFG
 		}
 		else if (!terminalSet.equals(other.terminalSet))
 			return false;
+		
 		return true;
 	}
 
@@ -373,10 +402,10 @@ public class CFG
 		}
 
 		stb.append("--规则集--" + '\n');
-		Set<String> set = ruleMapStartWithlhs.keySet();
+		Set<String> set = LHS2Rules.keySet();
 		for (String string : set)
 		{
-			HashSet<RewriteRule> ruleSet = ruleMapStartWithlhs.get(string);
+			HashSet<RewriteRule> ruleSet = LHS2Rules.get(string);
 			Iterator<RewriteRule> itr3 = ruleSet.iterator();
 			while (itr3.hasNext())
 			{

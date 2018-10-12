@@ -11,7 +11,6 @@ import java.util.List;
  * @author 王馨苇
  *
  */
-// TODO: 创建适合于CTB的头规则集
 public class HeadRuleSetPTB extends HeadRuleSet
 {
 

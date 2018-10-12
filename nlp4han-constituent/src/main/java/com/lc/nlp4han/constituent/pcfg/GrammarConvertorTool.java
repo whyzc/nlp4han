@@ -18,7 +18,7 @@ public class GrammarConvertorTool
 			return;
 		}
 		String corpusFile = null;
-		String type=null;
+		String type = null;
 		String encoding = null;
 		String topath = null;
 		for (int i = 0; i < args.length; i++)
@@ -44,23 +44,34 @@ public class GrammarConvertorTool
 				i++;
 			}
 		}
-		GrammarConvertor(corpusFile, type,encoding, topath);
-	} 
-	private static void  GrammarConvertor(String corpusFile,String type,String encoding,String  topath) throws IOException {
-		GrammarConvertor convertor=new GrammarConvertor();
+		GrammarConvertor(corpusFile, type, encoding, topath);
+	}
+
+	private static void GrammarConvertor(String corpusFile, String type, String encoding, String topath)
+			throws IOException
+	{
+		GrammarConvertor convertor = new GrammarConvertor();
 		CFG cfg, cnf;
-		if(type.contains("P")) {
-			cfg = new PCFG(new FileInputStream(new File(corpusFile)),encoding);
-		}else {
-		    cfg = new CFG(new FileInputStream(new File(corpusFile)),encoding);			
-		}	
-		
-		if(type.equals("CNF")) {
-			cnf=convertor.convertCFGToCNF(cfg);
-		}else if(type.equals("P2NF")){
-			cnf=convertor.convertPCFGToP2NF((PCFG)cfg);
-		}else {
-			cnf=convertor.convertPCFGToPCNF((PCFG)cfg);
+		if (type.contains("P"))
+		{
+			cfg = new PCFG(new FileInputStream(new File(corpusFile)), encoding);
+		}
+		else
+		{
+			cfg = new CFG(new FileInputStream(new File(corpusFile)), encoding);
+		}
+
+		if (type.equals("CNF"))
+		{
+			cnf = convertor.convertCFGToCNF(cfg);
+		}
+		else if (type.equals("P2NF"))
+		{
+			cnf = convertor.convertPCFGToP2NF((PCFG) cfg);
+		}
+		else
+		{
+			cnf = convertor.convertPCFGToPCNF((PCFG) cfg);
 		}
 		if (topath == null)
 		{
@@ -71,6 +82,6 @@ public class GrammarConvertorTool
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(topath), encoding));
 			bw.append(cnf.toString());
 			bw.close();
-	   }
-	}	
+		}
+	}
 }

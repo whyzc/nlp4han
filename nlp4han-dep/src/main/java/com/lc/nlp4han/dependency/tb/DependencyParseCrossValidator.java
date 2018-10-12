@@ -12,8 +12,8 @@ import com.lc.nlp4han.ml.util.SequenceValidator;
 import com.lc.nlp4han.ml.util.TrainingParameters;
 
 /**
- * @author 王宁
- * @version 创建时间：2018年7月25日 上午12:11:30 交叉验证
+ * 交叉验证类LL
+ *
  */
 public class DependencyParseCrossValidator
 {
@@ -49,30 +49,30 @@ public class DependencyParseCrossValidator
 	 *             io异常
 	 */
 	public void evaluate(ObjectStream<DependencySample> sample, int nFolds,
-			DependencyParseContextGenerator contextGenerator,Configuration conf, SequenceValidator<String> validator,String tType) throws IOException
+			DependencyParseContextGenerator contextGenerator, Configuration conf, 
+			SequenceValidator<String> validator) throws IOException
 	{
 		CrossValidationPartitioner<DependencySample> partitioner = new CrossValidationPartitioner<DependencySample>(
 				sample, nFolds);
 		int run = 1;
 		while (partitioner.hasNext())
 		{
-
 			System.out.println("Run" + run + "...");
 
 			// 训练模型
 			CrossValidationPartitioner.TrainingSampleStream<DependencySample> trainingSampleStream = partitioner.next();
-			ModelWrapper model;
-			DependencyParseEvaluator evaluator;
-			
-			model = DependencyParserTB.train(trainingSampleStream, params, contextGenerator);
+			ModelWrapper model = DependencyParserTB.train(trainingSampleStream, params, contextGenerator);
+
 			// 评价模型
-			evaluator = new DependencyParseEvaluator(new DependencyParserTB(model, contextGenerator,conf,validator),		listeners);
+			DependencyParseEvaluator evaluator = new DependencyParseEvaluator(
+					new DependencyParserTB(model, contextGenerator, conf, validator), listeners);
 			evaluator.setMeasure(measure);
 			evaluator.evaluate(trainingSampleStream.getTestSampleStream());
 
 			System.out.println(measure);
 			run++;
 		}
+
 		System.out.println(measure);
 	}
 }

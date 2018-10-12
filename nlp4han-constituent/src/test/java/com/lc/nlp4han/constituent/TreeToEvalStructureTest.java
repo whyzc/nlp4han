@@ -10,7 +10,6 @@ import org.junit.Test;
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.EvalStructure;
 import com.lc.nlp4han.constituent.TreeNode;
-import com.lc.nlp4han.constituent.TreeToEvalStructure;
 
 
 /**
@@ -24,8 +23,8 @@ public class TreeToEvalStructureTest {
 	public void testTreeToEvalStructure() throws CloneNotSupportedException{
 		TreeNode tree1 = BracketExpUtil.generateTree("((S(NP(PRP I))(VP(VP(VBD saw)(NP(DT the)(NN man)))(PP(IN with)(NP(DT the)(NN telescope))))))");
 		TreeNode tree2 = BracketExpUtil.generateTree("((S(NP(EX There))(VP(VBZ is)(NP(DT no)(NN box))(PP(IN in)(NP(PRP$ our)(NNS box)))(ADVP (RB now)))(. .)('' '') ))");
-		List<EvalStructure> pre1 = TreeToEvalStructure.getNonterminalAndSpan(tree1);
-		List<EvalStructure> pre2 = TreeToEvalStructure.getNonterminalAndSpan(tree2);
+		List<EvalStructure> pre1 = EvalStructure.getEvalStructures(tree1);
+		List<EvalStructure> pre2 = EvalStructure.getEvalStructures(tree2);
 		
 		List<EvalStructure> result1 = new ArrayList<>(); 
 		result1.add(new EvalStructure("NP", 0, 1));
