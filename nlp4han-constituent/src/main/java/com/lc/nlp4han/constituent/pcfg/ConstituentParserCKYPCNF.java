@@ -83,7 +83,7 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 		int i = 0;
 		for (String bracketString : bracketList)
 		{
-			TreeNode rootNode = BracketExpUtil.generateTreeNotDeleteBracket(bracketString);
+			TreeNode rootNode = BracketExpUtil.generateTree(bracketString);
 			treeArray[i++] = new ConstituentTree(rootNode);
 		}
 		return treeArray;

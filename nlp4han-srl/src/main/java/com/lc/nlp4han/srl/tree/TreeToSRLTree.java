@@ -21,7 +21,7 @@ public class TreeToSRLTree {
 	 */
 	private static SRLTreeNode transferToSRLTreeNodeStructure(TreeNode treenode){
 		String strtree = "("+treenode.toStringWordIndexNoNone()+")";
-		String format = BracketExpUtil.format(strtree);
+		String format = BracketExpUtil.formatNoTopBracket(strtree);
 		List<String> parts = BracketExpUtil.stringToList(format);
 		Stack<SRLTreeNode> tree = new Stack<SRLTreeNode>();
         for (int i = 0; i < parts.size(); i++) {

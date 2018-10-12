@@ -69,7 +69,7 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 		String bracketStr="";
 		TreeNode tree=null;
 		bracketStr = treeGen.getTree(text);
-		tree = BracketExpUtil.generateTree(bracketStr);
+		tree = BracketExpUtil.generateTreeNoTopBracket(bracketStr);
 		return this.parse(tree);
 	}
 
@@ -196,7 +196,7 @@ public class SentimentAnalyzerRB implements SentimentAnalyzer
 		
 		String bracketStr = "(VP (ADVP (AD 不) (VP (VA 漂亮)))";
 		
-		TreeNode tn = BracketExpUtil.generateTree(bracketStr);
+		TreeNode tn = BracketExpUtil.generateTreeNoTopBracket(bracketStr);
 		tn = analyzer.parse(tn);
 		
 		System.out.println(tn);

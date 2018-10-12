@@ -68,7 +68,7 @@ public class SentimentAnalyzerRBWithPOS implements SentimentAnalyzer
 		String bracketStr = "";
 		TreeNode tree = null;
 		bracketStr = treeGen.getTree(text);
-		tree = BracketExpUtil.generateTree(bracketStr);
+		tree = BracketExpUtil.generateTreeNoTopBracket(bracketStr);
 		return this.parse(tree);
 	}
 

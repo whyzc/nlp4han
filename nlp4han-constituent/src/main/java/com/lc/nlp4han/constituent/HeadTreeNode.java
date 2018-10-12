@@ -163,13 +163,13 @@ public class HeadTreeNode extends TreeNode
 	{
 		if (super.children.size() == 0)
 		{
-			String str=super.BracketConvert(this.nodename);
+			String str=super.escapeBracket(this.nodename);
 			return " " + str + "[" + this.getWordIndex() + "]";
 		}
 		else
 		{
 			String treestr = "";
-			treestr = "(" + super.BracketConvert(this.nodename) + "{" + super.BracketConvert(this.headWord) + "[" + this.headPos + "]}";
+			treestr = "(" + super.escapeBracket(this.nodename) + "{" + super.escapeBracket(this.headWord) + "[" + this.headPos + "]}";
 
 			for (HeadTreeNode node : getChildren())
 			{
@@ -189,7 +189,7 @@ public class HeadTreeNode extends TreeNode
 	{
 		if (this.children.size() == 0)
 		{
-			return " " + super.BracketConvert(this.nodename) + "[" + getWordIndex() + "]";
+			return " " + super.escapeBracket(this.nodename) + "[" + getWordIndex() + "]";
 		}
 		else
 		{

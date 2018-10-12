@@ -33,7 +33,7 @@ public class TreeToHeadTreeForCollins
 		}
 
 		String treeStr = "(" + treeNode.toStringWordIndexNoNone() + ")";
-		treeStr = BracketExpUtil.format(treeStr);
+		treeStr = BracketExpUtil.formatNoTopBracket(treeStr);
 
 		int indexTree;// 记录当前是第几颗子树
 		List<String> parts = BracketExpUtil.stringToList(treeStr);

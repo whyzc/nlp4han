@@ -44,7 +44,7 @@ public class Tree2Action2TreeTest
 		String treestr = "((S(NP(NNP Mr.)(NNP Vinken))(VP(VBZ is)(NP(NP(NN chairman))(PP(IN of) "
 				+ "(NP(NP(NNP Elsevier)(NNP N.V.))(, ,)"
 				+ "(NP(DT the)(NNP Dutch)(VBG publishing)(NN group))))))(. .)))";
-		TreeNode tree = BracketExpUtil.generateTree(treestr);
+		TreeNode tree = BracketExpUtil.generateTreeNoTopBracket(treestr);
 		HeadTreeNode headTree = TreeToHeadTree.treeToHeadTree(tree, aghw);
 
 		ConstituentTreeSample sample = HeadTreeToActions.headTreeToSample(headTree, aghw);

@@ -379,7 +379,7 @@ public class BuilderAndCheckerME implements BuilderAndChecker<HeadTreeNode>
 		{
 			for (int i = 0; i < alltree.size(); i++)
 			{
-				TreeNode node = BracketExpUtil.generateTree("(" + alltree.get(i).toStringWordIndex() + ")");
+				TreeNode node = BracketExpUtil.generateTreeNoTopBracket("(" + alltree.get(i).toStringWordIndex() + ")");
 				HeadTreeNode headTree = TreeToHeadTree.treeToHeadTree(node, headGenerator);
 				ConstituentTreeSample sample = HeadTreeToActions.headTreeToSample(headTree,
 						headGenerator);

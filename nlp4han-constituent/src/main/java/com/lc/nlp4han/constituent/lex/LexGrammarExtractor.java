@@ -51,7 +51,7 @@ public class LexGrammarExtractor
 		String bracketStr = ptbt.read();
 		while (bracketStr.length() != 0)
 		{
-			TreeNode rootNode = BracketExpUtil.generateTreeNotDeleteBracket(bracketStr);
+			TreeNode rootNode = BracketExpUtil.generateTree(bracketStr);
 			HeadTreeNodeForCollins headNode = TreeToHeadTreeForCollins.treeToHeadTree(rootNode, headGen);
 			if (lexpcfg.getStartSymbol() == null)
 			{// 起始符提取

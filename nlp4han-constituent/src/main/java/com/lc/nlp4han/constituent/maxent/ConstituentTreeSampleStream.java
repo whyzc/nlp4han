@@ -54,7 +54,7 @@ public class ConstituentTreeSampleStream extends FilterObjectStream<String, Cons
 			{
 				try
 				{
-					TreeNode tree = BracketExpUtil.generateTree(sentence);
+					TreeNode tree = BracketExpUtil.generateTreeNoTopBracket(sentence);
 					
 					HeadTreeNode headtree = TreeToHeadTree.treeToHeadTree(tree, headGenerator);
 					

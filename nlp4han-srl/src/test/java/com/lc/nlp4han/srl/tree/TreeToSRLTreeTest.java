@@ -39,7 +39,7 @@ public class TreeToSRLTreeTest {
 				+ "(PP(IN from[39])(NP(JJ last[40])(NN year[41])))))(, ,[42])(PP(VBG according[43])(PP(TO to[44])"
 				+ "(NP(NNP Publishers[45])(NNP Information[46])(NNP Bureau[47]))))))(. .[48]))";
 		
-		TreeNode tree = BracketExpUtil.generateTree(""
+		TreeNode tree = BracketExpUtil.generateTreeNoTopBracket(""
 				+ "((S(S(NP-SBJ(NNP Mr.)(NNP Spoon))(VP(VBD said)(SBAR (-NONE- 0)(S(NP-SBJ(DT the)(NN plan))"
 				+ "(VP(VBZ is)(RB not)(NP-PRD(DT an)(NN attempt)(S(NP-SBJ(-NONE- *))(VP(TO to)(VP(VB shore)"
 				+ "(PRT(RP up))(NP(NP(DT a)(NN decline))(PP-LOC(IN in)(NP(NN ad)(NNS pages)))(PP-TMP(IN in)"
