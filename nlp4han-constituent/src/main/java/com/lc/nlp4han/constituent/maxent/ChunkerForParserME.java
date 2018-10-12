@@ -140,6 +140,7 @@ public class ChunkerForParserME implements ChunkerForParser<HeadTreeNode>
 		{
 			ObjectStream<Event> es = new SampleEventsForChunk(sampleStream, contextGen);
 			EventTrainer trainer = TrainerFactory.getEventTrainer(params.getSettings(), manifestInfoEntries);
+			
 			chunkModel = trainer.train(es);
 		}
 		

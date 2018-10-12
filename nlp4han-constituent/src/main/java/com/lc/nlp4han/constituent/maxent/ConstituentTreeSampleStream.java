@@ -24,7 +24,7 @@ public class ConstituentTreeSampleStream extends FilterObjectStream<String, Cons
 {
 
 	private Logger logger = Logger.getLogger(ConstituentTreeSampleStream.class.getName());
-	private AbstractHeadGenerator headGen;
+	private AbstractHeadGenerator headGenerator;
 
 	/**
 	 * 构造
@@ -32,10 +32,10 @@ public class ConstituentTreeSampleStream extends FilterObjectStream<String, Cons
 	 * @param samples
 	 *            样本流
 	 */
-	public ConstituentTreeSampleStream(ObjectStream<String> samples, AbstractHeadGenerator aghw)
+	public ConstituentTreeSampleStream(ObjectStream<String> samples, AbstractHeadGenerator headGen)
 	{
 		super(samples);
-		this.headGen = aghw;
+		this.headGenerator = headGen;
 	}
 
 	/**
@@ -55,8 +55,10 @@ public class ConstituentTreeSampleStream extends FilterObjectStream<String, Cons
 				try
 				{
 					TreeNode tree = BracketExpUtil.generateTree(sentence);
-					HeadTreeNode headtree = TreeToHeadTree.treeToHeadTree(tree, headGen);
-					sample = HeadTreeToActions.headTreeToSample(headtree, headGen);
+					
+					HeadTreeNode headtree = TreeToHeadTree.treeToHeadTree(tree, headGenerator);
+					
+					sample = HeadTreeToActions.headTreeToSample(headtree, headGenerator);
 				}
 				catch (Exception e)
 				{
@@ -67,13 +69,14 @@ public class ConstituentTreeSampleStream extends FilterObjectStream<String, Cons
 					sample = new ConstituentTreeSample(new ArrayList<>(), new ArrayList<>(),
 							new ArrayList<>(), new ArrayList<>());
 				}
+				
 				return sample;
 			}
 			else
 			{
 				sample = new ConstituentTreeSample(new ArrayList<>(), new ArrayList<>(),
 						new ArrayList<>(), new ArrayList<>());
-				return null;
+				return sample;
 			}
 		}
 		else
