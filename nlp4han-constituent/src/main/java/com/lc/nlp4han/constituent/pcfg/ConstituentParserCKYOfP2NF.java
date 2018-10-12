@@ -36,18 +36,18 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 		return getParseResult(words, poses, 1)[0];
 	}
 
-	/**
-	 * 得到概率最高的成分树
-	 * 
-	 * @param words
-	 * 
-	 * @return
-	 */
-	@Override
-	public ConstituentTree parse(String[] words)
-	{
-		return getParseResult(words, null, 1)[0];
-	}
+//	/**
+//	 * 得到概率最高的成分树
+//	 * 
+//	 * @param words
+//	 * 
+//	 * @return
+//	 */
+//	@Override
+//	public ConstituentTree parse(String[] words)
+//	{
+//		return getParseResult(words, null, 1)[0];
+//	}
 
 	/**
 	 * 得到概率最高k个的成分树
@@ -66,20 +66,20 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 		return getParseResult(words, poses, k);
 	}
 
-	/**
-	 * 得到概率最高k个的成分树
-	 * 
-	 * @param words
-	 *            分词序列
-	 * @param k
-	 *            结果数目
-	 * @return
-	 */
-	@Override
-	public ConstituentTree[] parse(String[] words, int k)
-	{
-		return getParseResult(words, null, k);
-	}
+//	/**
+//	 * 得到概率最高k个的成分树
+//	 * 
+//	 * @param words
+//	 *            分词序列
+//	 * @param k
+//	 *            结果数目
+//	 * @return
+//	 */
+//	@Override
+//	public ConstituentTree[] parse(String[] words, int k)
+//	{
+//		return getParseResult(words, null, k);
+//	}
 
 	/**
 	 * 得到成分树数组的通用方法

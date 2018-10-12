@@ -42,7 +42,6 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 * 
 	 * @return
 	 */
-	@Override
 	public ConstituentTree parse(String[] words)
 	{
 		return getParseResult(words, null, 1)[0];
@@ -74,7 +73,6 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 *            结果数目
 	 * @return
 	 */
-	@Override
 	public ConstituentTree[] parse(String[] words, int k)
 	{
 		return getParseResult(words, null, k);

@@ -430,7 +430,7 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 	{
 		PCFG p2nf = new PCFG(new FileInputStream(new File(args[0])), args[1]);
 		
-		ConstituentParser parser = new ConstituentParserCKYPCNF(p2nf);
+		ConstituentParserCKYPCNF parser = new ConstituentParserCKYPCNF(p2nf);
 		
 		Scanner input = new Scanner(System.in);
 		String text = "";
