@@ -180,30 +180,6 @@ public class HeadTreeNode extends TreeNode
 		}
 	}
 
-	/**
-	 * 没有头结点的括号表达式
-	 * 
-	 * @return
-	 */
-	public String toStringWordIndex()
-	{
-		if (this.children.size() == 0)
-		{
-			return " " + super.escapeBracket(this.nodename) + "[" + getWordIndex() + "]";
-		}
-		else
-		{
-			String treestr = "";
-			treestr = "(" + this.nodename;
-			for (TreeNode node : this.children)
-			{
-				treestr += node.toStringWordIndex();
-			}
-			treestr += ")";
-			return treestr;
-		}
-	}
-
 	@Override
 	public boolean equals(Object obj)
 	{
