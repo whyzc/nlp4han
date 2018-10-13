@@ -1,4 +1,4 @@
-package com.lc.nlp4han.constituent.lex;
+package com.lc.nlp4han.constituent;
 
 import static org.junit.Assert.assertEquals;
 
@@ -11,6 +11,8 @@ import com.lc.nlp4han.constituent.HeadRuleSetCTB;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.TreeToHeadTree;
+import com.lc.nlp4han.constituent.lex.HeadTreeNodeForCollins;
+import com.lc.nlp4han.constituent.lex.TreeToHeadTreeForCollins;
 
 public class TreeToHeadTreeTest
 {
