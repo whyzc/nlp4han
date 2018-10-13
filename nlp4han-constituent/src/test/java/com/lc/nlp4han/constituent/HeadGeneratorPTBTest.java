@@ -17,7 +17,7 @@ import com.lc.nlp4han.constituent.TreeToHeadTree;
  * @author 王馨苇
  *
  */
-public class HeadGeneratorTest
+public class HeadGeneratorPTBTest
 {
 
 	@Test
