@@ -7,12 +7,13 @@ import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 
 /**
- * 将带头结点的句法树转换成动作序列
+ * 将带头结点的句法树转换成训练样本
  * 
+ * @author 刘小峰
  * @author 王馨苇
  *
  */
-public class HeadTreeToActions
+public class HeadTreeToSample
 {
 
 	// 动作序列
@@ -21,10 +22,10 @@ public class HeadTreeToActions
 	// 第一步POS后得到的n颗子树
 	private static List<HeadTreeNode> posTree = new ArrayList<HeadTreeNode>();
 	
-	// 记录第二部CHUNK后得到的n棵子树
+	// 记录第二步CHUNK后得到的n棵子树
 	private static List<HeadTreeNode> chunkTree = new ArrayList<HeadTreeNode>();
 	
-	// 第三部得到的列表
+	// 第三步得到的列表
 	private static List<List<HeadTreeNode>> buildAndCheckTree = new ArrayList<List<HeadTreeNode>>();
 	
 	private static int i = 0;// List<TreeNode> subTree中的index

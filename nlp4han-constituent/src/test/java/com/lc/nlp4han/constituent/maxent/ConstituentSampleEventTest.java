@@ -44,7 +44,7 @@ public class ConstituentSampleEventTest {
 		generator = new ParserContextGeneratorConf();
 		tree = BracketExpUtil.generateTreeNoTopBracket("((S(NP(PRP I))(VP(VP(VBD saw)(NP(DT the)(NN man)))(PP(IN with)(NP(DT the)(NN telescope))))))");
 		headTree = TreeToHeadTree.treeToHeadTree(tree, aghw);
-		sample = HeadTreeToActions.headTreeToSample(headTree, aghw);
+		sample = HeadTreeToSample.headTreeToSample(headTree, aghw);
 		words = sample.getWords();
 		chunkTree = sample.getChunkTree();
 		buildAndCheckTree = sample.getBuildAndCheckTree();
