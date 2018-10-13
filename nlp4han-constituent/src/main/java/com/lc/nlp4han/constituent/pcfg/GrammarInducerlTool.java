@@ -51,7 +51,7 @@ public class GrammarInducerlTool
 	{
 		PCFG pcfg = GrammarExtractor.getPCFG(corpusFile, encoding);
 		
-		PCFG p2nf = new GrammarConvertor().convertPCFGToPCNF(pcfg);
+		PCFG p2nf = GrammarConvertor.convertPCFGToPCNF(pcfg);
 		
 		if (modelFile == null)
 		{

@@ -260,11 +260,6 @@ public class LexPCFG
 		}
 
 		double[] pw1 = getProAndWeight(rule, map, type);
-		if (type.equals("stop"))
-		{
-			System.out.println(rule.toString());
-			System.out.println("生成stop的概率===" + pw1[0] + "  " + pw1[1]);
-		}
 		e1 = pw1[1];
 		w1 = pw1[0];
 
@@ -279,6 +274,13 @@ public class LexPCFG
 			double[] pw3 = getProAndWeight(rule, map, type);
 			e3 = pw3[1];
 		}
+		
+		//因为将两中规则相同，则计数累加，故需要乘以0.5
+		if(type.equals("lside")) {
+			  e1 *=0.5;	
+			  e2 *=0.5;
+			}
+		
 		return w1 * e1 + (1 - w1) * (w2 * e2 + (1 - w2) * e3);
 	}
 
@@ -325,7 +327,9 @@ public class LexPCFG
 						rsg2.getHeadWord(), rsg2.getDirection(), rsg2.getSideLabel(), rsg2.getSideHeadPOS(),
 						rsg2.getSideHeadWord(), rsg2.getCoor(), rsg2.getPu(), rsg2.getDistance());
 				rsg2.setSideHeadWord(null);
-				y = map.get(rsg2).getAmount();
+				
+				//因为此处统计的次数为1side的分子和2side的分母，故统计了两次，所以此处需要乘以0.5
+				y = map.get(rsg2).getAmount()*1/2;
 				u = map.get(rsg2).getSort();
 				break;
 			case "stop":
@@ -333,12 +337,13 @@ public class LexPCFG
 				RuleStopGenerate rsg3 = (RuleStopGenerate) rhcg;
 				rsg3 = new RuleStopGenerate(rsg3.getHeadLabel(), rsg3.getParentLabel(), rsg3.getHeadPOS(),
 						rsg3.getHeadWord(), rsg3.getDirection(), true, rsg3.getDistance());
-				RuleStopGenerate rsg4 = new RuleStopGenerate(rsg3.getHeadLabel(), rsg3.getParentLabel(),
-						rsg3.getHeadPOS(), rsg3.getHeadWord(), rsg3.getDirection(), false, rsg3.getDistance());
 				if (map.containsKey(rsg3))
 				{
 					y += map.get(rsg3).getAmount();
 				}
+
+				RuleStopGenerate rsg4 = new RuleStopGenerate(rsg3.getHeadLabel(), rsg3.getParentLabel(),
+						rsg3.getHeadPOS(), rsg3.getHeadWord(), rsg3.getDirection(), false, rsg3.getDistance());
 				if (map.containsKey(rsg4))
 				{
 					y += map.get(rsg4).getAmount();
