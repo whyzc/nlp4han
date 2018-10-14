@@ -113,4 +113,14 @@ public class NonterminalTable
 		this.numSubsymbolArr = numSubsymbolArr;
 	}
 
+	public short getNumInitialSymbol()
+	{
+		return numInitialSymbol;
+	}
+
+	public void setNumInitialSymbol(short numInitialSymbol)
+	{
+		this.numInitialSymbol = numInitialSymbol;
+	}
+
 }

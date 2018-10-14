@@ -8,8 +8,9 @@ import com.lc.nlp4han.constituent.TreeNode;
 /**
  * @author 王宁 version 创建时间：2018年9月27日 上午9:22:02 处理树
  */
-public class TreeProcessor
+public class TreeUtil
 {
+
 	/**
 	 * 将Tree<String>>转化为Tree<Annotation>
 	 * 
@@ -184,6 +185,7 @@ public class TreeProcessor
 
 	/**
 	 * 由带父节点label的树的得到不带父节点label的树
+	 * 
 	 * @param tree
 	 * @return 不带父节点label的树
 	 */
@@ -223,4 +225,46 @@ public class TreeProcessor
 		return tree;
 	}
 
+	public static Tree<Annotation> forgetScore(Tree<Annotation> tree)
+	{
+		if (tree.isLeaf() || tree == null)
+			return tree;
+		tree.getLabel().setInnerScores(null);
+		tree.getLabel().setOuterScores(null);
+		for (Tree<Annotation> child : tree.getChildren())
+		{
+			forgetScore(child);
+		}
+		return tree;
+	}
+
+//	public static <T extends Rule> void getRuleOfTreeRoot(Tree<Annotation> tree, T rule)
+//	{
+//		if (tree == null)
+//			return;
+//		switch (tree.getChildren().size())
+//		{
+//		case 0:
+//			rule = null;
+//			break;
+//		case 1:
+//			if (tree.isPreterminal())
+//			{
+//				((PreterminalRule) rule).setParent(tree.getLabel().getSymbol());
+//				((PreterminalRule) rule).setWord(tree.getChildren().get(0).getLabel().getWord());
+//			}
+//			else
+//			{
+//				((UnaryRule) rule).setParent(tree.getLabel().getSymbol());
+//				((UnaryRule) rule).setChild(tree.getChildren().get(0).getLabel().getSymbol());
+//			}
+//			break;
+//		case 2:
+//			((BinaryRule) rule).setParent(tree.getLabel().getSymbol());
+//			((BinaryRule) rule).setLeftChild(tree.getChildren().get(0).getLabel().getSymbol());
+//			((BinaryRule) rule).setRightChild(tree.getChildren().get(1).getLabel().getSymbol());
+//			break;
+//		default:throw new Error("Error Tree:more than two children.");
+//		}
+//	}
 }

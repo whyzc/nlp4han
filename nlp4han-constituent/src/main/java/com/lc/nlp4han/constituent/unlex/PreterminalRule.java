@@ -1,5 +1,6 @@
 package com.lc.nlp4han.constituent.unlex;
 
+import java.math.BigDecimal;
 import java.util.LinkedList;
 
 /**
@@ -11,20 +12,24 @@ public class PreterminalRule extends Rule
 	String word;
 	LinkedList<Double> scores = new LinkedList<Double>();
 
-	public PreterminalRule(short parent,String word)
+	public PreterminalRule(short parent, String word)
 	{
 		super.parent = parent;
 		this.word = word;
 	}
 
-	
-	
 	@Override
 	public void split()
 	{
+		// split father
+		int pNumSubSymbol = scores.size();
+		for (int i = pNumSubSymbol - 1; i >= 0; i--)
+		{
+			scores.add(i + 1, BigDecimal.valueOf(scores.get(i))
+					.divide(BigDecimal.valueOf(2.0), 15, BigDecimal.ROUND_HALF_UP).doubleValue());
+			scores.set(i, scores.get(i + 1));
+		}
 	}
-
-
 
 	public int hashCode()
 	{
@@ -51,6 +56,26 @@ public class PreterminalRule extends Rule
 		else if (!word.equals(other.word))
 			return false;
 		return true;
+	}
+
+	public String getWord()
+	{
+		return word;
+	}
+
+	public void setWord(String word)
+	{
+		this.word = word;
+	}
+
+	public LinkedList<Double> getScores()
+	{
+		return scores;
+	}
+
+	public void setScores(LinkedList<Double> scores)
+	{
+		this.scores = scores;
 	}
 
 }

@@ -12,7 +12,6 @@ public class Tree<T>
 	private T label;
 	private List<Tree<T>> children;
 
-
 	public Tree(T label)
 	{
 		this.label = label;
@@ -55,7 +54,7 @@ public class Tree<T>
 
 	public boolean isPreterminal()
 	{
-		if(getChildren().size() == 1 && getChildren().get(0).isLeaf())
+		if (getChildren().size() == 1 && getChildren().get(0).isLeaf())
 			return true;
 		else
 			return false;
@@ -81,4 +80,19 @@ public class Tree<T>
 		this.children = children;
 	}
 
+	public Tree<T> getParent(Tree<T> treeRoot)
+	{
+		if (treeRoot.isLeaf())
+			return null;
+		for (Tree<T> child : treeRoot.getChildren())
+		{
+			if (this == child)
+			{
+				return treeRoot;
+			}
+		}
+		for (Tree<T> subTree : treeRoot.getChildren())
+			getParent(subTree);
+		return null;
+	}
 }

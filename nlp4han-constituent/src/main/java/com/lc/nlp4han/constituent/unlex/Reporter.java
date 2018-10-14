@@ -108,12 +108,12 @@ public class Reporter
 				if (!expression.equals(""))
 				{
 					TreeNode tempTree = BracketExpUtil.generateTreeNotDeleteBracket(expression);
-					Tree<String> tree = TreeProcessor.getStringTree(tempTree);
-					tree = TreeProcessor.removeL2LRule(tree);
+					Tree<String> tree = TreeUtil.getStringTree(tempTree);
+					tree = TreeUtil.removeL2LRule(tree);
 					if (addParentLabel)
-						tree = TreeProcessor.addParentLabel(tree);
+						tree = TreeUtil.addParentLabel(tree);
 					if (binaryTree)
-						tree = TreeProcessor.binarizeTree(tree);
+						tree = TreeUtil.binarizeTree(tree);
 					trees.add(tree);
 				}
 

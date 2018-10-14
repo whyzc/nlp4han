@@ -4,7 +4,13 @@ import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Array;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -15,70 +21,35 @@ import java.util.TreeMap;
  */
 public class Grammar
 {
+	public static int iterations = 50;
+
 	protected List<Tree<Annotation>> treeBank;
 
 	protected HashSet<BinaryRule> bRules;
 	protected HashSet<UnaryRule> uRules;
-	protected HashSet<PreterminalRule> preRules;
+	protected Lexicon lexicon;// 包含preRules
+
+	// 相同父节点的规则放在一个map中
+	protected HashMap<Short, HashMap<PreterminalRule, LinkedList<Double>>> preRuleBySameHeadWithScore;
+	protected HashMap<Short, HashMap<BinaryRule, LinkedList<LinkedList<LinkedList<Double>>>>> bRuleBySameHeadWithScore;
+	protected HashMap<Short, HashMap<UnaryRule, LinkedList<LinkedList<Double>>>> uRuleBySameHeadWithScore;
 
 	protected NonterminalTable nonterminalTable;
 
 	public Grammar(List<Tree<Annotation>> treeBank, HashSet<BinaryRule> bRules, HashSet<UnaryRule> uRules,
-			HashSet<PreterminalRule> preRules, NonterminalTable nonterminalTable)
+			Lexicon lexicon, NonterminalTable nonterminalTable)
 	{
 		this.treeBank = treeBank;
 		this.bRules = bRules;
 		this.uRules = uRules;
-		this.preRules = preRules;
+		this.lexicon = lexicon;
 		this.nonterminalTable = nonterminalTable;
 	}
 
 	public void split()
 	{
-		// splitNonterminal(); //for all annotationTree
-		// splitRule();// get new scores for each splitted rule
-		// calculate Inner/outer Score for each Annotation of each tree
-		// EM -> new Rules
-		// calculate likelihood of hole treebank
-
-		// 分裂树库中树的Annotation
-		for (Tree<Annotation> tree : treeBank)
-		{
-			splitTreeAnnotation(tree);
-		}
-
-		// 修改记录每个非终结符分裂后的个数的数组
-		for (int i = 0; i < nonterminalTable.getNumSubsymbolArr().size(); i++)
-		{
-			nonterminalTable.getNumSubsymbolArr().add(i, (short) (2 * nonterminalTable.getNumSubsymbolArr().get(i)));
-		}
-
-		// splitRule();
-
-		EM();
-	}
-
-	/**
-	 * 修改该分裂后的规则的概率
-	 * 
-	 * @param rule
-	 */
-	public void splitRule(Rule rule)
-	{
-		rule.split();
-	}
-
-	public void splitTreeAnnotation(Tree<Annotation> tree)
-	{
-		if (tree == null)
-			return;
-		if (tree.isLeaf())
-			return;
-		tree.getLabel().setNumSubSymbol((short) (tree.getLabel().getNumSubSymbol() * 2));
-		for (Tree<Annotation> child : tree.getChildren())
-		{
-			splitTreeAnnotation(child);
-		}
+		GrammarSpliter.splitGrammar(this);
+		EM(Grammar.iterations);
 	}
 
 	public void merger()
@@ -90,8 +61,211 @@ public class Grammar
 	/**
 	 * 将分裂后的语法期望最大化，得到新的规则
 	 */
-	public void EM()
+	public void EM(int iterations)
 	{
+		for (int i = 0; i < iterations; i++)
+		{
+			for (Tree<Annotation> tree : treeBank)
+			{
+				calculateInnerScore(tree);
+				calculateOuterScore(tree);
+				fillRuleCountExpectation(tree);
+				TreeUtil.forgetScore(tree);
+			}
+			refreshRuleScore();
+		}
+		// forAllRule -> forgetCountExpectation()
+	}
+
+	// 计算树上所有节点的所有隐藏节点的内向概率
+	public void calculateInnerScore(Tree<Annotation> tree)
+	{
+		if (tree.isLeaf())
+		{
+			return;
+		}
+		for (Tree<Annotation> child : tree.getChildren())
+		{
+			calculateInnerScore(child);
+		}
+
+		if (tree.isPreterminal())
+		{
+			final PreterminalRule tempPreRule = new PreterminalRule(tree.getLabel().getSymbol(),
+					tree.getChildren().get(0).getLabel().getWord());
+			if (lexicon.getPreRules().contains(tempPreRule))
+			{
+				// double[] arr = Arrays.stream(new
+				// Double[10]).mapToDouble(Double::valueOf).toArray();
+				int length = preRuleBySameHeadWithScore.get(tree.getLabel().getSymbol()).get(tempPreRule).size();
+				tree.getLabel().setInnerScores(preRuleBySameHeadWithScore.get(tree.getLabel().getSymbol())
+						.get(tempPreRule).toArray(new Double[length]));
+			}
+			else
+			{
+				throw new Error("Error grammar: don't contains  preRule :" + tempPreRule.toString());
+			}
+		}
+		else
+		{
+			switch (tree.getChildren().size())
+			{
+			case 1:
+				final UnaryRule tempUnaryRule = new UnaryRule(tree.getLabel().getSymbol(),
+						tree.getChildren().get(0).getLabel().getSymbol());
+				if (uRules.contains(tempUnaryRule))
+				{
+					LinkedList<LinkedList<Double>> uRuleScores = uRuleBySameHeadWithScore
+							.get(tree.getLabel().getSymbol()).get(tempUnaryRule);
+					Double[] innerScores = new Double[tree.getLabel().getNumSubSymbol()];
+					for (int i = 0; i < innerScores.length; i++)
+					{
+						BigDecimal innerScores_Ai = BigDecimal.valueOf(0.0);
+						for (int j = 0; j < tree.getChildren().get(0).getLabel().getNumSubSymbol(); j++)
+						{ // 规则A_i -> B_j的概率
+							BigDecimal A_i2B_j = BigDecimal.valueOf(uRuleScores.get(i).get(j));
+							BigDecimal B_jInnerScore = BigDecimal
+									.valueOf(tree.getChildren().get(0).getLabel().getInnerScores()[j]);
+							innerScores_Ai = innerScores_Ai.add(A_i2B_j.multiply(B_jInnerScore));
+						}
+						innerScores[i] = innerScores_Ai.doubleValue();
+					}
+					tree.getLabel().setInnerScores(innerScores);
+				}
+				else
+				{
+					throw new Error("Error grammar: don't contains  uRule :" + tempUnaryRule.toString());
+				}
+				break;
+			case 2:
+				final BinaryRule tempBRule = new BinaryRule(tree.getLabel().getSymbol(),
+						tree.getChildren().get(0).getLabel().getSymbol(),
+						tree.getChildren().get(1).getLabel().getSymbol());
+				if (bRules.contains(tempBRule))
+				{
+					LinkedList<LinkedList<LinkedList<Double>>> bRuleScores = bRuleBySameHeadWithScore
+							.get(tree.getLabel().getSymbol()).get(tempBRule);
+					Double[] innerScores = new Double[tree.getLabel().getNumSubSymbol()];
+					for (int i = 0; i < innerScores.length; i++)
+					{
+						BigDecimal innerScores_Ai = BigDecimal.valueOf(0.0);
+						for (int j = 0; j < tree.getChildren().get(0).getLabel().getNumSubSymbol(); j++)
+						{
+							for (int k = 0; k < tree.getChildren().get(1).getLabel().getNumSubSymbol(); k++)
+							{
+								// 规则A_i -> B_j C_k的概率
+								BigDecimal A_i2B_jC_k = BigDecimal.valueOf(bRuleScores.get(i).get(j).get(k));
+								BigDecimal B_jInnerScore = BigDecimal
+										.valueOf(tree.getChildren().get(0).getLabel().getInnerScores()[j]);
+								BigDecimal C_kInnerScore = BigDecimal
+										.valueOf(tree.getChildren().get(1).getLabel().getInnerScores()[j]);
+								innerScores_Ai = innerScores_Ai
+										.add(A_i2B_jC_k.multiply(B_jInnerScore).multiply(C_kInnerScore));
+							}
+						}
+						innerScores[i] = innerScores_Ai.doubleValue();
+					}
+				}
+				else
+				{
+					throw new Error("Error grammar: don't contains  bRule :" + tempBRule.toString());
+				}
+				break;
+			default:
+				throw new Error("Error tree: more than two children.");
+			}
+		}
+
+	}
+
+	/**
+	 * tree的根标记为ROOT
+	 * 
+	 * @param tree
+	 */
+	public void calculateOuterScore(Tree<Annotation> tree)
+	{
+		calculateOuterScoreHelper(tree, tree, tree.getLabel().getSpanTo() - tree.getLabel().getSpanFrom() - 1);
+	}
+
+	private void calculateOuterScoreHelper(Tree<Annotation> treeRoot, Tree<Annotation> treeNode, int sentenceLength)
+	{
+		if (treeNode == null)
+			return;
+		if (treeNode.isLeaf())
+			return;
+		// 计算根节点的外向概率
+		// calculateOuterScoreHelper(tree,tree.getLabel().getSpanTo() - 1);
+		if (treeNode.getLabel().getSpanFrom() == 0 && treeNode.getLabel().getSpanTo() == sentenceLength + 1)
+		{
+			Double[] array = new Double[treeNode.getLabel().getSymbol()];
+			Arrays.fill(array, 1);
+			treeNode.getLabel().setOuterScores(array);
+		}
+		else
+		{
+			switch (treeNode.getChildren().size())
+			{
+			case 1:
+				final UnaryRule tempUnaryRule = new UnaryRule(treeNode.getLabel().getSymbol(),
+						treeNode.getChildren().get(0).getLabel().getSymbol());
+				if (uRules.contains(tempUnaryRule))
+				{
+					LinkedList<LinkedList<Double>> uRuleScores = uRuleBySameHeadWithScore
+							.get(treeNode.getLabel().getSymbol()).get(tempUnaryRule);
+					Double[] outerScores = new Double[treeNode.getLabel().getNumSubSymbol()];
+					for (int j = 0; j < outerScores.length; j++)
+					{
+						BigDecimal outerScores_Bj = BigDecimal.valueOf(0.0);
+						Tree<Annotation> parent = treeNode.getParent(treeRoot);
+						for (int i = 0; i < parent.getChildren().size(); i++)
+						{
+							BigDecimal A_i2B_j = BigDecimal.valueOf(uRuleScores.get(i).get(j));
+							BigDecimal A_iOuterScore = BigDecimal.valueOf(parent.getLabel().getOuterScores()[i]);
+							outerScores_Bj = outerScores_Bj.add(A_i2B_j.multiply(A_iOuterScore));
+						}
+						outerScores[j] = outerScores_Bj.doubleValue();
+					}
+				}
+				else
+				{
+					throw new Error("Error grammar: don't contains  uRule :" + tempUnaryRule.toString());
+				}
+
+				break;
+			case 2:
+				//TODO:
+				break;
+			default:
+				throw new Error("error tree:more than two children.");
+			}
+		}
+		for (Tree<Annotation> childNode : treeNode.getChildren())
+		{
+			calculateOuterScoreHelper(treeRoot, childNode, sentenceLength);
+		}
+
+	}
+
+	// public void calculateOuterScoreHelper(Tree<Annotation> tree,int
+	// sentenceLength)
+	// {
+	// if(spanFrom == 0,spanTo == )
+	// }
+
+	public void fillRuleCountExpectation(Tree<Annotation> tree)
+	{
+		calculateRuleCountExpectation(0.0, new UnaryRule((short) 1, (short) 2), (short) 1, (short) 2);
+	}
+
+	public void calculateRuleCountExpectation(double count, Rule rule, short... subSymbolIndex)
+	{
+		// TODO:将count值填写到语法规则集的规则中去
+	}
+
+	public void refreshRuleScore()
+	{
+
 	}
 
 	public double calculateLikelihood()
@@ -118,7 +292,7 @@ public class Grammar
 			Double score = uRule.scores.get(0).get(0);
 			allBAndURules.put(parentStr + " ->" + childStr, score);
 		}
-		for (PreterminalRule preRule : preRules)
+		for (PreterminalRule preRule : lexicon.getPreRules())
 		{
 			String parentStr = nonterminalTable.stringValue(preRule.parent);
 			String childStr = preRule.word;

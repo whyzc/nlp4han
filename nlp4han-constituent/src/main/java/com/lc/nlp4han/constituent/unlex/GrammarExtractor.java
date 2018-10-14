@@ -3,6 +3,7 @@ package com.lc.nlp4han.constituent.unlex;
 import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -16,13 +17,18 @@ public class GrammarExtractor
 	// 统计树库过程中得到
 	protected List<Tree<Annotation>> treeBank;
 	protected NonterminalTable nonterminalTable;
+	protected HashSet<String> dictionary;
 
 	protected List<Short> preterminal;// 词性标注对应的整数
+
 	protected HashMap<PreterminalRule, Integer>[] preRuleBySameHead;// 长度与preterminal相同
-	String[] a = new String[10];
 	protected HashMap<BinaryRule, Integer>[] bRuleBySameHead;// 数组下标表示nonterminal对应的整数
 	protected HashMap<UnaryRule, Integer>[] uRuleBySameHead;// 数组下标表示nonterminal对应的整数
-
+	// TODO:待修改，拟改用<HashMap , HashMap<PreterminalRule , LinkedList<Double>> >
+	//添加相同孩子节点为key的map
+	protected HashMap<PreterminalRule, LinkedList<Double>>[] preRuleBySameHeadWithScore;// 长度与preterminal相同
+	protected HashMap<BinaryRule, LinkedList<LinkedList<LinkedList<Double>>>>[] bRuleBySameHeadWithScore;// 数组下标表示nonterminal对应的整数
+	protected HashMap<UnaryRule, LinkedList<LinkedList<Double>>>[] uRuleBySameHeadWithScore;// 数组下标表示nonterminal对应的整数
 	public int[] numOfSameHeadRule;
 
 	@SuppressWarnings("unchecked")
@@ -30,21 +36,22 @@ public class GrammarExtractor
 	{
 		this.treeBank = treeBank;
 		this.nonterminalTable = nonterminalTable;
+		dictionary = new HashSet<String>();
 		preterminal = nonterminalTable.getIntValueOfPreterminalArr();
 		preRuleBySameHead = new HashMap[preterminal.size()];
 		for (int i = 0; i < preterminal.size(); i++)
 		{
-			preRuleBySameHead[i] = new HashMap<PreterminalRule,Integer>();
+			preRuleBySameHead[i] = new HashMap<PreterminalRule, Integer>();
 		}
 		bRuleBySameHead = new HashMap[nonterminalTable.getNumSymbol()];
 		for (int i = 0; i < nonterminalTable.getNumSymbol(); i++)
 		{
-			bRuleBySameHead[i] = new HashMap<BinaryRule,Integer>();
+			bRuleBySameHead[i] = new HashMap<BinaryRule, Integer>();
 		}
 		uRuleBySameHead = new HashMap[nonterminalTable.getNumSymbol()];
 		for (int i = 0; i < nonterminalTable.getNumSymbol(); i++)
 		{
-			uRuleBySameHead[i] = new HashMap<UnaryRule,Integer>();
+			uRuleBySameHead[i] = new HashMap<UnaryRule, Integer>();
 		}
 		numOfSameHeadRule = new int[this.nonterminalTable.getNumSymbol()];
 	}
@@ -101,10 +108,12 @@ public class GrammarExtractor
 					else
 					{
 						String child = queue.peek().getChildren().get(0).getLabel().getWord();
+						dictionary.add(child);
 						PreterminalRule preRule = new PreterminalRule(parent, child);
 						if (!preRuleBySameHead[preterminal.indexOf(parent)].containsKey(preRule))
 						{
 							preRuleBySameHead[preterminal.indexOf(parent)].put(preRule, 1);
+							
 						}
 						else
 						{
@@ -122,6 +131,7 @@ public class GrammarExtractor
 			}
 		}
 		calculateRuleScores();
+		
 	}
 
 	// 计算初始文法的概率

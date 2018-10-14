@@ -1,5 +1,6 @@
 package com.lc.nlp4han.constituent.unlex;
 
+import java.math.BigDecimal;
 import java.util.LinkedList;
 
 /**
@@ -9,22 +10,42 @@ import java.util.LinkedList;
 public class UnaryRule extends Rule
 {
 	private short child;
-	LinkedList<LinkedList<Double>> scores = new LinkedList<LinkedList<Double>>();// 保存规则例如A -> B 的概率
+	LinkedList<LinkedList<Double>> scores = new LinkedList<LinkedList<Double>>();// 保存规则例如Ai -> Bj 的概率
 
 	public UnaryRule(short parent, short child)
 	{
 		super.parent = parent;
 		this.child = child;
 	}
-	
-	
-	
+
 	@Override
 	public void split()
-	{
+	{// TODO:加入随机扰动
+		// split child
+		int pNumSubSymbol = scores.size();
+		for (int i = 0; i < pNumSubSymbol; i++)
+		{
+			LinkedList<Double> sameFather = scores.get(i);// Father均为A_i的scores
+			int cNumSubSymbol = sameFather.size();
+			for (int j = cNumSubSymbol - 1; j >= 0; j--)
+			{
+
+				sameFather.add(j + 1, BigDecimal.valueOf(sameFather.get(j))
+						.divide(BigDecimal.valueOf(2.0), 15, BigDecimal.ROUND_HALF_UP).doubleValue());
+				sameFather.set(j, sameFather.get(j + 1));
+			}
+			scores.set(i, sameFather);
+		}
+
+		// split father
+		for (int i = pNumSubSymbol - 1; i >= 0; i--)
+		{
+			scores.get(i).replaceAll(e -> BigDecimal.valueOf(e.doubleValue())
+					.divide(BigDecimal.valueOf(2.0), 15, BigDecimal.ROUND_HALF_UP).doubleValue());
+			LinkedList<Double> sameChild = new LinkedList<>(scores.get(i));
+			scores.add(i + 1, sameChild);
+		}
 	}
-
-
 
 	public int hashCode()
 	{
@@ -33,7 +54,6 @@ public class UnaryRule extends Rule
 		result = prime * result + child;
 		return result;
 	}
-
 
 	public boolean equals(Object obj)
 	{
@@ -71,7 +91,7 @@ public class UnaryRule extends Rule
 
 	public boolean isSameRule(short parent, short child)
 	{
-		if(this.parent == parent && this.child == child)
+		if (this.parent == parent && this.child == child)
 			return true;
 		else
 			return false;
