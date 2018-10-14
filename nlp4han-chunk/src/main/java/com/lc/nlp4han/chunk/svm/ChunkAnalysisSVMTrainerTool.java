@@ -14,7 +14,7 @@ public class ChunkAnalysisSVMTrainerTool
 			+ "options:\n"
 			+ "-encoding encoding : set encoding" 
 			+ "-label label : such as BIOE, BIOES"
-			+ svm_train.OPTIONS;
+			+ SVMTrain.OPTIONS;
 	
 	
 	public static void main(String[] args) throws IOException
@@ -29,8 +29,10 @@ public class ChunkAnalysisSVMTrainerTool
 		System.out.println("类别总数：" + SVMStandardInput.getClassificationResults().size());
 		
 		String[] trainArgs = as.get("train");
-		svm_train t = new svm_train();
-		t.run(trainArgs, input);
+		SVMTrain t = new SVMTrain();
+		
+		t.run(trainArgs, input, true, SVMStandardInput.getScaleInfo());
+
 		
 		long endTime = System.currentTimeMillis();
 		System.out.println("共耗时：" + (endTime-startTime)*1.0/60000 + "mins");
@@ -60,6 +62,14 @@ public class ChunkAnalysisSVMTrainerTool
 					standardInputArgs.add(args[i]);
 					break;
 				case "-label":
+					standardInputArgs.add(args[i-1]);
+					standardInputArgs.add(args[i]);
+					break;
+				case "-l":
+					standardInputArgs.add(args[i-1]);
+					standardInputArgs.add(args[i]);
+					break;
+				case "-u":
 					standardInputArgs.add(args[i-1]);
 					standardInputArgs.add(args[i]);
 					break;
