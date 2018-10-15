@@ -7,11 +7,11 @@ package com.lc.nlp4han.constituent.unlex;
 public class Annotation
 {
 	private String word;// 表示句中词语，非终端节点才有
-	private short symbol = -1;
+	private short symbol = -1;// 表示树上非终端节点
 	private short numSubSymbol;
-	private short spanFrom, spanTo;
-	private double[] innerScores;// 内向概率
-	private double[] outerScores;// 外向概率
+	private short spanFrom, spanTo;// 记一个句子W中的词语下标从0到length-1。非终结符号A产生句子W_i->W_j,则A_spanFrom = i, A_spanTo = j+1;
+	private Double[] innerScores;// 内向概率
+	private Double[] outerScores;// 外向概率
 
 	public Annotation(short symbol, short numSubSymbol)
 	{
@@ -74,25 +74,24 @@ public class Annotation
 		this.spanFrom = spanFrom;
 	}
 
-	public double[] getInnerScores()
+	public Double[] getInnerScores()
 	{
 		return innerScores;
 	}
 
-	public void setInnerScores(double[] innerScores)
+	public void setInnerScores(Double[] innerScores)
 	{
 		this.innerScores = innerScores;
 	}
 
-	public double[] getOuterScores()
+	public Double[] getOuterScores()
 	{
 		return outerScores;
 	}
 
-	public void setOuterScores(double[] outerScores)
+	public void setOuterScores(Double[] outerScores)
 	{
 		this.outerScores = outerScores;
 	}
 
-	
 }

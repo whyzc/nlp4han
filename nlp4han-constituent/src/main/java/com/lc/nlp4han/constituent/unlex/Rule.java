@@ -8,6 +8,8 @@ public abstract class Rule
 {
 	protected short parent;
 	
+	public void split() {}
+	
 	public int hashCode()
 	{
 		final int prime = 31;
@@ -27,6 +29,14 @@ public abstract class Rule
 		if (parent != other.parent)
 			return false;
 		return true;
+	}
+	public short getParent()
+	{
+		return parent;
+	}
+	public void setParent(short parent)
+	{
+		this.parent = parent;
 	}
 	
 }

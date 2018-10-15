@@ -3,17 +3,21 @@ package com.lc.nlp4han.constituent.unlex;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.lc.nlp4han.constituent.TreeNode;
+
 /**
  * @author 王宁 version 创建时间：2018年9月27日 上午9:22:02 处理树
  */
-public class TreeProcessor
+public class TreeUtil
 {
-/**
- * 将Tree<String>>转化为Tree<Annotation>
- * @param trees
- * @param convertTable
- * @return 获得树库的Tree<Annotation>表示
- */
+
+	/**
+	 * 将Tree<String>>转化为Tree<Annotation>
+	 * 
+	 * @param trees
+	 * @param convertTable
+	 * @return 获得树库的Tree<Annotation>表示
+	 */
 	public static List<Tree<Annotation>> getAnnotationTrees(List<Tree<String>> trees, NonterminalTable convertTable)
 	{
 		if (trees.isEmpty() || trees == null)
@@ -28,27 +32,59 @@ public class TreeProcessor
 		return annotationTrees;
 	}
 
-	private static Tree<Annotation> getAnnotationTreesHelper(Tree<String> tree, NonterminalTable convertTable)
+	public static Tree<Annotation> getAnnotationTreesHelper(Tree<String> tree, NonterminalTable convertTable)
 	{
+		if (tree == null)
+			return null;
 		if (tree.isLeaf())
 		{
 			return new Tree<Annotation>(new Annotation(tree.getLabel()));
 		}
-		short inValueOfLabel;
+		short intValueOfLabel;
 		if (convertTable.hasSymbol(tree.getLabel()))
 		{
-			inValueOfLabel = convertTable.intValue(tree.getLabel());
+			intValueOfLabel = convertTable.intValue(tree.getLabel());
 		}
-		inValueOfLabel = convertTable.putSymbol(tree.getLabel());
+		else
+		{
+			intValueOfLabel = convertTable.putSymbol(tree.getLabel());
+		}
 
-		Tree<Annotation> annotationTree = new Tree<Annotation>(new Annotation(inValueOfLabel, (short) 1));
-		ArrayList<Tree<Annotation>> children = new ArrayList<Tree<Annotation>>();
+		if (tree.isPreterminal() && !convertTable.getIntValueOfPreterminalArr().contains(intValueOfLabel))
+		{
+			convertTable.addToPreterminalArr(intValueOfLabel);
+		}
+
+		Tree<Annotation> annotationTree = new Tree<Annotation>(new Annotation(intValueOfLabel, (short) 1));
+		ArrayList<Tree<Annotation>> children = new ArrayList<Tree<Annotation>>(tree.getChildren().size());
 		for (Tree<String> child : tree.getChildren())
 		{
 			children.add(getAnnotationTreesHelper(child, convertTable));
 		}
 		annotationTree.setChildren(children);
 		return annotationTree;
+	}
+
+	/**
+	 * 将TreeNode转化为Tree<String>
+	 * 
+	 * @param tree
+	 * @return Tree<String>
+	 */
+	public static Tree<String> getStringTree(TreeNode treeNode)
+	{
+		if (treeNode == null)
+			return null;
+		if (treeNode.isLeaf())
+			return new Tree<String>(treeNode.getNodeName());
+		Tree<String> tree = new Tree<String>(treeNode.getNodeName());
+		ArrayList<Tree<String>> children = new ArrayList<Tree<String>>(treeNode.getChildren().size());
+		for (TreeNode child : treeNode.getChildren())
+		{
+			children.add(getStringTree(child));
+		}
+		tree.setChildren(children);
+		return tree;
 	}
 
 	public static Tree<String> binarizeTree(Tree<String> normalTree)
@@ -130,6 +166,44 @@ public class TreeProcessor
 	}
 
 	/**
+	 * 一棵树除了根节点以外，其他所有的节点均添加父节点的label
+	 * 
+	 * @param tree
+	 * @return 一棵树除了根节点以外，其他所有的节点均添加了父节点label的树
+	 */
+	public static Tree<String> addParentLabel(Tree<String> tree)
+	{
+		if (tree == null || tree.isLeaf())
+			return tree;
+		for (Tree<String> child : tree.getChildren())
+		{
+			addParentLabel(child);
+			child.setLabel(child.getLabel() + "^" + tree.getLabel());
+		}
+		return tree;
+	}
+
+	/**
+	 * 由带父节点label的树的得到不带父节点label的树
+	 * 
+	 * @param tree
+	 * @return 不带父节点label的树
+	 */
+	public static Tree<String> removeParentLabel(Tree<String> tree)
+	{
+		if (tree == null || tree.isLeaf())
+		{
+			return tree;
+		}
+		for (Tree<String> child : tree.getChildren())
+		{
+			removeParentLabel(child);
+		}
+		tree.setLabel(tree.getLabel().split("\\^")[0]);
+		return tree;
+	}
+
+	/**
 	 * 
 	 * @param tree
 	 * @return 移除树中例如A->A的结构
@@ -151,4 +225,46 @@ public class TreeProcessor
 		return tree;
 	}
 
+	public static Tree<Annotation> forgetScore(Tree<Annotation> tree)
+	{
+		if (tree.isLeaf() || tree == null)
+			return tree;
+		tree.getLabel().setInnerScores(null);
+		tree.getLabel().setOuterScores(null);
+		for (Tree<Annotation> child : tree.getChildren())
+		{
+			forgetScore(child);
+		}
+		return tree;
+	}
+
+//	public static <T extends Rule> void getRuleOfTreeRoot(Tree<Annotation> tree, T rule)
+//	{
+//		if (tree == null)
+//			return;
+//		switch (tree.getChildren().size())
+//		{
+//		case 0:
+//			rule = null;
+//			break;
+//		case 1:
+//			if (tree.isPreterminal())
+//			{
+//				((PreterminalRule) rule).setParent(tree.getLabel().getSymbol());
+//				((PreterminalRule) rule).setWord(tree.getChildren().get(0).getLabel().getWord());
+//			}
+//			else
+//			{
+//				((UnaryRule) rule).setParent(tree.getLabel().getSymbol());
+//				((UnaryRule) rule).setChild(tree.getChildren().get(0).getLabel().getSymbol());
+//			}
+//			break;
+//		case 2:
+//			((BinaryRule) rule).setParent(tree.getLabel().getSymbol());
+//			((BinaryRule) rule).setLeftChild(tree.getChildren().get(0).getLabel().getSymbol());
+//			((BinaryRule) rule).setRightChild(tree.getChildren().get(1).getLabel().getSymbol());
+//			break;
+//		default:throw new Error("Error Tree:more than two children.");
+//		}
+//	}
 }
