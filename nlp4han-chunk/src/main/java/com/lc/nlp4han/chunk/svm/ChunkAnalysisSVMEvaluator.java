@@ -66,7 +66,6 @@ public class ChunkAnalysisSVMEvaluator extends Evaluator<AbstractChunkAnalysisSa
 		prediction.setTagScheme(sample.getTagScheme());
 
 		measure.update(wordsRef, chunkTagsRef, chunkTagsPre);
-		// measure.add(wordAndPOSSample, prediction);
 		return prediction;
 	}
 

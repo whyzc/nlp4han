@@ -39,6 +39,14 @@ public class SVMStandardInput
 																					// O，（index+1）为SVM标准分类结果
 	private static Map<String, Map<String, Integer>> Features = new HashMap<String, Map<String, Integer>>(); // 记录所有具体的特征，为每一特征赋值
 
+	private static ScaleInfo scaleInfo = null;
+	
+
+	public static ScaleInfo getScaleInfo()
+	{
+		return scaleInfo;
+	}
+
 	public static String[] getStandardInput(String[] args) throws IOException
 	{
 		String[] params = parseArgs(args);
@@ -50,8 +58,87 @@ public class SVMStandardInput
 		ObjectStream<Event> es = getEventStream(params[0], params[1], params[2], featureConf);
 
 		String[] input = standardInput(es);
+		
+		if (scaleInfo != null)		//需要scale
+		{
+			int[] ranges = new int[FeatureStructure.size()];
+			for (int i=0 ; i<ranges.length ; i++)
+			{
+				String key = parseName(FeatureStructure.get(i));
+				ranges[i] = Features.get(key).size();
+			}
+			scaleInfo.ranges = ranges;
+			scale(input, scaleInfo, FeatureStructure);
+			
+		}
+		
+		es.close();
 
 		return input;
+	}
+
+	private static void scale(String[] input, ScaleInfo scaleInfo, List<String> featureStructure)
+	{
+		for (int i=0 ; i<input.length ; i++)
+		{
+			String temp = scaleOneLine(input[i], scaleInfo, featureStructure);
+			input[i] = temp;
+		}
+	}
+
+	private static String scaleOneLine(String string, ScaleInfo scaleInfo, List<String> featureStructure)
+	{
+		String[] strs = string.split(" +");
+		StringBuilder result = new StringBuilder();
+		result.append(strs[0]);
+		
+		int currentIndex = 1;
+		for (int i=1 ; i<strs.length ; i++)
+		{
+			String[] temp = strs[i].split(":");
+			if (Integer.parseInt(temp[0]) != currentIndex)
+			{
+				for ( ; currentIndex<Integer.parseInt(temp[0]) ; currentIndex++)
+				{
+					String tempStr = output(currentIndex, 0, scaleInfo);
+					result.append(tempStr);
+				}
+			}
+			
+			String tempStr = output(currentIndex, Integer.parseInt(temp[1]), scaleInfo);
+			result.append(tempStr);
+			currentIndex++;
+
+		}
+		
+		for ( ; currentIndex <= featureStructure.size() ; currentIndex++)
+		{
+			String tempStr = output(currentIndex, 0,scaleInfo);
+			result.append(tempStr);
+		}
+		
+		return result.toString();
+	}
+	
+	private static String output(int index, int value, ScaleInfo scaleInfo)
+	{
+		/* skip single-valued attribute */
+		if(scaleInfo.ranges[index-1] == 0)
+			return "";
+		double result;
+		if(value == 1)
+			result = scaleInfo.lower;
+		else if(value == scaleInfo.ranges[index-1])
+			result = scaleInfo.upper;
+		else
+			result = scaleInfo.lower + 1.0*(scaleInfo.upper-scaleInfo.lower) *(value-1)/(scaleInfo.ranges[index-1]-1);
+
+		if(result != 0)
+		{
+			return (" " + index + ":" + String.format("%.8f", result));
+		}
+		else
+			return "";
 	}
 
 	/**
@@ -64,9 +151,11 @@ public class SVMStandardInput
 	 * @return SVM标准输入中的特征部分
 	 */
 	public static String getSVMStandardFeaturesInput(String[] context, List<String> featureStructure,
-			Map<String, Map<String, Integer>> features)
+			Map<String, Map<String, Integer>> features, ScaleInfo scaleInfo)
 	{
-		StringBuilder result = new StringBuilder();
+		//int[] newRanges = scaleInfo.ranges.clone();		//用于为样本中未出现的样本赋值，当出现新的特征，对应的值+1
+		StringBuilder IntInput = new StringBuilder();
+		
 		for (int i = 0; i < featureStructure.size(); i++)
 		{
 			String indexStr = featureStructure.get(i);
@@ -81,11 +170,14 @@ public class SVMStandardInput
 						Map<String, Integer> temp = features.get(parseName(indexStr));
 						if (temp.containsKey(strs[1]))
 						{
-							result.append(" " + (i + 1) + ":" + temp.get(strs[1]));
+							IntInput.append(" " + (i + 1) + ":" + temp.get(strs[1]));
 						}
 						else
 						{ // 没有的特征，赋0值
-							result.append(" " + (i + 1) + ":" + 0);
+							int size = temp.size();
+							temp.put(strs[1], size+1);
+							
+							IntInput.append(" " + (i + 1) + ":" + (size+1));
 						}
 					}
 					else
@@ -96,8 +188,18 @@ public class SVMStandardInput
 				}
 			}
 		}
-		if (result.length() > 1)
-			return result.substring(1);
+		if (IntInput.length() > 1)
+		{
+			if (scaleInfo == null)
+			{
+				return IntInput.substring(1);
+			}
+			else
+			{
+				String s = scaleOneLine("1" + IntInput.toString(), scaleInfo, featureStructure);
+				return s.substring(2);
+			}
+		}
 		else
 			return null;
 	}
@@ -118,6 +220,7 @@ public class SVMStandardInput
 			}
 		}
 	}
+	
 
 	/**
 	 * 获取默认的特征配置文件
@@ -143,7 +246,11 @@ public class SVMStandardInput
 		String docPath = null;
 
 		String scheme = "BIEOS";
-
+		
+		int lower = 1;
+		int upper = 1;
+		boolean scaleFlag = false;
+		
 		for (int i = 0; i < args.length; i++)
 		{
 			if ("-encoding".equals(args[i]))
@@ -159,6 +266,18 @@ public class SVMStandardInput
 			else if ("-label".equals(args[i]))
 			{
 				scheme = args[i + 1];
+				i++;
+			}
+			else if ("-l".equals(args[i]))
+			{
+				lower = Integer.parseInt(args[i+1]);
+				scaleFlag = true;
+				i++;
+			}
+			else if ("-u".equals(args[i]))
+			{
+				upper = Integer.parseInt(args[i+1]);
+				scaleFlag = true;
 				i++;
 			}
 		}
@@ -177,11 +296,19 @@ public class SVMStandardInput
 					+ "' does not exist or is not readable, please check the path");
 			System.exit(1);
 		}
-
-		String[] result = new String[3];
+		
+		String[] result = null;
+		
+		result = new String[3];
 		result[0] = docPath;
 		result[1] = scheme;
 		result[2] = encoding;
+		
+		if (scaleFlag)
+			scaleInfo = new ScaleInfo(lower, upper);
+			
+		
+			
 		return result;
 	}
 
@@ -244,24 +371,6 @@ public class SVMStandardInput
 		{
 			e.printStackTrace();
 		}
-//		finally
-//		{
-//
-//			if (es != null)
-//			{
-//
-//				try
-//				{
-//					es.close();
-//				}
-//				catch (IOException e1)
-//				{
-//
-//				}
-//
-//			}
-//
-//		}
 		
 		String[] input = new String[inputList.size()];
 

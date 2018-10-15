@@ -27,6 +27,7 @@ public class ChunkAnalysisSVMME implements Chunker
 	private ChunkAnalysisContextGenerator contextgenerator;
 	private svm_model model;
 	private String label;
+	private ScaleInfo scaleInfo= null;
 	
 	public ChunkAnalysisSVMME()
 	{
@@ -46,6 +47,10 @@ public class ChunkAnalysisSVMME implements Chunker
 		this.label = label;
 	}
 	
+	public ScaleInfo getScaleInfo()
+	{
+		return scaleInfo;
+	}
 	public List<String> getFeatureStructure()
 	{
 		return FeatureStructure;
@@ -75,7 +80,7 @@ public class ChunkAnalysisSVMME implements Chunker
 	}
 
 	/**
-	 * 从文件中初始化用于将文本转换成svm输入格式的三个参数
+	 * 从文件中初始化用于将文本转换成svm输入格式的参数
 	 * @param filePath
 	 */
 	public void init(String filePath)
@@ -91,43 +96,85 @@ public class ChunkAnalysisSVMME implements Chunker
 
 			String tempString = null;
 			
-			int lineNum = 1;
+			int currentLine = 1;
 			int num1 = 0;
 			int num2 = 0;
 			String key = null;
 			int num3 = 0;
 			Map<String, Integer> value = null;
+			
+			int lower = 1;
+			int upper = 1;
+			boolean scaleFlag = false;
 
 			while ((tempString = reader.readLine()) != null)
 			{
 				String[] strs = null;
-				if (lineNum == 1)
+				if (currentLine == 1)
+				{
+					if (tempString.split("=")[1].equals("true"))
+					{
+						scaleFlag = true;
+					}
+					currentLine++;
+				}
+				else if (currentLine == 2)
+				{
+					if (scaleFlag)
+					{
+						lower = Integer.parseInt(tempString.split("=")[1]);
+					}
+					currentLine++;
+				}
+				else if (currentLine == 3)
+				{
+					if (scaleFlag)
+					{
+						upper = Integer.parseInt(tempString.split("=")[1]);
+					}
+					currentLine++;
+				}
+				else if (currentLine == 4)
+				{
+					if (scaleFlag)
+					{
+						String[] str = tempString.split(" ");
+						int[] ranges = new int[str.length];
+						for (int i=0 ; i<str.length ; i++)
+						{
+							ranges[i] = Integer.parseInt(str[i]);
+						}
+						scaleInfo = new ScaleInfo(lower, upper, ranges);
+					}
+					currentLine++;
+				}
+				else if (currentLine == 5)
 				{
 					 strs = tempString.split("=");
-					 num1 = str2int(strs[1]) + 1;
+					 num1 = str2int(strs[1]) + currentLine;
 					 num2 = num1 +1;
-					 lineNum++;
+					 currentLine++;
 				}
-				else if (lineNum <= num1)
+				else if (currentLine <= num1)
 				{
 					FeatureStructure.add(tempString);
-					lineNum++;
+					currentLine++;
 				}
-				else if (lineNum == num1 + 1)
+				else if (currentLine == num1 + 1)
 				{
 					strs = tempString.split("=");
-					num2 = str2int(strs[1]) + num1 + 1;
+					num2 = str2int(strs[1]) + currentLine;
 					num3 = num2;
-					lineNum++;
+					currentLine++;
 				}
-				else if (lineNum <= num2)
+				else if (currentLine <= num2)
 				{
 					ClassificationResults.add(tempString);
-					lineNum++;
+					currentLine++;
 				}
 				else
 				{
-					if (lineNum == num3 + 1)
+					if (currentLine == num3 + 1)
 					{
 						strs = tempString.split(" ");
 						if (strs.length == 2 && strs[0].matches("[a-z]+") && strs[1].matches("[0-9]+"))
@@ -144,7 +191,7 @@ public class ChunkAnalysisSVMME implements Chunker
 								num3 += tmp/100 + 2;
 							}
 						}
-						lineNum++;
+						currentLine++;
 					}
 					else
 					{
@@ -154,11 +201,11 @@ public class ChunkAnalysisSVMME implements Chunker
 							//TODO: 注意，此处的值为int型
 							value.put(strs[j].split("=")[0], str2int(strs[j].split("=")[1]));
 						}
-						if (lineNum == num3)
+						if (currentLine == num3)
 						{
 							Features.put(key, value);
 						}
-						lineNum++;
+						currentLine++;
 					}
 				}
 			}
@@ -214,7 +261,6 @@ public class ChunkAnalysisSVMME implements Chunker
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -240,7 +286,7 @@ public class ChunkAnalysisSVMME implements Chunker
 		for (int i=0 ; i<words.length ; i++)
 		{
 			String[] context = contextgenerator.getContext(i, words, chunkTags, poses);
-			line = "1 " + SVMStandardInput.getSVMStandardFeaturesInput(context, FeatureStructure, Features);	//<label> <index1>:<value1> <index2>:<value2> ... 预测时，label可以为任意值
+			line = "1 " + SVMStandardInput.getSVMStandardFeaturesInput(context, FeatureStructure, Features, scaleInfo);	//<label> <index1>:<value1> <index2>:<value2> ... 预测时，label可以为任意值
 			String tag = predict(line, model);
 			chunkTags[i] = tag;
 		}
@@ -254,7 +300,7 @@ public class ChunkAnalysisSVMME implements Chunker
 	public String predict(String line, svm_model model) throws IOException
 	{
 		//TODO
-		String v = svm_predict.predict(line, model, 0);
+		String v = SVMPredict.predict(line, model, 0);
 		String result = transform(v);
 		return result;
 	}
@@ -274,6 +320,17 @@ public class ChunkAnalysisSVMME implements Chunker
 		return Integer.valueOf(str.trim().split("\\.")[0]);
 	}
 	
+	private static double atof(String s)
+	{
+		double d = Double.valueOf(s).doubleValue();
+		if (Double.isNaN(d) || Double.isInfinite(d))
+		{
+			System.err.print("NaN or Infinity in input\n");
+			System.exit(1);
+		}
+		return(d);
+	}
+	
 	public svm_model train(ObjectStream<AbstractChunkAnalysisSample> sampleStream, String[] arg,
 			ChunkAnalysisContextGenerator contextGen) throws IOException
 	{
@@ -281,8 +338,8 @@ public class ChunkAnalysisSVMME implements Chunker
 		String[] input = SVMStandardInput.standardInput(es);
 		init(SVMStandardInput.getFeatureStructure(), SVMStandardInput.getClassificationResults(), SVMStandardInput.getFeatures());
 		
-		svm_train t = new svm_train();
-		svm_model m = t.run(arg, input, false);
+		SVMTrain t = new SVMTrain();
+		svm_model m = t.run(arg, input, false, null);
 		return m;
 		
 	}

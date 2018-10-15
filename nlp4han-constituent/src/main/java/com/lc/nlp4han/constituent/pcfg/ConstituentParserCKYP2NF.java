@@ -10,13 +10,12 @@ import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
 
-public class ConstituentParserCKYOfP2NF implements ConstituentParser
+public class ConstituentParserCKYP2NF implements ConstituentParser
 {
 	private CKYTreeNode[][] table;// 存储在该点的映射表
 	private PCFG pcnf;
-	private ArrayList<String> resultList;
 
-	public ConstituentParserCKYOfP2NF(PCFG pcnf)
+	public ConstituentParserCKYP2NF(PCFG pcnf)
 	{
 		this.pcnf = pcnf;
 	}
@@ -97,7 +96,7 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 		int i = 0;
 		for (String bracketString : bracketList)
 		{
-			TreeNode rootNode = BracketExpUtil.generateTree(bracketString);
+			TreeNode rootNode = RestoreTree.restoreTree(BracketExpUtil.generateTree(bracketString));
 			treeArray[i++] = new ConstituentTree(rootNode);
 		}
 		return treeArray;
@@ -178,9 +177,10 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 				}
 			}
 		}
-		// 回溯并生成括号表达式列表
-		CreatBracketStringList(n, numOfResulets);
-		return resultList;
+		// 回溯并生成括号表达式列表,此刻的树并未还原为宾州树库的形式
+		return bracketStringListGenerate(n, numOfResulets, table, pcnf);
+		// return RestoreTree.bracketStringListGenerate(n, numOfResulets, table, pcnf);
+
 	}
 
 	/**
@@ -249,8 +249,8 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 			ArrayList<CKYPRule> tempList = makeNewArrayList(ckyPRuleList, rule);
 			ruleMap.put(lhs, tempList);
 		} // 若该非终结符对应的映射表已满，而且其中概率最小的比ckyPRuleList中最大的还要大则不处理
-		else if (ruleMap.get(lhs).size() == numOfResulets && ruleMap.get(lhs).get(numOfResulets - 1)
-				.getProb() >= ckyPRuleList.get(0).getProb() * rule.getProb())
+		else if (ruleMap.get(lhs).size() == numOfResulets
+				&& ruleMap.get(lhs).get(numOfResulets - 1).getProb() >= ckyPRuleList.get(0).getProb() * rule.getProb())
 		{
 
 		} // 将ckyPRuleList和ruleMap中该非终结符对应的规则表联合再排序
@@ -292,8 +292,8 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 						continue;
 					}
 				}
-				PRule prule1 = new PRule(prule.getProb() * rule.getProb(),
-						prule.getLhs() + "@" + rule.getLhs(), rule.getRhs());
+				PRule prule1 = new PRule(prule.getProb() * rule.getProb(), prule.getLhs() + "@" + rule.getLhs(),
+						rule.getRhs());
 				updateRuleMapOfTable(prule1, ruleMap, prule.getLhs(), ckyPRuleList, numOfResulets, lhsAndProMap);
 			}
 		}
@@ -325,8 +325,7 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 			for (int j = 0; j < kjCKYPRuleList.size(); j++)
 			{
 				CKYPRule kjCKYPRule = kjCKYPRuleList.get(j);
-				tempList.add(new CKYPRule(ikCKYPRule.getProb() * kjCKYPRule.getProb(), lhs, prule.getRhs(), k,
-						i, j));
+				tempList.add(new CKYPRule(ikCKYPRule.getProb() * kjCKYPRule.getProb(), lhs, prule.getRhs(), k, i, j));
 			}
 		}
 		Collections.sort(tempList);
@@ -346,140 +345,6 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 
 	}
 
-	/**
-	 * 生成结果括号表达式的列表
-	 * 
-	 * @param n
-	 *            句子长度
-	 * @param numOfResulets
-	 *            需要获得的句子分析结果个数
-	 */
-	private void CreatBracketStringList(int n, int numOfResulets)
-	{
-		// 查找概率最大的n个结果
-		ArrayList<CKYPRule> resultRuleList = table[0][n].getPruleMap().get(pcnf.getStartSymbol());
-		resultList = new ArrayList<String>();
-		if (resultRuleList == null)
-		{
-			return;
-		}
-		for (CKYPRule prule : resultRuleList)
-		{
-			StringBuilder strBuilder = new StringBuilder();
-			// 从最后一个节点[0,n]开始回溯
-			CreateStringBuilder(0, n, prule, strBuilder);
-			resultList.add(strBuilder.toString());
-		}
-	}
-
-	// 递归table和back生成StringBuilder
-	private void CreateStringBuilder(int i, int j, CKYPRule prule, StringBuilder strBuilder)
-	{
-		int count = 1;
-		String lhs = prule.getLhs();
-		if (prule.getLhs().contains("@"))
-		{// 存在单位产品则恢复
-			strBuilder.append("(");
-			String[] strArray = lhs.split("@");
-			count += strArray.length;
-			for (String lhs1 : strArray)
-			{
-				// 含有起始符或者为伪词性标注则跳过
-				if (lhs1.contains("$"))
-				{
-					count--;
-					continue;
-				}
-				strBuilder.append("(");
-				strBuilder.append(lhs1);
-			}
-		} // * 当含有&符号时，则为两个非终结符在中间过程合成的，故不处理此非终结符，直接跳过
-		else if (prule.getLhs().contains("&"))
-		{
-			AddString(i, prule.getK(), prule, 0, strBuilder);
-			AddString(prule.getK(), j, prule, 1, strBuilder);
-			return;
-		}
-		else
-		{
-			strBuilder.append("(");
-			strBuilder.append(lhs);
-		}
-
-		if (table[i][j].isFlag())
-		{
-			strBuilder.append(" ");
-			strBuilder.append(prule.getRhs().get(0));
-		}
-		else
-		{
-			AddString(i, prule.getK(), prule, 0, strBuilder);
-			AddString(prule.getK(), j, prule, 1, strBuilder);
-		}
-		while (count > 0)
-		{
-			strBuilder.append(")");
-			count--;
-		}
-	}
-
-	/**
-	 * 添加左右括号和终结符与非终结符，i记录prule右侧的非终结符序号
-	 */
-	private void AddString(int n, int m, CKYPRule prule, int i, StringBuilder strBuilder)
-	{
-		CKYPRule prule1;
-		String DuPos = prule.getRhs().get(i);
-		// 获取对应的规则
-		if (i == 0)
-		{
-			prule1 = table[n][m].getPruleMap().get(DuPos).get(prule.getI());
-		}
-		else
-		{
-			prule1 = table[n][m].getPruleMap().get(DuPos).get(prule.getJ());
-		}
-
-		if (table[n][m].isFlag())
-		{// 叶子结点
-			int count = 1;
-			String pos;
-			pos = prule1.getLhs();
-			strBuilder.append("(");
-			// 为终结符，类似"$中国$"，直接跳过
-			if (pos.contains("$"))
-			{
-
-			}
-			// 恢复单位产品
-			else if (pos.contains("@"))
-			{
-				String[] strArray = pos.split("@");
-				count += strArray.length;
-				for (String pos1 : strArray)
-				{
-					strBuilder.append("(");// 此处多打一个括号没有关系，因为在生成树的时候会格式化，去掉空的括号表达式
-					strBuilder.append(pos1);
-				}
-			}
-			else
-			{
-				strBuilder.append(pos);// 词性标注
-			}
-			strBuilder.append(" ");
-			strBuilder.append(prule1.getRhs().get(0));// 词
-			while (count > 0)
-			{
-				strBuilder.append(")");
-				count--;
-			}
-		}
-		else
-		{
-			CreateStringBuilder(n, m, prule1, strBuilder);
-		}
-	}
-
 	private ArrayList<CKYPRule> makeNewArrayList(ArrayList<CKYPRule> ckyPRuleList, PRule rule)
 	{
 		ArrayList<CKYPRule> tempList = new ArrayList<CKYPRule>();
@@ -490,6 +355,68 @@ public class ConstituentParserCKYOfP2NF implements ConstituentParser
 					ckyprule.getK(), ckyprule.getI(), ckyprule.getJ()));
 		}
 		return tempList;
+	}
+
+	/**
+	 * 生成括号表达式
+	 * 
+	 * @param n
+	 * @param numOfResulets
+	 * @param table
+	 * @param pcnf
+	 * @return
+	 */
+	public static ArrayList<String> bracketStringListGenerate(int n, int numOfResulets, CKYTreeNode[][] table,
+			PCFG pcnf)
+	{
+		// 查找概率最大的n个结果
+		ArrayList<CKYPRule> resultRuleList = table[0][n].getPruleMap().get(pcnf.getStartSymbol());
+		ArrayList<String> resultList = new ArrayList<String>();
+
+		if (resultRuleList == null)
+		{
+			return resultList;
+		}
+		for (CKYPRule prule : resultRuleList)
+		{
+			StringBuilder strBuilder = new StringBuilder();
+			// 从最后一个节点[0,n]开始回溯
+			CreateStringBuilder(0, n, prule, strBuilder, table);
+			resultList.add(strBuilder.toString());
+		}
+		return resultList;
+	}
+
+	/**
+	 * 先根遍历
+	 * 
+	 * @param i
+	 * @param j
+	 * @param prule
+	 * @param strBuilder
+	 * @param table
+	 */
+	private static void CreateStringBuilder(int i, int j, CKYPRule prule, StringBuilder strBuilder,
+			CKYTreeNode[][] table)
+	{
+		strBuilder.append("(");
+
+		strBuilder.append(prule.getLhs());
+		if (i == j - 1)
+		{// 对角线存储词性规则
+			strBuilder.append(" ");
+			strBuilder.append(prule.getRhs().get(0));
+			strBuilder.append(")");
+			return;
+		}
+		// 第一个孩子
+		CKYPRule lPrule = table[i][prule.getK()].getPruleMap().get(prule.getRhs().get(0)).get(prule.getI());
+		CreateStringBuilder(i, prule.getK(), lPrule, strBuilder, table);
+		// 第二个孩子
+		CKYPRule rPrule = table[prule.getK()][j].getPruleMap().get(prule.getRhs().get(1)).get(prule.getJ());
+		CreateStringBuilder(prule.getK(), j, rPrule, strBuilder, table);
+
+		strBuilder.append(")");
 	}
 
 	/**
