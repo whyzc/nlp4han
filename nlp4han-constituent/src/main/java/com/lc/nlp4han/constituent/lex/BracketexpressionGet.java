@@ -1,12 +1,11 @@
 package com.lc.nlp4han.constituent.lex;
 
 import java.util.ArrayList;
-
-import com.lc.nlp4han.constituent.lex.ConstituentParseLexPCFG.LexNode;
+import java.util.Collections;
 
 public class BracketexpressionGet
 {
-	private StringBuilder strBuilder=new StringBuilder();
+	private StringBuilder strBuilder;
 	private LexNode[][] chart;
 	private int n;
 
@@ -20,15 +19,17 @@ public class BracketexpressionGet
 	{
 		ArrayList<String> resultList = new ArrayList<String>();
 
-		// 查找概率最大的n个结果
+		// 查找概率最大的n个可行结果
 		Edge edge = getBestTop(chart[0][n]);
 		if (edge == null)
 		{// 如果没有Parse结果则直接返回
 			return resultList;
 		}
-
-		StringBuilder strBuilder = new StringBuilder();
+		
+		strBuilder = new StringBuilder();
 		getParseResultString(edge);// 从最后一个节点[0,n]开始回溯
+		
+		System.out.println("strBuilder.toString()="+strBuilder.toString());
 
 		resultList.add(strBuilder.toString());
 
@@ -37,21 +38,31 @@ public class BracketexpressionGet
 
 	private void getParseResultString(Edge edge)
 	{
-		System.out.println(edge.toString());
 		if (edge.isStop())
 		{
 			strBuilder.append("(");
-			if (edge.getStart() + 1 == edge.getEnd() && edge.getChildren().size() == 0)
-			{// 对角线上的点则需要判断是否为pos->词
-				strBuilder.append(" " + edge.getHeadWord());
+			
+			//将NPB还原为NP
+			String label=edge.getLabel();
+			if(label.equals("NPB")) {
+				label="NP";
 			}
-			strBuilder.append(edge.getLabel());
+			strBuilder.append(label);
+			
+			if (edge.getStart() + 1 == edge.getEnd() && edge.getChildren() == null)
+			{// 对角线上的点而且为pos->词，添加词汇
+				strBuilder.append(" " + edge.getHeadWord());
+				strBuilder.append(")");
+				return;
+			}
+
 			if (edge.getChildren().size() == 1)
 			{// 单元规则
 				getParseResultString(edge.getChildren().get(0));
 			}
 			else
 			{
+				Collections.sort(edge.getChildren());
 				for (Edge edge1 : edge.getChildren())
 				{
 					getParseResultString(edge1);
@@ -61,11 +72,12 @@ public class BracketexpressionGet
 		}
 		else
 		{// 若该edge两侧的stop不为true,无论有几个孩子都直接忽略
-/*			try {
-				Edge edge3=edge.getChildren().get(0);
+			try {
+				Collections.sort(edge.getChildren());		
 			}catch(NullPointerException e) {
 				System.out.println(edge.toString());
-			}*/
+			}
+			Collections.sort(edge.getChildren());
 			for (Edge edge1 : edge.getChildren())
 			{
 				getParseResultString(edge1);
@@ -86,7 +98,7 @@ public class BracketexpressionGet
 		for (Edge edge : node.getEdgeMap().keySet())
 		{
 			if (edge.getLabel().equals("ROOT") && edge.isStop() && edge.getLc().equals(distance)
-					&& edge.equals(distance) && edge.getPro() > bestEdge.getPro())
+					&& edge.getRc().equals(distance) && edge.getPro() > bestEdge.getPro())
 			{
 				bestEdge = edge;
 			}

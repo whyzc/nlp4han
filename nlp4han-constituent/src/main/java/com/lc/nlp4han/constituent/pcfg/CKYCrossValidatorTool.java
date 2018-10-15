@@ -35,9 +35,9 @@ public class CKYCrossValidatorTool
 		PCFG pcfg = GrammarExtractor.getPCFG(bracketList);
 		
 		System.out.println("对文法进行转换...");
-		PCFG pcnf = new GrammarConvertor().convertPCFGToPCNF(pcfg);
+		PCFG pcnf = GrammarConvertor.convertPCFGToP2NF(pcfg);
 
-		return new ConstituentParserCKYPCNF(pcnf);
+		return new ConstituentParserCKYP2NF(pcnf);
 	}
 
 	/**
