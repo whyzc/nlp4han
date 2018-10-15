@@ -255,8 +255,11 @@ public class LexPCFG
 		e3 = 0;
 		if (type.equals("2side"))
 		{
-			e3 = wordMap.get(new WordAndPOS(rule.getHeadWord(), rule.getHeadPOS()))
-					/ wordMap.get(new WordAndPOS(null, rule.getHeadPOS()));
+			double  i=0.2;
+			if(wordMap.keySet().contains(new WordAndPOS(rule.getHeadWord(), rule.getHeadPOS()))) {
+				i=wordMap.get(new WordAndPOS(rule.getHeadWord(), rule.getHeadPOS()));
+			}
+			e3 =i/ wordMap.get(new WordAndPOS(null, rule.getHeadPOS()));
 		}
 
 		double[] pw1 = getProAndWeight(rule, map, type);
@@ -305,19 +308,15 @@ public class LexPCFG
 			{
 			case "head":
 				RuleHeadChildGenerate rhcg1 = (RuleHeadChildGenerate) rhcg;
-				rhcg1 = new RuleHeadChildGenerate(rhcg1.getHeadLabel(), rhcg1.getParentLabel(), rhcg1.getHeadPOS(),
+				rhcg1 = new RuleHeadChildGenerate(null, rhcg1.getParentLabel(), rhcg1.getHeadPOS(),
 						rhcg1.getHeadWord());
-				rhcg1.setHeadLabel(null);
 				y = map.get(rhcg1).getAmount();
 				u = map.get(rhcg1).getSort();
 				break;
 			case "1side":
 				RuleSidesGenerate rsg1 = (RuleSidesGenerate) rhcg;
 				rsg1 = new RuleSidesGenerate(rsg1.getHeadLabel(), rsg1.getParentLabel(), rsg1.getHeadPOS(),
-						rsg1.getHeadWord(), rsg1.getDirection(), rsg1.getSideLabel(), rsg1.getSideHeadPOS(),
-						rsg1.getSideHeadWord(), rsg1.getCoor(), rsg1.getPu(), rsg1.getDistance());
-				rsg1.setSideLabel(null);
-				rsg1.setSideHeadPOS(null);
+						rsg1.getHeadWord(), rsg1.getDirection(), null, null,rsg1.getSideHeadWord(), rsg1.getCoor(), rsg1.getPu(), rsg1.getDistance());
 				y = map.get(rsg1).getAmount();
 				u = map.get(rsg1).getSort();
 				break;
@@ -325,8 +324,7 @@ public class LexPCFG
 				RuleSidesGenerate rsg2 = (RuleSidesGenerate) rhcg;
 				rsg2 = new RuleSidesGenerate(rsg2.getHeadLabel(), rsg2.getParentLabel(), rsg2.getHeadPOS(),
 						rsg2.getHeadWord(), rsg2.getDirection(), rsg2.getSideLabel(), rsg2.getSideHeadPOS(),
-						rsg2.getSideHeadWord(), rsg2.getCoor(), rsg2.getPu(), rsg2.getDistance());
-				rsg2.setSideHeadWord(null);
+						null, rsg2.getCoor(), rsg2.getPu(), rsg2.getDistance());
 				
 				//因为此处统计的次数为1side的分子和2side的分母，故统计了两次，所以此处需要乘以0.5
 				y = map.get(rsg2).getAmount()*1/2;

@@ -6,6 +6,8 @@ import com.lc.nlp4han.constituent.ConstituentMeasure;
 import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
+import com.lc.nlp4han.constituent.lex.ConstituentParseLexPCFG;
+import com.lc.nlp4han.constituent.lex.LexPCFG;
 import com.lc.nlp4han.ml.util.Evaluator;
 
 public class CKYParserEvaluator extends Evaluator<ConstituentTree>
@@ -42,6 +44,11 @@ public class CKYParserEvaluator extends Evaluator<ConstituentTree>
 	{
 		this.cky = new ConstituentParserCKYP2NF(p2nf);
 	}
+	
+	public CKYParserEvaluator(LexPCFG lexpcfg)
+	{
+		this.cky = new ConstituentParseLexPCFG(lexpcfg);
+	}
 
 	@Override
 	protected ConstituentTree processSample(ConstituentTree sample)
@@ -73,6 +80,7 @@ public class CKYParserEvaluator extends Evaluator<ConstituentTree>
 		{
 			if (treePre == null)
 			{
+				System.out.println("无法解析的句子： "+rootNodeRef.toString());
 				measure.countNodeDecodeTrees(null);
 				measure.update(rootNodeRef, new TreeNode());
 			}
