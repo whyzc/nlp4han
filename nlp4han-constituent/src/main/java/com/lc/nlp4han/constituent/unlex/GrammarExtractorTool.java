@@ -15,8 +15,9 @@ import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.TreeNode;
 
 /**
+ * 获得Grammar的工具类
  * @author 王宁
- * @version 创建时间：2018年9月28日 上午8:48:34 获得Grammar的工具类
+ *  
  */
 public class GrammarExtractorTool
 {

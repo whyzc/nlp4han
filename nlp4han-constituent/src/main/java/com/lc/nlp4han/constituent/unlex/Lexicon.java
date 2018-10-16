@@ -6,9 +6,8 @@ import java.util.HashSet;
 
 /**
  * 用来保存preTerminalRule，以及用来预测一个未知词型的词性标记的概率P(word|tag)
- * 
  * @author 王宁
- * @version 创建时间：2018年10月11日 下午9:25:22
+ * 
  */
 public class Lexicon
 {

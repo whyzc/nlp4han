@@ -18,8 +18,8 @@ import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.TreeNode;
 
 /**
- * @author 作者
- * @version 创建时间：2018年10月10日 上午10:24:32 类说明
+ * @author 王宁
+ * 
  */
 public class Reporter
 {
