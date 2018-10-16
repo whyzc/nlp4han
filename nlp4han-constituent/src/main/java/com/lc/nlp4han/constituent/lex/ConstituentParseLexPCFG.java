@@ -121,21 +121,6 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 				fillEdgeOfChart(i, j);
 			}
 		}
-
-		// 在完成剖析后查看边
-/*		for (int i = 0; i < words.length; i++)
-		{
-			for (int j = 1; j <= words.length; j++)
-			{
-				if (j - i >= 1)
-				{
-					for (Edge edge : chart[i][j].getEdgeMap().keySet())
-					{
-						System.out.println(edge.toString());
-					}
-				}
-			}
-		}*/
 		return new BracketexpressionGet(chart, words.length).bracketexpressionGet();
 	}
 
@@ -169,8 +154,6 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 				}
 			}
 		}
-
-		// 测试
 	}
 
 	/**
@@ -199,7 +182,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 		tempEdgeList.removeAll(tempEdgeList);
 
 		// 添加单元规则
-		for (i = 1; i < 4; i++)
+		for (i = 1; i < 3; i++)
 		{
 			for (Edge edge : map.keySet())
 			{
@@ -224,8 +207,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 */
 	private void addSingle(Edge edge, ArrayList<Edge> tempEdgeList)
 	{
-		RuleHeadChildGenerate rhcg = new RuleHeadChildGenerate(edge.getLabel(), null, edge.getHeadPOS(),
-				edge.getHeadWord());
+		RuleHeadChildGenerate rhcg = new RuleHeadChildGenerate(edge.getLabel(), null, edge.getHeadPOS(), null);
 		HashSet<String> parentSet = lexpcfg.getParentSet(rhcg);
 		if (parentSet == null)
 		{// 若没有可以向上延伸的则直接返回
@@ -295,7 +277,6 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 		// 如果概率为零则不添加
 		if (pro == 0.0)
 		{
-			// System.out.println("概率为零");
 			return;
 		}
 
@@ -314,9 +295,6 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 */
 	private void fillEdgeOfChart(int i, int j)
 	{
-		/*
-		 * if ((j - i) <= 1) {// 矩阵中下三角不用合并两侧 return; }
-		 */
 		for (int split = i + 1; split < j; split++)
 		{
 			HashMap<Edge, Double> map1 = chart[i][split].getEdgeMap();
@@ -340,17 +318,9 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 				}
 				for (Edge edge : tempEdgeList)
 				{
-					if(i==0&&j==9) {
-						System.out.println("边的形状： "+edge.toString());
-					}
 					addEdge(edge, i, j, null);
 				}
-				
-				if(i==0&&j==9) {
-					for(Edge edge: chart[0][9].getEdgeMap().keySet()) {
-						System.out.println("09的中间过程存储的边  "+edge.toString());
-					}
-				}
+
 			}
 		}
 		addSinglesAndStops(i, j);
@@ -399,18 +369,6 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 
 			pro = pro * lexpcfg.getGeneratePro(rsg, "sides");
 
-			if (e1.getStart() == 0 && e2.getEnd() == 3 && e1.getLabel().equals("FRAG") && e2.getLabel().equals("NT"))
-			{
-				/*
-				 * 03的预期概率 FRAG NR 北京 NR 2 NT NT 二月 0 0 false false 0.0
-				 */
-				System.out.println("03的预期概率");
-				System.out.println(rsg.toString());
-				System.out.println(pro);
-			}
-			// (String label, String headLabel, String headWord, String headPOS, int start,
-			// int end, Distance lc,Distance rc, boolean stop, double pro, ArrayList<Edge>
-			// children)
 			edge = new Edge(e1.getLabel(), e1.getHeadLabel(), e1.getHeadWord(), e1.getHeadPOS(), e1.getStart(),
 					e2.getEnd(), lc, rc, false, pro, children);
 		}
@@ -427,28 +385,13 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 			rsg = new RuleSidesGenerate(e2.getHeadLabel(), e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(), direction,
 					e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(), 0, 0, e2.getLc());
 			pro = pro * lexpcfg.getGeneratePro(rsg, "sides");
-			
-			
-			if (e1.getStart() == 0 && e2.getEnd() == 9 && e1.getLabel().equals("NP") && e2.getLabel().equals("IP")
-					&&e1.getHeadLabel().equals("NP"))
-			{
-				/*
-				 * 09的预期概率
-				 */
-				System.out.println("09的预期概率");
-				System.out.println(rsg.toString());
-				System.out.println(pro);
-			}
 
-			
 			edge = new Edge(e2.getLabel(), e2.getHeadLabel(), e2.getHeadWord(), e2.getHeadPOS(), e1.getStart(),
 					e2.getEnd(), lc, rc, false, pro, children);
 		}
 
 		if (pro == 0.0)
 		{
-			// System.out.println("概率为零" + edge.toString() + e1.getStart() + " " +
-			// e2.getEnd());
 			return;
 		}
 		addEdge(edge, edge.getStart(), edge.getEnd(), tempEdgeList);

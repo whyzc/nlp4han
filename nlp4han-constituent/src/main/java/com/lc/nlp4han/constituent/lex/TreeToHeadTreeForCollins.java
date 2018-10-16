@@ -24,7 +24,7 @@ public class TreeToHeadTreeForCollins
 		traverseConvert(rootNode, treeNode, 0, headGen,verbs);
 		
 		//添加基本名词短语，此刻暂时不处理
-		traverseTreeAddNPB(rootNode.getChild(0));
+		//traverseTreeAddNPB(rootNode.getChild(0));
 
 		return (HeadTreeNodeForCollins)rootNode.getChild(0);
 	}

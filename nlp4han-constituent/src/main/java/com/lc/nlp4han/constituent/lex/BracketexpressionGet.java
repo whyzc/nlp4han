@@ -21,15 +21,12 @@ public class BracketexpressionGet
 
 		// 查找概率最大的n个可行结果
 		Edge edge = getBestTop(chart[0][n]);
-		if (edge == null)
+		if (edge.getPro() == -1)
 		{// 如果没有Parse结果则直接返回
 			return resultList;
 		}
-		
 		strBuilder = new StringBuilder();
 		getParseResultString(edge);// 从最后一个节点[0,n]开始回溯
-		
-		System.out.println("strBuilder.toString()="+strBuilder.toString());
 
 		resultList.add(strBuilder.toString());
 
@@ -71,12 +68,7 @@ public class BracketexpressionGet
 			strBuilder.append(")");
 		}
 		else
-		{// 若该edge两侧的stop不为true,无论有几个孩子都直接忽略
-			try {
-				Collections.sort(edge.getChildren());		
-			}catch(NullPointerException e) {
-				System.out.println(edge.toString());
-			}
+		{// 若该edge两侧的stop为false,无论有几个孩子都直接忽略
 			Collections.sort(edge.getChildren());
 			for (Edge edge1 : edge.getChildren())
 			{

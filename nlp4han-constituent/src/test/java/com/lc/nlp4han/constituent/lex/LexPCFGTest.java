@@ -24,31 +24,31 @@ public class LexPCFGTest
 	@Test
 	public void testLexPCFG()
 	{
-		//测试得到起始�?
+		//测试得到起始符
 		String startSymbol=lexpcfg.getStartSymbol();
 		
-		//测试得到词�?�标注集�?
+		//测试得到词性标注集合
 	    HashSet<String> set=lexpcfg.getPosSet();
 
 		//测试得到某个词词在训练数据集中出现的pos集合
 		 HashSet<String> posSetOfword=lexpcfg.getposSetByword(word);
 
-		//测试由headChild得到可行的Parent/或�?�向上延伸的单元规则
+		//测试由headChild得到可行的Parent/或者向上延伸的单元规则
 		HashSet<String> parentSet=lexpcfg.getParentSet(rhcg0);
 
-		//得到生成NPB(基本名词短语)两侧的概�? 即Pl/Pr(L(lpos,lword)|P,preModifer,preM(pos,word))
+		//得到生成NPB(基本名词短语)两侧的概率 即Pl/Pr(L(lpos,lword)|P,preModifer,preM(pos,word))
 		double pro4=lexpcfg.getProForGenerateNPBSides(npbRule);
 
 		/**
 		 * 得到并列结构（CC）或者含有顿号结构的概率
-		 * 即P(CC,word|P,leftLabel,rightLabel,leftWord,righrWord)的概�?
+		 * 即P(CC,word|P,leftLabel,rightLabel,leftWord,righrWord)的概率
 		 */
 		double pro5=lexpcfg.getProForSpecialCase(specialRule);
 
-		//得到用于平滑运算的λ�??
+		//得到用于平滑运算的λ值
 		double pro6=lexpcfg.getProByPOS(f,u);
 		
-		//获取某种规则的概�?
+		//获取某种规则的概率
 		double pro7=lexpcfg.getGeneratePro(null, null);
 	}
 }
