@@ -35,7 +35,7 @@ public class GrammarExtractorTool
 			expression = expression.trim();
 			if (!expression.equals(""))
 			{
-				TreeNode tempTree = BracketExpUtil.generateTreeNotDeleteBracket(expression);
+				TreeNode tempTree = BracketExpUtil.generateTree(expression);
 				Tree<String> tree = TreeUtil.getStringTree(tempTree);
 				tree = TreeUtil.removeL2LRule(tree);
 				if (addParentLabel)

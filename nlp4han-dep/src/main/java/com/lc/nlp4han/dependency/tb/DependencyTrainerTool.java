@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import com.lc.nlp4han.ml.perceptron.SimplePerceptronSequenceTrainer;
 import com.lc.nlp4han.ml.util.ModelWrapper;
 import com.lc.nlp4han.ml.util.TrainingParameters;
 
@@ -80,9 +79,9 @@ public class DependencyTrainerTool
 		params.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(iters));
 		DependencyParseContextGenerator gen;
 		if (tType.equals("arceager"))
-			gen = new DependencyParseContextGeneratorConf_ArcEager();
+			gen = new DependencyParseContextGeneratorConfArcEager();
 		else
-			gen = new DependencyParseContextGeneratorConf_ArcStandard();
+			gen = new DependencyParseContextGeneratorConfArcStandard();
 		ModelWrapper model = DependencyParserTB.train(corpusFile, params, gen, encoding);
 		OutputStream modelOut = new BufferedOutputStream(new FileOutputStream(modelFile));
 		model.serialize(modelOut);

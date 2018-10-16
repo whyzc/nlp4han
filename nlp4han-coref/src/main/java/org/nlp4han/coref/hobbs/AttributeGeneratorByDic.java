@@ -61,6 +61,7 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 	public Set<Gender> getGender(TreeNode treeNode)
 	{
 		Set<Gender> result = new HashSet<Gender>();
+		// 非动物性无性别
 		if (this.attribute != null && attribute.getAnimacy().size() > 0)
 		{
 			if (this.attribute.getAnimacy().contains(Animacy.INANIMACY))
@@ -77,6 +78,7 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 				return result;
 			}
 		}
+		
 		try
 		{
 			String value = null;
@@ -227,7 +229,7 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 				TreeNode qpNode = qpNodes.get(0);
 				if (TreeNodeUtil.hasNodeName(qpNode.getChildren(), "CD"))
 				{
-					List<TreeNode> cdNodes = TreeNodeUtil.getNodesWithSpecified(treeNode, new String[] { "CD" });
+					List<TreeNode> cdNodes = TreeNodeUtil.getNodesWithSpecifiedName(treeNode, new String[] { "CD" });
 					TreeNode cdNode = cdNodes.get(0);
 					if (cdNode.getChild(0).getNodeName().equals("一") || cdNode.getChild(0).getNodeName().equals("1"))
 					{
@@ -280,6 +282,7 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 					}
 				}
 			}
+			
 			if (value != null)
 			{
 				String[] values = value.split("_");

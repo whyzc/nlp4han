@@ -5,23 +5,24 @@ import java.util.List;
 import com.lc.nlp4han.constituent.TreeNode;
 
 /**
- * 用于过滤中性词为代词的NP候选词
+ * 用于过滤中心词为代词的NP候选词
  * 
  * @author 杨智超
  *
  */
-public class PNFilter extends Filtering
+public class PNFilter extends FilterWrapper
 {
 
-	public PNFilter(Filter filter)
+	public PNFilter(CandidateFilter filter)
 	{
 		this.filter = filter;
 	}
 
 	@Override
-	public List<TreeNode> filtering()
+	public List<TreeNode> filter()
 	{
-		List<TreeNode> treeNodes = filter.filtering();
+		List<TreeNode> treeNodes = filter.filter();
+		
 		for (int i = 0; i < treeNodes.size(); i++)
 		{
 			TreeNode node = treeNodes.get(i);
@@ -40,9 +41,9 @@ public class PNFilter extends Filtering
 	}
 
 	@Override
-	public void setUp(List<TreeNode> treeNodes)
+	public void setFilteredNodes(List<TreeNode> treeNodes)
 	{
-		filter.setUp(treeNodes);
+		filter.setFilteredNodes(treeNodes);
 	}
 
 	private boolean isPronoun(String str)

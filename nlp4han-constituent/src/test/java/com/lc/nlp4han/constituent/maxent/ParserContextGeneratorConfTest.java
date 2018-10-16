@@ -11,6 +11,7 @@ import org.junit.Test;
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.HeadGeneratorCollins;
+import com.lc.nlp4han.constituent.HeadRuleSetPTB;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.TreeToHeadTree;
@@ -32,10 +33,10 @@ public class ParserContextGeneratorConfTest{
 	@Before
 	public void setUP() throws CloneNotSupportedException, IOException{
    
-		aghw = new HeadGeneratorCollins();
-		tree = BracketExpUtil.generateTree("((S(NP(PRP I))(VP(VP(VBD saw)(NP(DT the)(NN man)))(PP(IN with)(NP(DT the)(NN telescope))))))");
+		aghw = new HeadGeneratorCollins(new HeadRuleSetPTB());
+		tree = BracketExpUtil.generateTreeNoTopBracket("((S(NP(PRP I))(VP(VP(VBD saw)(NP(DT the)(NN man)))(PP(IN with)(NP(DT the)(NN telescope))))))");
         headTree = TreeToHeadTree.treeToHeadTree(tree,aghw);
-		sample = HeadTreeToActions.headTreeToSample(headTree,aghw);
+		sample = HeadTreeToSample.headTreeToSample(headTree,aghw);
 		actions = sample.getActions();
 		generator = new ParserContextGeneratorConf();
 	}

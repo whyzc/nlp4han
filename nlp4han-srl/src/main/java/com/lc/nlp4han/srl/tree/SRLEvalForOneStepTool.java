@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.HeadGeneratorCollins;
+import com.lc.nlp4han.constituent.HeadRuleSetPTB;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ModelWrapper;
@@ -28,7 +29,7 @@ public class SRLEvalForOneStepTool {
 	public static void eval(File trainFile, AbstractParseStrategy<HeadTreeNode> parse, TrainingParameters params, File goldFile, String encoding, File errorFile) throws IOException{
 		long start = System.currentTimeMillis();
 		SRLContextGenerator contextGen = new SRLContextGeneratorConf();
-        AbstractHeadGenerator ahg = new HeadGeneratorCollins();
+        AbstractHeadGenerator ahg = new HeadGeneratorCollins(new HeadRuleSetPTB());
         
 		ModelWrapper model = SRLMEForOneStep.train(trainFile, params, contextGen, encoding, parse, ahg);		
         System.out.println("训练时间： " + (System.currentTimeMillis() - start));

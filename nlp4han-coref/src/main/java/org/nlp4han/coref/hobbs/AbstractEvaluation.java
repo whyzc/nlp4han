@@ -7,15 +7,18 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
+import com.lc.nlp4han.constituent.TreeNode;
 
 public abstract class AbstractEvaluation
 {
-	private List<String> information1 = new ArrayList<String>();
-	private List<String> expection = new ArrayList<String>();
-	private List<String> information3 = new ArrayList<String>();
+
 	public void parse(String[] args)
 	{
-		
+
 		String[] path_encoding = parseArgs(args);
 		readFileByLines(path_encoding[0], path_encoding[1]);
 	}
@@ -68,6 +71,10 @@ public abstract class AbstractEvaluation
 		FileInputStream fis = null;
 		BufferedReader reader = null;
 
+		List<String> information1 = new ArrayList<String>();	//单个样本的信息1
+		List<String> information2 = new ArrayList<String>();	//单个样本的信息2
+		List<String> information3 = new ArrayList<String>();	//单个样本的信息3
+
 		try
 		{
 			fis = new FileInputStream(new File(path));
@@ -79,7 +86,7 @@ public abstract class AbstractEvaluation
 			// 一次读入一行，直到读入null为文件结束
 			while ((tempString = reader.readLine()) != null)
 			{
-				processingData(tempString);
+				processingData(tempString, information1, information2, information3);
 			}
 
 			reader.close();
@@ -111,25 +118,97 @@ public abstract class AbstractEvaluation
 		}
 	}
 
-	private void processingData(String oneLine)
+	private void processingData(String oneLine, List<String> information1, List<String> information2,
+			List<String> information3)
 	{
-		
 		boolean tag = false;
-		tag = extractAnEvaluationSample(oneLine, information1, expection, information3);
+		tag = extractAnEvaluationSample(oneLine, information1, information2, information3);
 		if (tag == true)
 		{
-			processAnEvaluationSample(information1, expection, information3);
+			processAnEvaluationSample(information1, information2, information3);
 			information1.clear();
-			expection.clear();
+			information2.clear();
 			information3.clear();
-			tag = false;
 		}
 	}
 
+	/**
+	 * 处理从文本中抽取的单个样本的所有信息
+	 * 
+	 * @param information1
+	 *            单个样本的信息1
+	 * @param information2
+	 *            单个样本的信息2
+	 * @param information3
+	 *            单个样本的信息3
+	 */
 	public abstract void processAnEvaluationSample(List<String> information1, List<String> information2,
 			List<String> information3);
 
+	/**
+	 * 读取文本的单行信息，提取需要的信息，分别存入information1，information2，information3中，
+	 * 如果一条评价样本的所有信息抽取完了返回true，否则，返回false
+	 * 
+	 * @param oneLine
+	 *            从文本中读取的单行信息
+	 * @param information1
+	 *            用于存储评价样本的信息1
+	 * @param information2
+	 *            用于存储评价样本的信息2
+	 * @param information3
+	 *            用于存储评价样本的信息3
+	 * @return
+	 */
 	public abstract boolean extractAnEvaluationSample(String oneLine, List<String> information1,
 			List<String> information2, List<String> information3);
+	
+	
+	/**
+	 * 将指代消解结果转换成字符串格式的结果
+	 * @param resolveResult
+	 * @param trees
+	 * @return
+	 */
+	public static List<String> toStringFormat(Map<TreeNode, TreeNode> resolveResult, List<TreeNode> trees)
+	{
+		List<String> result = new ArrayList<String>();
+		Set<Entry<TreeNode, TreeNode>> es = resolveResult.entrySet();
+		
+		for (Entry<TreeNode, TreeNode> e : es)
+		{
+			TreeNode ponoun = e.getKey();
+			TreeNode antecedent = e.getValue();
+			
+			TreeNode p1;
+			TreeNode a1;
+			
+			p1 = TreeNodeUtil.getAllLeafNodes(ponoun).get(0);
+			
+			List<TreeNode> ts = TreeNodeUtil.getAllLeafNodes(antecedent);
+			if (ts.size() > 1)
+			{
+				//p1 = TreeNodeUtil.getAllLeafNodes(TreeNodeUtil.getHead(ponoun, NPHeadRuleSetPTB.getNPRuleSet())).get(0);
+				a1 = TreeNodeUtil.getAllLeafNodes(TreeNodeUtil.getHead(antecedent, NPHeadRuleSetPTB.getNPRuleSet())).get(0);
+			}
+			else
+			{
+				//p1 = TreeNodeUtil.getAllLeafNodes(ponoun).get(0);
+				a1 = TreeNodeUtil.getAllLeafNodes(antecedent).get(0);
+			}
+			
+			TreeNode root = TreeNodeUtil.getRootNode(ponoun);
+			int index1 = trees.indexOf(root);
+			int size1 = TreeNodeUtil.getAllLeafNodes(root).indexOf(p1);
+			
+			root = TreeNodeUtil.getRootNode(antecedent);
+			int index2 = trees.indexOf(root);
+			int size2 = TreeNodeUtil.getAllLeafNodes(root).indexOf(a1);
+			
+			String temp = p1.getNodeName() + "(" + (index1+1) + "-" + (size1+1) + ")" + "->" + a1.getNodeName() + "(" + (index2+1) + "-" + (size2+1) + ")";
+			
+			result.add(temp);
+		}
+		return result;
+	}
 
 }

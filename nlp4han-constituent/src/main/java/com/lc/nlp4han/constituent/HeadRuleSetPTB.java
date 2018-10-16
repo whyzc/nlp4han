@@ -11,8 +11,7 @@ import java.util.List;
  * @author 王馨苇
  *
  */
-// TODO: 创建适合于CTB的头规则集
-public class HeadRuleSetPTB
+public class HeadRuleSetPTB extends HeadRuleSet
 {
 
 	private static List<String> ADJP = new ArrayList<String>();
@@ -228,7 +227,7 @@ public class HeadRuleSetPTB
 	 * 
 	 * @return
 	 */
-	public static HashMap<String, HeadRule> getNormalRuleSet()
+	public HashMap<String, HeadRule> getNormalRuleSet()
 	{
 		return normalRules;
 	}
@@ -238,7 +237,7 @@ public class HeadRuleSetPTB
 	 * 
 	 * @return
 	 */
-	public static HashMap<String, List<HeadRule>> getSpecialRuleSet()
+	public HashMap<String, List<HeadRule>> getSpecialRuleSet()
 	{
 		return specialRules;
 	}

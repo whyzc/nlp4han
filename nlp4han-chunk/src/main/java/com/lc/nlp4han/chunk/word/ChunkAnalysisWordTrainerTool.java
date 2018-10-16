@@ -109,5 +109,7 @@ public class ChunkAnalysisWordTrainerTool
 		ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisWordContextGeneratorConf();
 		ModelWrapper model = me.train(sampleStream, params, contextGen);
 		model.serialize(modelOut);
+		
+		modelOut.close();
 	}
 }

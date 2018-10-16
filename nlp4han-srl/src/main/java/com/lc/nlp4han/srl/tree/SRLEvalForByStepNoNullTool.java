@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.HeadGeneratorCollins;
+import com.lc.nlp4han.constituent.HeadRuleSetPTB;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ModelWrapper;
@@ -28,7 +29,7 @@ public class SRLEvalForByStepNoNullTool {
 		long start = System.currentTimeMillis();
 		SRLContextGenerator contextGenIden = new SRLContextGeneratorConfForIdentification();
 		SRLContextGenerator contextGenClas = new SRLContextGeneratorConfForClassification();
-		AbstractHeadGenerator ahg = new HeadGeneratorCollins();
+		AbstractHeadGenerator ahg = new HeadGeneratorCollins(new HeadRuleSetPTB());
 
 		ModelWrapper modelIden = SRLMEForIdentification.train(trainFile, params, contextGenIden, encoding, parse, ahg);	
 		ModelWrapper modelClas = SRLMEForClassificationNoNull.train(trainFile, params, contextGenClas, encoding, parse, ahg);	

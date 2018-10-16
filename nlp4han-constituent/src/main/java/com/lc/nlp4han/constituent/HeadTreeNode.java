@@ -163,41 +163,17 @@ public class HeadTreeNode extends TreeNode
 	{
 		if (super.children.size() == 0)
 		{
-			String str=super.BracketConvert(this.nodename);
+			String str=super.escapeBracket(this.nodename);
 			return " " + str + "[" + this.getWordIndex() + "]";
 		}
 		else
 		{
 			String treestr = "";
-			treestr = "(" + this.nodename + "{" + super.BracketConvert(this.headWord) + "[" + this.headPos + "]}";
+			treestr = "(" + super.escapeBracket(this.nodename) + "{" + super.escapeBracket(this.headWord) + "[" + this.headPos + "]}";
 
 			for (HeadTreeNode node : getChildren())
 			{
 				treestr += node.toString();
-			}
-			treestr += ")";
-			return treestr;
-		}
-	}
-
-	/**
-	 * 没有头结点的括号表达式
-	 * 
-	 * @return
-	 */
-	public String toStringWordIndex()
-	{
-		if (this.children.size() == 0)
-		{
-			return " " + super.BracketConvert(this.nodename) + "[" + getWordIndex() + "]";
-		}
-		else
-		{
-			String treestr = "";
-			treestr = "(" + this.nodename;
-			for (TreeNode node : this.children)
-			{
-				treestr += node.toStringWordIndex();
 			}
 			treestr += ")";
 			return treestr;

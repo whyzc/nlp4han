@@ -19,8 +19,8 @@ public class ConstituentMeasureTest {
 	@Test
 	public void test() throws CloneNotSupportedException{
 		//两棵树不同
-		TreeNode treeRef1 = BracketExpUtil.generateTree("((S(NP(NN Measuring)(NNS cups))(VP(MD may)(ADVP(RB soon))(VP(VB be)(VP(VBN replaced)(PP(IN by)(NP(NNS tablespoons)))(PP(IN in)(NP(DT the)(NN laundry)(NN room))))))(. .)))");
-		TreeNode treePre1 = BracketExpUtil.generateTree("((S(NP(VBG Measuring)(NNS cups))(VP(MD may)(ADVP(RB soon))(VP(VB be)(VP(VBN replaced)(PP(IN by)(NP(NP(NNS tablespoons))(PP(IN in)(NP(DT the)(NN laundry)(NN room))))))))(. .)))");
+		TreeNode treeRef1 = BracketExpUtil.generateTreeNoTopBracket("((S(NP(NN Measuring)(NNS cups))(VP(MD may)(ADVP(RB soon))(VP(VB be)(VP(VBN replaced)(PP(IN by)(NP(NNS tablespoons)))(PP(IN in)(NP(DT the)(NN laundry)(NN room))))))(. .)))");
+		TreeNode treePre1 = BracketExpUtil.generateTreeNoTopBracket("((S(NP(VBG Measuring)(NNS cups))(VP(MD may)(ADVP(RB soon))(VP(VB be)(VP(VBN replaced)(PP(IN by)(NP(NP(NNS tablespoons))(PP(IN in)(NP(DT the)(NN laundry)(NN room))))))))(. .)))");
 		ConstituentMeasure measure1 = new ConstituentMeasure();
 		measure1.update(treeRef1, treePre1);
 		assertEquals(measure1.getPrecisionScore(), 0.8181, 0.001);
@@ -32,8 +32,8 @@ public class ConstituentMeasureTest {
 		assertEquals(measure1.getSentenceAccuracy(), 0, 0.001);
 		
 		//两颗树相同的
-		TreeNode treeRef2 = BracketExpUtil.generateTree("((S(NP(PRP I))(VP(VP(VBD saw)(NP(DT the)(NN man)))(PP(IN with)(NP(DT the)(NN telescope))))))");
-		TreeNode treePre2 = BracketExpUtil.generateTree("((S(NP(PRP I))(VP(VP(VBD saw)(NP(DT the)(NN man)))(PP(IN with)(NP(DT the)(NN telescope))))))");
+		TreeNode treeRef2 = BracketExpUtil.generateTreeNoTopBracket("((S(NP(PRP I))(VP(VP(VBD saw)(NP(DT the)(NN man)))(PP(IN with)(NP(DT the)(NN telescope))))))");
+		TreeNode treePre2 = BracketExpUtil.generateTreeNoTopBracket("((S(NP(PRP I))(VP(VP(VBD saw)(NP(DT the)(NN man)))(PP(IN with)(NP(DT the)(NN telescope))))))");
 		ConstituentMeasure measure2 = new ConstituentMeasure();
 		measure2.update(treeRef2, treePre2);
 		assertEquals(measure2.getPrecisionScore(), 1.0, 0.001);

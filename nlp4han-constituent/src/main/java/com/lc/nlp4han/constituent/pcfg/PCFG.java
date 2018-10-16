@@ -8,6 +8,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
+/**
+ * 概率上下文无关文法
+ *
+ */
 public class PCFG extends CFG
 {
 	public PCFG()
@@ -17,21 +21,12 @@ public class PCFG extends CFG
 
 	public PCFG(InputStream in, String encoding) throws IOException
 	{
-		super.readGrammar(in, encoding, "PCFG");
+		super.readGrammar(in, encoding);
 	}
-
-	/**
-	 * 根据规则中的终结符和非终结符获取整个规则
-	 * 
-	 * @param rule
-	 * @return
-	 */
-	public PRule getPRuleByLHSAndRHS(RewriteRule rule)
+	
+	protected RewriteRule readRule(String ruleStr)
 	{
-		ArrayList<String> lhsAndRhs = new ArrayList<String>();
-		lhsAndRhs.add(rule.getLhs());
-		lhsAndRhs.addAll(rule.getRhs());
-		return (PRule) super.getPruleMap().get(lhsAndRhs);
+		return new PRule(ruleStr);
 	}
 
 	/**
@@ -46,13 +41,15 @@ public class PCFG extends CFG
 			for (RewriteRule rule : getRuleBylhs(string))
 			{
 				PRule prule = (PRule) rule;
-				pro += prule.getProOfRule();
+				pro += prule.getProb();
 			}
+			
 			if (Math.abs(1.0 - pro) > MaxErrorOfPCNF)
 			{
 				MaxErrorOfPCNF = Math.abs(1.0 - pro);
 			}
 		}
+		
 		return MaxErrorOfPCNF;
 	}
 
@@ -75,7 +72,7 @@ public class PCFG extends CFG
 	 * @param k
 	 * @return
 	 */
-	public ArrayList<PRule> getHighestProRuleFromMap(HashMap<RewriteRule, Integer> ruleMap, int k)
+	public ArrayList<PRule> getHighestProRule(HashMap<RewriteRule, Integer> ruleMap, int k)
 	{
 		Iterator<RewriteRule> itr = ruleMap.keySet().iterator();
 		return getHighestProRuleByItr(itr, k);
@@ -101,12 +98,13 @@ public class PCFG extends CFG
 			}
 			else
 			{// 根据规则集合直接搜索最大概率规则
-				if (prule.getProOfRule() > bestPRule.getProOfRule())
+				if (prule.getProb() > bestPRule.getProb())
 				{
 					bestPRule = prule;
 				}
 			}
 		}
+		
 		if (k == 1)
 		{
 			pruleList.add(bestPRule);
@@ -115,6 +113,7 @@ public class PCFG extends CFG
 		{
 			Collections.sort(pruleList);
 		}
+		
 		/*
 		 * 若结果集中多余k个，则截取其中的前k个
 		 */
@@ -122,6 +121,7 @@ public class PCFG extends CFG
 		{
 			return (ArrayList<PRule>) pruleList.subList(0, k);
 		}
+		
 		return pruleList;
 	}
 }

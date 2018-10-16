@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.lc.nlp4han.constituent.ConstituentMeasure;
+import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.PlainTextByTreeStream;
 import com.lc.nlp4han.ml.util.CrossValidationPartitioner;
@@ -12,10 +13,14 @@ import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 import com.lc.nlp4han.ml.util.CrossValidationPartitioner.TrainingSampleStream;
 
+/**
+ * 基于PCFG的CKY解析交叉验证应用
+ *
+ */
 public class CKYCrossValidatorTool
 {
 	
-	private static ConstituentParseCKYPCNF getParser(
+	private static ConstituentParser getParser(
 			TrainingSampleStream<ConstituentTree> trainingSampleStream) throws IOException
 	{
 		ArrayList<String> bracketList = new ArrayList<String>();
@@ -27,13 +32,12 @@ public class CKYCrossValidatorTool
 		}
 		
 		System.out.println("从树库提取文法...");
-		PCFG pcfg = new GrammarExtractor().getPCFG(bracketList);
+		PCFG pcfg = GrammarExtractor.getPCFG(bracketList);
 		
 		System.out.println("对文法进行转换...");
-		PCFG p2nf = new ConvertPCFGToP2NF().convertToCNF(pcfg);
-		
-		PCFG pcnf = new ConvertP2NFToPCNF(p2nf).removeUnitProduction();
-		return new ConstituentParseCKYPCNF(pcnf);
+		PCFG pcnf = GrammarConvertor.convertPCFGToP2NF(pcfg);
+
+		return new ConstituentParserCKYP2NF(pcnf);
 	}
 
 	/**
@@ -54,15 +58,13 @@ public class CKYCrossValidatorTool
 		CrossValidationPartitioner<ConstituentTree> partitioner = new CrossValidationPartitioner<ConstituentTree>(
 				sampleStream, nFolds);
 		int run = 1;
-		// 小于折数的时候
 		while (partitioner.hasNext())
 		{
 			System.out.println("Run" + run + "...");
 
 			long start = System.currentTimeMillis();
 			CrossValidationPartitioner.TrainingSampleStream<ConstituentTree> trainingSampleStream = partitioner.next();
-			//ConstituentParserCKYOfP2NFImproving parser = getParser(trainingSampleStream);
-			ConstituentParseCKYPCNF parser= getParser(trainingSampleStream);
+			ConstituentParser parser= getParser(trainingSampleStream);
 			System.out.println("训练学习时间：" + (System.currentTimeMillis() - start) + "ms");
 			
 			CKYParserEvaluator evaluator = new CKYParserEvaluator(parser);

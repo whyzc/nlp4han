@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.HeadGeneratorCollins;
+import com.lc.nlp4han.constituent.HeadRuleSetPTB;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.ml.util.CrossValidationPartitioner;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
@@ -135,7 +136,7 @@ public class SRLCVForByStepNoNullTool {
         System.out.println(contextGenClas);
         
         ObjectStream<String[]> lineStream = new PlainTextByTreeStream(new FileInputStreamFactory(corpusFile), encoding); 
-        AbstractHeadGenerator ahg = new HeadGeneratorCollins();
+        AbstractHeadGenerator ahg = new HeadGeneratorCollins(new HeadRuleSetPTB());
         ObjectStream<SRLSample<HeadTreeNode>> sampleStream = new SRLSampleStream(lineStream, parse, ahg);
         
         SRLCVForByStepNoNullTool run = new SRLCVForByStepNoNullTool("zh", params);

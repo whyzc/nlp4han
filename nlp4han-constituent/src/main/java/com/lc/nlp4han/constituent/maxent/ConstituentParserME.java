@@ -45,7 +45,7 @@ public class ConstituentParserME implements ConstituentParser
 	 * @return
 	 */
 	@Override
-	public ConstituentTree parseTree(String[] words, String[] poses)
+	public ConstituentTree parse(String[] words, String[] poses)
 	{
 		String[][] kposes = new String[1][poses.length];
 		for (int i = 0; i < kposes.length; i++)
@@ -75,8 +75,7 @@ public class ConstituentParserME implements ConstituentParser
 	 *            分词序列
 	 * @return
 	 */
-	@Override
-	public ConstituentTree parseTree(String[] words)
+	public ConstituentTree parse(String[] words)
 	{
 		List<HeadTreeNode> postree = postagger.posTree(words);
 		
@@ -107,7 +106,7 @@ public class ConstituentParserME implements ConstituentParser
 	 * @return
 	 */
 	@Override
-	public ConstituentTree[] parseKTree(String[] words, String[] poses, int k)
+	public ConstituentTree[] parse(String[] words, String[] poses, int k)
 	{
 		String[][] kposes = new String[1][poses.length];
 		for (int i = 0; i < kposes.length; i++)
@@ -139,8 +138,7 @@ public class ConstituentParserME implements ConstituentParser
 	 *            最好的K个结果
 	 * @return
 	 */
-	@Override
-	public ConstituentTree[] parseKTree(String[] words, int k)
+	public ConstituentTree[] parse(String[] words, int k)
 	{
 		List<List<HeadTreeNode>> postree = postagger.posTree(words, k);
 		List<List<HeadTreeNode>> chunkTree = chunktagger.tagKChunk(k, postree, null);

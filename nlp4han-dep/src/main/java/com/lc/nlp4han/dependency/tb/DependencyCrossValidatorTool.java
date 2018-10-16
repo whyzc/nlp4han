@@ -10,15 +10,14 @@ import com.lc.nlp4han.dependency.DependencySampleParser;
 import com.lc.nlp4han.dependency.DependencySampleParserCoNLL;
 import com.lc.nlp4han.dependency.DependencySampleStream;
 import com.lc.nlp4han.dependency.PlainTextBySpaceLineStream;
-import com.lc.nlp4han.ml.perceptron.SimplePerceptronSequenceTrainer;
 import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 import com.lc.nlp4han.ml.util.SequenceValidator;
 import com.lc.nlp4han.ml.util.TrainingParameters;
 
 /**
- * @author 王宁
- * @version 创建时间：2018年7月25日 上午12:26:19 交叉验证的工具类
+ * 交叉验证应用
+ *
  */
 public class DependencyCrossValidatorTool
 {
@@ -43,10 +42,6 @@ public class DependencyCrossValidatorTool
 		int iters = 100;
 		int folds = 10;
 		File corpusFile = null;
-		// File corpusFile = new
-		// File("C:\\Users\\hp\\Desktop\\UD_English-EWT\\en_ewt-ud-train.conllu");
-		// File corpusFile2 = new
-		// File("C:\\Users\\hp\\Desktop\\UD_Chinese-GSD\\zh_gsd-ud-train.conllu");
 		String encoding = "UTF-8";
 		String transitionType = "arceager";
 		for (int i = 0; i < args.length; i++)
@@ -97,13 +92,6 @@ public class DependencyCrossValidatorTool
 		DependencySampleParser sampleParser = new DependencySampleParserCoNLL();
 		ObjectStream<DependencySample> sampleStream = new DependencySampleStream(linesStream, sampleParser);
 
-		// ObjectStream<String> linesStream2 = new PlainTextBySpaceLineStream(
-		// new MarkableFileInputStreamFactory(corpusFile2), encoding);
-		//
-		// DependencySampleParser sampleParser2 = new DependencySampleParserCoNLL();
-		// ObjectStream<DependencySample> sampleStream2 = new
-		// DependencySampleStream(linesStream2, sampleParser2);
-
 		// 交叉验证
 		DependencyParseCrossValidator crossValidator = new DependencyParseCrossValidator(params);
 		DependencyParseContextGenerator contextGen;
@@ -111,32 +99,25 @@ public class DependencyCrossValidatorTool
 		SequenceValidator<String> validator;
 		if (transitionType.equals("arceager"))
 		{
-			contextGen = new DependencyParseContextGeneratorConf_ArcEager();
-			conf = new Configuration_ArcEager();
-			validator = new DependencyParseSequenceValidator_ArcEager();
+			contextGen = new DependencyParseContextGeneratorConfArcEager();
+			conf = new ConfigurationArcEager();
+			validator = new DependencyParseSequenceValidatorArcEager();
 		}
 
 		else
 		{
-			contextGen = new DependencyParseContextGeneratorConf_ArcStandard();
-			conf = new Configuration_ArcStandard();
-			validator = new DependencyParseSequenceValidator_ArcStandard();
+			contextGen = new DependencyParseContextGeneratorConfArcStandard();
+			conf = new ConfigurationArcStandard();
+			validator = new DependencyParseSequenceValidatorArcStandard();
 		}
 		
 		LocalDateTime start = LocalDateTime.now();
-		crossValidator.evaluate(sampleStream, folds, contextGen, conf, validator, transitionType);
+		
+		crossValidator.evaluate(sampleStream, folds, contextGen, conf, validator);
+		
 		LocalDateTime end = LocalDateTime.now();
 		BigDecimal time = new BigDecimal(end.toString()).subtract(new BigDecimal(start.toString()));
 		System.out.println("消耗时间:" + time);
-
-		// // 交叉验证
-		// DependencyParseCrossValidator crossValidator2 = new
-		// DependencyParseCrossValidator(params);
-		// DependencyParseContextGenerator contextGen2 = new
-		// DependencyParseContextGeneratorConf_ArcEager();
-		// LocalDateTime start2 = LocalDateTime.now();
-		// crossValidator2.evaluate(sampleStream2, folds, contextGen2);
-		// System.out.println("开始时间:" + start2);
 	}
 
 }

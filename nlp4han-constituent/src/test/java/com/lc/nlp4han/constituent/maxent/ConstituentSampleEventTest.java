@@ -12,6 +12,7 @@ import org.junit.Test;
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.HeadGeneratorCollins;
+import com.lc.nlp4han.constituent.HeadRuleSetPTB;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.TreeToHeadTree;
@@ -39,11 +40,11 @@ public class ConstituentSampleEventTest {
 	@Before
 	public void setUp() throws IOException, CloneNotSupportedException{
 		events = new ArrayList<Event>();
-		aghw = new HeadGeneratorCollins();
+		aghw = new HeadGeneratorCollins(new HeadRuleSetPTB());
 		generator = new ParserContextGeneratorConf();
-		tree = BracketExpUtil.generateTree("((S(NP(PRP I))(VP(VP(VBD saw)(NP(DT the)(NN man)))(PP(IN with)(NP(DT the)(NN telescope))))))");
+		tree = BracketExpUtil.generateTreeNoTopBracket("((S(NP(PRP I))(VP(VP(VBD saw)(NP(DT the)(NN man)))(PP(IN with)(NP(DT the)(NN telescope))))))");
 		headTree = TreeToHeadTree.treeToHeadTree(tree, aghw);
-		sample = HeadTreeToActions.headTreeToSample(headTree, aghw);
+		sample = HeadTreeToSample.headTreeToSample(headTree, aghw);
 		words = sample.getWords();
 		chunkTree = sample.getChunkTree();
 		buildAndCheckTree = sample.getBuildAndCheckTree();

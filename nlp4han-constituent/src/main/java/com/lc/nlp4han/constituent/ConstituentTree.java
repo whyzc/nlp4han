@@ -33,4 +33,14 @@ public class ConstituentTree {
 	public String toString() {
 		return root.toString();
 	}
+	
+	/**
+	 * 带缩进和换行的输出
+	 * 
+	 * @return
+	 */
+	public String toPrettyString()
+	{
+		return TreeNode.printTree(root, 1);
+	}
 }

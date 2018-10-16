@@ -3,9 +3,10 @@ package com.lc.nlp4han.constituent;
 import java.util.List;
 
 /**
- * 规则的结构设计类 说明：该规则包含规则的右部和遍历的方向
+ * 头结点生成规则
  * 
- * @author 王馨苇
+ * 该规则包含规则的右部和遍历的方向
+ * 
  *
  */
 public class HeadRule
@@ -31,7 +32,7 @@ public class HeadRule
 	 * @param i
 	 * @return
 	 */
-	public String getIRightRule(int i)
+	public String getRightRule(int i)
 	{
 		return this.rightRules.get(i);
 	}

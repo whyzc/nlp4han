@@ -6,10 +6,7 @@ import com.lc.nlp4han.dependency.DependencyParser;
 import com.lc.nlp4han.dependency.DependencySample;
 import com.lc.nlp4han.ml.util.Evaluator;
 
-/**
- * @author 作者
- * @version 创建时间：2018年7月24日 下午8:01:29 类说明
- */
+
 public class DependencyParseEvaluator extends Evaluator<DependencySample>
 {
 	private DependencyParser tagger;
@@ -36,10 +33,7 @@ public class DependencyParseEvaluator extends Evaluator<DependencySample>
 			wordsRefNoRoot[i - 1] = wordsRef[i];
 			posRefNoRoot[i - 1] = posRef[i];
 		}
-
-//		DependencySample preSample = tagger.parse(wordsRefNoRoot, posRefNoRoot).getSample();
-		
-		
+	
 		DependencySample preSample = tagger.parse(wordsRefNoRoot, posRefNoRoot,1)[0].getSample();
 //		// 将预测的结果输出
 //		System.out.println(preSample.toCoNLLString());
@@ -50,16 +44,6 @@ public class DependencyParseEvaluator extends Evaluator<DependencySample>
 		measure.updateScore(dependencyWordsRef, dependencyRef, dependencyWordsPre, dependencyPre);
 
 		return preSample;
-	}
-
-	public DependencyParser getTagger()
-	{
-		return tagger;
-	}
-
-	public void setTagger(DependencyParserTB tagger)
-	{
-		this.tagger = tagger;
 	}
 
 	public DependencyParseMeasure getMeasure()

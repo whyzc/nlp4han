@@ -4,7 +4,11 @@ import java.util.List;
 
 import com.lc.nlp4han.constituent.TreeNode;
 
-public class NodeNameFilter implements Filter
+/**
+ * 根据节点名过滤候选
+ *
+ */
+public class NodeNameFilter extends CandidateFilter
 {
 	private List<TreeNode> treeNodes;
 	private String[] treeNodeNames;
@@ -26,18 +30,14 @@ public class NodeNameFilter implements Filter
 		this.treeNodeNames = treeNodeNames;
 	}
 
-	public void setTreeNodes(List<TreeNode> treeNodes)
-	{
-		this.treeNodes = treeNodes;
-	}
-
+	// 设置接受的结点名
 	public void setTreeNodeName(String[] treeNodeName)
 	{
 		this.treeNodeNames = treeNodeName;
 	}
 
 	@Override
-	public List<TreeNode> filtering()
+	public List<TreeNode> filter()
 	{
 		if (treeNodeNames != null)
 		{
@@ -62,10 +62,9 @@ public class NodeNameFilter implements Filter
 	}
 
 	@Override
-	public void setUp(List<TreeNode> treeNodes)
+	public void setFilteredNodes(List<TreeNode> treeNodes)
 	{
 		this.treeNodes = treeNodes;
 
 	}
-
 }

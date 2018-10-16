@@ -1,11 +1,6 @@
 package com.lc.nlp4han.dependency.tb;
 
-import java.io.File;
-import java.io.IOException;
-
 import com.lc.nlp4han.ml.model.ClassificationModel;
-import com.lc.nlp4han.ml.model.SequenceClassificationModel;
-import com.lc.nlp4han.ml.util.ModelWrapper;
 
 /**
  * action预测
@@ -26,11 +21,11 @@ public class Oracle
 		this.contextGenerator = contextGenerator;
 	}
 
-	public ActionType classify(Configuration currentConf, String[] priorDecisions, Object[] additionalContext)
-	{// 将当前的Configuration分类
-		String[] context;
-		context =  contextGenerator.getContext( currentConf, priorDecisions, null);
+	public Action classify(Configuration currentConf, String[] priorDecisions, Object[] additionalContext)
+	{
+		String[] context =  contextGenerator.getContext(currentConf, priorDecisions, null);
 		double allPredicates[] = model.eval(context);
+		
 		String tempAllType[] = new String[allPredicates.length];// 存储所有的分类
 
 		for (int k = 0; k < allPredicates.length; k++)
@@ -39,9 +34,10 @@ public class Oracle
 		}
 
 		int indexOfBestOutcome = getBestIndexOfOutcome(allPredicates);
-		if (contextGenerator instanceof DependencyParseContextGeneratorConf_ArcEager)
+		
+		if (contextGenerator instanceof DependencyParseContextGeneratorConfArcEager)
 		{
-			while (!SimpleValidator.validate((Configuration_ArcEager)currentConf, tempAllType[indexOfBestOutcome]))
+			while (!DependencyTBValidator.validate((ConfigurationArcEager)currentConf, tempAllType[indexOfBestOutcome]))
 			{// ActionType不符合依存转换关系
 				allPredicates[indexOfBestOutcome] = -1;
 				indexOfBestOutcome = getBestIndexOfOutcome(allPredicates);
@@ -49,14 +45,14 @@ public class Oracle
 		}
 		else
 		{
-			while (!SimpleValidator.validate((Configuration_ArcStandard)currentConf, tempAllType[indexOfBestOutcome]))
+			while (!DependencyTBValidator.validate((ConfigurationArcStandard)currentConf, tempAllType[indexOfBestOutcome]))
 			{// ActionType不符合依存转换关系
 				allPredicates[indexOfBestOutcome] = -1;
 				indexOfBestOutcome = getBestIndexOfOutcome(allPredicates);
 			}
 		}
 
-		ActionType action = ActionType.toType(tempAllType[indexOfBestOutcome]);
+		Action action = Action.toType(tempAllType[indexOfBestOutcome]);
 		return action;
 	}
 

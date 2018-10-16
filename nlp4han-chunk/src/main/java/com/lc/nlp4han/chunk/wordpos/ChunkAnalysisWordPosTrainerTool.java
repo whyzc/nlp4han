@@ -110,5 +110,7 @@ public class ChunkAnalysisWordPosTrainerTool
 
 		ModelWrapper model = me.train(sampleStream, params, contextGen);
 		model.serialize(modelOut);
+		
+		modelOut.close();
 	}
 }

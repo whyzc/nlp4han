@@ -13,6 +13,7 @@ import org.junit.Test;
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.HeadGeneratorCollins;
+import com.lc.nlp4han.constituent.HeadRuleSetPTB;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.TreePreprocessTool;
@@ -33,7 +34,7 @@ public class SRLSampleNormalWithPruningEventStreamForIdentificationTest {
 	
 	@Test
 	public void test() throws IOException{
-		TreeNode tree1 = BracketExpUtil.generateTree(""
+		TreeNode tree1 = BracketExpUtil.generateTreeNoTopBracket(""
 				+ "((S(S(NP-SBJ(NNP Mr.)(NNP Spoon))(VP(VBD said)(SBAR (-NONE- 0)(S(NP-SBJ(DT the)(NN plan))"
 				+ "(VP(VBZ is)(RB not)(NP-PRD(DT an)(NN attempt)(S(NP-SBJ(-NONE- *))(VP(TO to)(VP(VB shore)"
 				+ "(PRT(RP up))(NP(NP(DT a)(NN decline))(PP-LOC(IN in)(NP(NN ad)(NNS pages)))(PP-TMP(IN in)"
@@ -45,7 +46,7 @@ public class SRLSampleNormalWithPruningEventStreamForIdentificationTest {
 		TreePreprocessTool.deleteNone(tree1);
 		
 		AbstractParseStrategy<HeadTreeNode> ttss = new SRLParseNormalWithPruning();
-		AbstractHeadGenerator ahg = new HeadGeneratorCollins();
+		AbstractHeadGenerator ahg = new HeadGeneratorCollins(new HeadRuleSetPTB());
 		String roles1 = "wsj/00/wsj0012.mrg 9 12 gold shore.01 i---a 4:1*10:0-ARG0 12:0,13:1-rel 14:2-ARG1";
 		SRLSample<HeadTreeNode> sample = ttss.parse(tree1, roles1, ahg);
 

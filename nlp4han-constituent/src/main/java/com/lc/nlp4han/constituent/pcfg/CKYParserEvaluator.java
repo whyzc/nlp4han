@@ -6,6 +6,8 @@ import com.lc.nlp4han.constituent.ConstituentMeasure;
 import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
+import com.lc.nlp4han.constituent.lex.ConstituentParseLexPCFG;
+import com.lc.nlp4han.constituent.lex.LexPCFG;
 import com.lc.nlp4han.ml.util.Evaluator;
 
 public class CKYParserEvaluator extends Evaluator<ConstituentTree>
@@ -40,7 +42,12 @@ public class CKYParserEvaluator extends Evaluator<ConstituentTree>
 
 	public CKYParserEvaluator(PCFG p2nf)
 	{
-		this.cky = new ConstituentParserCKYOfP2NF(p2nf);
+		this.cky = new ConstituentParserCKYP2NF(p2nf);
+	}
+	
+	public CKYParserEvaluator(LexPCFG lexpcfg)
+	{
+		this.cky = new ConstituentParseLexPCFG(lexpcfg);
 	}
 
 	@Override
@@ -61,17 +68,19 @@ public class CKYParserEvaluator extends Evaluator<ConstituentTree>
 		
 		long start = System.currentTimeMillis();
 		
-		ConstituentTree treePre = cky.parseTree(words1, poses1);
+		ConstituentTree treePre = cky.parse(words1, poses1);
 		
-		totalTime += (System.currentTimeMillis() - start);	
+		long thisTime = System.currentTimeMillis() - start;
+		totalTime += thisTime;	
 		count++;
 		
-		System.out.println("平均解析时间：" + (totalTime/count) + "ms");
+		System.out.println("句子长度：" + words.size() + " 平均解析时间：" + (totalTime/count) + "ms" + " 本句解析时间：" + thisTime + "ms");
 		
 		try
 		{
 			if (treePre == null)
 			{
+				System.out.println("无法解析的句子： "+rootNodeRef.toString());
 				measure.countNodeDecodeTrees(null);
 				measure.update(rootNodeRef, new TreeNode());
 			}
