@@ -6,7 +6,8 @@ import java.util.List;
 import com.lc.nlp4han.constituent.TreeNode;
 
 /**
- * @author 王宁 version 创建时间：2018年9月27日 上午9:22:02 处理树
+ * 处理树
+ * @author 王宁 
  */
 public class TreeUtil
 {

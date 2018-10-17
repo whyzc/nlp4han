@@ -1,16 +1,18 @@
 package com.lc.nlp4han.constituent.unlex;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.LinkedList;
 
 /**
+ * 一元规则
  * @author 王宁
- * @version 创建时间：2018年9月24日 下午6:45:16 一元规则
  */
 public class UnaryRule extends Rule
 {
 	private short child;
 	LinkedList<LinkedList<Double>> scores = new LinkedList<LinkedList<Double>>();// 保存规则例如Ai -> Bj 的概率
+	double[][] countExpectation = null;
 
 	public UnaryRule(short parent, short child)
 	{
@@ -92,6 +94,25 @@ public class UnaryRule extends Rule
 	public boolean isSameRule(short parent, short child)
 	{
 		if (this.parent == parent && this.child == child)
+			return true;
+		else
+			return false;
+	}
+
+	public double[][] getCountExpectation()
+	{
+		return countExpectation;
+	}
+
+	public void setCountExpectation(double[][] countExpectation)
+	{
+		this.countExpectation = countExpectation;
+	}
+
+	@Override
+	boolean withIn(HashSet<? extends Rule> rules)
+	{
+		if (rules.contains(this))
 			return true;
 		else
 			return false;

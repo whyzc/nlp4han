@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 表示结构树
  * @author 王宁
- * @version 创建时间：2018年9月23日 下午12:57:29 表示结构树
  */
 public class Tree<T>
 {

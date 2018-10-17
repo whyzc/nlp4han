@@ -3,8 +3,9 @@ package com.lc.nlp4han.constituent.unlex;
 import java.util.HashSet;
 
 /**
+ * 分裂语法
  * @author 王宁
- * @version 创建时间：2018年10月12日 下午3:54:45 分裂语法
+ * 
  * 
  */
 public class GrammarSpliter

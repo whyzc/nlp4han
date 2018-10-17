@@ -9,8 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 对二叉树得到初始语法 
  * @author 王宁
- * @version 创建时间：2018年9月24日 下午9:02:13 对二叉树得到初始语法 获得规则概率待写
+ *  
  */
 public class GrammarExtractor
 {

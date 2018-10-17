@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
+ * 记录二叉化后得到的树中的标记（非终结符）和与之对应整数
  * @author 王宁
- * @version 创建时间：2018年9月24日 下午8:00:38 记录二叉化后得到的树中的标记（非终结符）和与之对应整数
+ * 
  */
 public class NonterminalTable
 {

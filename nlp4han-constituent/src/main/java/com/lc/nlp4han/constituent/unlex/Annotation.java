@@ -1,8 +1,8 @@
 package com.lc.nlp4han.constituent.unlex;
 
 /**
+ * 树中的节点
  * @author 王宁
- * @version 创建时间：2018年9月23日 下午12:32:33 树中的节点
  */
 public class Annotation
 {

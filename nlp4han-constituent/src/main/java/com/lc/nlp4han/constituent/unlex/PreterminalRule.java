@@ -1,16 +1,19 @@
 package com.lc.nlp4han.constituent.unlex;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.LinkedList;
 
 /**
+ * 表示词性标注产生单词的规则
  * @author 王宁
- * @version 创建时间：2018年9月24日 下午10:26:38 表示词性标注产生单词的规则
+ * 
  */
 public class PreterminalRule extends Rule
 {
 	String word;
 	LinkedList<Double> scores = new LinkedList<Double>();
+	double[] countExpectation = null;
 
 	public PreterminalRule(short parent, String word)
 	{
@@ -76,6 +79,25 @@ public class PreterminalRule extends Rule
 	public void setScores(LinkedList<Double> scores)
 	{
 		this.scores = scores;
+	}
+
+	public double[] getCountExpectation()
+	{
+		return countExpectation;
+	}
+
+	public void setCountExpectation(double[] countExpectation)
+	{
+		this.countExpectation = countExpectation;
+	}
+
+	@Override
+	boolean withIn(HashSet<? extends Rule> rules)
+	{
+		if (rules.contains(this))
+			return true;
+		else
+			return false;
 	}
 
 }

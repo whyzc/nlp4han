@@ -1,19 +1,22 @@
 package com.lc.nlp4han.constituent.unlex;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.LinkedList;
 
-/**
+/** 
+ * 二元规则
  * @author 王宁
- * @version 创建时间：2018年9月24日 下午6:41:59 二元规则
  */
 public class BinaryRule extends Rule
 {
 	private short leftChild;
 	private short rightChild;
 	LinkedList<LinkedList<LinkedList<Double>>> scores = new LinkedList<LinkedList<LinkedList<Double>>>();// 保存规则例如A_i ->
-																											// B_j C_k的概率
-	double[][][] countExpectation;
+																											// B_j
+																											// C_k的概率
+	double[][][] countExpectation  = null;
+
 	public BinaryRule(short parent, short lChild, short rChild)
 	{
 		super.parent = parent;
@@ -131,4 +134,29 @@ public class BinaryRule extends Rule
 		this.scores = scores;
 	}
 
+	public double[][][] getCountExpectation()
+	{
+		return countExpectation;
+	}
+
+	public void setCountExpectation(double[][][] countExpectation)
+	{
+		this.countExpectation = countExpectation;
+	}
+
+	@Override
+	boolean withIn(HashSet<? extends Rule> rules)
+	{
+		if (rules.contains(this))
+			return true;
+		else
+			return false;
+	}
+
+	public static void main(String[] args)
+	{
+		HashSet<BinaryRule> set = new HashSet<BinaryRule>();
+		BinaryRule bRule = new BinaryRule((short)1,(short)2,(short)3);
+		bRule.withIn(set);
+	}
 }
