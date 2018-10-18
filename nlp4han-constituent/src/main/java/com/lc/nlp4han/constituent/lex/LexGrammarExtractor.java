@@ -66,6 +66,7 @@ public class LexGrammarExtractor
 		ptbt.close();
 		return this.lexpcfg;
 	}
+
 	/**
 	 * 递归遍历句法树并提取规则
 	 * 
@@ -154,6 +155,7 @@ public class LexGrammarExtractor
 
 		// 在解析中需要用此得到候选的父节点，以免遍历不需要的非终结符
 		RuleHeadChildGenerate rhcg = new RuleHeadChildGenerate(headLabel, null, headpos, null);
+		//RuleHeadChildGenerate rhcg = new RuleHeadChildGenerate(headLabel, null, null, null);
 		if (!parentList.containsKey(rhcg))
 		{
 			HashSet<String> labelSet = new HashSet<String>();
@@ -206,6 +208,18 @@ public class LexGrammarExtractor
 		String headPOS = node.getHeadPos();
 		Distance leftDistance = getDistance(node, 1, headIndex, -1);// 左侧距离
 		Distance rightDistance = getDistance(node, 2, headIndex, node.getChildrenNum());// 右侧距离
+		
+		if(parentLabel.equals("NPB")) {
+			headWord=node.getFirstChildHeadWord();
+			headPOS=node.getFirstChildHeadWordPos();
+			headLabel=node.getFirstChildName();
+			getOneSideStopGRule(true, parentLabel, headLabel, headPOS, headWord,new Distance(), 1);// 左侧 Stop符号
+			headWord=node.getLastChildHeadWord();
+			headPOS=node.getLastChildHeadPos();
+			headLabel=node.getLastChildName();
+			getOneSideStopGRule(true, parentLabel, headLabel, headPOS, headWord, new Distance(), 2);// 右侧Stop符号
+			return ;
+		}
 
 		getOneSideStopGRule(true, parentLabel, headLabel, headPOS, headWord, leftDistance, 1);// 左侧 Stop符号
 		getOneSideStopGRule(true, parentLabel, headLabel, headPOS, headWord, rightDistance, 2);// 右侧Stop符号
@@ -234,14 +248,26 @@ public class LexGrammarExtractor
 		Distance distance = getDistance(node, direction, headIndex, i);
 
 		// 若为基本名词短语，则headChild变为前一个修饰符,暂不处理
-		/*
-		 * if (node.getNodeName().equals("NPB")) { distance = new Distance();//
-		 * NPB不需要距离度量，故将其设置为固定值（此处为false） if (i > headIndex) { // 修饰符在headChild右侧
-		 * headLabel = node.getChildName(i - 1); headPOS = node.getChildHeadPos(i - 1);
-		 * headWord = node.getChildHeadWord(i - 1); } else if(i<headIndex) { //
-		 * 修饰符在headChild左侧 headLabel = node.getChildName(i + 1); headPOS =
-		 * node.getChildHeadPos(i + 1); headWord = node.getChildHeadWord(i + 1); } }
-		 */
+		if (node.getNodeName().equals("NPB"))
+		{
+			// NPB不需要距离度量，故将其设置为固定值（此处为false）
+			distance = new Distance();
+
+			if (i > headIndex)
+			{ // 修饰符在headChild右侧
+				headLabel = node.getChildName(i - 1);
+				headPOS = node.getChildHeadPos(i - 1);
+				headWord = node.getChildHeadWord(i - 1);
+			}
+			else if (i < headIndex)
+			{ //
+				// 修饰符在headChild左侧
+				headLabel = node.getChildName(i + 1);
+				headPOS = node.getChildHeadPos(i + 1);
+				headWord = node.getChildHeadWord(i + 1);
+			}
+		}
+
 		// 在此处虽然不生成Stop但仍要统计其数据，在计算概率时使用
 		getOneSideStopGRule(false, parentLabel, headLabel, headPOS, headWord, distance, direction);
 
@@ -384,13 +410,14 @@ public class LexGrammarExtractor
 			}
 		}
 	}
+
 	/**
 	 * 由括号表达式列表直接得到PCFG
 	 */
 	public static LexPCFG getLexPCFG(ArrayList<String> bracketStrList) throws IOException
 	{
 		LexPCFG grammar = new LexGrammarExtractor().brackets2Grammar(bracketStrList);
-  
+
 		return grammar;
 	}
 
@@ -399,7 +426,7 @@ public class LexGrammarExtractor
 		AbstractHeadGenerator headGen = new HeadGeneratorCollins(new HeadRuleSetCTB());
 		for (String bracketStr : bracketStrList)
 		{
-			//System.out.println("括号表达式 ： "+bracketStr.toString());
+			// System.out.println("括号表达式 ： "+bracketStr.toString());
 			TreeNode rootNode = BracketExpUtil.generateTree(bracketStr);
 			HeadTreeNodeForCollins headNode = TreeToHeadTreeForCollins.treeToHeadTree(rootNode, headGen);
 			if (lexpcfg.getStartSymbol() == null)

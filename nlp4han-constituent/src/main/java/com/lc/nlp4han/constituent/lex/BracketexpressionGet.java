@@ -9,7 +9,7 @@ public class BracketexpressionGet
 	private LexNode[][] chart;
 	private int n;
 
-	public BracketexpressionGet(LexNode[][] chart, int n)
+	public BracketexpressionGet(LexNode[][] chart, int n,int k)
 	{
 		this.chart = chart;
 		this.n = n;
@@ -19,7 +19,7 @@ public class BracketexpressionGet
 	{
 		ArrayList<String> resultList = new ArrayList<String>();
 
-		// 查找概率最大的n个可行结果
+       // 查找概率最大的可行结果
 		Edge edge = getBestTop(chart[0][n]);
 		if (edge.getPro() == -1)
 		{// 如果没有Parse结果则直接返回
@@ -27,9 +27,8 @@ public class BracketexpressionGet
 		}
 		strBuilder = new StringBuilder();
 		getParseResultString(edge);// 从最后一个节点[0,n]开始回溯
-
 		resultList.add(strBuilder.toString());
-
+		
 		return resultList;
 	}
 
