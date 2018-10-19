@@ -21,8 +21,8 @@ public class TreeToEvalStructureTest {
 
 	@Test
 	public void testTreeToEvalStructure() throws CloneNotSupportedException{
-		TreeNode tree1 = BracketExpUtil.generateTree("((S(NP(PRP I))(VP(VP(VBD saw)(NP(DT the)(NN man)))(PP(IN with)(NP(DT the)(NN telescope))))))");
-		TreeNode tree2 = BracketExpUtil.generateTree("((S(NP(EX There))(VP(VBZ is)(NP(DT no)(NN box))(PP(IN in)(NP(PRP$ our)(NNS box)))(ADVP (RB now)))(. .)('' '') ))");
+		TreeNode tree1 = BracketExpUtil.generateTreeNoTopBracket("((S(NP(PRP I))(VP(VP(VBD saw)(NP(DT the)(NN man)))(PP(IN with)(NP(DT the)(NN telescope))))))");
+		TreeNode tree2 = BracketExpUtil.generateTreeNoTopBracket("((S(NP(EX There))(VP(VBZ is)(NP(DT no)(NN box))(PP(IN in)(NP(PRP$ our)(NNS box)))(ADVP (RB now)))(. .)('' '') ))");
 		List<EvalStructure> pre1 = EvalStructure.getEvalStructures(tree1);
 		List<EvalStructure> pre2 = EvalStructure.getEvalStructures(tree2);
 		

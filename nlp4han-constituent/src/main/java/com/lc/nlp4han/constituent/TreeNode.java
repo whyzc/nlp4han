@@ -264,16 +264,39 @@ public class TreeNode implements Cloneable
 	{
 		return this.flag;
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		TreeNode node = (TreeNode) obj;
+		if (this.toString().equals(node.toString()))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	public TreeNode clone() throws CloneNotSupportedException
+	{
+		TreeNode cloned = (TreeNode) super.clone();
+		return cloned;
+	}
 
 	/**
 	 * 输出为一行的括号表达式
+	 * 
+	 * 表达式中括号会转义
+	 * 
 	 */
 	@Override
 	public String toString()
 	{
 		if (this.children.size() == 0)
 		{
-			return " " + BracketConvert(this.getNodeName());
+			return " " + escapeBracket(this.getNodeName());
 		}
 		else
 		{
@@ -293,13 +316,15 @@ public class TreeNode implements Cloneable
 	/**
 	 * 输出为一行的括号表达式形式，带词的位置
 	 * 
+	 * 表达式中括号会转义
+	 * 
 	 * @return
 	 */
 	public String toStringWordIndex()
 	{
 		if (this.children.size() == 0)
 		{
-			return " " + BracketConvert(this.getNodeName()) + "[" + this.wordindex + "]";
+			return " " + escapeBracket(this.getNodeName()) + "[" + this.wordindex + "]";
 		}
 		else
 		{
@@ -316,7 +341,9 @@ public class TreeNode implements Cloneable
 	}
 
 	/**
-	 * 输出没有换行没有空节点的的括号表达式形式
+	 * 输出一行没有空节点的的括号表达式形式
+	 * 
+	 * 空节点的flag为false，不输出
 	 * 
 	 * @return
 	 */
@@ -324,7 +351,7 @@ public class TreeNode implements Cloneable
 	{
 		if (this.children.size() == 0 && this.flag == true)
 		{
-			return " " + BracketConvert(this.getNodeName());
+			return " " + escapeBracket(this.getNodeName());
 		}
 		else
 		{
@@ -349,28 +376,11 @@ public class TreeNode implements Cloneable
 		}
 	}
 
-	@Override
-	public boolean equals(Object obj)
-	{
-		TreeNode node = (TreeNode) obj;
-		if (this.toString().equals(node.toString()))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	public TreeNode clone() throws CloneNotSupportedException
-	{
-		TreeNode cloned = (TreeNode) super.clone();
-		return cloned;
-	}
 
 	/**
-	 * 打印没有换行的一整行括号表达式【去掉删除的节点】
+	 * 输出一行没有空节点带单词位置的的括号表达式形式
+	 * 
+	 * 空节点的flag为false，不输出
 	 * 
 	 * @return
 	 */
@@ -378,7 +388,7 @@ public class TreeNode implements Cloneable
 	{
 		if (this.children.size() == 0 && this.flag == true)
 		{
-			return " " + BracketConvert(this.getNodeName()) + "[" + this.wordindex + "]";
+			return " " + escapeBracket(this.getNodeName()) + "[" + this.wordindex + "]";
 		}
 		else
 		{
@@ -411,22 +421,22 @@ public class TreeNode implements Cloneable
 	 */
 	public static String printTree(TreeNode tree, int level)
 	{
-		if (tree.getChildrenNum() == 1 && tree.getFirstChild().getChildrenNum() == 0)
+		if (tree.getChildrenNum() == 1 && tree.getFirstChild().getChildrenNum() == 0) // 预终结符
 		{
-			return "(" + tree.getNodeName() + " " + BracketConvert(tree.getFirstChild().getNodeName()) + ")";
+			return "(" + tree.getNodeName() + " " + escapeBracket(tree.getFirstChild().getNodeName()) + ")";
 		}
 		else if (tree.getChildrenNum() == 1 && tree.getFirstChild().getChildrenNum() == 1
 				&& tree.getFirstChild().getFirstChild().getChildrenNum() == 0)
 		{
 			return "(" + tree.getNodeName() + " " + "(" + tree.getFirstChild().getNodeName() + " "
-					+ BracketConvert(tree.getFirstChild().getFirstChild().getNodeName()) + ")" + ")";
+					+ escapeBracket(tree.getFirstChild().getFirstChild().getNodeName()) + ")" + ")";
 		}
 		else if (tree.getChildrenNum() > 1 && firstChildIsPosAndWord(tree))
 		{
 			String str = "";
 			str += "(" + tree.getNodeName();
 			str += " " + "(" + tree.getFirstChild().getNodeName() + " "
-					+ BracketConvert(tree.getFirstChild().getFirstChild().getNodeName()) + ")" + "\n";
+					+ escapeBracket(tree.getFirstChild().getFirstChild().getNodeName()) + ")" + "\n";
 			String s = "";
 			for (int i = 1; i < tree.getChildrenNum(); i++)
 			{
@@ -458,13 +468,13 @@ public class TreeNode implements Cloneable
 					if (i == tree.getChildrenNum() - 1)
 					{
 						str += " " + "(" + tree.getChild(i).getNodeName() + " "
-								+ BracketConvert(tree.getChild(i).getFirstChild().getNodeName()) + ")" + ")";
+								+ escapeBracket(tree.getChild(i).getFirstChild().getNodeName()) + ")" + ")";
 						return str;
 					}
 					else
 					{
 						str += " " + "(" + tree.getChild(i).getNodeName() + " "
-								+ BracketConvert(tree.getChild(i).getFirstChild().getNodeName()) + ")";
+								+ escapeBracket(tree.getChild(i).getFirstChild().getNodeName()) + ")";
 					}
 				}
 			}
@@ -543,9 +553,11 @@ public class TreeNode implements Cloneable
 	}
 
 	/*
+	 * 对括号进行转义
+	 * 
 	 * 若节点的名称为"("或者")",则将其输出为"-LRB"或者"-RRB-"
 	 */
-	public static String BracketConvert(String nodeName)
+	public static String escapeBracket(String nodeName)
 	{
 		String treestr = "";
 		if (nodeName == "(")

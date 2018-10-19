@@ -38,7 +38,7 @@ public class EvaluationHobbs extends AbstractEvaluation
 		for (int i = 0; i < information1.size(); i++)
 		{
 			String str = information1.get(i);
-			TreeNode ui = BracketExpUtil.generateTree("(" + str + ")");
+			TreeNode ui = BracketExpUtil.generateTreeNoTopBracket("(" + str + ")");
 			constituentTrees.add(ui);
 		}
 		

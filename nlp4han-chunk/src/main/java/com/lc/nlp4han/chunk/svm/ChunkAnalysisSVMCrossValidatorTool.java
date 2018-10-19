@@ -2,7 +2,6 @@ package com.lc.nlp4han.chunk.svm;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Properties;
 
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisMeasure;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;

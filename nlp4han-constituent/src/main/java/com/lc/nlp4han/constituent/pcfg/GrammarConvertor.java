@@ -7,25 +7,15 @@ import java.util.Set;
 
 public class GrammarConvertor
 {
-	private CFG cnf;
-	private HashSet<RewriteRule> deletePRuleSet;// 将要被消除的单元规则的集合
-	private String type;// 将要转换的类型
-	private HashSet<String> posSet = new HashSet<String>();// 词性标注集
 
-	public CFG convertCFGToCNF(CFG cfg)
+	public static CFG convertCFGToCNF(CFG cfg)
 	{
-		this.cnf = new CFG();
-		convertGrammar("CNF", cfg);
-		return cnf;
+		return new GrammarConvertor().convertGrammar("CNF", cfg, new CFG());
 	}
 
-	public PCFG convertPCFGToP2NF(PCFG pcfg)
+	public static PCFG convertPCFGToP2NF(PCFG pcfg)
 	{
-		this.cnf = new PCFG();
-		
-		convertGrammar("P2NF", pcfg);
-		
-		return (PCFG) cnf;
+		return (PCFG) new GrammarConvertor().convertGrammar("P2NF", pcfg, new PCFG());
 	}
 
 	/**
@@ -34,13 +24,9 @@ public class GrammarConvertor
 	 * @param pcfg
 	 * @return
 	 */
-	public PCFG convertPCFGToPCNF(PCFG pcfg)
+	public static PCFG convertPCFGToPCNF(PCFG pcfg)
 	{
-		this.cnf = new PCFG();
-		
-		convertGrammar("PCNF", pcfg);
-		
-		return (PCFG) cnf;
+		return (PCFG) new GrammarConvertor().convertGrammar("PCNF", pcfg, new PCFG());
 	}
 
 	/**
@@ -49,20 +35,16 @@ public class GrammarConvertor
 	 * @param type
 	 * @param cfg
 	 */
-	private void convertGrammar(String type, CFG cfg)
+	private CFG convertGrammar(String type, CFG cfg, CFG cnf)
 	{
-		this.type = type;
-		
-		convertTo2NF(cfg);
-		
-		if (type.contains("P"))
-		{
-			this.deletePRuleSet = new HashSet<RewriteRule>();
-			
-			getPOSSet();
-			
-			removeUnitProduction();
+		convertTo2NF(cfg, type, cnf);
+
+		if (!type.contains("2"))
+		{// P2NF不需要消除单元规则
+			HashSet<String> posSet = getPOSSet(cnf);
+			removeUnitProduction(type, posSet, cnf);
 		}
+		return cnf;
 	}
 
 	/**
@@ -70,22 +52,20 @@ public class GrammarConvertor
 	 * 
 	 * @param cfg
 	 */
-	private void convertTo2NF(CFG cfg)
+	private void convertTo2NF(CFG cfg, String type, CFG cnf)
 	{
 		cnf.setNonTerminalSet(cfg.getNonTerminalSet());
 		cnf.setTerminalSet(cfg.getTerminalSet());
 		cnf.setStartSymbol(cfg.getStartSymbol());
 
 		// 前期处理，遍历pcfg将规则加入pcnf
-		priorDisposal(cfg);
+		priorDisposal(cfg, type, cnf);
 	}
 
 	/**
 	 * 前期处理，遍历的将规则加入pcnf 将字符串个数多于两个的递归的减为两个 将终结符和非终结符混合转换为两个非终结符 直接添加右侧只有一个字符串的规则
-	 * 
-	 * 转换后包括：单元规则（包括非法的CNF单元规则）、合法的二元规则
 	 */
-	private void priorDisposal(CFG cfg)
+	private void priorDisposal(CFG cfg, String type, CFG cnf)
 	{
 		for (RewriteRule rule : cfg.getRuleSet())
 		{
@@ -94,10 +74,10 @@ public class GrammarConvertor
 				// 如果右侧中有终结符，则转换为伪非终结符
 				if (!cnf.getNonTerminalSet().containsAll(rule.getRhs()))
 				{
-					convertToNonTerRHS(rule);
+					ConvertToNonTerRHS(rule, type, cnf);
 				}
 
-				reduceRHSNum(rule);
+				reduceRHSNum(rule, type, cnf);
 			}
 
 			// 先检测右侧有两个字符串的规则是否为终结符和非终结符混合，若混合则先将终结符转换为非终结符
@@ -106,7 +86,7 @@ public class GrammarConvertor
 				// 如果右侧中有终结符，则转换为伪非终结符
 				if (!cnf.getNonTerminalSet().containsAll(rule.getRhs()))
 				{
-					convertToNonTerRHS(rule);
+					ConvertToNonTerRHS(rule, type, cnf);
 				}
 
 				cnf.add(rule);
@@ -123,7 +103,7 @@ public class GrammarConvertor
 	/**
 	 * 将右侧全部转换为非终结符，并添加新的非终结符，新的规则
 	 */
-	private void convertToNonTerRHS(RewriteRule rule)
+	private void ConvertToNonTerRHS(RewriteRule rule, String type, CFG cnf)
 	{
 		ArrayList<String> rhs = new ArrayList<String>();
 		for (String string : rule.getRhs())
@@ -156,7 +136,7 @@ public class GrammarConvertor
 	/**
 	 * 每次选择最右侧字符串的两个为新的规则的右侧字符串，以&联接两个非终结符，如此，方便在P2NF转回为CFG
 	 */
-	private void reduceRHSNum(RewriteRule rule)
+	private void reduceRHSNum(RewriteRule rule, String type, CFG cnf)
 	{
 		if (rule.getRhs().size() == 2)
 		{
@@ -185,65 +165,60 @@ public class GrammarConvertor
 		rule.setRhs(rhsList);
 
 		// 递归，直到rhs的个数为2时
-		reduceRHSNum(rule);
+		reduceRHSNum(rule, type, cnf);
 	}
 
 	/**
 	 * 消除单元规则
 	 */
-	private void removeUnitProduction()
+	private void removeUnitProduction(String type, HashSet<String> posSet, CFG cnf)
 	{
+		HashSet<RewriteRule> deletePRuleSet = new HashSet<RewriteRule>();
 		Set<String> nonterSet = cnf.getNonTerminalSet();
 		for (String nonTer : cnf.getNonTerminalSet())
 		{
 			for (RewriteRule rule : cnf.getRuleBylhs(nonTer))
 			{
-				if (rule.getRhs().size() == 1) //单元规则
+				if (rule.getRhs().size() == 1) // 单元规则
 				{
 					String rhs = rule.getRhs().get(0);
 					if (posSet.contains(rhs)) // 右部是词性
 					{// 消除单元规则终止与POS层次
 						continue;
 					}
-					
 					if (nonterSet.contains(rhs))
 					{
 						deletePRuleSet.add(rule);
-						
-						removeUPAndAddNewRule(rule);
+						removeUPAndAddNewRule(rule, type, posSet, cnf);
 					}
 				}
 			}
 		}
-		
-		deletePRuleSet();
+		DeletePRuleSet(deletePRuleSet, cnf);
 	}
 
-	private void removeUPAndAddNewRule(RewriteRule rule)
+	private void removeUPAndAddNewRule(RewriteRule rule, String type, HashSet<String> posSet, CFG cnf)
 	{
 		String lhs = rule.getLhs();
 		String rhs = rule.getRhs().get(0);
 
-		String[] lhsList = lhs.split("@");
-		if (lhsList.length >= 3)
+		String[] lhs1 = lhs.split("@");
+		if (lhs1.length >= 3)
 		{
 			return;// 如果单元规则迭代有3次以上，则返回
 		}
-		
 		if (posSet.contains(rule.getRhs().get(0)))
 		{
 			cnf.add(rule);// 若该规则右侧为词性标注则直接添加
 			return;
 		}
-		
-		for (String lhs2 : lhsList)
+		for (String lhs2 : lhs1)
 		{
 			if (lhs2.equals(rhs))
 			{
 				return;// 如果出现循环非终结符则返回
 			}
 		}
-		
 		for (RewriteRule rule1 : cnf.getRuleBylhs(rule.getRhs().get(0)))
 		{
 			RewriteRule rule2;
@@ -259,19 +234,18 @@ public class GrammarConvertor
 			{
 				rule2 = new RewriteRule(rule.getLhs() + "@" + rule1.getLhs(), rule1.getRhs());
 			}
-			
-			if (rule1.getRhs().size() == 2 || cnf.isTerminal(rule1.getRhs().get(0)))
+			if (rule1.getRhs().size() == 2 || !cnf.getNonTerminalSet().contains(rule1.getRhs().get(0)))
 			{
 				cnf.add(rule2);
 			}
 			else
 			{
-				removeUPAndAddNewRule(rule2);
+				removeUPAndAddNewRule(rule2, type, posSet, cnf);
 			}
 		}
 	}
 
-	private void deletePRuleSet()
+	private void DeletePRuleSet(HashSet<RewriteRule> deletePRuleSet, CFG cnf)
 	{
 		for (RewriteRule rule : deletePRuleSet)
 		{
@@ -284,8 +258,9 @@ public class GrammarConvertor
 	/**
 	 * 得到词性标注
 	 */
-	private void getPOSSet()
+	private HashSet<String> getPOSSet(CFG cnf)
 	{
+		HashSet<String> posSet = new HashSet<String>();
 		Set<String> nonTer = cnf.getNonTerminalSet();
 		for (RewriteRule rule : cnf.getRuleSet())
 		{
@@ -294,5 +269,6 @@ public class GrammarConvertor
 				posSet.add(rule.getLhs());
 			}
 		}
+		return posSet;
 	}
 }

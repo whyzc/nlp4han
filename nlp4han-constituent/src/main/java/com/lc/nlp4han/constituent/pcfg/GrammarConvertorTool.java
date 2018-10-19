@@ -50,7 +50,6 @@ public class GrammarConvertorTool
 	private static void GrammarConvertor(String corpusFile, String type, String encoding, String topath)
 			throws IOException
 	{
-		GrammarConvertor convertor = new GrammarConvertor();
 		CFG cfg, cnf;
 		if (type.contains("P"))
 		{
@@ -63,15 +62,15 @@ public class GrammarConvertorTool
 
 		if (type.equals("CNF"))
 		{
-			cnf = convertor.convertCFGToCNF(cfg);
+			cnf = GrammarConvertor.convertCFGToCNF(cfg);
 		}
 		else if (type.equals("P2NF"))
 		{
-			cnf = convertor.convertPCFGToP2NF((PCFG) cfg);
+			cnf = GrammarConvertor.convertPCFGToP2NF((PCFG) cfg);
 		}
 		else
 		{
-			cnf = convertor.convertPCFGToPCNF((PCFG) cfg);
+			cnf = GrammarConvertor.convertPCFGToPCNF((PCFG) cfg);
 		}
 		if (topath == null)
 		{

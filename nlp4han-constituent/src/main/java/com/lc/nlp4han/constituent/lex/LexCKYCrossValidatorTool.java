@@ -1,4 +1,4 @@
-package com.lc.nlp4han.constituent.pcfg;
+package com.lc.nlp4han.constituent.lex;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,36 +8,39 @@ import com.lc.nlp4han.constituent.ConstituentMeasure;
 import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.PlainTextByTreeStream;
+import com.lc.nlp4han.constituent.pcfg.CKYParserEvaluator;
+import com.lc.nlp4han.constituent.pcfg.ConstituentTreeStream;
 import com.lc.nlp4han.ml.util.CrossValidationPartitioner;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 import com.lc.nlp4han.ml.util.CrossValidationPartitioner.TrainingSampleStream;
 
 /**
- * 基于PCFG的CKY解析交叉验证应用
+ * 基于LexPCFG的CKY解析交叉验证应用
+ * 
+ * @author qyl
  *
  */
-public class CKYCrossValidatorTool
+public class LexCKYCrossValidatorTool
 {
-	
-	private static ConstituentParser getParser(
-			TrainingSampleStream<ConstituentTree> trainingSampleStream) throws IOException
+
+	private static ConstituentParser getParser(TrainingSampleStream<ConstituentTree> trainingSampleStream)
+			throws IOException
 	{
 		ArrayList<String> bracketList = new ArrayList<String>();
 		ConstituentTree tree = trainingSampleStream.read();
+		int i=0;
 		while (tree != null)
 		{
 			bracketList.add(tree.getRoot().toString());
 			tree = trainingSampleStream.read();
+			i++;
 		}
-		
+        System.out.println("训练模型句子的个数是 "+i);
 		System.out.println("从树库提取文法...");
-		PCFG pcfg = GrammarExtractor.getPCFG(bracketList);
-		
-		System.out.println("对文法进行转换...");
-		PCFG pcnf = GrammarConvertor.convertPCFGToP2NF(pcfg);
+		LexPCFG lexpcfg = LexGrammarExtractor.getLexPCFG(bracketList);
 
-		return new ConstituentParserCKYP2NF(pcnf);
+		return new ConstituentParseLexPCFG(lexpcfg);
 	}
 
 	/**
@@ -64,18 +67,18 @@ public class CKYCrossValidatorTool
 
 			long start = System.currentTimeMillis();
 			CrossValidationPartitioner.TrainingSampleStream<ConstituentTree> trainingSampleStream = partitioner.next();
-			ConstituentParser parser= getParser(trainingSampleStream);
+			ConstituentParser parser = getParser(trainingSampleStream);
 			System.out.println("训练学习时间：" + (System.currentTimeMillis() - start) + "ms");
-			
+
 			CKYParserEvaluator evaluator = new CKYParserEvaluator(parser);
 			evaluator.setMeasure(measure);
 
 			System.out.println("开始评价...");
-			
+
 			start = System.currentTimeMillis();
 			evaluator.evaluate(trainingSampleStream.getTestSampleStream());
 			System.out.println("解析评价时间：" + (System.currentTimeMillis() - start) + "ms");
-			
+
 			System.out.println(measure);
 			run++;
 		}
@@ -110,12 +113,12 @@ public class CKYCrossValidatorTool
 				i++;
 			}
 		}
-		
+
 		ObjectStream<String> treeStream = new PlainTextByTreeStream(new FileInputStreamFactory(corpusFile), encoding);
 		ObjectStream<ConstituentTree> sampleStream = new ConstituentTreeStream(treeStream);
-		CKYCrossValidatorTool run = new CKYCrossValidatorTool();
+		LexCKYCrossValidatorTool run = new LexCKYCrossValidatorTool();
 		ConstituentMeasure measure = new ConstituentMeasure();
-		
+
 		run.evaluate(sampleStream, folds, measure);
 	}
 }

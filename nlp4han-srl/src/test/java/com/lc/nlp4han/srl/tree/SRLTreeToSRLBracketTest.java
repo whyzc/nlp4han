@@ -30,7 +30,7 @@ public class SRLTreeToSRLBracketTest {
 		AbstractParseStrategy<HeadTreeNode> parse = new SRLParseNormalWithPruning();
 		
 		String roles = "wsj/00/wsj0012.mrg 9 12 gold shore.01 i---a 4:1*10:0-ARG0 12:0,13:1-rel 14:2-ARG1";
-		TreeNode tree = BracketExpUtil.generateTree(""
+		TreeNode tree = BracketExpUtil.generateTreeNoTopBracket(""
 				+ "((S(S(NP-SBJ(NNP Mr.)(NNP Spoon))(VP(VBD said)(SBAR (-NONE- 0)(S(NP-SBJ(DT the)(NN plan))"
 				+ "(VP(VBZ is)(RB not)(NP-PRD(DT an)(NN attempt)(S(NP-SBJ(-NONE- *))(VP(TO to)(VP(VB shore)"
 				+ "(PRT(RP up))(NP(NP(DT a)(NN decline))(PP-LOC(IN in)(NP(NN ad)(NNS pages)))(PP-TMP(IN in)"
@@ -47,7 +47,7 @@ public class SRLTreeToSRLBracketTest {
 				+ " ; Newsweek 's ad pages totaled 1,620 , a drop of 3.2 % from last year , according to Publishers Information Bureau . ";
 		
 		String roles1 = "wsj/00/wsj_0071.mrg 37 9 gold go.13 pn--a 7:1-ARG1 9:1-rel";
-		TreeNode tree1 = BracketExpUtil.generateTree("((S(S(NP-SBJ (PRP We))(VP (VBD got)(NP(PRP$ our)(CD two)(NNS six-packs))))(: --)(CC and)(S(NP-SBJ(PRP they))(VP (VBP 're) (VP (VBN gone) )))(. .)('' '')))");	
+		TreeNode tree1 = BracketExpUtil.generateTreeNoTopBracket("((S(S(NP-SBJ (PRP We))(VP (VBD got)(NP(PRP$ our)(CD two)(NNS six-packs))))(: --)(CC and)(S(NP-SBJ(PRP they))(VP (VBP 're) (VP (VBN gone) )))(. .)('' '')))");	
 		TreePreprocessTool.deleteNone(tree1);	
 		
 		SRLSample<HeadTreeNode> sample1 = parse.parse(tree1, roles1, ahg);

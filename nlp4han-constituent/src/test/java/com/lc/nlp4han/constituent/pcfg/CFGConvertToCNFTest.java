@@ -51,7 +51,7 @@ public class CFGConvertToCNFTest
 
 		cfg.add(new RewriteRule("E", "e"));
 
-		cnf = new GrammarConvertor().convertCFGToCNF(cfg);
+		cnf = GrammarConvertor.convertCFGToCNF(cfg);
 
 	}
 

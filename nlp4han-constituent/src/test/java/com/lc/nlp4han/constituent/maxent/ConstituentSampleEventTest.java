@@ -42,9 +42,9 @@ public class ConstituentSampleEventTest {
 		events = new ArrayList<Event>();
 		aghw = new HeadGeneratorCollins(new HeadRuleSetPTB());
 		generator = new ParserContextGeneratorConf();
-		tree = BracketExpUtil.generateTree("((S(NP(PRP I))(VP(VP(VBD saw)(NP(DT the)(NN man)))(PP(IN with)(NP(DT the)(NN telescope))))))");
+		tree = BracketExpUtil.generateTreeNoTopBracket("((S(NP(PRP I))(VP(VP(VBD saw)(NP(DT the)(NN man)))(PP(IN with)(NP(DT the)(NN telescope))))))");
 		headTree = TreeToHeadTree.treeToHeadTree(tree, aghw);
-		sample = HeadTreeToActions.headTreeToSample(headTree, aghw);
+		sample = HeadTreeToSample.headTreeToSample(headTree, aghw);
 		words = sample.getWords();
 		chunkTree = sample.getChunkTree();
 		buildAndCheckTree = sample.getBuildAndCheckTree();

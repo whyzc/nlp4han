@@ -1,12 +1,17 @@
 package com.lc.nlp4han.constituent.unlex;
+
+import java.util.HashSet;
+
 /**
+ * 规则基类
 * @author 王宁
-* @version 创建时间：2018年9月23日 下午1:31:42
-* 规则基类
+* 
 */
 public abstract class Rule
 {
 	protected short parent;
+	
+	public void split() {}
 	
 	public int hashCode()
 	{
@@ -28,5 +33,14 @@ public abstract class Rule
 			return false;
 		return true;
 	}
+	public short getParent()
+	{
+		return parent;
+	}
+	public void setParent(short parent)
+	{
+		this.parent = parent;
+	}
 	
+	abstract boolean withIn(HashSet<? extends Rule> rules);
 }

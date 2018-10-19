@@ -35,7 +35,7 @@ public class SRLSampleNormalEventStreamForIdentificationTest {
 	@Test
 	public void test() throws IOException{
 		AbstractHeadGenerator ahg = new HeadGeneratorCollins(new HeadRuleSetPTB());
-		TreeNode tree1 = BracketExpUtil.generateTree(""
+		TreeNode tree1 = BracketExpUtil.generateTreeNoTopBracket(""
 				+ "((S(S(NP-SBJ(NNP Mr.)(NNP Spoon))(VP(VBD said)(SBAR (-NONE- 0)(S(NP-SBJ(DT the)(NN plan))"
 				+ "(VP(VBZ is)(RB not)(NP-PRD(DT an)(NN attempt)(S(NP-SBJ(-NONE- *))(VP(TO to)(VP(VB shore)"
 				+ "(PRT(RP up))(NP(NP(DT a)(NN decline))(PP-LOC(IN in)(NP(NN ad)(NNS pages)))(PP-TMP(IN in)"

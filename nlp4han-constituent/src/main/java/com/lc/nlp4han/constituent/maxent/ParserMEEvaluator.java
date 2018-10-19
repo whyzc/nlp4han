@@ -135,7 +135,7 @@ public class ParserMEEvaluator extends Evaluator<ConstituentTreeSample>
 				}
 				else
 				{
-					samplePre = HeadTreeToActions.headTreeToSample(treePre, headGen);
+					samplePre = HeadTreeToSample.headTreeToSample(treePre, headGen);
 					measure.update(treeRef, treePre);
 				}
 				

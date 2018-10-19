@@ -34,9 +34,9 @@ public class ParserContextGeneratorConfTest{
 	public void setUP() throws CloneNotSupportedException, IOException{
    
 		aghw = new HeadGeneratorCollins(new HeadRuleSetPTB());
-		tree = BracketExpUtil.generateTree("((S(NP(PRP I))(VP(VP(VBD saw)(NP(DT the)(NN man)))(PP(IN with)(NP(DT the)(NN telescope))))))");
+		tree = BracketExpUtil.generateTreeNoTopBracket("((S(NP(PRP I))(VP(VP(VBD saw)(NP(DT the)(NN man)))(PP(IN with)(NP(DT the)(NN telescope))))))");
         headTree = TreeToHeadTree.treeToHeadTree(tree,aghw);
-		sample = HeadTreeToActions.headTreeToSample(headTree,aghw);
+		sample = HeadTreeToSample.headTreeToSample(headTree,aghw);
 		actions = sample.getActions();
 		generator = new ParserContextGeneratorConf();
 	}
