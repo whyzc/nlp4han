@@ -25,6 +25,7 @@ public class ChunkAnalysisSVMME implements Chunker
 	private List<String> ClassificationResults = new ArrayList<String>();	//存储分类结果，如BNP_B, BNP_I, BNP_E, O，（index+1）为SVM标准分类结果
 	private Map<String, Map<String, Integer>> Features = new HashMap<String, Map<String, Integer>>();	//记录所有具体的特征，为每一特征赋值
 	private ChunkAnalysisContextGenerator contextgenerator;
+	private List<Integer> NumberOfClassification = new ArrayList<Integer>();
 	private svm_model model;
 	private String label;
 	private ScaleInfo scaleInfo= null;
@@ -66,17 +67,23 @@ public class ChunkAnalysisSVMME implements Chunker
 		return Features;
 	}
 	
+	public List<Integer> getNumberOfClassification()
+	{
+		return this.NumberOfClassification;
+	}
+	
 	/**
 	 * 直接初始化用于将文本转换成svm输入格式的三个参数
 	 * @param FeatureStructure
 	 * @param ClassificationResults
 	 * @param Features
 	 */
-	public void init(List<String> FeatureStructure, List<String> ClassificationResults, Map<String, Map<String, Integer>> Features)
+	public void init(List<String> FeatureStructure, List<String> ClassificationResults, Map<String, Map<String, Integer>> Features, List<Integer> NumberOfClassification)
 	{
 		this.Features = Features;
 		this.FeatureStructure = FeatureStructure;
 		this.ClassificationResults = ClassificationResults;
+		this.NumberOfClassification = NumberOfClassification;
 	}
 
 	/**
@@ -336,11 +343,44 @@ public class ChunkAnalysisSVMME implements Chunker
 	{
 		ObjectStream<Event> es = new ChunkAnalysisWordPosSampleEvent(sampleStream, contextGen);
 		String[] input = SVMStandardInput.standardInput(es);
-		init(SVMStandardInput.getFeatureStructure(), SVMStandardInput.getClassificationResults(), SVMStandardInput.getFeatures());
-		
+		init(SVMStandardInput.getFeatureStructure(), SVMStandardInput.getClassificationResults(), SVMStandardInput.getFeatures(), SVMStandardInput.getNumberOfClassification());
+		if (scale(arg))
+		{
+			
+			scaleInfo.ranges = SVMStandardInput.getScaleRanges(FeatureStructure, Features);
+			SVMStandardInput.scale(input, scaleInfo, FeatureStructure);
+		}
 		SVMTrain t = new SVMTrain();
 		svm_model m = t.run(arg, input, false, null);
 		return m;
 		
+	}
+	
+	private boolean scale(String[] args)
+	{
+		boolean result = false;
+		int lower = 1;
+		int upper = 1;
+		for (int i=0 ; i<args.length ; i++)
+		{
+			if (args[i].equals("-l"))
+			{
+				result = true;
+				lower = Integer.parseInt(args[i+1]);
+				i++;
+			}
+			else if (args[i].equals("-u"))
+			{
+				result = true;
+				upper = Integer.parseInt(args[i+1]);
+				i++;
+			}
+		}
+		
+		if (result)
+		{
+			scaleInfo = new ScaleInfo(lower, upper);
+		}
+		return result;
 	}
 }

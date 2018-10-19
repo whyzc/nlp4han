@@ -2,6 +2,7 @@ package com.lc.nlp4han.chunk.svm;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisMeasure;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
@@ -21,13 +22,7 @@ import com.lc.nlp4han.ml.util.PlainTextByLineStream;
 
 public class ChunkAnalysisSVMCrossValidatorTool
 {
-	public static final String USAGE = "Usage: ChunkAnalysisSVMCrossValidatorTool [options] -data training_set_file\n" 
-			+ "options:\n"
-			+ "-encoding encoding : set encoding" 
-			+ "-label label : such as BIOE, BIOES"
-			+ "-v n : n-fold cross validation mode\n"
-			+ svm_train.OPTIONS
-			;
+	
 	public static void main(String[] args) throws IOException
 	{
 		int folds = 10;
@@ -82,8 +77,9 @@ public class ChunkAnalysisSVMCrossValidatorTool
 
 		ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisWordPosSampleStream(lineStream, parse,
 				scheme);
-		ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisWordPosContextGeneratorConf();
+		Properties p =  SVMStandardInput.getDefaultConf();
+		ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisWordPosContextGeneratorConf(p);
 		ChunkAnalysisSVMCrossValidation crossValidator = new ChunkAnalysisSVMCrossValidation(args);
-		crossValidator.evaluate(sampleStream, folds, contextGen, measure);
+		crossValidator.evaluate(sampleStream, folds, contextGen, measure, p);
 	}
 }
