@@ -68,7 +68,7 @@ public class GrammarExtractor
 
 		for (String bracketStr : bracketStrList)
 		{
-			TreeNode rootNode1 = BracketExpUtil.generateTreeNotDeleteBracket(bracketStr);
+			TreeNode rootNode1 = BracketExpUtil.generateTree(bracketStr);
 			traverse(rootNode1, grammar, ruleCounter);
 		}
 

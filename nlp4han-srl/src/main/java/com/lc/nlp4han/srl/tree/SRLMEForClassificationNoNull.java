@@ -264,7 +264,7 @@ public class SRLMEForClassificationNoNull implements SemanticRoleLabeler{
 	 */
 	@Override
 	public SRLTree srltree(String treeStr, int[] predicateinfo) {
-		TreeNode node = BracketExpUtil.generateTree("("+treeStr+")");
+		TreeNode node = BracketExpUtil.generateTreeNoTopBracket("("+treeStr+")");
 		return srltree(node, predicateinfo);
 	}
 	
@@ -315,7 +315,7 @@ public class SRLMEForClassificationNoNull implements SemanticRoleLabeler{
 	 */
 	@Override
 	public SRLTree[] kSrltree(int k, String treeStr, int[] predicateinfo) {
-		TreeNode node = BracketExpUtil.generateTree("("+treeStr+")");
+		TreeNode node = BracketExpUtil.generateTreeNoTopBracket("("+treeStr+")");
 		return kSrltree(k, node, predicateinfo);
 	}
 	
@@ -338,7 +338,7 @@ public class SRLMEForClassificationNoNull implements SemanticRoleLabeler{
 	 */
 	@Override
 	public String srlstr(String treeStr, int[] predicateinfo) {
-		TreeNode node = BracketExpUtil.generateTree("("+treeStr+")");
+		TreeNode node = BracketExpUtil.generateTreeNoTopBracket("("+treeStr+")");
 		return srlstr(node, predicateinfo);
 	}
 	
@@ -371,7 +371,7 @@ public class SRLMEForClassificationNoNull implements SemanticRoleLabeler{
 	 */
 	@Override
 	public String[] kSrlstr(int k, String treeStr, int[] predicateinfo) {
-		TreeNode node = BracketExpUtil.generateTree("("+treeStr+")");
+		TreeNode node = BracketExpUtil.generateTreeNoTopBracket("("+treeStr+")");
 		return kSrlstr(k, node, predicateinfo);
 	}
 	
@@ -394,7 +394,7 @@ public class SRLMEForClassificationNoNull implements SemanticRoleLabeler{
 	 */
 	@Override
 	public SRLTree srltree(String treeStr, String[] predicateinfo) {
-		TreeNode tree = BracketExpUtil.generateTree("("+treeStr+")");
+		TreeNode tree = BracketExpUtil.generateTreeNoTopBracket("("+treeStr+")");
 		return srltree(tree, predicateinfo);
 	}
 	
@@ -420,7 +420,7 @@ public class SRLMEForClassificationNoNull implements SemanticRoleLabeler{
 	 */
 	@Override
 	public SRLTree[] kSrltree(int k, String treeStr, String[] predicateinfo) {
-		TreeNode tree = BracketExpUtil.generateTree("("+treeStr+")");
+		TreeNode tree = BracketExpUtil.generateTreeNoTopBracket("("+treeStr+")");
 		return kSrltree(k, tree, predicateinfo);
 	}
 	
@@ -443,7 +443,7 @@ public class SRLMEForClassificationNoNull implements SemanticRoleLabeler{
 	 */
 	@Override
 	public String srlstr(String treeStr, String[] predicateinfo) {
-		TreeNode tree = BracketExpUtil.generateTree("("+treeStr+")");
+		TreeNode tree = BracketExpUtil.generateTreeNoTopBracket("("+treeStr+")");
 		return srlstr(tree, predicateinfo);
 	}
 	
@@ -469,7 +469,7 @@ public class SRLMEForClassificationNoNull implements SemanticRoleLabeler{
 	 */
 	@Override
 	public String[] kSrlstr(int k, String treeStr, String[] predicateinfo) {
-		TreeNode tree = BracketExpUtil.generateTree("("+treeStr+")");
+		TreeNode tree = BracketExpUtil.generateTreeNoTopBracket("("+treeStr+")");
 		return kSrlstr(k, tree, predicateinfo);
 	}
 }

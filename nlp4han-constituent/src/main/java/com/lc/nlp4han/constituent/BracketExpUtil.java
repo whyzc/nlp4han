@@ -68,18 +68,20 @@ public class BracketExpUtil
 	}
 
 	// 去掉最外围一层的括号和文法符号
-	public static TreeNode generateTree(String bracketStr)
+	public static TreeNode generateTreeNoTopBracket(String bracketStr)
 	{
-		bracketStr = format(bracketStr);
+		bracketStr = formatNoTopBracket(bracketStr);
+		
 		return generateProcess(bracketStr);
 	}
 
 	/**
 	 * 生成树，但是不去掉最外层括号表达式
 	 */
-	public static TreeNode generateTreeNotDeleteBracket(String bracketStr)
+	public static TreeNode generateTree(String bracketStr)
 	{
-		bracketStr = formatNotDeleteBracket(bracketStr);
+		bracketStr = format(bracketStr);
+		
 		return generateProcess(bracketStr);
 	}
 
@@ -89,7 +91,7 @@ public class BracketExpUtil
 	 * @param 根节点
 	 * @return
 	 */
-	public static void TraverseTreeConvertRRBAndLRB(TreeNode node)
+	public static void escapeBracketTree(TreeNode node)
 	{
 		if (node.getChildrenNum() == 0)
 		{
@@ -106,7 +108,7 @@ public class BracketExpUtil
 		
 		for (TreeNode childNode : node.getChildren())
 		{
-			TraverseTreeConvertRRBAndLRB(childNode);
+			escapeBracketTree(childNode);
 		}
 	}
 
@@ -154,7 +156,7 @@ public class BracketExpUtil
 	 * @param bracketStr
 	 *            括号表达式
 	 */
-	public static String format(String bracketStr)
+	public static String formatNoTopBracket(String bracketStr)
 	{
 		bracketStr = bracketStr.trim();
 		
@@ -173,7 +175,7 @@ public class BracketExpUtil
 	 *            括号表达式
 	 * @return
 	 */
-	public static String formatNotDeleteBracket(String bracketStr)
+	public static String format(String bracketStr)
 	{
 		bracketStr = bracketStr.trim();
 		return formatProcess(bracketStr);
@@ -253,9 +255,9 @@ public class BracketExpUtil
 			}
 		}
 		
-		// 将表达式中的-LRB-和-RRB-转换为"(",")"
 		TreeNode treeStruct = tree.pop();
-		TraverseTreeConvertRRBAndLRB(treeStruct);
+		escapeBracketTree(treeStruct);
+		
 		return treeStruct;
 	}
 }

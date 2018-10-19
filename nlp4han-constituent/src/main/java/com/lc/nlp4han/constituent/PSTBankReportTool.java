@@ -62,7 +62,7 @@ public class PSTBankReportTool
 		{
 			sentenceCount++;
 			
-			int height = traverseTree(BracketExpUtil.generateTreeNotDeleteBracket(bracketStr));
+			int height = traverseTree(BracketExpUtil.generateTree(bracketStr));
 			
 			if (height > heighest)
 			{

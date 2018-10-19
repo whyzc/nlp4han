@@ -31,7 +31,7 @@ public class CTBPreprocessTool
 	public static void AddNPBNode(HeadTreeNode node)
 	{
 		if (IsNPB(node))
-		{// 若从中间插入NPB则需要继承node节点的所有孩子,显得繁琐，故选择在上层插入		
+		{
 			node.setNewName("NPB");
 		}
 	}

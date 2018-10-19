@@ -29,7 +29,7 @@ public class BracketTest
 		testPosAndWord = "NR->我 PU->( NN->李斯 PU->) Verb->是 PU->( NN->大秦 PU->) NR->丞相 PU->。";
 		testTree = " IP NP NR 我 PU ( NN 李斯 PU ) VP Verb 是 NP PU ( NN 大秦 PU ) NR 丞相 PU 。";
 		testHeadTreeNode = "(IP{李斯[NN]}(NP{李斯[NN]}(NR{我[NR]} 我[0])(PU{-LRB-[PU]} -LRB-[1])(NN{李斯[NN]} 李斯[2])(PU{-RRB-[PU]} -RRB-[3]))(VP{大秦[NN]}(Verb{是[Verb]} 是[4])(NP{大秦[NN]}(PU{-LRB-[PU]} -LRB-[5])(NN{大秦[NN]} 大秦[6])(PU{-RRB-[PU]} -RRB-[7])(NR{丞相[NR]} 丞相[8])))(PU{。[PU]} 。[9]))";
-		treeNode = BracketExpUtil.generateTree(string);
+		treeNode = BracketExpUtil.generateTreeNoTopBracket(string);
 		TraverseTree(treeNode);
 	}
 
@@ -80,7 +80,7 @@ public class BracketTest
 	public void TraverseHeadTreeTest()
 	{
 		AbstractHeadGenerator headGen = new HeadGeneratorCollins(new HeadRuleSetPTB());
-		TreeNode tree1 = BracketExpUtil.generateTree(
+		TreeNode tree1 = BracketExpUtil.generateTreeNoTopBracket(
 				"(ROOT(IP(NP(NR 我)(PU -LRB-)(NN 李斯)(PU -RRB-))(VP(Verb 是)(NP(PU -LRB-)(NN 大秦)(PU -RRB-)(NR 丞相)))(PU 。)))");
 		HeadTreeNode headTree1 = TreeToHeadTree.treeToHeadTree(tree1, headGen);
 		// 带头节点的树的输出
@@ -108,10 +108,10 @@ public class BracketTest
 		String expectStr1 = "A(B1(C1 d1)(C2 d2))(D3 d3)";
 		String expectStr2 = "(A(B1(C1 d1)(C2 d2))(D3 d3))";
 		
-		String formatStr1 = BracketExpUtil.format(bracketStr);	
+		String formatStr1 = BracketExpUtil.formatNoTopBracket(bracketStr);	
 		assertEquals(expectStr1, formatStr1);
 		
-		String formatStr2 = BracketExpUtil.formatNotDeleteBracket(bracketStr);	
+		String formatStr2 = BracketExpUtil.format(bracketStr);	
 		assertEquals(expectStr2, formatStr2);
 	}
 	
@@ -121,17 +121,19 @@ public class BracketTest
 		String bracketStr = "(A (B1(C1 d1)(C2 d2)) (D3 d3))  ";
 		String expectStr1 = "(A(B1(C1 d1)(C2 d2))(D3 d3))";
 		
-		TreeNode tree1 = BracketExpUtil.generateTreeNotDeleteBracket(bracketStr);
+		TreeNode tree1 = BracketExpUtil.generateTree(bracketStr);
 		String s1 = tree1.toString();
-		String formatStr1 = BracketExpUtil.formatNotDeleteBracket(s1);	
+		String formatStr1 = BracketExpUtil.format(s1);	
 		assertEquals(expectStr1, formatStr1);
 		
 		String bracketStr2 = "(A (B1(C1 d1)  (C2 d2)) ) ";
 		String expectStr2 = "B1(C1 d1)(C2 d2)";
+		String expectStr3 = "(B1(C1 d1)(C2 d2))";
 		
-		TreeNode tree2 = BracketExpUtil.generateTree(bracketStr2);
+		TreeNode tree2 = BracketExpUtil.generateTreeNoTopBracket(bracketStr2);
 		String s2 = tree2.toString();
-		String formatStr2 = BracketExpUtil.format(s2);	
+		assertEquals(expectStr3, s2);
+		String formatStr2 = BracketExpUtil.formatNoTopBracket(s2);	
 		assertEquals(expectStr2, formatStr2);
 	}
 	
@@ -149,7 +151,7 @@ public class BracketTest
 		assertEquals(2, brackets.size());
 		
 		String bstr = brackets.get(1);
-		String fstr = BracketExpUtil.formatNotDeleteBracket(bstr);	
+		String fstr = BracketExpUtil.format(bstr);	
 		assertEquals(bstr2, fstr);
 	}
 }

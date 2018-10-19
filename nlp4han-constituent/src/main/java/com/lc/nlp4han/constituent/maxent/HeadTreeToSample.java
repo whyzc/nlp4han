@@ -7,12 +7,13 @@ import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 
 /**
- * 将带头结点的句法树转换成动作序列
+ * 将带头结点的句法树转换成训练样本
  * 
+ * @author 刘小峰
  * @author 王馨苇
  *
  */
-public class HeadTreeToActions
+public class HeadTreeToSample
 {
 
 	// 动作序列
@@ -21,10 +22,10 @@ public class HeadTreeToActions
 	// 第一步POS后得到的n颗子树
 	private static List<HeadTreeNode> posTree = new ArrayList<HeadTreeNode>();
 	
-	// 记录第二部CHUNK后得到的n棵子树
+	// 记录第二步CHUNK后得到的n棵子树
 	private static List<HeadTreeNode> chunkTree = new ArrayList<HeadTreeNode>();
 	
-	// 第三部得到的列表
+	// 第三步得到的列表
 	private static List<List<HeadTreeNode>> buildAndCheckTree = new ArrayList<List<HeadTreeNode>>();
 	
 	private static int i = 0;// List<TreeNode> subTree中的index
@@ -66,47 +67,43 @@ public class HeadTreeToActions
 	{
 		// 为了防止原来的tree被修改
 		HeadTreeNode treeCopy = (HeadTreeNode) tree.clone();
-		// 如果当前节点只有一颗子树，这子树可能就是具体的词了，但也存在特殊：（NP(NN chairman)）
-		// 这样得到的子树为1的都是具体的词性和词语组成的子树
-		if (treeCopy.getChildrenNum() == 1 && treeCopy.getFirstChild().getChildrenNum() == 0)
-		{
-			// 当前节点的父节点只有这一颗子树，也就是（NP(NN chairman)）这种情况
-			if (treeCopy.getParent().getChildrenNum() == 1)
-			{
+
+		if (treeCopy.getChildrenNum() == 1 && treeCopy.getFirstChild().getChildrenNum() == 0) // 当前节点是预终结符或词性
+		{		
+			if (treeCopy.getParent().getChildrenNum() == 1) // 当前节点的父节点只有这一颗子树，也就是（NP(NN chairman)）这种情况
+			{			
 				// 用start标记作为当前节点的父节点
 				actions.add("start_" + treeCopy.getParent().getNodeName());
+				
 				HeadTreeNode node = new HeadTreeNode("start_" + treeCopy.getParent().getNodeName());
 				node.addChild(treeCopy);
-				chunkTree.add(node);
-				// 当前节点的父节点不止一个，就遍历所有的子树，判断当前节点是否为flat结构
+				chunkTree.add(node);			
 			}
-			else if (treeCopy.getParent().getChildrenNum() > 1)
-			{
+			else if (treeCopy.getParent().getChildrenNum() > 1) // 当前节点的父节点不止一个儿子，就遍历所有的子树，判断是否为flat结构
+			{			
 				int record = -1;
 				for (int j = 0; j < treeCopy.getParent().getChildrenNum(); j++)
-				{
-					// 如果有一颗子树破坏了flat结构，退出
-					if (treeCopy.getParent().getChild(j).getChildrenNum() > 1)
+				{					
+					if (treeCopy.getParent().getChild(j).getChildrenNum() > 1) // 如果有一颗子树破坏了flat结构，退出
 					{
 						record = j;
-						break;
-						// (PP-CLR(TO to)(NP(PRP it)))针对这种结构
+						break;			
 					}
 					else if (treeCopy.getParent().getChild(j).getChildrenNum() == 1
-							&& treeCopy.getParent().getChild(j).getFirstChild().getChildrenNum() != 0)
+							&& treeCopy.getParent().getChild(j).getFirstChild().getChildrenNum() != 0) // (PP-CLR(TO to)(NP(PRP it)))针对这种结构
 					{
 						record = j;
 						break;
 					}
 				}
-				
-				// 当前节点的父节点的所有子树满足flat结构
-				if (record == -1)
+							
+				if (record == -1) // 当前节点的父节点的所有子树满足flat结构
 				{
 					// 当前节点是是第一颗子树，
 					if (treeCopy.getParent().getFirstChild().equals(treeCopy))
 					{
 						actions.add("start_" + treeCopy.getParent().getNodeName());
+						
 						HeadTreeNode node = new HeadTreeNode("start_" + treeCopy.getParent().getNodeName());
 						node.addChild(treeCopy);
 						chunkTree.add(node);
@@ -115,15 +112,16 @@ public class HeadTreeToActions
 					{
 						// 不是第一个
 						actions.add("join_" + treeCopy.getParent().getNodeName());
+						
 						HeadTreeNode node = new HeadTreeNode("join_" + treeCopy.getParent().getNodeName());
 						node.addChild(treeCopy);
 						chunkTree.add(node);
-					}
-					// 当前节点的父节点的子树不满足flat结构 ，用other标记
+					}				
 				}
-				else
+				else // 当前节点的父节点的子树不满足flat结构 ，用other标记
 				{
 					actions.add("other");
+					
 					HeadTreeNode node = new HeadTreeNode("other");
 					node.addChild(treeCopy);
 					chunkTree.add(node);

@@ -222,7 +222,6 @@ public class LexPCFG
 	private double getProForGenerateSides(RuleSidesGenerate sr)
 	{
 		// 需要进行平滑运算将其分为两部分
-
 		String parentLabel = sr.getParentLabel();// 父节点的非终结符标记
 		String headPOS = sr.getHeadPOS();// 中心词词性标记,在NPB中为上一个修饰符的pos
 		String headWord = sr.getHeadWord();// 中心词,在NPB中为上一个修饰符的word
@@ -252,19 +251,9 @@ public class LexPCFG
 	private double getProOfBackOff(RuleCollins rule, HashMap<RuleCollins, AmountAndSort> map, String type)
 	{
 		double e1, e2, e3, w1, w2;
-		e3 = 0;
-		if (type.equals("2side"))
-		{
-			e3 = wordMap.get(new WordAndPOS(rule.getHeadWord(), rule.getHeadPOS()))
-					/ wordMap.get(new WordAndPOS(null, rule.getHeadPOS()));
-		}
-
+		e3=0;
+		
 		double[] pw1 = getProAndWeight(rule, map, type);
-		if (type.equals("stop"))
-		{
-			System.out.println(rule.toString());
-			System.out.println("生成stop的概率===" + pw1[0] + "  " + pw1[1]);
-		}
 		e1 = pw1[1];
 		w1 = pw1[0];
 
@@ -274,11 +263,31 @@ public class LexPCFG
 		w2 = pw2[0];
 
 		rule.setHeadPOS(null);
-		if (!type.equals("2side"))
+		if(type.equals("2side")) {
+			RuleSidesGenerate rs=(RuleSidesGenerate)rule;
+			double i = 1;
+			WordAndPOS wop = new WordAndPOS(rs.getSideHeadWord(),rs.getSideHeadPOS());
+			if (wordMap.keySet().contains(wop))
+			{
+				i = wordMap.get(wop);
+			}
+			if(wordMap.containsKey(new WordAndPOS(null, rs.getSideHeadPOS()))) {
+				e3= i / wordMap.get(new WordAndPOS(null, rs.getSideHeadPOS()));
+			}
+		}
+		else
 		{
 			double[] pw3 = getProAndWeight(rule, map, type);
 			e3 = pw3[1];
 		}
+
+		// 因为在收集文法时，规则相同，则计数累加，故需要乘以0.5
+		if (type.equals("lside"))
+		{
+			e1 *= 0.5;
+			e2 *= 0.5;
+		}
+
 		return w1 * e1 + (1 - w1) * (w2 * e2 + (1 - w2) * e3);
 	}
 
@@ -289,11 +298,12 @@ public class LexPCFG
 	 */
 	private double[] getProAndWeight(RuleCollins rhcg, HashMap<RuleCollins, AmountAndSort> map, String type)
 	{
-		int x, y, u;
+		int x, u, y;
 		double[] pw = new double[2];
+		y = 0;
 		if (map.get(rhcg) == null)
 		{
-			pw[0] = 0;
+			// pw[0] = 0;
 			pw[1] = 0;
 		}
 		else
@@ -303,29 +313,27 @@ public class LexPCFG
 			{
 			case "head":
 				RuleHeadChildGenerate rhcg1 = (RuleHeadChildGenerate) rhcg;
-				rhcg1 = new RuleHeadChildGenerate(rhcg1.getHeadLabel(), rhcg1.getParentLabel(), rhcg1.getHeadPOS(),
+				rhcg1 = new RuleHeadChildGenerate(null, rhcg1.getParentLabel(), rhcg1.getHeadPOS(),
 						rhcg1.getHeadWord());
-				rhcg1.setHeadLabel(null);
 				y = map.get(rhcg1).getAmount();
 				u = map.get(rhcg1).getSort();
 				break;
 			case "1side":
 				RuleSidesGenerate rsg1 = (RuleSidesGenerate) rhcg;
 				rsg1 = new RuleSidesGenerate(rsg1.getHeadLabel(), rsg1.getParentLabel(), rsg1.getHeadPOS(),
-						rsg1.getHeadWord(), rsg1.getDirection(), rsg1.getSideLabel(), rsg1.getSideHeadPOS(),
-						rsg1.getSideHeadWord(), rsg1.getCoor(), rsg1.getPu(), rsg1.getDistance());
-				rsg1.setSideLabel(null);
-				rsg1.setSideHeadPOS(null);
+						rsg1.getHeadWord(), rsg1.getDirection(), null, null, rsg1.getSideHeadWord(), rsg1.getCoor(),
+						rsg1.getPu(), rsg1.getDistance());
 				y = map.get(rsg1).getAmount();
 				u = map.get(rsg1).getSort();
 				break;
 			case "2side":
 				RuleSidesGenerate rsg2 = (RuleSidesGenerate) rhcg;
 				rsg2 = new RuleSidesGenerate(rsg2.getHeadLabel(), rsg2.getParentLabel(), rsg2.getHeadPOS(),
-						rsg2.getHeadWord(), rsg2.getDirection(), rsg2.getSideLabel(), rsg2.getSideHeadPOS(),
-						rsg2.getSideHeadWord(), rsg2.getCoor(), rsg2.getPu(), rsg2.getDistance());
-				rsg2.setSideHeadWord(null);
-				y = map.get(rsg2).getAmount();
+						rsg2.getHeadWord(), rsg2.getDirection(), rsg2.getSideLabel(), rsg2.getSideHeadPOS(), null,
+						rsg2.getCoor(), rsg2.getPu(), rsg2.getDistance());
+
+				// 因为此处统计的次数为1side的分子和2side的分母，故统计了两次，所以此处需要乘以0.5
+				y = map.get(rsg2).getAmount() * 1 / 2;
 				u = map.get(rsg2).getSort();
 				break;
 			case "stop":
@@ -333,15 +341,17 @@ public class LexPCFG
 				RuleStopGenerate rsg3 = (RuleStopGenerate) rhcg;
 				rsg3 = new RuleStopGenerate(rsg3.getHeadLabel(), rsg3.getParentLabel(), rsg3.getHeadPOS(),
 						rsg3.getHeadWord(), rsg3.getDirection(), true, rsg3.getDistance());
-				RuleStopGenerate rsg4 = new RuleStopGenerate(rsg3.getHeadLabel(), rsg3.getParentLabel(),
-						rsg3.getHeadPOS(), rsg3.getHeadWord(), rsg3.getDirection(), false, rsg3.getDistance());
 				if (map.containsKey(rsg3))
 				{
 					y += map.get(rsg3).getAmount();
 				}
-				if (map.containsKey(rsg4))
+
+/*				RuleStopGenerate rsg4 = new RuleStopGenerate(rsg3.getHeadLabel(), rsg3.getParentLabel(),
+						rsg3.getHeadPOS(), rsg3.getHeadWord(), rsg3.getDirection(), false, rsg3.getDistance());*/
+				rsg3.setStop(false);
+				if (map.containsKey(rsg3))
 				{
-					y += map.get(rsg4).getAmount();
+					y += map.get(rsg3).getAmount();
 				}
 				u = 2;
 				break;
@@ -349,7 +359,15 @@ public class LexPCFG
 				y = 0;
 				u = 0;
 			}
-			pw[0] = 1.0 * y / (y + 5 * u);
+			
+			if (y == 0)
+			{
+				pw[0] = 0;
+			}
+			else
+			{
+				pw[0] = 1.0 * y / (y + 5 * u);
+			}
 			pw[1] = 1.0 * x / y;
 		}
 		return pw;

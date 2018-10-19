@@ -161,6 +161,14 @@ public class ConstituentTreeSample
 			return false;
 		}
 	}
+	
+	
+
+	@Override
+	public String toString()
+	{
+		return "words=" + words + ", actions=" + actions;
+	}
 
 	/**
 	 * 转成样本类

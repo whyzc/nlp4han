@@ -17,7 +17,7 @@ import com.lc.nlp4han.constituent.TreeToHeadTree;
  * @author 王馨苇
  *
  */
-public class HeadGeneratorTest
+public class HeadGeneratorPTBTest
 {
 
 	@Test
@@ -25,13 +25,13 @@ public class HeadGeneratorTest
 	{
 
 		AbstractHeadGenerator headGen = new HeadGeneratorCollins(new HeadRuleSetPTB());
-		TreeNode tree1 = BracketExpUtil.generateTree(
+		TreeNode tree1 = BracketExpUtil.generateTreeNoTopBracket(
 				"((S(NP(PRP I))(VP(VP(VBD saw)(NP(DT the)(NN man)))(PP(IN with)(NP(DT the)(NN telescope))))))");
 		HeadTreeNode headTree1 = TreeToHeadTree.treeToHeadTree(tree1, headGen);
 		String result1 = "(S{saw[VBD]}(NP{I[PRP]}(PRP{I[PRP]} I[0]))(VP{saw[VBD]}(VP{saw[VBD]}(VBD{saw[VBD]} saw[1])(NP{man[NN]}(DT{the[DT]} the[2])"
 				+ "(NN{man[NN]} man[3])))(PP{with[IN]}(IN{with[IN]} with[4])(NP{telescope[NN]}(DT{the[DT]} the[5])(NN{telescope[NN]} telescope[6])))))";
 
-		TreeNode tree2 = BracketExpUtil.generateTree(
+		TreeNode tree2 = BracketExpUtil.generateTreeNoTopBracket(
 				"((S(NP(EX There))(VP(VBZ is)(NP(DT no)(NN asbestos))(PP(IN in)(NP(PRP$ our)(NNS products)))(ADVP (RB now)))(. .)('' '') ))");
 		HeadTreeNode headTree2 = TreeToHeadTree.treeToHeadTree(tree2, headGen);
 		String result2 = "(S{is[VBZ]}(NP{There[EX]}(EX{There[EX]} There[0]))(VP{is[VBZ]}(VBZ{is[VBZ]} is[1])"

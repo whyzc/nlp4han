@@ -38,7 +38,7 @@ public class TreePreprocessTool
 		String tree = "";
 		while ((tree = lineStream.read()) != "")
 		{
-			TreeNode node = BracketExpUtil.generateTree(tree);
+			TreeNode node = BracketExpUtil.generateTreeNoTopBracket(tree);
 
 			// 对树进行遍历
 			deleteNone(node);
@@ -53,7 +53,7 @@ public class TreePreprocessTool
 				newTreeStr = node.toStringNoNone();
 			}
 
-			TreeNode newTree = BracketExpUtil.generateTree("(" + newTreeStr + ")");
+			TreeNode newTree = BracketExpUtil.generateTreeNoTopBracket("(" + newTreeStr + ")");
 			bw.write("(" + TreeNode.printTree(newTree, 1) + ")");
 			bw.newLine();
 		}

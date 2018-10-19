@@ -175,7 +175,7 @@ public class CTBClearerTool
 		{
 			System.out.println(n);
 
-			TreeNode tree = BracketExpUtil.generateTreeNotDeleteBracket(bracketStr);
+			TreeNode tree = BracketExpUtil.generateTree(bracketStr);
 
 			if (removeFuncTag)
 				removeFuncTag(tree);
@@ -184,13 +184,13 @@ public class CTBClearerTool
 				removeNullNode(tree);
 
 			String str = tree.toStringNoNone();
-			tree = BracketExpUtil.generateTreeNotDeleteBracket(str);
+			tree = BracketExpUtil.generateTree(str);
 			removeUnit(tree);
 
 			str = tree.toStringNoNone();
 			str = addRoot(str);
 
-			tree = BracketExpUtil.generateTreeNotDeleteBracket(str);
+			tree = BracketExpUtil.generateTree(str);
 
 			if (indent)
 				out.println(TreeNode.printTree(tree, 1));

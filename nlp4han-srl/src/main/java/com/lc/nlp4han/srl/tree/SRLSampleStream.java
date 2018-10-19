@@ -36,7 +36,7 @@ public class SRLSampleStream extends FilterObjectStream<String[],SRLSample<HeadT
 		
 		if(sentence[0]!= null && sentence[1] != null){
 			try{
-				TreeNode tree = BracketExpUtil.generateTree(sentence[0]);
+				TreeNode tree = BracketExpUtil.generateTreeNoTopBracket(sentence[0]);
 				TreePreprocessTool.deleteNone(tree);
                 sample = parse.parse(tree, sentence[1], aghw);
 			}catch(Exception e){

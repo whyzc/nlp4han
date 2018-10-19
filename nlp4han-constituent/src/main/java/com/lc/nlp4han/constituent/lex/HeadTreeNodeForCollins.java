@@ -44,13 +44,13 @@ public class HeadTreeNodeForCollins extends HeadTreeNode
 	{
 		if (super.children.size() == 0)
 		{
-			String str = super.BracketConvert(this.nodename);
+			String str = super.escapeBracket(this.nodename);
 			return " " + str + "[" + this.getWordIndex() + "]";
 		}
 		else
 		{
 			String treestr = "";
-			treestr = "(" + super.BracketConvert(this.nodename) + "{" + super.BracketConvert(super.getHeadWord()) + "["
+			treestr = "(" + super.escapeBracket(this.nodename) + "{" + super.escapeBracket(super.getHeadWord()) + "["
 					+ super.getHeadPos() + " " + this.verb + " " + this.headChildIndex + "]}";
 			for (HeadTreeNode node : getChildren())
 			{

@@ -1,8 +1,9 @@
 package com.lc.nlp4han.constituent.lex;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
-public class Edge
+public class Edge implements Comparable<Edge>
 {
 	private String label = null;
 	private String headLabel = null;
@@ -146,6 +147,19 @@ public class Edge
 		this.children = children;
 	}
 
+	public Edge getFirstChild()
+	{
+		Collections.sort(this.getChildren());
+		return this.getChildren().get(0);
+	}
+
+	public Edge getLastChild()
+	{
+		Collections.sort(this.getChildren());
+		int num =this.getChildren().size();
+		return this.getChildren().get(num - 1);
+	}
+
 	@Override
 	public int hashCode()
 	{
@@ -223,7 +237,23 @@ public class Edge
 	{
 		return "Edge [label=" + label + ", headLabel=" + headLabel + ", headWord=" + headWord + ", headPOS=" + headPOS
 				+ ", start=" + start + ", end=" + end + ", lc=" + lc + ", rc=" + rc + ", stop=" + stop + ", pro=" + pro
-				+ ", children=" + children + "]";
+				+ "]";
 	}
-	
+
+	@Override
+	public int compareTo(Edge o)
+	{// 起始符在前的，孩子节点的顺序排在前面
+		if (start < o.getStart())
+		{
+			return -1;
+		}
+
+		if (start > o.getStart())
+		{
+			return 1;
+		}
+
+		return 0;
+	}
+
 }

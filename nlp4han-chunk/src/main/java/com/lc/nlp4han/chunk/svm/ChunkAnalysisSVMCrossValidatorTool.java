@@ -21,13 +21,7 @@ import com.lc.nlp4han.ml.util.PlainTextByLineStream;
 
 public class ChunkAnalysisSVMCrossValidatorTool
 {
-	public static final String USAGE = "Usage: ChunkAnalysisSVMCrossValidatorTool [options] -data training_set_file\n" 
-			+ "options:\n"
-			+ "-encoding encoding : set encoding" 
-			+ "-label label : such as BIOE, BIOES"
-			+ "-v n : n-fold cross validation mode\n"
-			+ svm_train.OPTIONS
-			;
+
 	public static void main(String[] args) throws IOException
 	{
 		int folds = 10;

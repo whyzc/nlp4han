@@ -41,7 +41,7 @@ public class ConstituentTreeStream extends FilterObjectStream<String, Constituen
 			{
 				try
 				{
-					TreeNode tree = BracketExpUtil.generateTreeNotDeleteBracket(sentence);
+					TreeNode tree = BracketExpUtil.generateTree(sentence);
 					sample = new ConstituentTree(tree);
 				}
 				catch (Exception e)

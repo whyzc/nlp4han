@@ -85,7 +85,7 @@ public class Bracket2ChunkTool
 		String bracketStr = "";
 		while ((bracketStr = lineStream.read()) != "")
 		{
-			TreeNode tree = BracketExpUtil.generateTree(bracketStr);
+			TreeNode tree = BracketExpUtil.generateTreeNoTopBracket(bracketStr);
 			BaseChunkSearcher.search(tree, targetChunks);
 			treeList.add(tree);
 		}
