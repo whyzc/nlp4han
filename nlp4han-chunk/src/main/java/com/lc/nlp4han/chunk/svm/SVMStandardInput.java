@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.chunk.AbstractChunkSampleParser;
@@ -39,12 +40,23 @@ public class SVMStandardInput
 																					// O，（index+1）为SVM标准分类结果
 	private static Map<String, Map<String, Integer>> Features = new HashMap<String, Map<String, Integer>>(); // 记录所有具体的特征，为每一特征赋值
 
+	private static List<Integer> NumberOfClassification = new ArrayList<Integer>(); //记录各分类结果的数量
+	
 	private static ScaleInfo scaleInfo = null;
 	
 
 	public static ScaleInfo getScaleInfo()
 	{
 		return scaleInfo;
+	}
+	
+	public static void clear()
+	{
+		FeatureStructure = new ArrayList<String>();
+		ClassificationResults = new ArrayList<String>();
+		Features = new HashMap<String, Map<String, Integer>>();
+		NumberOfClassification = new ArrayList<Integer>();
+		scaleInfo = null;
 	}
 
 	public static String[] getStandardInput(String[] args) throws IOException
@@ -61,15 +73,8 @@ public class SVMStandardInput
 		
 		if (scaleInfo != null)		//需要scale
 		{
-			int[] ranges = new int[FeatureStructure.size()];
-			for (int i=0 ; i<ranges.length ; i++)
-			{
-				String key = parseName(FeatureStructure.get(i));
-				ranges[i] = Features.get(key).size();
-			}
-			scaleInfo.ranges = ranges;
+			scaleInfo.ranges =getScaleRanges(FeatureStructure, Features);
 			scale(input, scaleInfo, FeatureStructure);
-			
 		}
 		
 		es.close();
@@ -77,7 +82,25 @@ public class SVMStandardInput
 		return input;
 	}
 
-	private static void scale(String[] input, ScaleInfo scaleInfo, List<String> featureStructure)
+	/**
+	 * 获取每个index对应value的最大值
+	 * @param input
+	 * @param FeatureStructure
+	 * @param Features
+	 * @return
+	 */
+	public static int[] getScaleRanges(List<String> FeatureStructure, Map<String, Map<String, Integer>> Features)
+	{
+		int[] ranges = new int[FeatureStructure.size()];
+		for (int i=0 ; i<ranges.length ; i++)
+		{
+			String key = parseName(FeatureStructure.get(i));
+			ranges[i] = Features.get(key).size();
+		}
+		return ranges;
+	}
+
+	public static void scale(String[] input, ScaleInfo scaleInfo, List<String> featureStructure)
 	{
 		for (int i=0 ; i<input.length ; i++)
 		{
@@ -205,9 +228,9 @@ public class SVMStandardInput
 	}
 
 	/**
-	 * 
+	 * 从配置文件中得到特征类型
 	 */
-	private static void setFeatureStructure(Properties featureConf)
+	public static void setFeatureStructure(Properties featureConf)
 	{
 		Set<Object> keys = featureConf.keySet();
 		Iterator<Object> it = keys.iterator();
@@ -393,10 +416,15 @@ public class SVMStandardInput
 			{
 				ClassificationResults.add(event.getOutcome());
 				result.append(ClassificationResults.size());
+				
+				NumberOfClassification.add(1);
 			}
 			else
 			{
-				result.append(ClassificationResults.indexOf(event.getOutcome()) + 1);
+				int index = ClassificationResults.indexOf(event.getOutcome());
+				result.append(index + 1);
+				
+				NumberOfClassification.set(index, NumberOfClassification.get(index)+1);
 			}
 		}
 
@@ -433,18 +461,7 @@ public class SVMStandardInput
 				}
 			}
 		}
-		/*
-		 * for (int i=0 ; i<FeatureStructure.length ; i++) { String[] strs =
-		 * features[i].split("="); int in = FeatureStructure.get("feature." + strs[0]);
-		 * if (fs.containsKey(parseName(strs[0]))) { Map<String, Integer> temp =
-		 * fs.get(parseName(strs[0])); if (temp.containsKey(strs[1])) {
-		 * result.append(" " + in + ":" + temp.get(strs[1])); } else { temp.put(strs[1],
-		 * temp.size()+1); result.append(" " + in + ":" + temp.size()); } } else {
-		 * result.append(" " + in + ":" + 1);
-		 * 
-		 * Map<String, Integer> temp = new HashMap<String, Integer>(); temp.put(strs[1],
-		 * 1); fs.put(parseName(strs[0]), temp); } }
-		 */
+		
 		return result.toString();
 	}
 
@@ -461,6 +478,8 @@ public class SVMStandardInput
 		String path = parseArgs(args)[0] + ".svm";
 		String[] input = getStandardInput(args);
 		writeToFile(path, input, false, "utf-8");
+		ScaleInfo s = scaleInfo;
+		save_data_format_conversion(FeatureStructure, ClassificationResults, Features, parseArgs(args)[0]+".dfc", "utf-8", s);
 
 	}
 
@@ -518,5 +537,72 @@ public class SVMStandardInput
 	{
 		return Features;
 	}
+	
+	public static List<Integer> getNumberOfClassification()
+	{
+		return NumberOfClassification;
+	}
 
+	private static void save_data_format_conversion(List<String> featureStructure, List<String> classificationResults, Map<String, Map<String, Integer>> features, String filePath, String encoding, ScaleInfo scaleInfo) throws IOException
+	{
+		BufferedWriter bf = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), encoding));;
+		
+		if (scaleInfo == null)
+		{
+			bf.write("scale=false\n");
+			bf.write("\n\n\n");
+		}
+		else
+		{
+			bf.write("scale=true\n");
+			bf.write("lower=" + scaleInfo.lower +"\n");
+			bf.write("upper=" + scaleInfo.upper +"\n");
+			StringBuilder sb = new StringBuilder();
+			for (int i=0 ; i<scaleInfo.ranges.length ; i++)
+			{
+				sb.append(scaleInfo.ranges[i] + " ");
+			}
+			bf.write(sb.toString() +"\n");
+		}
+		
+		
+		bf.write("featureNum=" + featureStructure.size() + "\n");
+		for (int i=0 ; i<featureStructure.size() ; i++)
+		{
+			bf.write(featureStructure.get(i)+"\n");
+		}
+		
+		bf.write("classificationNum=" + classificationResults.size() + "\n");
+		for (int i=0 ; i<classificationResults.size() ; i++)
+		{
+			bf.write(classificationResults.get(i)+"\n");
+		}
+		
+		Set<Entry<String, Map<String, Integer>>> entry = features.entrySet();
+		for (Entry<String, Map<String, Integer>> e : entry)
+		{
+			String k = e.getKey();
+			Map<String, Integer> m = e.getValue();
+			
+			bf.write(k + " " + m.size() + "\n");
+			
+			int i = 1;
+			for (Entry<String, Integer> en : m.entrySet())
+			{
+				bf.write(en.getKey() + "=" + en.getValue());
+				if (i>=100)
+				{
+					bf.write("\n");
+					i = 1;
+				}
+				else
+				{
+					bf.write(" ");
+					i++;
+				}
+			}
+			bf.write("\n");
+		}
+		bf.close();
+	}
 }

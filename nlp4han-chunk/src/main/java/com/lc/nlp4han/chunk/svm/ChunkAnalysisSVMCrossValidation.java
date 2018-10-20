@@ -2,6 +2,8 @@ package com.lc.nlp4han.chunk.svm;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Properties;
+
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisMeasure;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.chunk.ChunkAnalysisContextGenerator;
@@ -47,16 +49,19 @@ public class ChunkAnalysisSVMCrossValidation
 	 * @throws IOException
 	 */
 	public void evaluate(ObjectStream<AbstractChunkAnalysisSample> sampleStream, int nFolds,
-			ChunkAnalysisContextGenerator contextGenerator, AbstractChunkAnalysisMeasure measure) throws IOException
+			ChunkAnalysisContextGenerator contextGenerator, AbstractChunkAnalysisMeasure measure, Properties properties) throws IOException
 	{
 		CrossValidationPartitioner<AbstractChunkAnalysisSample> partitioner = new CrossValidationPartitioner<AbstractChunkAnalysisSample>(
 				sampleStream, nFolds);
 
 		int run = 1;
+		
+		
 		// 小于折数的时候
 		while (partitioner.hasNext())
 		{
 			System.out.println("Run" + run + "...");
+			SVMStandardInput.setFeatureStructure(properties);
 			String label = ((ChunkAnalysisWordPosSampleStream) sampleStream).getScheme();
 			CrossValidationPartitioner.TrainingSampleStream<AbstractChunkAnalysisSample> trainingSampleStream = partitioner
 					.next();
@@ -70,7 +75,8 @@ public class ChunkAnalysisSVMCrossValidation
 			System.out.println("训练时间： " + (System.currentTimeMillis()-start));
 			
 			ChunkAnalysisSVMME svmme = new ChunkAnalysisSVMME(contextGenerator, model, label);
-			svmme.init(me.getFeatureStructure(), me.getClassificationResults(), me.getFeatures());
+			svmme.init(me.getFeatureStructure(), me.getClassificationResults(), me.getFeatures(), me.getNumberOfClassification());
+			SVMStandardInput.clear();
 			
 			ChunkAnalysisSVMEvaluator evaluator = new ChunkAnalysisSVMEvaluator(svmme, measure);
 
