@@ -1,6 +1,7 @@
 package com.lc.nlp4han.constituent.lex;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Edge implements Comparable<Edge>
 {
@@ -144,6 +145,19 @@ public class Edge implements Comparable<Edge>
 		this.stop = stop;
 		this.pro = pro;
 		this.children = children;
+	}
+
+	public Edge getFirstChild()
+	{
+		Collections.sort(this.getChildren());
+		return this.getChildren().get(0);
+	}
+
+	public Edge getLastChild()
+	{
+		Collections.sort(this.getChildren());
+		int num =this.getChildren().size();
+		return this.getChildren().get(num - 1);
 	}
 
 	@Override
