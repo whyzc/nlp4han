@@ -9,6 +9,7 @@ import java.util.HashSet;
 */
 public abstract class Rule
 {
+	public static NonterminalTable nonterminalTable;
 	protected short parent;
 	
 	public void split() {}
@@ -33,6 +34,11 @@ public abstract class Rule
 			return false;
 		return true;
 	}
+	
+	public abstract String[] toStringRules();
+ 	
+	public abstract String toStringRule(short... labels);
+	
 	public short getParent()
 	{
 		return parent;

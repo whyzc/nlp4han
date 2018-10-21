@@ -3,9 +3,11 @@ package com.lc.nlp4han.constituent.unlex;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.TreeMap;
 
 /**
  * 一元规则
+ * 
  * @author 王宁
  */
 public class UnaryRule extends Rule
@@ -55,6 +57,11 @@ public class UnaryRule extends Rule
 		int result = super.hashCode();
 		result = prime * result + child;
 		return result;
+	}
+
+	public int chidrenHashcode()
+	{
+		return child;
 	}
 
 	public boolean equals(Object obj)
@@ -116,5 +123,66 @@ public class UnaryRule extends Rule
 			return true;
 		else
 			return false;
+	}
+
+	@Override
+	public String[] toStringRules()
+	{
+		String[] strs = new String[scores.size() * scores.get(0).size()];
+		int count = 0;
+		for (int i = 0; i < scores.size(); i++)
+		{
+			for (int j = 0; j < scores.get(0).size(); j++)
+			{
+				String parentStr;
+				String childStr;
+				if (nonterminalTable.getNumSubsymbolArr().get(parent) == 1)
+					parentStr = nonterminalTable.stringValue(parent);
+				else
+					parentStr = nonterminalTable.stringValue(parent) + "_" + i;
+				if (nonterminalTable.getNumSubsymbolArr().get(child) == 1)
+					childStr = nonterminalTable.stringValue(child);
+				else
+					childStr = nonterminalTable.stringValue(child) + "_" + j;
+				String str = parentStr + "->" + childStr + " " + scores.get(i).get(j);
+				strs[count] = str;
+				count++;
+			}
+		}
+		return strs;
+	}
+
+	@Override
+	public String toStringRule(short... labels)
+	{
+		if (labels.length != 2)
+			throw new Error("参数错误。");
+		String parentStr = nonterminalTable.stringValue(parent);
+		String childStr = nonterminalTable.stringValue(child);
+		String str = parentStr + "_" + labels[0] + "->" + childStr + "_" + labels[1] + " "
+				+ scores.get(labels[0]).get(labels[1]);
+		return str;
+	}
+
+	public TreeMap<String, Double> getParent_i_ScoceSum()
+	{
+		TreeMap<String, Double> A_iBRuleSum = new TreeMap<>();
+		if (scores.get(0).size() == 1)
+		{
+			A_iBRuleSum.put(nonterminalTable.stringValue(parent), scores.get(0).get(0));
+		}
+		else
+		{
+			for (int i = 0; i < scores.size(); i++)
+			{
+				BigDecimal A_iScore = BigDecimal.valueOf(0.0);
+				for (int j = 0; j < scores.get(0).size(); j++)
+				{
+					A_iScore.add(BigDecimal.valueOf(scores.get(i).get(j)));
+				}
+				A_iBRuleSum.put(nonterminalTable.stringValue(parent) + "_" + i, A_iScore.doubleValue());
+			}
+		}
+		return A_iBRuleSum;
 	}
 }

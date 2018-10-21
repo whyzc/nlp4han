@@ -11,6 +11,8 @@ import java.util.HashMap;
 public class NonterminalTable
 {
 	private HashMap<String, Short> str_intMap;// "ROOT" - 0
+
+
 	private HashMap<Short, String> int_strMap;
 	private short numInitialSymbol;//二叉化后得到的所有非终结符个数
 	private ArrayList<Short> intValueOfPreterminalArr;
@@ -124,4 +126,13 @@ public class NonterminalTable
 		this.numInitialSymbol = numInitialSymbol;
 	}
 
+	public HashMap<String, Short> getStr_intMap()
+	{
+		return str_intMap;
+	}
+
+	public HashMap<Short, String> getInt_strMap()
+	{
+		return int_strMap;
+	}
 }

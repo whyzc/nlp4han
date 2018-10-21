@@ -4,6 +4,7 @@ import java.util.HashSet;
 
 /**
  * 分裂语法
+ * 
  * @author 王宁
  * 
  * 
@@ -15,7 +16,7 @@ public class GrammarSpliter
 		splitRule(oldG.bRules);
 		splitRule(oldG.uRules);
 		splitRule(oldG.lexicon.getPreRules());
-		for (Tree<Annotation> tree : oldG.treeBank)
+		for (AnnotationTreeNode tree : oldG.treeBank)
 		{
 			splitTreeAnnotation(tree);
 		}
@@ -30,15 +31,15 @@ public class GrammarSpliter
 		}
 	}
 
-	public static void splitTreeAnnotation(Tree<Annotation> tree)
+	public static void splitTreeAnnotation(AnnotationTreeNode tree)
 	{
 		if (tree == null)
 			return;
 		if (tree.isLeaf())
 			return;
 		tree.getLabel().setNumSubSymbol((short) (tree.getLabel().getNumSubSymbol() * 2));
-		
-		for (Tree<Annotation> child : tree.getChildren())
+
+		for (AnnotationTreeNode child : tree.getChildren())
 		{
 			if (!child.isLeaf())
 				splitTreeAnnotation(child);

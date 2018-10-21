@@ -5,54 +5,72 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+
+import com.lc.nlp4han.constituent.pcfg.PCFG;
+import com.lc.nlp4han.constituent.pcfg.PRule;
+import com.lc.nlp4han.constituent.pcfg.RewriteRule;
 
 /**
  * 表示由树库得到的语法
+ * 
  * @author 王宁
- *  
+ * 
  */
 public class Grammar
 {
 	public static int iterations = 50;
 
-	protected List<Tree<Annotation>> treeBank;
+	protected List<AnnotationTreeNode> treeBank;
 
 	protected HashSet<BinaryRule> bRules;
 	protected HashSet<UnaryRule> uRules;
 	protected Lexicon lexicon;// 包含preRules
 
-	// 相同父节点的规则放在一个map中,拟删除
-	protected HashMap<Short, HashMap<PreterminalRule, LinkedList<Double>>> preRuleBySameHeadWithScore;
-	protected HashMap<Short, HashMap<BinaryRule, LinkedList<LinkedList<LinkedList<Double>>>>> bRuleBySameHeadWithScore;
-	protected HashMap<Short, HashMap<UnaryRule, LinkedList<LinkedList<Double>>>> uRuleBySameHeadWithScore;
+	// 添加相同孩子为key的map
+	protected HashMap<Integer, HashMap<Integer, PreterminalRule>> preRuleBySameChildren; // 外层map<childrenHashcode,内map>,内map<ruleHashcode/rule>
+	protected HashMap<Integer, HashMap<Integer, BinaryRule>> bRuleBySameChildren;
+	protected HashMap<Integer, HashMap<Integer, UnaryRule>> uRuleBySameChildren;
 	// 相同父节点的规则放在一个map中
-	protected HashMap<Short, HashMap<Integer, PreterminalRule>> preRuleBySameHead; // <hashcode/rule>
+	protected HashMap<Short, HashMap<Integer, PreterminalRule>> preRuleBySameHead; // 内map<ruleHashcode/rule>
 	protected HashMap<Short, HashMap<Integer, BinaryRule>> bRuleBySameHead;
 	protected HashMap<Short, HashMap<Integer, UnaryRule>> uRuleBySameHead;
 
 	protected NonterminalTable nonterminalTable;
 
-	public Grammar(List<Tree<Annotation>> treeBank, HashSet<BinaryRule> bRules, HashSet<UnaryRule> uRules,
-			Lexicon lexicon, NonterminalTable nonterminalTable)
+	public Grammar(List<AnnotationTreeNode> treeBank, HashSet<BinaryRule> bRules, HashSet<UnaryRule> uRules,
+			Lexicon lexicon, HashMap<Integer, HashMap<Integer, BinaryRule>> bRuleBySameChildren,
+			HashMap<Integer, HashMap<Integer, UnaryRule>> uRuleBySameChildren,
+			HashMap<Integer, HashMap<Integer, PreterminalRule>> preRuleBySameChildren,
+			HashMap<Short, HashMap<Integer, BinaryRule>> bRuleBySameHead,
+			HashMap<Short, HashMap<Integer, UnaryRule>> uRuleBySameHead,
+			HashMap<Short, HashMap<Integer, PreterminalRule>> preRuleBySameHead, NonterminalTable nonterminalTable)
 	{
 		this.treeBank = treeBank;
 		this.bRules = bRules;
 		this.uRules = uRules;
 		this.lexicon = lexicon;
+		this.bRuleBySameChildren = bRuleBySameChildren;
+		this.uRuleBySameChildren = uRuleBySameChildren;
+		this.preRuleBySameChildren = preRuleBySameChildren;
+		this.bRuleBySameHead = bRuleBySameHead;
+		this.uRuleBySameHead = uRuleBySameHead;
+		this.preRuleBySameHead = preRuleBySameHead;
 		this.nonterminalTable = nonterminalTable;
 	}
 
 	public void split()
 	{
 		GrammarSpliter.splitGrammar(this);
-		EM(Grammar.iterations);
+		// EM(Grammar.iterations);
 	}
 
 	public void merger()
@@ -68,12 +86,12 @@ public class Grammar
 	{
 		for (int i = 0; i < iterations; i++)
 		{
-			for (Tree<Annotation> tree : treeBank)
+			for (AnnotationTreeNode tree : treeBank)
 			{
 				calculateInnerScore(tree);
 				calculateOuterScore(tree);
 				refreshRuleCountExpectation(tree);
-				TreeUtil.forgetScore(tree);
+				tree.forgetScore();
 			}
 			refreshRuleScore();
 
@@ -82,13 +100,13 @@ public class Grammar
 	}
 
 	// 计算树上所有节点的所有隐藏节点的内向概率
-	public void calculateInnerScore(Tree<Annotation> tree)
+	public void calculateInnerScore(AnnotationTreeNode tree)
 	{
 		if (tree.isLeaf())
 		{
 			return;
 		}
-		for (Tree<Annotation> child : tree.getChildren())
+		for (AnnotationTreeNode child : tree.getChildren())
 		{
 			calculateInnerScore(child);
 		}
@@ -102,8 +120,8 @@ public class Grammar
 				// double[] arr = Arrays.stream(new
 				// Double[10]).mapToDouble(Double::valueOf).toArray();
 				int length = tree.getLabel().getNumSubSymbol();
-				tree.getLabel().setInnerScores(preRuleBySameHeadWithScore.get(tree.getLabel().getSymbol())
-						.get(tempPreRule).toArray(new Double[length]));
+				tree.getLabel().setInnerScores(preRuleBySameHead.get(tree.getLabel().getSymbol())
+						.get(tempPreRule.hashCode()).getScores().toArray(new Double[length]));
 			}
 			else
 			{
@@ -119,8 +137,8 @@ public class Grammar
 						tree.getChildren().get(0).getLabel().getSymbol());
 				if (uRules.contains(tempUnaryRule))
 				{
-					LinkedList<LinkedList<Double>> uRuleScores = uRuleBySameHeadWithScore
-							.get(tree.getLabel().getSymbol()).get(tempUnaryRule);
+					LinkedList<LinkedList<Double>> uRuleScores = uRuleBySameHead.get(tree.getLabel().getSymbol())
+							.get(tempUnaryRule.hashCode()).getScores();
 					Double[] innerScores = new Double[tree.getLabel().getNumSubSymbol()];
 					for (int i = 0; i < innerScores.length; i++)
 					{
@@ -147,8 +165,8 @@ public class Grammar
 						tree.getChildren().get(1).getLabel().getSymbol());
 				if (bRules.contains(tempBRule))
 				{
-					LinkedList<LinkedList<LinkedList<Double>>> bRuleScores = bRuleBySameHeadWithScore
-							.get(tree.getLabel().getSymbol()).get(tempBRule);
+					LinkedList<LinkedList<LinkedList<Double>>> bRuleScores = bRuleBySameHead
+							.get(tree.getLabel().getSymbol()).get(tempBRule.hashCode()).getScores();
 					Double[] innerScores = new Double[tree.getLabel().getNumSubSymbol()];
 					for (int i = 0; i < innerScores.length; i++)
 					{
@@ -188,14 +206,14 @@ public class Grammar
 	 * 
 	 * @param tree
 	 */
-	public void calculateOuterScore(Tree<Annotation> tree)
+	public void calculateOuterScore(AnnotationTreeNode tree)
 	{
 		if (tree == null)
 			return;
 		calculateOuterScoreHelper(tree, tree, tree.getLabel().getSpanTo() - tree.getLabel().getSpanFrom() - 1);
 	}
 
-	private void calculateOuterScoreHelper(Tree<Annotation> treeRoot, Tree<Annotation> treeNode, int sentenceLength)
+	private void calculateOuterScoreHelper(AnnotationTreeNode treeRoot, AnnotationTreeNode treeNode, int sentenceLength)
 	{
 
 		if (treeNode == null)
@@ -212,7 +230,7 @@ public class Grammar
 		}
 		else
 		{
-			Tree<Annotation> parent = treeNode.getParent(treeRoot);
+			AnnotationTreeNode parent = treeNode.getParent();
 			switch (parent.getChildren().size())
 			{
 			case 1:
@@ -220,8 +238,8 @@ public class Grammar
 						treeNode.getLabel().getSymbol());
 				if (uRules.contains(tempUnaryRule))
 				{
-					LinkedList<LinkedList<Double>> uRuleScores = uRuleBySameHeadWithScore
-							.get(parent.getLabel().getSymbol()).get(tempUnaryRule);
+					LinkedList<LinkedList<Double>> uRuleScores = uRuleBySameHead.get(parent.getLabel().getSymbol())
+							.get(tempUnaryRule.hashCode()).getScores();
 					Double[] outerScores = new Double[treeNode.getLabel().getNumSubSymbol()];
 					for (int j = 0; j < outerScores.length; j++)
 					{
@@ -261,8 +279,8 @@ public class Grammar
 
 				if (bRules.contains(tempBRule))
 				{
-					LinkedList<LinkedList<LinkedList<Double>>> bRuleScores = bRuleBySameHeadWithScore
-							.get(parent.getLabel().getSymbol()).get(tempBRule);
+					LinkedList<LinkedList<LinkedList<Double>>> bRuleScores = bRuleBySameHead
+							.get(parent.getLabel().getSymbol()).get(tempBRule.hashCode()).getScores();
 					Double[] outerScores = new Double[treeNode.getLabel().getNumSubSymbol()];
 					for (int i = 0; i < outerScores.length; i++)
 					{
@@ -304,14 +322,14 @@ public class Grammar
 				throw new Error("error tree:more than two children.");
 			}
 		}
-		for (Tree<Annotation> childNode : treeNode.getChildren())
+		for (AnnotationTreeNode childNode : treeNode.getChildren())
 		{
 			calculateOuterScoreHelper(treeRoot, childNode, sentenceLength);
 		}
 
 	}
 
-	public void refreshRuleCountExpectation(Tree<Annotation> tree)
+	public void refreshRuleCountExpectation(AnnotationTreeNode tree)
 	{
 		if (tree.getChildren().size() == 0 || tree == null)
 			return;
@@ -391,7 +409,7 @@ public class Grammar
 		else if (tree.getChildren().size() > 2)
 			throw new Error("error tree:more than 2 children.");
 
-		for (Tree<Annotation> child : tree.getChildren())
+		for (AnnotationTreeNode child : tree.getChildren())
 		{
 			refreshRuleCountExpectation(child);
 		}
@@ -480,7 +498,8 @@ public class Grammar
 			}
 		}
 	}
-	//TODO:
+
+	// TODO:
 	public BigDecimal calculateSameParentRuleCount(HashMap<Integer, HashMap<Integer, BigDecimal>> sameParentRulesCount,
 			int parent, int pSubSymbolIndex)
 	{
@@ -512,6 +531,8 @@ public class Grammar
 	{
 		TreeMap<String, Double> allBAndURules = new TreeMap<String, Double>();
 		TreeMap<String, Double> allPreRules = new TreeMap<String, Double>();
+		TreeMap<String, Double> allURules = new TreeMap<>();
+		TreeMap<String, Double> sameParentRuleScoreSum = new TreeMap<>();
 		for (BinaryRule bRule : bRules)
 		{
 			String parentStr = nonterminalTable.stringValue(bRule.parent);
@@ -519,6 +540,15 @@ public class Grammar
 			String rightChildStr = nonterminalTable.stringValue(bRule.getRightChild());
 			Double score = bRule.scores.get(0).get(0).get(0);
 			allBAndURules.put(parentStr + " ->" + leftChildStr + " " + rightChildStr, score);
+			if (sameParentRuleScoreSum.containsKey(parentStr))
+			{
+				sameParentRuleScoreSum.put(parentStr, BigDecimal.valueOf(sameParentRuleScoreSum.get(parentStr))
+						.add(BigDecimal.valueOf(score)).doubleValue());
+			}
+			else
+			{
+				sameParentRuleScoreSum.put(parentStr, score);
+			}
 		}
 		for (UnaryRule uRule : uRules)
 		{
@@ -526,6 +556,17 @@ public class Grammar
 			String childStr = nonterminalTable.stringValue(uRule.getChild());
 			Double score = uRule.scores.get(0).get(0);
 			allBAndURules.put(parentStr + " ->" + childStr, score);
+			allURules.put(parentStr + " ->" + childStr, score);
+
+			if (sameParentRuleScoreSum.containsKey(parentStr))
+			{
+				sameParentRuleScoreSum.put(parentStr, BigDecimal.valueOf(sameParentRuleScoreSum.get(parentStr))
+						.add(BigDecimal.valueOf(score)).doubleValue());
+			}
+			else
+			{
+				sameParentRuleScoreSum.put(parentStr, score);
+			}
 		}
 		for (PreterminalRule preRule : lexicon.getPreRules())
 		{
@@ -542,6 +583,15 @@ public class Grammar
 		FileOutputStream fos2 = new FileOutputStream("C:\\Users\\hp\\Desktop\\preruletest.grammar");
 		OutputStreamWriter osw2 = new OutputStreamWriter(fos2, "gbk");
 		BufferedWriter preRuleWriter = new BufferedWriter(osw2);
+
+		FileOutputStream fos3 = new FileOutputStream("C:\\Users\\hp\\Desktop\\unarytest.grammar");
+		OutputStreamWriter osw3 = new OutputStreamWriter(fos3, "gbk");
+		BufferedWriter uRuleWriter = new BufferedWriter(osw3);
+
+		FileOutputStream fos4 = new FileOutputStream("C:\\Users\\hp\\Desktop\\ruleSum.grammar");
+		OutputStreamWriter osw4 = new OutputStreamWriter(fos4, "gbk");
+		BufferedWriter sameParentRuleScoreWriter = new BufferedWriter(osw4);
+
 		for (Map.Entry<String, Double> entry : allBAndURules.entrySet())
 		{
 			bAndURuleWriter.write(entry.getKey() + " " + entry.getValue().toString() + "\r");
@@ -550,8 +600,136 @@ public class Grammar
 		{
 			preRuleWriter.write(entry.getKey() + " " + entry.getValue().toString() + "\r");
 		}
+		for (Map.Entry<String, Double> entry : allURules.entrySet())
+		{
+			uRuleWriter.write(entry.getKey() + " " + entry.getValue().toString() + "\r");
+		}
+		for (Map.Entry<String, Double> entry : sameParentRuleScoreSum.entrySet())
+		{
+			sameParentRuleScoreWriter.write(entry.getKey() + " " + entry.getValue() + "\r");
+		}
 		bAndURuleWriter.close();
 		preRuleWriter.close();
+		uRuleWriter.close();
+		sameParentRuleScoreWriter.close();
+	}
+
+	/**
+	 * 返回CFG，其中规则包含一元规则、二元规则
+	 * 
+	 * @return
+	 */
+	public PCFG getPCFG()
+	{
+		// String startSymbol = nonterminalTable.getInt_strMap().get((short) 0);
+		// Set<String> nonterminals = new
+		// HashSet<String>(nonterminalTable.getStr_intMap().keySet());
+		// Set<String> terminals = new HashSet<String>(lexicon.getDictionary());
+		// HashMap<String, HashSet<RewriteRule>> ruleWithSameParent = new
+		// HashMap<String, HashSet<RewriteRule>>();
+		// HashMap<ArrayList<String>, HashSet<RewriteRule>> ruleWithSameChildren = new
+		// HashMap<>();
+		// for (PreterminalRule preRule : lexicon.getPreRules())
+		// {
+		// String father = nonterminalTable.stringValue(preRule.getParent());
+		// String child = preRule.getWord();
+		// PRule pRule = new PRule(preRule.getScores().get(0), father, child);
+		// if (!ruleWithSameParent.containsKey(father))
+		// {
+		// ruleWithSameParent.put(father, new HashSet<RewriteRule>());
+		// }
+		// ruleWithSameParent.get(father).add(pRule);
+		// if (!ruleWithSameChildren.containsKey(pRule.getRhs()))
+		// {
+		// ruleWithSameChildren.put(pRule.getRhs(), new HashSet<RewriteRule>());
+		// }
+		// ruleWithSameChildren.get(pRule.getRhs()).add(pRule);
+		// }
+		// for (UnaryRule uRule : uRules)
+		// {
+		// String father = nonterminalTable.stringValue(uRule.getParent());
+		// String child = nonterminalTable.stringValue(uRule.getChild());
+		// PRule pRule = new PRule(uRule.getScores().get(0).get(0), father, child);
+		//
+		// if (!ruleWithSameParent.containsKey(father))
+		// {
+		// ruleWithSameParent.put(father, new HashSet<RewriteRule>());
+		// }
+		// ruleWithSameParent.get(father).add(pRule);
+		// if (!ruleWithSameChildren.containsKey(pRule.getRhs()))
+		// {
+		// ruleWithSameChildren.put(pRule.getRhs(), new HashSet<RewriteRule>());
+		// }
+		// ruleWithSameChildren.get(pRule.getRhs()).add(pRule);
+		// }
+		// for (BinaryRule bRule : bRules)
+		// {
+		// String father = nonterminalTable.stringValue(bRule.getParent());
+		// String lChild = nonterminalTable.stringValue(bRule.getLeftChild());
+		// String rChild = nonterminalTable.stringValue(bRule.getRightChild());
+		// PRule pRule = new PRule(bRule.getScores().get(0).get(0).get(0), father,
+		// lChild, rChild);
+		//
+		// if (!ruleWithSameParent.containsKey(father))
+		// {
+		// ruleWithSameParent.put(father, new HashSet<RewriteRule>());
+		// }
+		// ruleWithSameParent.get(father).add(pRule);
+		// if (!ruleWithSameChildren.containsKey(pRule.getRhs()))
+		// {
+		// ruleWithSameChildren.put(pRule.getRhs(), new HashSet<RewriteRule>());
+		// }
+		// ruleWithSameChildren.get(pRule.getRhs()).add(pRule);
+		// }
+		// PCFG pcfg = new PCFG(startSymbol, nonterminals, terminals,
+		// ruleWithSameParent, ruleWithSameChildren);
+		PCFG pcfg = new PCFG();
+		for (UnaryRule uRule : uRules)
+		{
+			PRule pRule = new PRule(uRule.getScores().get(0).get(0), nonterminalTable.stringValue(uRule.parent),
+					nonterminalTable.stringValue(uRule.getChild()));
+			pcfg.add(pRule);
+		}
+		for (BinaryRule bRule : bRules)
+		{
+			PRule pRule = new PRule(bRule.getScores().get(0).get(0).get(0), nonterminalTable.stringValue(bRule.parent),
+					nonterminalTable.stringValue(bRule.getLeftChild()),
+					nonterminalTable.stringValue(bRule.getRightChild()));
+			pcfg.add(pRule);
+		}
+		for (PreterminalRule preRule : lexicon.getPreRules())
+		{
+			PRule pRule = new PRule(preRule.getScores().get(0), nonterminalTable.stringValue(preRule.getParent()),
+					preRule.getWord());
+			pcfg.add(pRule);
+		}
+		pcfg.setStartSymbol("ROOT");
+		return pcfg;
+	}
+
+	public HashSet<BinaryRule> getbRules()
+	{
+		return bRules;
+	}
+
+	public HashSet<UnaryRule> getuRules()
+	{
+		return uRules;
+	}
+
+	public Lexicon getLexicon()
+	{
+		return lexicon;
+	}
+
+	public HashSet<PreterminalRule> getPreRules()
+	{
+		return lexicon.getPreRules();
+	}
+
+	public NonterminalTable getNonterminalTable()
+	{
+		return nonterminalTable;
 	}
 
 }
