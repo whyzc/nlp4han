@@ -7,7 +7,7 @@ import com.lc.nlp4han.constituent.TreeNode;
 
 /**
  * @author 作者
- * 将树二叉化
+ * @version 创建时间：2018年10月19日 下午1:53:37 类说明
  */
 public class Binarization
 {

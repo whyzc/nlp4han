@@ -326,38 +326,4 @@ public class TreeUtil
 		return tree;
 	}
 
-	// public static <T extends Rule> void getRuleOfTreeRoot(Tree<Annotation> tree,
-	// T rule)
-	// {
-	// if (tree == null)
-	// return;
-	// switch (tree.getChildren().size())
-	// {
-	// case 0:
-	// rule = null;
-	// break;
-	// case 1:
-	// if (tree.isPreterminal())
-	// {
-	// ((PreterminalRule) rule).setParent(tree.getLabel().getSymbol());
-	// ((PreterminalRule)
-	// rule).setWord(tree.getChildren().get(0).getLabel().getWord());
-	// }
-	// else
-	// {
-	// ((UnaryRule) rule).setParent(tree.getLabel().getSymbol());
-	// ((UnaryRule)
-	// rule).setChild(tree.getChildren().get(0).getLabel().getSymbol());
-	// }
-	// break;
-	// case 2:
-	// ((BinaryRule) rule).setParent(tree.getLabel().getSymbol());
-	// ((BinaryRule)
-	// rule).setLeftChild(tree.getChildren().get(0).getLabel().getSymbol());
-	// ((BinaryRule)
-	// rule).setRightChild(tree.getChildren().get(1).getLabel().getSymbol());
-	// break;
-	// default:throw new Error("Error Tree:more than two children.");
-	// }
-	// }
 }

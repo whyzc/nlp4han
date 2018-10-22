@@ -16,6 +16,7 @@ import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYP2NF;
 import com.lc.nlp4han.constituent.pcfg.PCFG;
+import com.lc.nlp4han.constituent.pcfg.TreeNodeUtil;
 
 /**
  * 获得Grammar的工具类
@@ -30,7 +31,7 @@ public class GrammarExtractorTool
 	{
 		List<AnnotationTreeNode> annotationTrees = new ArrayList<AnnotationTreeNode>();
 		InputStream ins = new FileInputStream(treeBankPath);
-		InputStreamReader isr = new InputStreamReader(ins, "utf-8");
+		InputStreamReader isr = new InputStreamReader(ins, "gbk");
 		BufferedReader allSentence = new BufferedReader(isr);
 		String expression = allSentence.readLine();
 		while (expression != null)// 用来得到树库对应的所有结构树Tree<String>
@@ -118,26 +119,39 @@ public class GrammarExtractorTool
 		{
 			long start = System.currentTimeMillis();
 			System.out.println("开始提取初始文法");
-			System.out.println(start);
-			Grammar g = GrammarExtractorTool.generateInitialGrammar(false, Lexicon.DEFAULT_RAREWORD_THRESHOLD,
-					"C:\\Users\\hp\\Desktop\\ctb8-bracket-clear-utf8.txt");
+			Grammar g = GrammarExtractorTool.generateInitialGrammar(true, Lexicon.DEFAULT_RAREWORD_THRESHOLD,
+					"C:\\Users\\hp\\Desktop\\train.txt");
 			// g.split();
 			GrammarWriter.writerToFile(g, "C:\\Users\\hp\\Desktop\\grammartest");
-			PCFG pcfg = g.getPCFG();
 			System.out.println("提取初始文法完毕");
 			long end = System.currentTimeMillis();
 			long time = end - start;
-			System.out.println(time);
+			System.out.println("提取语法消耗时间：" + time);
+
+			long start1 = System.currentTimeMillis();
+			PCFG pcfg = g.getPCFG();
 			ConstituentParserCKYP2NF parser = new ConstituentParserCKYP2NF(pcfg);
+			long end1 = System.currentTimeMillis();
+			System.out.println("语法转化消耗时间：" + (end1 - start1));
 			// String sentence = "(ROOT(IP(NP(NP(NR 上海)(NR 浦东))(NP(NN 开发)(CC 与)(NN 法制)(NN
 			// 建设)))(VP(VV 同步))))";
-			String[] words = { "上海", "浦东", "开发", "与", "法制", "建设", "同步" };
-			String[] poses = { "NR", "NR", "NN", "CC", "NN", "NN", "VV" };
+			String sentence = "(ROOT(FRAG(P 据)(NR 新华社)(NR 伦敦)(NT ２月)(NT １３日)(NN 电)))";
+			TreeNode root = BracketExpUtil.generateTree(sentence);
+			TreeUtil.addParentLabel(root);
+			ArrayList<String> allWords = new ArrayList<>();
+			ArrayList<String> allPoses = new ArrayList<>();
+			TreeNodeUtil.getWordsAndPOSFromTree(allWords, allPoses, root);
+//			String[] words = { "上海", "浦东", "开发", "与", "法制", "建设", "同步" };
+//			// String[] poses = { "NR", "NR", "NN", "CC", "NN", "NN", "VV" };
 //			String[] poses = { "NR^NP", "NR^NP", "NN^NP", "CC^NP", "NN^NP", "NN^NP", "VV^VP" };
+			String words[] = allWords.toArray(new String[allWords.size()]);
+			String poses[] = allPoses.toArray(new String[allPoses.size()]);
+			long strat2 = System.currentTimeMillis();
 			ConstituentTree ctree = parser.parse(words, poses);
-			TreeNode tree = ctree.getRoot();
-			TreeNode.printTree(tree, 1);
-			System.out.println("1111");
+			TreeNode tree = TreeUtil.removeParentLabel(ctree.getRoot());
+			long end2 = System.currentTimeMillis();
+			System.out.println("解析时间：" + (end2 - strat2));
+			System.out.println(TreeNode.printTree(tree, 0));
 		}
 		catch (IOException e)
 		{
