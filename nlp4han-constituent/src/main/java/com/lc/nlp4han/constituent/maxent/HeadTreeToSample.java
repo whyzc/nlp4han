@@ -144,28 +144,30 @@ public class HeadTreeToSample
 	 * @param tree
 	 *            一棵完整的句法树
 	 * @param subTree
-	 *            第二步CHUNK得到的若干颗子树进行合并之后的若干颗子树
+	 *            第二步CHUNK得到的若干颗子树进行合并之后的若干颗chunk子树
 	 */
 	private static void getActionBUILDandCHECK(HeadTreeNode tree, List<HeadTreeNode> subTree)
 	{
-
 		// 这里的subTree用于判断，定义一个subTree的副本用于过程中的改变
 		// 这里的TreeNode实现了克隆的接口，这里也就是深拷贝
 		List<HeadTreeNode> subTreeCopy;
-		// 如果当前的节点子树是第二步CHUNK后合并后的一个结果
-		if (subTree.get(i).equals(tree))
+		
+		if (subTree.get(i).equals(tree)) // 如果当前的节点子树是第二步CHUNK后合并后的一个结果
 		{
-
 			if (tree.getParent().getChildrenNum() == 1)
 			{
 				// 添加start标记
 				actions.add("start_" + tree.getParent().getNodeName());
+				
 				// 改变subTreeCopy
 				HeadTreeNode node = new HeadTreeNode("start_" + tree.getParent().getNodeName());
 				node.addChild(subTree.get(i));
+				
 				subTree.set(i, node);
+				
 				subTreeCopy = new ArrayList<HeadTreeNode>(subTree);
 				buildAndCheckTree.add(subTreeCopy);
+				
 				actions.add("yes");
 
 				// 改动的地方【为yes的时候先不合并加入，用于yes的特征的生成】
@@ -178,8 +180,10 @@ public class HeadTreeToSample
 				tempnode.setHeadWord(tree.getParent().getHeadWord());
 				tempnode.setHeadPos(tree.getParent().getHeadPos());
 				tempnode.addChild(tree.getParent().getFirstChild());
+				
 				tree.getParent().getFirstChild().setParent(tempnode);
 				subTree.set(i, tree.getParent());
+				
 				// 合并之后，以合并后的节点的父节点继续递归
 				if (tree.getParent().getParent() == null)
 				{
@@ -196,15 +200,21 @@ public class HeadTreeToSample
 				{
 					// 添加start标记
 					actions.add("start_" + tree.getParent().getNodeName());
+					
 					HeadTreeNode node = new HeadTreeNode("start_" + tree.getParent().getNodeName());
 					node.addChild(subTree.get(i));
+					
 					subTree.set(i, node);
+					
 					subTreeCopy = new ArrayList<HeadTreeNode>(subTree);
 					buildAndCheckTree.add(subTreeCopy);
+					
 					actions.add("no");
+					
 					subTreeCopy = new ArrayList<HeadTreeNode>(subTree);
 					// 为no的时候没有合并的操作，其实是不变的
 					buildAndCheckTree.add(subTreeCopy);
+					
 					i++;
 					if (i >= subTree.size())
 					{
@@ -214,11 +224,15 @@ public class HeadTreeToSample
 				else if (tree.getIndex() == tree.getParent().getChildrenNum() - 1)
 				{
 					actions.add("join_" + tree.getParent().getNodeName());
+					
 					HeadTreeNode tempnode = new HeadTreeNode("join_" + tree.getParent().getNodeName());
 					tempnode.addChild(subTree.get(i));
+					
 					subTree.set(i, tempnode);
+					
 					subTreeCopy = new ArrayList<HeadTreeNode>(subTree);
 					buildAndCheckTree.add(subTreeCopy);
+					
 					actions.add("yes");
 
 					subTreeCopy = new ArrayList<HeadTreeNode>(subTree);
@@ -229,22 +243,27 @@ public class HeadTreeToSample
 					node.setParent(tree.getParent().getParent());
 					node.setHeadWord(tree.getParent().getHeadWord());
 					node.setHeadPos(tree.getParent().getHeadPos());
+					
 					for (int j = 0; j < tree.getParent().getChildrenNum(); j++)
 					{
 						node.addChild(tree.getParent().getChild(j));
 						tree.getParent().getChild(j).setParent(node);
 					}
+					
 					// 对subTreeCopy更改
 					// 要更改的位置
 					int index = i - tree.getParent().getChildren().size() + 1;
 					subTree.set(index, node);
+					
 					// 删除那些用于合并的join
 					for (int k = i; k >= index + 1; k--)
 					{
 						subTree.remove(index + 1);
 					}
+					
 					// 更改i为了下一次
 					i = index;
+					
 					// 合并之后，以合并后的节点的父节点继续递归，直到没有父节点，退出递归
 					if (node.getParent() == null)
 					{
@@ -258,14 +277,20 @@ public class HeadTreeToSample
 				else
 				{
 					actions.add("join_" + tree.getParent().getNodeName());
+					
 					HeadTreeNode node = new HeadTreeNode("join_" + tree.getParent().getNodeName());
 					node.addChild(subTree.get(i));
+					
 					subTree.set(i, node);
+					
 					subTreeCopy = new ArrayList<HeadTreeNode>(subTree);
 					buildAndCheckTree.add(subTreeCopy);
+					
 					actions.add("no");
+					
 					subTreeCopy = new ArrayList<HeadTreeNode>(subTree);
 					buildAndCheckTree.add(subTreeCopy);
+					
 					i++;
 					if (i >= subTree.size())
 					{
@@ -304,7 +329,7 @@ public class HeadTreeToSample
 		
 		getActionPOS(tree);
 		getActionCHUNK(tree, posTree);
-		getActionBUILDandCHECK(tree, ChunkTreeCombineUtil.combineToHeadTree(chunkTree, headGen));
+		getActionBUILDandCHECK(tree, ChunkTreeCombineUtil.combineToChunkTrees(chunkTree, headGen));
 		
 		return new ConstituentTreeSample(posTree, chunkTree, buildAndCheckTree, actions);
 	}

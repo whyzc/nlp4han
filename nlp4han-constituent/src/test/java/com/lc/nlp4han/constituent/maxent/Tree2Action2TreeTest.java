@@ -42,10 +42,10 @@ public class Tree2Action2TreeTest
 		// 1 一个子节点
 		// 2 两个子节点
 		// 3 大于两个子节点
-		String treestr = "((S(NP(NNP Mr.)(NNP Vinken))(VP(VBZ is)(NP(NP(NN chairman))(PP(IN of) "
+		String treestr = "(S(NP(NNP Mr.)(NNP Vinken))(VP(VBZ is)(NP(NP(NN chairman))(PP(IN of) "
 				+ "(NP(NP(NNP Elsevier)(NNP N.V.))(, ,)"
-				+ "(NP(DT the)(NNP Dutch)(VBG publishing)(NN group))))))(. .)))";
-		TreeNode tree = BracketExpUtil.generateTreeNoTopBracket(treestr);
+				+ "(NP(DT the)(NNP Dutch)(VBG publishing)(NN group))))))(. .))";
+		TreeNode tree = BracketExpUtil.generateTree(treestr);
 		HeadTreeNode headTree = TreeToHeadTree.treeToHeadTree(tree, headGen);
 
 		ConstituentTreeSample sample = HeadTreeToSample.headTreeToSample(headTree, headGen);
