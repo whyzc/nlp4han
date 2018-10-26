@@ -7,8 +7,8 @@ import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.TreeNode;
 
 /**
- * @author 作者
- * @version 创建时间：2018年10月19日 上午12:31:37 类说明
+ * @author 王宁
+ * 表示节点是Annotation的树
  */
 public class AnnotationTreeNode extends TreeNode
 {
@@ -38,12 +38,10 @@ public class AnnotationTreeNode extends TreeNode
 		}
 		if (tree == null)
 		{
-			System.out.println("运行了");
 			return null;
 		}
 		if (tree.getNodeName() == null)
 		{
-			System.out.println("运行了");
 			return null;
 		}
 
@@ -78,7 +76,7 @@ public class AnnotationTreeNode extends TreeNode
 		}
 		for (int i = 0; i < tempChildren.size(); i++)
 			annotationTree.addChild(tempChildren.get(i));
-		return annotationTree;
+		return annotationTree.setSpanFT();
 	}
 
 	public boolean isPreterminal()
@@ -89,7 +87,7 @@ public class AnnotationTreeNode extends TreeNode
 			return false;
 	}
 
-	public  AnnotationTreeNode forgetScore()
+	public AnnotationTreeNode forgetScore()
 	{
 		if (this.isLeaf() || this == null)
 			return this;
@@ -101,7 +99,32 @@ public class AnnotationTreeNode extends TreeNode
 		}
 		return this;
 	}
-	
+
+	public AnnotationTreeNode setSpanFT()
+	{
+		getSpanFTHelper(0);
+		return this;
+	}
+
+	private int getSpanFTHelper(int count)
+	{
+		if (this.isPreterminal())
+		{
+			
+			this.label.setSpanFrom((short) count);
+			this.label.setSpanTo((short) (count + 1));
+			return count + 1;
+		}
+
+		for (AnnotationTreeNode child : getChildren())
+		{
+			count = child.getSpanFTHelper(count);
+		}
+		this.label.setSpanFrom(this.getFirstChild().getLabel().getSpanFrom());
+		this.label.setSpanTo(this.getLastChild().getLabel().getSpanTo());
+		return count;
+	}
+
 	@Override
 	public AnnotationTreeNode getFirstChild()
 	{

@@ -30,8 +30,10 @@ public class PreterminalRule extends Rule
 		int pNumSubSymbol = scores.size();
 		for (int i = pNumSubSymbol - 1; i >= 0; i--)
 		{
-			scores.add(i + 1, BigDecimal.valueOf(scores.get(i))
-					.divide(BigDecimal.valueOf(2.0), 15, BigDecimal.ROUND_HALF_UP).doubleValue());
+			// scores.add(i + 1, BigDecimal.valueOf(scores.get(i))
+			// .divide(BigDecimal.valueOf(2.0), 15,
+			// BigDecimal.ROUND_HALF_UP).doubleValue());
+			scores.add(i + 1, scores.get(i));
 			scores.set(i, scores.get(i + 1));
 		}
 	}
@@ -139,16 +141,18 @@ public class PreterminalRule extends Rule
 	public TreeMap<String, Double> getParent_i_ScoceSum()
 	{
 		TreeMap<String, Double> A_iWordRuleSum = new TreeMap<>();
-		if (scores.size() == 1)
+		for (int i = 0; i < scores.size(); i++)
 		{
-			A_iWordRuleSum.put(nonterminalTable.stringValue(parent), scores.get(0));
-		}
-		else
-		{
-			for (int i = 0; i < scores.size(); i++)
+			String parentStr;
+			if (scores.size() == 1)
 			{
-				A_iWordRuleSum.put(nonterminalTable.stringValue(parent) + "_" + i, scores.get(i));
+				parentStr = nonterminalTable.stringValue(parent);
 			}
+			else
+			{
+				parentStr = nonterminalTable.stringValue(parent) + "_" + i;
+			}
+			A_iWordRuleSum.put(parentStr, scores.get(i));
 		}
 		return A_iWordRuleSum;
 	}

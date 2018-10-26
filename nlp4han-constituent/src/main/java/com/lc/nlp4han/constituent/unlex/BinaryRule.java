@@ -59,18 +59,20 @@ public class BinaryRule extends Rule
 
 		}
 		// split father
-		for (int i = pNumSubSymbol - 1; i >= 0; i--)
-		{
-			LinkedList<LinkedList<Double>> sameFather = new LinkedList<LinkedList<Double>>();
-			for (int j = 0; j < scores.get(i).size(); j++)
+		if (parent != 0)
+			for (int i = pNumSubSymbol - 1; i >= 0; i--)
 			{
-				scores.get(i).get(j).replaceAll(e -> BigDecimal.valueOf(e.doubleValue())
-						.divide(BigDecimal.valueOf(2.0), 15, BigDecimal.ROUND_HALF_UP).doubleValue());
-				LinkedList<Double> sameLRC = new LinkedList<Double>(scores.get(i).get(j));
-				sameFather.add(sameLRC);
+				LinkedList<LinkedList<Double>> sameFather = new LinkedList<LinkedList<Double>>();
+				for (int j = 0; j < scores.get(i).size(); j++)
+				{
+					// scores.get(i).get(j).replaceAll(e -> BigDecimal.valueOf(e.doubleValue())
+					// .divide(BigDecimal.valueOf(2.0), 15,
+					// BigDecimal.ROUND_HALF_UP).doubleValue());
+					LinkedList<Double> sameLRC = new LinkedList<Double>(scores.get(i).get(j));
+					sameFather.add(sameLRC);
+				}
+				scores.add(i + 1, sameFather);
 			}
-			scores.add(i + 1, sameFather);
-		}
 	}
 
 	public boolean isSameRule(short parent, short lChild, short rChild)
@@ -221,25 +223,29 @@ public class BinaryRule extends Rule
 	public TreeMap<String, Double> getParent_i_ScoceSum()
 	{
 		TreeMap<String, Double> A_iBCRuleSum = new TreeMap<>();
-		if (scores.size() == 1)
+
+		for (int i = 0; i < scores.size(); i++)
 		{
-			A_iBCRuleSum.put(nonterminalTable.stringValue(parent), scores.get(0).get(0).get(0));
-		}
-		else
-		{
-			for (int i = 0; i < scores.size(); i++)
+			String parentStr;
+			if (scores.size() == 1)
 			{
-				BigDecimal A_iScore = BigDecimal.valueOf(0.0);
-				for (int j = 0; j < scores.get(0).size(); j++)
-				{
-					for (int k = 0; k < scores.get(0).get(0).size(); k++)
-					{
-						A_iScore.add(BigDecimal.valueOf(scores.get(i).get(j).get(k)));
-					}
-				}
-				A_iBCRuleSum.put(nonterminalTable.stringValue(parent) + "_" + i, A_iScore.doubleValue());
+				parentStr = nonterminalTable.stringValue(parent);
 			}
+			else
+			{
+				parentStr = nonterminalTable.stringValue(parent) + "_" + i;
+			}
+			BigDecimal A_iScore = BigDecimal.valueOf(0.0);
+			for (int j = 0; j < scores.get(0).size(); j++)
+			{
+				for (int k = 0; k < scores.get(0).get(0).size(); k++)
+				{
+					A_iScore = A_iScore.add(BigDecimal.valueOf(scores.get(i).get(j).get(k)));
+				}
+			}
+			A_iBCRuleSum.put(parentStr, A_iScore.doubleValue());
 		}
+
 		return A_iBCRuleSum;
 	}
 

@@ -1,12 +1,10 @@
 package com.lc.nlp4han.constituent.unlex;
 
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
@@ -47,14 +45,8 @@ public class GrammarWriter
 			allURules.addAll(Arrays.asList(ruleStr));
 			for (Map.Entry<String, Double> entry : uRule.getParent_i_ScoceSum().entrySet())
 			{
-				sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(), new BiFunction<Double, Double, Double>()
-				{
-					@Override
-					public Double apply(Double t, Double u)
-					{
-						return BigDecimal.valueOf(t).add(BigDecimal.valueOf(u)).doubleValue();
-					}
-				});
+				sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(),
+						(score, newScore) -> BigDecimal.valueOf(score).add(BigDecimal.valueOf(newScore)).doubleValue());
 			}
 		}
 		for (PreterminalRule preRule : grammar.lexicon.getPreRules())

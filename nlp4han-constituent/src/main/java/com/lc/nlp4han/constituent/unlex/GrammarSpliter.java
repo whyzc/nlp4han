@@ -21,6 +21,7 @@ public class GrammarSpliter
 			splitTreeAnnotation(tree);
 		}
 		oldG.nonterminalTable.getNumSubsymbolArr().replaceAll(e -> Short.valueOf((short) (e * 2)));
+		oldG.nonterminalTable.getNumSubsymbolArr().set(oldG.nonterminalTable.intValue("ROOT"), (short) 1);
 	}
 
 	private static <T extends Rule> void splitRule(HashSet<T> rules)
@@ -37,7 +38,8 @@ public class GrammarSpliter
 			return;
 		if (tree.isLeaf())
 			return;
-		tree.getLabel().setNumSubSymbol((short) (tree.getLabel().getNumSubSymbol() * 2));
+		if (!(tree.getLabel().getSymbol() == AnnotationTreeNode.nonterminalTable.intValue("ROOT")))
+			tree.getLabel().setNumSubSymbol((short) (tree.getLabel().getNumSubSymbol() * 2));
 
 		for (AnnotationTreeNode child : tree.getChildren())
 		{

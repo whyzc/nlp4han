@@ -42,13 +42,15 @@ public class UnaryRule extends Rule
 		}
 
 		// split father
-		for (int i = pNumSubSymbol - 1; i >= 0; i--)
-		{
-			scores.get(i).replaceAll(e -> BigDecimal.valueOf(e.doubleValue())
-					.divide(BigDecimal.valueOf(2.0), 15, BigDecimal.ROUND_HALF_UP).doubleValue());
-			LinkedList<Double> sameChild = new LinkedList<>(scores.get(i));
-			scores.add(i + 1, sameChild);
-		}
+		if (parent != 0)
+			for (int i = pNumSubSymbol - 1; i >= 0; i--)
+			{
+				// scores.get(i).replaceAll(e -> BigDecimal.valueOf(e.doubleValue())
+				// .divide(BigDecimal.valueOf(2.0), 15,
+				// BigDecimal.ROUND_HALF_UP).doubleValue());
+				LinkedList<Double> sameChild = new LinkedList<>(scores.get(i));
+				scores.add(i + 1, sameChild);
+			}
 	}
 
 	public int hashCode()
@@ -167,21 +169,23 @@ public class UnaryRule extends Rule
 	public TreeMap<String, Double> getParent_i_ScoceSum()
 	{
 		TreeMap<String, Double> A_iBRuleSum = new TreeMap<>();
-		if (scores.get(0).size() == 1)
+		for (int i = 0; i < scores.size(); i++)
 		{
-			A_iBRuleSum.put(nonterminalTable.stringValue(parent), scores.get(0).get(0));
-		}
-		else
-		{
-			for (int i = 0; i < scores.size(); i++)
+			String parentStr;
+			if (scores.size() == 1)
 			{
-				BigDecimal A_iScore = BigDecimal.valueOf(0.0);
-				for (int j = 0; j < scores.get(0).size(); j++)
-				{
-					A_iScore.add(BigDecimal.valueOf(scores.get(i).get(j)));
-				}
-				A_iBRuleSum.put(nonterminalTable.stringValue(parent) + "_" + i, A_iScore.doubleValue());
+				parentStr = nonterminalTable.stringValue(parent);
 			}
+			else
+			{
+				parentStr = nonterminalTable.stringValue(parent) + "_" + i;
+			}
+			BigDecimal A_iScore = BigDecimal.valueOf(0.0);
+			for (int j = 0; j < scores.get(0).size(); j++)
+			{
+				A_iScore = A_iScore.add(BigDecimal.valueOf(scores.get(i).get(j)));
+			}
+			A_iBRuleSum.put(parentStr, A_iScore.doubleValue());
 		}
 		return A_iBRuleSum;
 	}

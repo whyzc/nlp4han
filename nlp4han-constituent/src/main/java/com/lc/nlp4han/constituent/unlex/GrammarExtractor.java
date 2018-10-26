@@ -17,7 +17,7 @@ import java.util.Map;
 public class GrammarExtractor
 {
 	// 统计树库过程中得到
-//	protected List<Tree<Annotation>> treeBank;
+	// protected List<Tree<Annotation>> treeBank;
 	protected List<AnnotationTreeNode> treeBank;
 	protected NonterminalTable nonterminalTable;
 	protected HashSet<String> dictionary;
@@ -94,20 +94,24 @@ public class GrammarExtractor
 						if (!bRuleBySameHeadCount[parent].containsKey(bRule))
 						{
 							bRuleBySameHeadCount[parent].put(bRule, 1);
-							bRuleBySameHead.put(parent, new HashMap<Integer, BinaryRule>());
 						}
 						else
 						{
-							bRuleBySameHeadCount[parent].put(bRule, bRuleBySameHeadCount[parent].get(bRule) + 1);
+							int count = bRuleBySameHeadCount[parent].get(bRule) + 1;
+							bRuleBySameHeadCount[parent].remove(bRule);
+							bRuleBySameHeadCount[parent].put(bRule, count);
+						}
+
+						if (!bRuleBySameHead.containsKey(parent))
+						{
+							bRuleBySameHead.put(parent, new HashMap<Integer, BinaryRule>());
 						}
 						bRuleBySameHead.get(parent).put(bRule.hashCode(), bRule);
-
 						if (!bRuleBySameChildren.containsKey(bRule.chidrenHashcode()))
 						{
 							bRuleBySameChildren.put(bRule.chidrenHashcode(), new HashMap<Integer, BinaryRule>());
 						}
 						bRuleBySameChildren.get(bRule.chidrenHashcode()).put(bRule.hashCode(), bRule);
-
 					}
 				}
 				else if (queue.peek().getChildren().size() == 1)
@@ -121,14 +125,19 @@ public class GrammarExtractor
 							if (!uRuleBySameHeadCount[parent].containsKey(uRule))
 							{
 								uRuleBySameHeadCount[parent].put(uRule, 1);
-								uRuleBySameHead.put(parent, new HashMap<Integer, UnaryRule>());
 							}
 							else
 							{
-								uRuleBySameHeadCount[parent].put(uRule, uRuleBySameHeadCount[parent].get(uRule) + 1);
+								int count = uRuleBySameHeadCount[parent].get(uRule) + 1;
+								uRuleBySameHeadCount[parent].remove(uRule);
+								uRuleBySameHeadCount[parent].put(uRule, count);
+							}
+
+							if (!uRuleBySameHead.containsKey(parent))
+							{
+								uRuleBySameHead.put(parent, new HashMap<Integer, UnaryRule>());
 							}
 							uRuleBySameHead.get(parent).put(uRule.hashCode(), uRule);
-
 							if (!uRuleBySameChildren.containsKey(uRule.chidrenHashcode()))
 							{
 								uRuleBySameChildren.put(uRule.chidrenHashcode(), new HashMap<Integer, UnaryRule>());
@@ -145,12 +154,16 @@ public class GrammarExtractor
 						if (!preRuleBySameHeadCount[preterminal.indexOf(parent)].containsKey(preRule))
 						{
 							preRuleBySameHeadCount[preterminal.indexOf(parent)].put(preRule, 1);
-							preRuleBySameHead.put(parent, new HashMap<Integer, PreterminalRule>());
 						}
 						else
 						{
-							preRuleBySameHeadCount[preterminal.indexOf(parent)].put(preRule,
-									preRuleBySameHeadCount[preterminal.indexOf(parent)].get(preRule) + 1);
+							int count = preRuleBySameHeadCount[preterminal.indexOf(parent)].get(preRule) + 1;
+							preRuleBySameHeadCount[preterminal.indexOf(parent)].remove(preRule);
+							preRuleBySameHeadCount[preterminal.indexOf(parent)].put(preRule, count);
+						}
+						if (!preRuleBySameHead.containsKey(parent))
+						{
+							preRuleBySameHead.put(parent, new HashMap<Integer, PreterminalRule>());
 						}
 						preRuleBySameHead.get(parent).put(preRule.hashCode(), preRule);
 						if (!preRuleBySameChildren.containsKey(preRule.chidrenHashcode()))
@@ -191,14 +204,14 @@ public class GrammarExtractor
 		}
 		for (HashMap<PreterminalRule, Integer> map : preRuleBySameHeadCount)
 		{
-			for (Map.Entry<PreterminalRule, Integer> entry : map.entrySet())
-			{
-				BigDecimal b1 = BigDecimal.valueOf(entry.getValue());
-				BigDecimal b2 = BigDecimal.valueOf(numOfSameHeadRule[entry.getKey().parent]);
-				double score = b1.divide(b2, 15, BigDecimal.ROUND_HALF_UP).doubleValue();
-				entry.getKey().scores.add(score);
-
-			}
+			if (map.size() != 0)
+				for (Map.Entry<PreterminalRule, Integer> entry : map.entrySet())
+				{
+					BigDecimal b1 = BigDecimal.valueOf(entry.getValue());
+					BigDecimal b2 = BigDecimal.valueOf(numOfSameHeadRule[entry.getKey().parent]);
+					double score = b1.divide(b2, 15, BigDecimal.ROUND_HALF_UP).doubleValue();
+					entry.getKey().scores.add(score);
+				}
 		}
 		for (HashMap<UnaryRule, Integer> map : uRuleBySameHeadCount)
 		{
