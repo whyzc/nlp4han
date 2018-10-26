@@ -61,7 +61,7 @@ public class ChunkAnalysisSVMCrossValidation
 		while (partitioner.hasNext())
 		{
 			System.out.println("Run" + run + "...");
-			SVMStandardInput.setFeatureStructure(properties);
+			
 			String label = ((ChunkAnalysisWordPosSampleStream) sampleStream).getScheme();
 			CrossValidationPartitioner.TrainingSampleStream<AbstractChunkAnalysisSample> trainingSampleStream = partitioner
 					.next();
@@ -69,16 +69,13 @@ public class ChunkAnalysisSVMCrossValidation
 			trainingSampleStream.reset();
 			measure.setDictionary(dict);
 
-			ChunkAnalysisSVMME me = new ChunkAnalysisSVMME();
+			ChunkAnalysisSVMME me = new ChunkAnalysisSVMME(contextGenerator, label);
 			long start = System.currentTimeMillis();
 			svm_model model = me.train(trainingSampleStream, arg, contextGenerator);
+			me.setModel(model);
 			System.out.println("训练时间： " + (System.currentTimeMillis()-start));
 			
-			ChunkAnalysisSVMME svmme = new ChunkAnalysisSVMME(contextGenerator, model, label);
-			svmme.init(me.getFeatureStructure(), me.getClassificationResults(), me.getFeatures(), me.getNumberOfClassification());
-			SVMStandardInput.clear();
-			
-			ChunkAnalysisSVMEvaluator evaluator = new ChunkAnalysisSVMEvaluator(svmme, measure);
+			ChunkAnalysisSVMEvaluator evaluator = new ChunkAnalysisSVMEvaluator(me, measure);
 
 			evaluator.setMeasure(measure);
 

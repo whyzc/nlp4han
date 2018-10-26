@@ -76,7 +76,6 @@ public class SVMTrain extends svm_train{
 		if (serialization)
 		{
 			svm.svm_save_model(model_file_name,model);
-			save_data_format_conversion(SVMStandardInput.getFeatureStructure() ,SVMStandardInput.getClassificationResults(), SVMStandardInput.getFeatures(), model_file_name+".dfc", "utf-8", SVMStandardInput.getScaleInfo());
 			
 		}
 		return model;
@@ -89,68 +88,7 @@ public class SVMTrain extends svm_train{
 //	} TODO
 	
 	
-	private void save_data_format_conversion(List<String> featureStructure, List<String> classificationResults, Map<String, Map<String, Integer>> features, String filePath, String encoding, ScaleInfo scaleInfo) throws IOException
-	{
-		BufferedWriter bf = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), encoding));;
-		
-		if (scaleInfo == null)
-		{
-			bf.write("scale=false\n");
-			bf.write("\n\n\n");
-		}
-		else
-		{
-			bf.write("scale=true\n");
-			bf.write("lower=" + scaleInfo.lower +"\n");
-			bf.write("upper=" + scaleInfo.upper +"\n");
-			StringBuilder sb = new StringBuilder();
-			for (int i=0 ; i<scaleInfo.ranges.length ; i++)
-			{
-				sb.append(scaleInfo.ranges[i] + " ");
-			}
-			bf.write(sb.toString() +"\n");
-		}
-		
-		
-		bf.write("featureNum=" + featureStructure.size() + "\n");
-		for (int i=0 ; i<featureStructure.size() ; i++)
-		{
-			bf.write(featureStructure.get(i)+"\n");
-		}
-		
-		bf.write("classificationNum=" + classificationResults.size() + "\n");
-		for (int i=0 ; i<classificationResults.size() ; i++)
-		{
-			bf.write(classificationResults.get(i)+"\n");
-		}
-		
-		Set<Entry<String, Map<String, Integer>>> entry = features.entrySet();
-		for (Entry<String, Map<String, Integer>> e : entry)
-		{
-			String k = e.getKey();
-			Map<String, Integer> m = e.getValue();
-			
-			bf.write(k + " " + m.size() + "\n");
-			
-			int i = 1;
-			for (Entry<String, Integer> en : m.entrySet())
-			{
-				bf.write(en.getKey() + "=" + en.getValue());
-				if (i>=100)
-				{
-					bf.write("\n");
-					i = 1;
-				}
-				else
-				{
-					bf.write(" ");
-					i++;
-				}
-			}
-			bf.write("\n");
-		}
-		bf.close();
-	}
+	
 
 	private static double atof(String s)
 	{
