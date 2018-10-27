@@ -260,4 +260,52 @@ public class BracketExpUtil
 		
 		return treeStruct;
 	}
+
+	/**
+	 * 从括号表达式提取词性标注串
+	 * 
+	 * 括号表达式中括号单词会反转义
+	 * 
+	 * @param bracketStr
+	 * @param sep
+	 * @return
+	 */
+	public static String extractWordAndPos(String bracketStr, String sep)
+	{
+		bracketStr = format(bracketStr);
+		
+		List<String> parts = stringToList(bracketStr);
+		
+		String result = "";
+		Stack<String> stack = new Stack<String>();
+		for (int i = 0; i < parts.size(); i++)
+		{
+			if (!parts.get(i).equals(")") && !parts.get(i).equals(" "))
+			{
+				stack.push(parts.get(i));
+			}
+			else if (parts.get(i).equals(" "))
+			{
+	
+			}
+			else if (parts.get(i).equals(")"))
+			{
+				if (!stack.isEmpty())
+				{
+					String word = stack.pop();
+					String pos= stack.pop();
+					if(word.equals("-RRB-")) {
+						word=")";
+					}else if(word.equals("-LRB-")) {
+						word="(";
+					}
+					result += pos + sep + word + " ";
+				}
+				stack.clear();
+				;
+			}
+		}
+	
+		return result;
+	}
 }
