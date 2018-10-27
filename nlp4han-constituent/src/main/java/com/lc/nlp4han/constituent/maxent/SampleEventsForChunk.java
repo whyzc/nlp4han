@@ -46,6 +46,7 @@ public class SampleEventsForChunk extends AbstractEventStream<ConstituentTreeSam
 		List<HeadTreeNode> chunkTree = sample.getChunkTree();
 		String[][] ac = sample.getAdditionalContext();
 		
+//		System.out.println("Generating chunk events for " + sample);
 		List<Event> events = generateEvents(words, chunkTree, actions, ac);
 		
 		return events.iterator();
