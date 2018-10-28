@@ -6,12 +6,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -201,7 +199,7 @@ public class SVMStandardInput
 		if (savePath != null)
 			result[3] = savePath;
 		else
-			result[3] = docPath+".svm";
+			result[3] = docPath + ".svm";
 
 		return result;
 	}

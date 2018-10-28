@@ -26,16 +26,12 @@ import com.lc.nlp4han.ml.util.PlainTextByLineStream;
 public class ChunkAnalysisSVMEvalTool
 {
 	public static final String USAGE = "Usage: ChunkAnalysisSVMEvalTool [options] -data training_set_file\n"
-			+"options:\n"
-			+"-data training_set_file : set training set file path\n"
-			+"-encoding encoding : set encoding form\n"
-			+"-model model_file : set model path\n"
-			+"-transform transformation_file : set transformation file, end with '.info' "
-			;
-	
+			+ "options:\n" + "-data training_set_file : set training set file path\n"
+			+ "-encoding encoding : set encoding form\n" + "-model model_file : set model path\n"
+			+ "-transform transformation_file : set transformation file, end with '.info' ";
+
 	public static void eval(String modelFile, String goldFile, String path, String encoding, File errorFile,
-			AbstractChunkSampleParser parse,
-			AbstractChunkAnalysisMeasure measure, String label) throws IOException
+			AbstractChunkSampleParser parse, AbstractChunkAnalysisMeasure measure, String label) throws IOException
 	{
 		long start = System.currentTimeMillis();
 
@@ -55,8 +51,8 @@ public class ChunkAnalysisSVMEvalTool
 
 		evaluator.setMeasure(measure);
 
-		ObjectStream<String> goldStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(new File(goldFile)),
-				encoding);
+		ObjectStream<String> goldStream = new PlainTextByLineStream(
+				new MarkableFileInputStreamFactory(new File(goldFile)), encoding);
 		ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkAnalysisWordPosSampleStream(goldStream, parse,
 				label);
 
@@ -66,7 +62,7 @@ public class ChunkAnalysisSVMEvalTool
 
 		System.out.println(evaluator.getMeasure());
 	}
-	
+
 	public static void main(String[] args) throws IOException
 	{
 		String usage = USAGE;
@@ -125,7 +121,7 @@ public class ChunkAnalysisSVMEvalTool
 					+ "' does not exist or is not readable, please check the path");
 			System.exit(1);
 		}
-		
+
 		AbstractChunkSampleParser parse;
 		AbstractChunkAnalysisMeasure measure;
 

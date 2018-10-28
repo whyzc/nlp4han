@@ -17,8 +17,7 @@ public class ChunkAnalysisSVMCrossValidation
 	 * 训练的参数集
 	 */
 	private final String[] args;
-	
-	
+
 	/**
 	 * 构造方法
 	 * 
@@ -48,20 +47,21 @@ public class ChunkAnalysisSVMCrossValidation
 	 * @throws IOException
 	 */
 	public void evaluate(ObjectStream<AbstractChunkAnalysisSample> sampleStream, int nFolds,
-			ChunkAnalysisContextGenerator contextGenerator, AbstractChunkAnalysisMeasure measure, Properties properties) throws IOException
+			ChunkAnalysisContextGenerator contextGenerator, AbstractChunkAnalysisMeasure measure, Properties properties)
+			throws IOException
 	{
 		CrossValidationPartitioner<AbstractChunkAnalysisSample> partitioner = new CrossValidationPartitioner<AbstractChunkAnalysisSample>(
 				sampleStream, nFolds);
 
 		int run = 1;
-		
-		String modelPath = args[args.length-1] ;
-		
+
+		String modelPath = args[args.length - 1];
+
 		// 小于折数的时候
 		while (partitioner.hasNext())
 		{
 			System.out.println("Run" + run + "...");
-			
+
 			String label = ((ChunkAnalysisWordPosSampleStream) sampleStream).getScheme();
 			CrossValidationPartitioner.TrainingSampleStream<AbstractChunkAnalysisSample> trainingSampleStream = partitioner
 					.next();
@@ -73,20 +73,20 @@ public class ChunkAnalysisSVMCrossValidation
 			long start = System.currentTimeMillis();
 			me.train(trainingSampleStream, args, contextGenerator);
 			me.setModel(modelPath);
-			System.out.println("训练时间： " + (System.currentTimeMillis()-start));
-			
+			System.out.println("训练时间： " + (System.currentTimeMillis() - start));
+
 			ChunkAnalysisSVMEvaluator evaluator = new ChunkAnalysisSVMEvaluator(me, measure);
 
 			evaluator.setMeasure(measure);
 
 			start = System.currentTimeMillis();
 			evaluator.evaluate(trainingSampleStream.getTestSampleStream());
-			System.out.println("标注时间： " + (System.currentTimeMillis()-start));
+			System.out.println("标注时间： " + (System.currentTimeMillis() - start));
 
 			System.out.println(measure);
 			run++;
 		}
-		
+
 	}
 
 	/**
@@ -111,5 +111,5 @@ public class ChunkAnalysisSVMCrossValidation
 
 		return dictionary;
 	}
-	
+
 }
