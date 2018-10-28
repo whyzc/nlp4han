@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.lc.nlp4han.constituent.BracketExpUtil;
+import com.lc.nlp4han.constituent.CTBExtractorTool;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYP2NF;
@@ -26,12 +27,12 @@ import com.lc.nlp4han.constituent.pcfg.TreeNodeUtil;
  */
 public class GrammarExtractorTool
 {
-	public static Grammar generateInitialGrammar(boolean addParentLabel, int rareWordThreshold, String treeBankPath)
-			throws IOException
+	public static Grammar generateInitialGrammar(boolean addParentLabel, int rareWordThreshold, String treeBankPath,
+			String encoding) throws IOException
 	{
 		List<AnnotationTreeNode> annotationTrees = new ArrayList<AnnotationTreeNode>();
 		InputStream ins = new FileInputStream(treeBankPath);
-		InputStreamReader isr = new InputStreamReader(ins, "utf-8");
+		InputStreamReader isr = new InputStreamReader(ins, encoding);
 		BufferedReader allSentence = new BufferedReader(isr);
 		String expression = allSentence.readLine();
 		while (expression != null)// 用来得到树库对应的所有结构树Tree<String>
@@ -98,19 +99,6 @@ public class GrammarExtractorTool
 		bRules = new HashSet<BinaryRule>(allBRule.keySet());
 		uRules = new HashSet<UnaryRule>(allURule.keySet());
 		preRules = new HashSet<PreterminalRule>(allPreRule.keySet());
-		// HashMap<Integer, HashMap<Integer, PreterminalRule>> preRuleBySameChildren =
-		// grammarExtractor.preRuleBySameChildren; //
-		// 外层map<childrenHashcode,内map>,内map<ruleHashcode/rule>
-		// HashMap<Integer, HashMap<Integer, BinaryRule>> bRuleBySameChildren =
-		// grammarExtractor.bRuleBySameChildren;
-		// HashMap<Integer, HashMap<Integer, UnaryRule>> uRuleBySameChildren =
-		// grammarExtractor.uRuleBySameChildren;
-		// HashMap<Short, HashMap<Integer, PreterminalRule>> preRuleBySameHead =
-		// grammarExtractor.preRuleBySameHead; // 内map<ruleHashcode/rule>
-		// HashMap<Short, HashMap<Integer, BinaryRule>> bRuleBySameHead =
-		// grammarExtractor.bRuleBySameHead;
-		// HashMap<Short, HashMap<Integer, UnaryRule>> uRuleBySameHead =
-		// grammarExtractor.uRuleBySameHead;
 		Lexicon lexicon = new Lexicon(preRules, grammarExtractor.dictionary, tagWithRareWord, rareWordCount,
 				allRareWord);
 		Grammar intialG = new Grammar(grammarExtractor.treeBank, bRules, uRules, lexicon,
@@ -120,14 +108,48 @@ public class GrammarExtractorTool
 
 	public static void main(String[] args)
 	{
+		String trainFilePath = null;
+		String outputFilePath = null;
+		String encoding = "utf-8";
+		int iterations = 50;// em算法迭代次数
+		for (int i = 0; i < args.length; i++)
+		{
+			if (args[i].equals("-train"))
+			{
+				trainFilePath = args[i + 1];
+				i++;
+			}
+			if (args[i].equals("-out"))
+			{
+				outputFilePath = args[i + 1];
+				i++;
+			}
+			if (args[i].equals("-encoding"))
+			{
+				encoding = args[i + 1];
+				i++;
+			}
+			if (args[i].equals("-em"))
+			{
+				iterations = Integer.parseInt(args[i + 1]);
+				Grammar.iterations = iterations;
+				i++;
+			}
+		}
+		if (trainFilePath == null || outputFilePath == null)
+		{
+			usage();
+			System.exit(0);
+		}
+
 		try
 		{
 			long start = System.currentTimeMillis();
 			System.out.println("开始提取初始文法");
 			Grammar g = GrammarExtractorTool.generateInitialGrammar(false, Lexicon.DEFAULT_RAREWORD_THRESHOLD,
-					"C:\\Users\\hp\\Desktop\\testTree.txt");
+					trainFilePath, encoding);
 			g.split();
-			GrammarWriter.writerToFile(g, "C:\\Users\\hp\\Desktop\\grammartest");
+			GrammarWriter.writerToFile(g, outputFilePath);
 			System.out.println("提取初始文法完毕");
 			long end = System.currentTimeMillis();
 			long time = end - start;
@@ -165,4 +187,9 @@ public class GrammarExtractorTool
 		}
 	}
 
+	private static void usage()
+	{
+		System.out.println(GrammarExtractorTool.class.getName() + "\n"
+				+ " -train <trainFile> -out <outFile> [-encoing <encoding>] [-em <emIterations>]");
+	}
 }
