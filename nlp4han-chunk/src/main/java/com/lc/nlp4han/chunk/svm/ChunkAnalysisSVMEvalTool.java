@@ -30,7 +30,7 @@ public class ChunkAnalysisSVMEvalTool
 			+"-data training_set_file : set training set file path\n"
 			+"-encoding encoding : set encoding form\n"
 			+"-model model_file : set model path\n"
-			+"-transform transformation_file : set transformation file, end with '.dfc' "
+			+"-transform transformation_file : set transformation file, end with '.info' "
 			;
 	
 	public static void eval(String modelFile, String goldFile, String path, String encoding, File errorFile,

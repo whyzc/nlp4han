@@ -7,6 +7,7 @@ import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.chunk.Chunk;
 import com.lc.nlp4han.chunk.ChunkAnalysisContextGenerator;
 import com.lc.nlp4han.chunk.Chunker;
+import com.lc.nlp4han.chunk.svm.libsvm.svm;
 import com.lc.nlp4han.chunk.svm.libsvm.svm_model;
 import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosSample;
 import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosSampleEvent;
@@ -58,6 +59,18 @@ public class ChunkAnalysisSVMME implements Chunker
 	public void setModel(svm_model model)
 	{
 		this.model = model;
+	}
+	
+	public void setModel(String modelPath)
+	{
+		try
+		{
+			this.model = svm.svm_load_model(modelPath);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -142,16 +155,15 @@ public class ChunkAnalysisSVMME implements Chunker
 		return Integer.valueOf(str.trim().split("\\.")[0]);
 	}
 	
-	public svm_model train(ObjectStream<AbstractChunkAnalysisSample> sampleStream, String[] arg,
+	public void train(ObjectStream<AbstractChunkAnalysisSample> sampleStream, String[] arg,
 			ChunkAnalysisContextGenerator contextGen) throws IOException
 	{
 		ObjectStream<Event> es = new ChunkAnalysisWordPosSampleEvent(sampleStream, contextGen);
 		init(es);
 		es.reset();
 		String[] input = SVMStandardInput.standardInput(es, ssi);
-		SVMTrain t = new SVMTrain();
-		svm_model m = t.run(arg, input, false, null);
-		return m;
+		SVMStandardInput.writeToFile(arg[arg.length-2], input, "utf-8");
+		svm_train.main(arg);
 	}
 	
 	private void init(ObjectStream<Event> es)

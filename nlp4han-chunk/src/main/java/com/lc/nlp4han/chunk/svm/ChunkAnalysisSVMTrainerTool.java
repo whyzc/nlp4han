@@ -8,8 +8,6 @@ import java.util.Map;
 
 public class ChunkAnalysisSVMTrainerTool
 {
-	
-	
 	public static final String USAGE = "Usage: ChunkAnalysisSVMTrainerTool [options] -data training_set_file\n" 
 			+"options:\n"
 			+"-encoding encoding : set encoding" 
@@ -37,7 +35,6 @@ public class ChunkAnalysisSVMTrainerTool
 			+"-h shrinking : whether to use the shrinking heuristics, 0 or 1 (default 1)\n"
 			+"-b probability_estimates : whether to train a SVC or SVR model for probability estimates, 0 or 1 (default 0)\n"
 			+"-wi weight : set the parameter C of class i to weight*C, for C-SVC (default 1)\n"
-			+"-v n : n-fold cross validation mode\n"
 			+"-q : quiet mode (no outputs)\n";
 	
 	
@@ -58,7 +55,6 @@ public class ChunkAnalysisSVMTrainerTool
 		
 		String[] trainArgs = as.get("train");
 		
-		//trainArgs = addWeight(trainArgs, SVMStandardInput.getNumberOfClassification());
 		svm_train.main(trainArgs);
 
 		long endTime = System.currentTimeMillis();
@@ -188,93 +184,16 @@ public class ChunkAnalysisSVMTrainerTool
 			}
 		}
 		
+		String filePath = dataPath+".svm";	
+		standardInputArgs.add("-save");
+		standardInputArgs.add(filePath);
+		trainArgs.add(filePath);
 		
-		trainArgs.add(dataPath+".svm");
 		if (modelPath != null)
 			trainArgs.add(modelPath);
 		result.put("input", standardInputArgs.toArray(new String[standardInputArgs.size()]));
 		result.put("train", trainArgs.toArray(new String[trainArgs.size()]));
 		return result;
-	}
-
-	private static String[] addWeight(String[] trainArgs, List<Integer> numbers)
-	{
-		int index = -1;
-		int min = numbers.get(0);
-		int max = min;
-		List<String> result = new ArrayList<String>();
-		double c = 0;
-		
-		for (int i=0 ; i<trainArgs.length ; i++)
-		{
-			if (trainArgs[i].equals("-c"))
-				c = atof(trainArgs[i+1]);
-		}
-		
-		for (int i=trainArgs.length-1 ; i>0 ; i--)
-		{
-			if (trainArgs[i].startsWith("-"))
-			{
-				index = i+1;
-				break;
-			}
-		}
-		
-		for (int i=0 ; i<=index ; i++)
-		{
-			result.add(trainArgs[i]);
-		}
-		
-		for (Integer n : numbers)
-		{
-			if (n < min)
-				min = n;
-			if (n > max)
-				max = n;
-		}
-		
-		if (index > -1)
-		{
-			double d;
-			for (int j= 0 ; j<numbers.size() ; j++)
-			{
-				if ( (d = calculation(numbers.get(j), min, max, c)) < 1)  
-				{
-					result.add("-w" + (j+1));
-					result.add(String.format("%.5f", d));
-				}
-				
-			}
-		}
-		
-		for (int i=index+1 ; i<trainArgs.length ; i++)
-		{
-			result.add(trainArgs[i]);
-		}
-		
-		return result.toArray(new String[result.size()]);
-	}
-
-	//y = 1- (c-1)*(x-min)/[c*(max-min)]
-	private static double calculation(int x, int min, int max, double c)
-	{
-		double p = 1.0*max/min*0.1;		// c/p 为最小惩罚项
-		//double p = 100;		// c/p 为最小惩罚项
-		double result = 0;
-		//result = 1 - 1.0*(p-1)*(Math.sqrt(x)-Math.sqrt(min))/(p)/(Math.sqrt(max) - Math.sqrt(min));
-		result = 1.0 - (p-1)*(x-min)/(p)/(max - min);
-		return result;
-	}
-	
-	private static double atof(String s)
-	{
-		double d = Double.valueOf(s).doubleValue();
-		if (Double.isNaN(d) || Double.isInfinite(d))
-		{
-			System.err.print("NaN or Infinity in input\n");
-			System.exit(1);
-		}
-		return(d);
 	}
 	
 }
