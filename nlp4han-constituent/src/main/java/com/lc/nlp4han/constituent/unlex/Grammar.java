@@ -1,52 +1,62 @@
 package com.lc.nlp4han.constituent.unlex;
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.math.BigDecimal;
+//import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.Random;
+
+import com.lc.nlp4han.constituent.pcfg.PCFG;
+import com.lc.nlp4han.constituent.pcfg.PRule;
 
 /**
  * 表示由树库得到的语法
+ * 
  * @author 王宁
- *  
+ * 
  */
 public class Grammar
 {
 	public static int iterations = 50;
-
-	protected List<Tree<Annotation>> treeBank;
+	public static int countsssss = 0;
+	protected List<AnnotationTreeNode> treeBank;
 
 	protected HashSet<BinaryRule> bRules;
 	protected HashSet<UnaryRule> uRules;
 	protected Lexicon lexicon;// 包含preRules
 
-	// 相同父节点的规则放在一个map中,拟删除
-	protected HashMap<Short, HashMap<PreterminalRule, LinkedList<Double>>> preRuleBySameHeadWithScore;
-	protected HashMap<Short, HashMap<BinaryRule, LinkedList<LinkedList<LinkedList<Double>>>>> bRuleBySameHeadWithScore;
-	protected HashMap<Short, HashMap<UnaryRule, LinkedList<LinkedList<Double>>>> uRuleBySameHeadWithScore;
+	// 添加相同孩子为key的map
+	protected HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>> preRuleBySameChildren; // 外层map<childrenHashcode,内map>,内map<ruleHashcode/rule>
+	protected HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>> bRuleBySameChildren;
+	protected HashMap<Short, HashMap<UnaryRule, UnaryRule>> uRuleBySameChildren;
 	// 相同父节点的规则放在一个map中
-	protected HashMap<Short, HashMap<Integer, PreterminalRule>> preRuleBySameHead; // <hashcode/rule>
-	protected HashMap<Short, HashMap<Integer, BinaryRule>> bRuleBySameHead;
-	protected HashMap<Short, HashMap<Integer, UnaryRule>> uRuleBySameHead;
+	protected HashMap<Short, HashMap<PreterminalRule, PreterminalRule>> preRuleBySameHead; // 内map<ruleHashcode/rule>
+	protected HashMap<Short, HashMap<BinaryRule, BinaryRule>> bRuleBySameHead;
+	protected HashMap<Short, HashMap<UnaryRule, UnaryRule>> uRuleBySameHead;
 
 	protected NonterminalTable nonterminalTable;
 
-	public Grammar(List<Tree<Annotation>> treeBank, HashSet<BinaryRule> bRules, HashSet<UnaryRule> uRules,
+	public static Random random = new Random(0);
+
+	public Grammar(List<AnnotationTreeNode> treeBank, HashSet<BinaryRule> bRules, HashSet<UnaryRule> uRules,
 			Lexicon lexicon, NonterminalTable nonterminalTable)
 	{
 		this.treeBank = treeBank;
 		this.bRules = bRules;
 		this.uRules = uRules;
 		this.lexicon = lexicon;
+		this.bRuleBySameChildren = new HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>>();
+		this.uRuleBySameChildren = new HashMap<Short, HashMap<UnaryRule, UnaryRule>>();
+		this.preRuleBySameChildren = new HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>>();
+		this.bRuleBySameHead = new HashMap<Short, HashMap<BinaryRule, BinaryRule>>();
+		this.uRuleBySameHead = new HashMap<Short, HashMap<UnaryRule, UnaryRule>>();
+		this.preRuleBySameHead = new HashMap<Short, HashMap<PreterminalRule, PreterminalRule>>();
 		this.nonterminalTable = nonterminalTable;
+		init();
+		grammarExam();
 	}
 
 	public void split()
@@ -58,7 +68,6 @@ public class Grammar
 	public void merger()
 	{
 		// assume a nonterminal without split
-
 	}
 
 	/**
@@ -68,27 +77,33 @@ public class Grammar
 	{
 		for (int i = 0; i < iterations; i++)
 		{
-			for (Tree<Annotation> tree : treeBank)
+			int count = 0;
+			for (AnnotationTreeNode tree : treeBank)
 			{
+				count++;
+				System.out.println("计算第" + count + "颗树的内外向概率。");
 				calculateInnerScore(tree);
 				calculateOuterScore(tree);
-				refreshRuleCountExpectation(tree);
-				TreeUtil.forgetScore(tree);
+				refreshRuleCountExpectation(tree, tree);
+				tree.forgetIOScore();
 			}
 			refreshRuleScore();
-
+			if (i != iterations - 1)
+			{
+				forgetRuleCountExpectation();
+			}
+			System.out.println("第" + (i + 1) + "次EM结束");
 		}
-		// forAllRule -> forgetRuleCountExpectation();
 	}
 
 	// 计算树上所有节点的所有隐藏节点的内向概率
-	public void calculateInnerScore(Tree<Annotation> tree)
+	public void calculateInnerScore(AnnotationTreeNode tree)
 	{
 		if (tree.isLeaf())
 		{
 			return;
 		}
-		for (Tree<Annotation> child : tree.getChildren())
+		for (AnnotationTreeNode child : tree.getChildren())
 		{
 			calculateInnerScore(child);
 		}
@@ -99,11 +114,19 @@ public class Grammar
 					tree.getChildren().get(0).getLabel().getWord());
 			if (lexicon.getPreRules().contains(tempPreRule))
 			{
-				// double[] arr = Arrays.stream(new
-				// Double[10]).mapToDouble(Double::valueOf).toArray();
 				int length = tree.getLabel().getNumSubSymbol();
-				tree.getLabel().setInnerScores(preRuleBySameHeadWithScore.get(tree.getLabel().getSymbol())
-						.get(tempPreRule).toArray(new Double[length]));
+
+				PreterminalRule realRule = preRuleBySameHead.get(tree.getLabel().getSymbol()).get(tempPreRule);
+				tree.getLabel().setInnerScores(realRule.getScores().toArray(new Double[length]));
+				// for (int i = 0; i < tree.getLabel().getInnerScores().length; i++)
+				// {
+				// System.out.println(nonterminalTable.stringValue(tree.getLabel().getSymbol())
+				// + "["
+				// + tree.getLabel().getSpanFrom() + "," + tree.getLabel().getSpanTo() + "]" +
+				// "innerScore_"
+				// + i + ":" + tree.getLabel().getInnerScores()[i]);
+				// }
+
 			}
 			else
 			{
@@ -119,22 +142,26 @@ public class Grammar
 						tree.getChildren().get(0).getLabel().getSymbol());
 				if (uRules.contains(tempUnaryRule))
 				{
-					LinkedList<LinkedList<Double>> uRuleScores = uRuleBySameHeadWithScore
-							.get(tree.getLabel().getSymbol()).get(tempUnaryRule);
+					LinkedList<LinkedList<Double>> uRuleScores = uRuleBySameHead.get(tree.getLabel().getSymbol())
+							.get(tempUnaryRule).getScores();
 					Double[] innerScores = new Double[tree.getLabel().getNumSubSymbol()];
+					tree.getLabel().setInnerScores(innerScores);
 					for (int i = 0; i < innerScores.length; i++)
 					{
-						BigDecimal innerScores_Ai = BigDecimal.valueOf(0.0);
+						double innerScores_Ai = 0.0;
 						for (int j = 0; j < tree.getChildren().get(0).getLabel().getNumSubSymbol(); j++)
 						{ // 规则A_i -> B_j的概率
-							BigDecimal A_i2B_j = BigDecimal.valueOf(uRuleScores.get(i).get(j));
-							BigDecimal B_jInnerScore = BigDecimal
-									.valueOf(tree.getChildren().get(0).getLabel().getInnerScores()[j]);
-							innerScores_Ai = innerScores_Ai.add(A_i2B_j.multiply(B_jInnerScore));
+							double A_i2B_j = uRuleScores.get(i).get(j);
+							double B_jInnerScore = tree.getChildren().get(0).getLabel().getInnerScores()[j];
+							innerScores_Ai = innerScores_Ai + (A_i2B_j * B_jInnerScore);
 						}
-						innerScores[i] = innerScores_Ai.doubleValue();
+						innerScores[i] = innerScores_Ai;
+						// System.out.println(nonterminalTable.stringValue(tree.getLabel().getSymbol())
+						// + "["
+						// + tree.getLabel().getSpanFrom() + "," + tree.getLabel().getSpanTo() + "]"
+						// + "innerScore_" + i + ":" + tree.getLabel().getInnerScores()[i]);
 					}
-					tree.getLabel().setInnerScores(innerScores);
+					// tree.getLabel().setInnerScores(innerScores);
 				}
 				else
 				{
@@ -147,29 +174,31 @@ public class Grammar
 						tree.getChildren().get(1).getLabel().getSymbol());
 				if (bRules.contains(tempBRule))
 				{
-					LinkedList<LinkedList<LinkedList<Double>>> bRuleScores = bRuleBySameHeadWithScore
-							.get(tree.getLabel().getSymbol()).get(tempBRule);
+					LinkedList<LinkedList<LinkedList<Double>>> bRuleScores = bRuleBySameHead
+							.get(tree.getLabel().getSymbol()).get(tempBRule).getScores();
 					Double[] innerScores = new Double[tree.getLabel().getNumSubSymbol()];
+					tree.getLabel().setInnerScores(innerScores);
 					for (int i = 0; i < innerScores.length; i++)
 					{
-						BigDecimal innerScores_Ai = BigDecimal.valueOf(0.0);
+						double innerScores_Ai = 0.0;
 						for (int j = 0; j < tree.getChildren().get(0).getLabel().getNumSubSymbol(); j++)
 						{
 							for (int k = 0; k < tree.getChildren().get(1).getLabel().getNumSubSymbol(); k++)
 							{
 								// 规则A_i -> B_j C_k的概率
-								BigDecimal A_i2B_jC_k = BigDecimal.valueOf(bRuleScores.get(i).get(j).get(k));
-								BigDecimal B_jInnerScore = BigDecimal
-										.valueOf(tree.getChildren().get(0).getLabel().getInnerScores()[j]);
-								BigDecimal C_kInnerScore = BigDecimal
-										.valueOf(tree.getChildren().get(1).getLabel().getInnerScores()[k]);
-								innerScores_Ai = innerScores_Ai
-										.add(A_i2B_jC_k.multiply(B_jInnerScore).multiply(C_kInnerScore));
+								double A_i2B_jC_k = bRuleScores.get(i).get(j).get(k);
+								double B_jInnerScore = tree.getChildren().get(0).getLabel().getInnerScores()[j];
+								double C_kInnerScore = tree.getChildren().get(1).getLabel().getInnerScores()[k];
+								innerScores_Ai = innerScores_Ai + (A_i2B_jC_k * B_jInnerScore * C_kInnerScore);
 							}
 						}
-						innerScores[i] = innerScores_Ai.doubleValue();
+						innerScores[i] = innerScores_Ai;
+						// System.out.println(nonterminalTable.stringValue(tree.getLabel().getSymbol())
+						// + "["
+						// + tree.getLabel().getSpanFrom() + "," + tree.getLabel().getSpanTo() + "]"
+						// + "innerScore_" + i + ":" + tree.getLabel().getInnerScores()[i]);
 					}
-					tree.getLabel().setInnerScores(innerScores);
+					// tree.getLabel().setInnerScores(innerScores);
 				}
 				else
 				{
@@ -188,14 +217,14 @@ public class Grammar
 	 * 
 	 * @param tree
 	 */
-	public void calculateOuterScore(Tree<Annotation> tree)
+	public void calculateOuterScore(AnnotationTreeNode tree)
 	{
 		if (tree == null)
 			return;
-		calculateOuterScoreHelper(tree, tree, tree.getLabel().getSpanTo() - tree.getLabel().getSpanFrom() - 1);
+		calculateOuterScoreHelper(tree, tree);
 	}
 
-	private void calculateOuterScoreHelper(Tree<Annotation> treeRoot, Tree<Annotation> treeNode, int sentenceLength)
+	private void calculateOuterScoreHelper(AnnotationTreeNode treeRoot, AnnotationTreeNode treeNode)
 	{
 
 		if (treeNode == null)
@@ -203,16 +232,15 @@ public class Grammar
 		if (treeNode.isLeaf())
 			return;
 		// 计算根节点的外向概率
-		// calculateOuterScoreHelper(tree,tree.getLabel().getSpanTo() - 1);
-		if (treeNode.getLabel().getSpanFrom() == 0 && treeNode.getLabel().getSpanTo() == sentenceLength + 1)
+		if (treeNode == treeRoot)
 		{
 			Double[] array = new Double[treeNode.getLabel().getNumSubSymbol()];
-			Arrays.fill(array, 1);
+			Arrays.fill(array, 1.0);
 			treeNode.getLabel().setOuterScores(array);
 		}
 		else
 		{
-			Tree<Annotation> parent = treeNode.getParent(treeRoot);
+			AnnotationTreeNode parent = treeNode.getParent();
 			switch (parent.getChildren().size())
 			{
 			case 1:
@@ -220,19 +248,24 @@ public class Grammar
 						treeNode.getLabel().getSymbol());
 				if (uRules.contains(tempUnaryRule))
 				{
-					LinkedList<LinkedList<Double>> uRuleScores = uRuleBySameHeadWithScore
-							.get(parent.getLabel().getSymbol()).get(tempUnaryRule);
+					LinkedList<LinkedList<Double>> uRuleScores = uRuleBySameHead.get(parent.getLabel().getSymbol())
+							.get(tempUnaryRule).getScores();
 					Double[] outerScores = new Double[treeNode.getLabel().getNumSubSymbol()];
 					for (int j = 0; j < outerScores.length; j++)
 					{
-						BigDecimal outerScores_Bj = BigDecimal.valueOf(0.0);
-						for (int i = 0; i < parent.getChildren().size(); i++)
+						double outerScores_Bj = 0.0;
+						for (int i = 0; i < parent.getLabel().getNumSubSymbol(); i++)
 						{
-							BigDecimal A_i2B_j = BigDecimal.valueOf(uRuleScores.get(i).get(j));
-							BigDecimal A_iOuterScore = BigDecimal.valueOf(parent.getLabel().getOuterScores()[i]);
-							outerScores_Bj = outerScores_Bj.add(A_i2B_j.multiply(A_iOuterScore));
+							double A_i2B_j = uRuleScores.get(i).get(j);
+							double A_iOuterScore = parent.getLabel().getOuterScores()[i];
+							outerScores_Bj = outerScores_Bj + (A_i2B_j * A_iOuterScore);
 						}
-						outerScores[j] = outerScores_Bj.doubleValue();
+						outerScores[j] = outerScores_Bj;
+						// System.out.println(nonterminalTable.stringValue(treeNode.getLabel().getSymbol())
+						// + "["
+						// + treeNode.getLabel().getSpanFrom() + "," + treeNode.getLabel().getSpanTo() +
+						// "]"
+						// + "outerScore_" + j + ":" + outerScores_Bj);
 					}
 					treeNode.getLabel().setOuterScores(outerScores);
 				}
@@ -261,36 +294,39 @@ public class Grammar
 
 				if (bRules.contains(tempBRule))
 				{
-					LinkedList<LinkedList<LinkedList<Double>>> bRuleScores = bRuleBySameHeadWithScore
-							.get(parent.getLabel().getSymbol()).get(tempBRule);
+					LinkedList<LinkedList<LinkedList<Double>>> bRuleScores = bRuleBySameHead
+							.get(parent.getLabel().getSymbol()).get(tempBRule).getScores();
 					Double[] outerScores = new Double[treeNode.getLabel().getNumSubSymbol()];
 					for (int i = 0; i < outerScores.length; i++)
 					{
-						BigDecimal outerScoreB_i = BigDecimal.valueOf(0.0);
+						double outerScoreB_i = 0.0;
 						for (int j = 0; j < parent.getLabel().getNumSubSymbol(); j++)
 						{
-							BigDecimal A_jOuterscore = BigDecimal.valueOf(parent.getLabel().getOuterScores()[j]);
+							double A_jOuterscore = parent.getLabel().getOuterScores()[j];
 							for (int k = 0; k < siblingNode_InScore.length; k++)
 							{
-								BigDecimal C_kInnerScore = BigDecimal.valueOf(siblingNode_InScore[k]);
+								double C_kInnerScore = siblingNode_InScore[k];
 								if (parent.getChildren().get(0) == treeNode)
 								{
 
-									BigDecimal A_j2B_iC_k = BigDecimal.valueOf(bRuleScores.get(j).get(i).get(k));
-									outerScoreB_i = outerScoreB_i
-											.add(A_j2B_iC_k.multiply(A_jOuterscore).multiply(C_kInnerScore));
+									double A_j2B_iC_k = bRuleScores.get(j).get(i).get(k);
+									outerScoreB_i = outerScoreB_i + (A_j2B_iC_k * A_jOuterscore * C_kInnerScore);
 
 								}
 								else
 								{
-									BigDecimal A_j2C_kB_i = BigDecimal.valueOf(bRuleScores.get(j).get(k).get(i));
-									outerScoreB_i = outerScoreB_i
-											.add(A_j2C_kB_i.multiply(A_jOuterscore).multiply(C_kInnerScore));
+									double A_j2C_kB_i = bRuleScores.get(j).get(k).get(i);
+									outerScoreB_i = outerScoreB_i + (A_j2C_kB_i * A_jOuterscore * C_kInnerScore);
 								}
 
 							}
 						}
-						outerScores[i] = outerScoreB_i.doubleValue();
+						// System.out.println(nonterminalTable.stringValue(treeNode.getLabel().getSymbol())
+						// + "["
+						// + treeNode.getLabel().getSpanFrom() + "," + treeNode.getLabel().getSpanTo() +
+						// "]"
+						// + "outerScore_" + i + ":" + outerScoreB_i);
+						outerScores[i] = outerScoreB_i;
 					}
 					treeNode.getLabel().setOuterScores(outerScores);
 				}
@@ -304,15 +340,16 @@ public class Grammar
 				throw new Error("error tree:more than two children.");
 			}
 		}
-		for (Tree<Annotation> childNode : treeNode.getChildren())
+		for (AnnotationTreeNode childNode : treeNode.getChildren())
 		{
-			calculateOuterScoreHelper(treeRoot, childNode, sentenceLength);
+			calculateOuterScoreHelper(treeRoot, childNode);
 		}
 
 	}
 
-	public void refreshRuleCountExpectation(Tree<Annotation> tree)
+	public void refreshRuleCountExpectation(AnnotationTreeNode root, AnnotationTreeNode tree)
 	{
+
 		if (tree.getChildren().size() == 0 || tree == null)
 			return;
 		Rule rule = null;
@@ -321,38 +358,76 @@ public class Grammar
 			rule = new BinaryRule(tree.getLabel().getSymbol(), tree.getChildren().get(0).getLabel().getSymbol(),
 					tree.getChildren().get(1).getLabel().getSymbol());
 			LinkedList<LinkedList<LinkedList<Double>>> scores = bRuleBySameHead.get(tree.getLabel().getSymbol())
-					.get(rule.hashCode()).getScores();
-			double[][][] count = bRuleBySameHead.get(tree.getLabel().getSymbol()).get(rule.hashCode())
-					.getCountExpectation();
+					.get(rule).getScores();
+			double[][][] count = bRuleBySameHead.get(tree.getLabel().getSymbol()).get(rule).getCountExpectation();
 			if (count == null)
 			{
 				count = new double[tree.getLabel().getNumSubSymbol()][tree.getChildren().get(0).getLabel()
 						.getNumSubSymbol()][tree.getChildren().get(1).getLabel().getNumSubSymbol()];
 			}
+
 			for (int i = 0; i < tree.getLabel().getNumSubSymbol(); i++)
 			{
 				for (int j = 0; j < tree.getChildren().get(0).getLabel().getNumSubSymbol(); j++)
 				{
 					for (int k = 0; k < tree.getChildren().get(1).getLabel().getNumSubSymbol(); k++)
 					{
-						count[i][j][k] = BigDecimal.valueOf(count[i][j][k]).add(BigDecimal
-								.valueOf(tree.getLabel().getOuterScores()[i])
-								.multiply(BigDecimal.valueOf(scores.get(i).get(j).get(k)))
-								.multiply(BigDecimal.valueOf(tree.getChildren().get(0).getLabel().getInnerScores()[j]))
-								.multiply(BigDecimal.valueOf(tree.getChildren().get(1).getLabel().getInnerScores()[k])))
-								.doubleValue();
+						count[i][j][k] = count[i][j][k] + (tree.getLabel().getOuterScores()[i]
+								* scores.get(i).get(j).get(k) * tree.getChildren().get(0).getLabel().getInnerScores()[j]
+								* tree.getChildren().get(1).getLabel().getInnerScores()[k]
+								/ root.getLabel().getInnerScores()[0]);
+						// if (nonterminalTable.stringValue(rule.parent).equals("@PP")
+						// &&
+						// nonterminalTable.stringValue(tree.getChildren().get(0).getLabel().getSymbol())
+						// .equals("PP")
+						// &&
+						// nonterminalTable.stringValue(tree.getChildren().get(1).getLabel().getSymbol())
+						// .equals("CC"))
+						// {
+						// System.err.println(nonterminalTable.stringValue(rule.parent) + i + "->"
+						// +
+						// nonterminalTable.stringValue(tree.getChildren().get(0).getLabel().getSymbol())
+						// + j
+						// + " "
+						// +
+						// nonterminalTable.stringValue(tree.getChildren().get(1).getLabel().getSymbol())
+						// + k
+						// + "的期望：" + count[i][j][k]);
+						// }
+
 					}
 				}
 			}
-			bRuleBySameHead.get(tree.getLabel().getSymbol()).get(rule.hashCode()).setCountExpectation(count);
+
+			bRuleBySameHead.get(tree.getLabel().getSymbol()).get(rule).setCountExpectation(count);
+			// if (nonterminalTable.stringValue(rule.parent).equals("@PP")
+			// &&
+			// nonterminalTable.stringValue(tree.getChildren().get(0).getLabel().getSymbol()).equals("PP")
+			// &&
+			// nonterminalTable.stringValue(tree.getChildren().get(1).getLabel().getSymbol()).equals("CC"))
+			// {
+			// for (BinaryRule bRule : bRules)
+			// {
+			// if (bRule.hashCode() == rule.hashCode())
+			// {
+			// System.err.println(bRule ==
+			// bRuleBySameHead.get(tree.getLabel().getSymbol()).get(rule));
+			// for (double[][] arr : bRule.getCountExpectation())
+			// for (double[] arr1 : arr)
+			// for (double thecount : arr1)
+			// {
+			// System.err.println(thecount);
+			// }
+			// }
+			// }
+			// }
 		}
 		else if (tree.getChildren().size() == 1 && tree.getChildren().get(0).getLabel().getWord() == null)
 		{
 			rule = new UnaryRule(tree.getLabel().getSymbol(), tree.getChildren().get(0).getLabel().getSymbol());
-			LinkedList<LinkedList<Double>> scores = uRuleBySameHead.get(tree.getLabel().getSymbol())
-					.get(rule.hashCode()).getScores();
-			double[][] count = uRuleBySameHead.get(tree.getLabel().getSymbol()).get(rule.hashCode())
-					.getCountExpectation();
+			LinkedList<LinkedList<Double>> scores = uRuleBySameHead.get(tree.getLabel().getSymbol()).get(rule)
+					.getScores();
+			double[][] count = uRuleBySameHead.get(tree.getLabel().getSymbol()).get(rule).getCountExpectation();
 			if (count == null)
 			{
 				count = new double[tree.getLabel().getNumSubSymbol()][tree.getChildren().get(0).getLabel()
@@ -362,59 +437,71 @@ public class Grammar
 			{
 				for (int j = 0; j < tree.getChildren().get(0).getLabel().getNumSubSymbol(); j++)
 				{
-
-					count[i][j] = BigDecimal.valueOf(count[i][j])
-							.add(BigDecimal.valueOf(tree.getLabel().getOuterScores()[i])
-									.multiply(BigDecimal.valueOf(scores.get(i).get(j)))
-									.multiply(BigDecimal
-											.valueOf(tree.getChildren().get(0).getLabel().getInnerScores()[j])))
-							.doubleValue();
+					// countsssss++;
+					// System.out.println("count :" + countsssss +
+					// root.getLabel().getInnerScores()[0]);
+					count[i][j] = count[i][j] + (tree.getLabel().getOuterScores()[i] * scores.get(i).get(j)
+							* tree.getChildren().get(0).getLabel().getInnerScores()[j]
+							/ root.getLabel().getInnerScores()[0]);
 				}
 			}
-			uRuleBySameHead.get(tree.getLabel().getSymbol()).get(rule.hashCode()).setCountExpectation(count);
+			uRuleBySameHead.get(tree.getLabel().getSymbol()).get(rule).setCountExpectation(count);
 		}
-		else if (tree.getChildren().size() == 1 && tree.getChildren().get(0).getLabel().getWord() != null)
+		else if (tree.isPreterminal())
 		{
 			rule = new PreterminalRule(tree.getLabel().getSymbol(), tree.getChildren().get(0).getLabel().getWord());
-			LinkedList<Double> scores = preRuleBySameHead.get(rule.getParent()).get(rule.hashCode()).getScores();
-			double[] count = preRuleBySameHead.get(rule.getParent()).get(rule.hashCode()).getCountExpectation();
+			LinkedList<Double> scores = preRuleBySameHead.get(rule.getParent()).get(rule).getScores();
+			double[] count = preRuleBySameHead.get(rule.getParent()).get(rule).getCountExpectation();
 			if (count == null)
 			{
 				count = new double[tree.getLabel().getNumSubSymbol()];
 			}
 			for (int i = 0; i < tree.getLabel().getNumSubSymbol(); i++)
 			{
-				count[i] = BigDecimal.valueOf(count[i]).add(BigDecimal.valueOf(tree.getLabel().getOuterScores()[i])
-						.multiply(BigDecimal.valueOf(scores.get(i)))).doubleValue();
+				count[i] = count[i]
+						+ (tree.getLabel().getOuterScores()[i] * scores.get(i) / root.getLabel().getInnerScores()[0]);
+
 			}
+			preRuleBySameHead.get(tree.getLabel().getSymbol()).get(rule).setCountExpectation(count);
 		}
 		else if (tree.getChildren().size() > 2)
 			throw new Error("error tree:more than 2 children.");
 
-		for (Tree<Annotation> child : tree.getChildren())
+		for (AnnotationTreeNode child : tree.getChildren())
 		{
-			refreshRuleCountExpectation(child);
+			refreshRuleCountExpectation(root, child);
 		}
 	}
 
 	public void refreshRuleScore()
 	{
 		// 使用规则数量的期望的比作为新的规则概率
-		HashMap<Integer, HashMap<Integer, BigDecimal>> sameParentRulesCount = new HashMap<>();// <parent,<ParentSubIndex,denominator>>
+		HashMap<Short, Double[]> sameParentRulesCount = new HashMap<>();// <parent,<ParentSubIndex,denominator>>
+		// int count = 0;
 		for (BinaryRule bRule : bRules)
 		{
+			// count++;
+			// System.out.println(count);
+			// for (String str : bRule.toStringRules())
+			// System.out.println(str);
+			// System.out.println(sameParentRulesCount.containsKey(bRule.parent));
+			if (sameParentRulesCount.containsKey(bRule.parent))
+			{
+				for (Double score : sameParentRulesCount.get(bRule.parent))
+					System.out.println(score);
+			}
 
+			bRule.getCountExpectation();
 			int pNumSub = bRule.getCountExpectation().length;
 			int lCNumSub = bRule.getCountExpectation()[0].length;
 			int rCNumSub = bRule.getCountExpectation()[0][0].length;
 
 			for (int i = 0; i < pNumSub; i++)
 			{
-				BigDecimal denominator;
-				if (sameParentRulesCount.containsKey((int) bRule.parent)
-						&& sameParentRulesCount.get((int) bRule.parent).containsKey(i))
+				double denominator;
+				if (sameParentRulesCount.containsKey(bRule.parent) && sameParentRulesCount.get(bRule.parent)[i] != null)
 				{
-					denominator = sameParentRulesCount.get((int) bRule.parent).get(i);
+					denominator = sameParentRulesCount.get(bRule.parent)[i];
 				}
 				else
 				{
@@ -424,8 +511,7 @@ public class Grammar
 				{
 					for (int k = 0; k < rCNumSub; k++)
 					{
-						bRule.getScores().get(i).get(j).set(k, BigDecimal.valueOf(bRule.getCountExpectation()[i][j][k])
-								.divide(denominator, 15, BigDecimal.ROUND_HALF_UP).doubleValue());
+						bRule.getScores().get(i).get(j).set(k, bRule.getCountExpectation()[i][j][k] / denominator);
 					}
 				}
 			}
@@ -438,11 +524,10 @@ public class Grammar
 			int cNumSub = uRule.getCountExpectation()[0].length;
 			for (int i = 0; i < pNumSub; i++)
 			{
-				BigDecimal denominator;
-				if (sameParentRulesCount.containsKey((int) uRule.parent)
-						&& sameParentRulesCount.get((int) uRule.parent).containsKey(i))
+				double denominator;
+				if (sameParentRulesCount.containsKey(uRule.parent) && sameParentRulesCount.get(uRule.parent)[i] != null)
 				{
-					denominator = sameParentRulesCount.get((int) uRule.parent).get(i);
+					denominator = sameParentRulesCount.get(uRule.parent)[i];
 				}
 				else
 				{
@@ -451,8 +536,7 @@ public class Grammar
 				for (int j = 0; j < cNumSub; j++)
 				{
 
-					uRule.getScores().get(i).set(j, BigDecimal.valueOf(uRule.getCountExpectation()[i][j])
-							.divide(denominator, 15, BigDecimal.ROUND_HALF_UP).doubleValue());
+					uRule.getScores().get(i).set(j, uRule.getCountExpectation()[i][j] / denominator);
 
 				}
 			}
@@ -460,31 +544,82 @@ public class Grammar
 
 		for (PreterminalRule preRule : lexicon.getPreRules())
 		{
+			preRule.getCountExpectation();
 			int pNumSub = preRule.getCountExpectation().length;
 			for (int i = 0; i < pNumSub; i++)
 			{
-				BigDecimal denominator;
-				if (sameParentRulesCount.containsKey((int) preRule.parent)
-						&& sameParentRulesCount.get((int) preRule.parent).containsKey(i))
+				double denominator;
+				if (sameParentRulesCount.containsKey(preRule.parent)
+						&& sameParentRulesCount.get(preRule.parent)[i] != null)
 				{
-					denominator = sameParentRulesCount.get((int) preRule.parent).get(i);
+					denominator = sameParentRulesCount.get(preRule.parent)[i];
 				}
 				else
 				{
 					denominator = calculateSameParentRuleCount(sameParentRulesCount, preRule.parent, i);
 				}
 
-				preRule.getScores().set(i, BigDecimal.valueOf(preRule.getCountExpectation()[i])
-						.divide(denominator, 15, BigDecimal.ROUND_HALF_UP).doubleValue());
+				preRule.getScores().set(i, preRule.getCountExpectation()[i] / denominator);
 
 			}
 		}
 	}
-	//TODO:
-	public BigDecimal calculateSameParentRuleCount(HashMap<Integer, HashMap<Integer, BigDecimal>> sameParentRulesCount,
-			int parent, int pSubSymbolIndex)
+
+	/*
+	 * 如果表格中(parent,pSubsymbolIndex)位置没有数值表示该值该没有计算，否则直接从表格中取值
+	 */
+	public Double calculateSameParentRuleCount(HashMap<Short, Double[]> sameParentRulesCount, int parent,
+			int pSubSymbolIndex)
 	{
-		return null;
+		if (!sameParentRulesCount.containsKey((short) parent)
+				|| sameParentRulesCount.get((short) parent)[pSubSymbolIndex] == null)
+		{
+			double ruleCount = 0.0;
+			if (bRuleBySameHead.containsKey((short) parent))
+				for (Map.Entry<BinaryRule, BinaryRule> entry : bRuleBySameHead.get((short) parent).entrySet())
+				{
+					double[][][] count = entry.getValue().getCountExpectation();
+					for (int i = 0; i < count[pSubSymbolIndex].length; i++)
+					{
+						for (int j = 0; j < count[pSubSymbolIndex][i].length; j++)
+						{
+							ruleCount = ruleCount + count[pSubSymbolIndex][i][j];
+						}
+					}
+				}
+			if (uRuleBySameHead.containsKey((short) parent))
+				for (Map.Entry<UnaryRule, UnaryRule> entry : uRuleBySameHead.get((short) parent).entrySet())
+				{
+					double[][] count = entry.getValue().getCountExpectation();
+					for (int i = 0; i < count[pSubSymbolIndex].length; i++)
+					{
+						ruleCount = ruleCount + count[pSubSymbolIndex][i];
+					}
+				}
+			if (preRuleBySameHead.containsKey((short) parent))
+				for (Map.Entry<PreterminalRule, PreterminalRule> entry : preRuleBySameHead.get((short) parent)
+						.entrySet())
+				{
+					double[] count = entry.getValue().getCountExpectation();
+					ruleCount = ruleCount + count[pSubSymbolIndex];
+				}
+			if (sameParentRulesCount.containsKey((short) parent))
+			{
+				sameParentRulesCount.get((short) parent)[pSubSymbolIndex] = ruleCount;
+			}
+			else
+			{
+				Double[] countArr = new Double[nonterminalTable.getNumSubsymbolArr().get(parent)];
+				countArr[pSubSymbolIndex] = ruleCount;
+				sameParentRulesCount.put((short) parent, countArr);
+			}
+
+			return ruleCount;
+		}
+		else
+		{
+			return sameParentRulesCount.get((short) parent)[pSubSymbolIndex];
+		}
 	}
 
 	public double calculateLikelihood()
@@ -508,50 +643,173 @@ public class Grammar
 		}
 	}
 
-	public void writeGrammarToTxt() throws IOException
+	/**
+	 * 返回CFG，其中规则包含一元规则、二元规则
+	 * 
+	 * @return
+	 */
+	public PCFG getPCFG()
 	{
-		TreeMap<String, Double> allBAndURules = new TreeMap<String, Double>();
-		TreeMap<String, Double> allPreRules = new TreeMap<String, Double>();
-		for (BinaryRule bRule : bRules)
-		{
-			String parentStr = nonterminalTable.stringValue(bRule.parent);
-			String leftChildStr = nonterminalTable.stringValue(bRule.getLeftChild());
-			String rightChildStr = nonterminalTable.stringValue(bRule.getRightChild());
-			Double score = bRule.scores.get(0).get(0).get(0);
-			allBAndURules.put(parentStr + " ->" + leftChildStr + " " + rightChildStr, score);
-		}
+		PCFG pcfg = new PCFG();
 		for (UnaryRule uRule : uRules)
 		{
-			String parentStr = nonterminalTable.stringValue(uRule.parent);
-			String childStr = nonterminalTable.stringValue(uRule.getChild());
-			Double score = uRule.scores.get(0).get(0);
-			allBAndURules.put(parentStr + " ->" + childStr, score);
+			PRule pRule = new PRule(uRule.getScores().get(0).get(0), nonterminalTable.stringValue(uRule.parent),
+					nonterminalTable.stringValue(uRule.getChild()));
+			pcfg.add(pRule);
+		}
+		for (BinaryRule bRule : bRules)
+		{
+			PRule pRule = new PRule(bRule.getScores().get(0).get(0).get(0), nonterminalTable.stringValue(bRule.parent),
+					nonterminalTable.stringValue(bRule.getLeftChild()),
+					nonterminalTable.stringValue(bRule.getRightChild()));
+			pcfg.add(pRule);
 		}
 		for (PreterminalRule preRule : lexicon.getPreRules())
 		{
-			String parentStr = nonterminalTable.stringValue(preRule.parent);
-			String childStr = preRule.word;
-			Double score = preRule.scores.get(0);
-			allPreRules.put(parentStr + " ->" + childStr, score);
+			PRule pRule = new PRule(preRule.getScores().get(0), nonterminalTable.stringValue(preRule.getParent()),
+					preRule.getWord());
+			pcfg.add(pRule);
+		}
+		pcfg.setStartSymbol("ROOT");
+		return pcfg;
+	}
+
+	public void init()
+	{
+		for (BinaryRule bRule : bRules)
+		{
+
+			if (!bRuleBySameHead.containsKey(bRule.parent))
+			{
+				bRuleBySameHead.put(bRule.parent, new HashMap<BinaryRule, BinaryRule>());
+			}
+			bRuleBySameHead.get(bRule.parent).put(bRule, bRule);
+
+			if (!bRuleBySameChildren.containsKey(bRule.getLeftChild()))
+			{
+
+				bRuleBySameChildren.put(bRule.getLeftChild(), new HashMap<Short, HashMap<BinaryRule, BinaryRule>>());
+			}
+			if (!bRuleBySameChildren.get(bRule.getLeftChild()).containsKey(bRule.getRightChild()))
+			{
+				bRuleBySameChildren.get(bRule.getLeftChild()).put(bRule.getRightChild(),
+						new HashMap<BinaryRule, BinaryRule>());
+			}
+			bRuleBySameChildren.get(bRule.getLeftChild()).get(bRule.getRightChild()).put(bRule, bRule);
 		}
 
-		FileOutputStream fos = new FileOutputStream("C:\\Users\\hp\\Desktop\\grammartest.grammar");
-		OutputStreamWriter osw = new OutputStreamWriter(fos, "gbk");
-		BufferedWriter bAndURuleWriter = new BufferedWriter(osw);
+		for (UnaryRule uRule : uRules)
+		{
+			if (!uRuleBySameHead.containsKey(uRule.parent))
+			{
+				uRuleBySameHead.put(uRule.parent, new HashMap<UnaryRule, UnaryRule>());
+			}
+			uRuleBySameHead.get(uRule.parent).put(uRule, uRule);
 
-		FileOutputStream fos2 = new FileOutputStream("C:\\Users\\hp\\Desktop\\preruletest.grammar");
-		OutputStreamWriter osw2 = new OutputStreamWriter(fos2, "gbk");
-		BufferedWriter preRuleWriter = new BufferedWriter(osw2);
-		for (Map.Entry<String, Double> entry : allBAndURules.entrySet())
-		{
-			bAndURuleWriter.write(entry.getKey() + " " + entry.getValue().toString() + "\r");
+			if (!uRuleBySameChildren.containsKey(uRule.getChild()))
+			{
+				uRuleBySameChildren.put(uRule.getChild(), new HashMap<UnaryRule, UnaryRule>());
+			}
+			uRuleBySameChildren.get(uRule.getChild()).put(uRule, uRule);
 		}
-		for (Map.Entry<String, Double> entry : allPreRules.entrySet())
+
+		for (PreterminalRule preRule : lexicon.getPreRules())
 		{
-			preRuleWriter.write(entry.getKey() + " " + entry.getValue().toString() + "\r");
+			if (!preRuleBySameHead.containsKey(preRule.parent))
+			{
+				preRuleBySameHead.put(preRule.parent, new HashMap<PreterminalRule, PreterminalRule>());
+			}
+			preRuleBySameHead.get(preRule.parent).put(preRule, preRule);
+
+			if (!preRuleBySameChildren.containsKey(lexicon.getDictionary().get(preRule.getWord())))
+			{
+				preRuleBySameChildren.put(lexicon.getDictionary().get(preRule.getWord()),
+						new HashMap<PreterminalRule, PreterminalRule>());
+			}
+			preRuleBySameChildren.get(lexicon.getDictionary().get(preRule.getWord())).put(preRule, preRule);
 		}
-		bAndURuleWriter.close();
-		preRuleWriter.close();
+	}
+
+	public void grammarExam()
+	{
+		int berrcount = 0, uerrcount = 0, perrcount = 0;
+		int berrcount1 = 0, uerrcount1 = 0, perrcount1 = 0;
+		for (BinaryRule bRule : bRules)
+		{
+			if (bRule == bRuleBySameHead.get(bRule.parent).get(bRule))
+			{
+				// System.out.println(true);
+			}
+			else
+			{
+				berrcount++;
+				System.err.println(false + "********************二元规则集bRuleBySameHead" + berrcount);
+			}
+			if (bRule != bRuleBySameChildren.get(bRule.getLeftChild()).get(bRule.getRightChild()).get(bRule))
+			{
+				berrcount1++;
+				System.err.println(false + "********************二元规则集bRuleBySameChildren" + berrcount1);
+			}
+		}
+		for (UnaryRule uRule : uRules)
+		{
+			if (uRule == uRuleBySameHead.get(uRule.parent).get(uRule))
+			{
+				// System.out.println(true);
+			}
+			else
+			{
+				uerrcount++;
+				System.err.println(false + "********************一元规则uRuleBySameHead" + uerrcount);
+			}
+			if (uRule != uRuleBySameChildren.get(uRule.getChild()).get(uRule))
+			{
+				uerrcount1++;
+				System.err.println(false + "********************一元规则uRuleBySameChildren" + uerrcount1);
+			}
+		}
+		for (PreterminalRule preRule : lexicon.getPreRules())
+		{
+			if (preRule == preRuleBySameHead.get(preRule.parent).get(preRule))
+			{
+				// System.out.println(true);
+			}
+			else
+			{
+				perrcount++;
+				System.err.println(false + "********************预终结符号规则preRuleBySameHead" + perrcount);
+			}
+			if (preRule != preRuleBySameChildren.get(lexicon.getDictionary().get(preRule.getWord())).get(preRule))
+			{
+				perrcount1++;
+				System.err.println(false + "********************预终结符号规则preRuleBySameChildren" + perrcount1);
+			}
+		}
+	}
+
+	public HashSet<BinaryRule> getbRules()
+	{
+		return bRules;
+	}
+
+	public HashSet<UnaryRule> getuRules()
+	{
+		return uRules;
+	}
+
+	public Lexicon getLexicon()
+	{
+		return lexicon;
+	}
+
+	public HashSet<PreterminalRule> getPreRules()
+	{
+		return lexicon.getPreRules();
+	}
+
+	public NonterminalTable getNonterminalTable()
+	{
+		return nonterminalTable;
 	}
 
 }
