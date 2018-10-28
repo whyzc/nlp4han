@@ -6,12 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.ConstituentTree;
@@ -100,16 +98,22 @@ public class GrammarExtractorTool
 		bRules = new HashSet<BinaryRule>(allBRule.keySet());
 		uRules = new HashSet<UnaryRule>(allURule.keySet());
 		preRules = new HashSet<PreterminalRule>(allPreRule.keySet());
-		HashMap<Integer, HashMap<Integer, PreterminalRule>> preRuleBySameChildren = grammarExtractor.preRuleBySameChildren; // 外层map<childrenHashcode,内map>,内map<ruleHashcode/rule>
-		HashMap<Integer, HashMap<Integer, BinaryRule>> bRuleBySameChildren = grammarExtractor.bRuleBySameChildren;
-		HashMap<Integer, HashMap<Integer, UnaryRule>> uRuleBySameChildren = grammarExtractor.uRuleBySameChildren;
-		HashMap<Short, HashMap<Integer, PreterminalRule>> preRuleBySameHead = grammarExtractor.preRuleBySameHead; // 内map<ruleHashcode/rule>
-		HashMap<Short, HashMap<Integer, BinaryRule>> bRuleBySameHead = grammarExtractor.bRuleBySameHead;
-		HashMap<Short, HashMap<Integer, UnaryRule>> uRuleBySameHead = grammarExtractor.uRuleBySameHead;
+		// HashMap<Integer, HashMap<Integer, PreterminalRule>> preRuleBySameChildren =
+		// grammarExtractor.preRuleBySameChildren; //
+		// 外层map<childrenHashcode,内map>,内map<ruleHashcode/rule>
+		// HashMap<Integer, HashMap<Integer, BinaryRule>> bRuleBySameChildren =
+		// grammarExtractor.bRuleBySameChildren;
+		// HashMap<Integer, HashMap<Integer, UnaryRule>> uRuleBySameChildren =
+		// grammarExtractor.uRuleBySameChildren;
+		// HashMap<Short, HashMap<Integer, PreterminalRule>> preRuleBySameHead =
+		// grammarExtractor.preRuleBySameHead; // 内map<ruleHashcode/rule>
+		// HashMap<Short, HashMap<Integer, BinaryRule>> bRuleBySameHead =
+		// grammarExtractor.bRuleBySameHead;
+		// HashMap<Short, HashMap<Integer, UnaryRule>> uRuleBySameHead =
+		// grammarExtractor.uRuleBySameHead;
 		Lexicon lexicon = new Lexicon(preRules, grammarExtractor.dictionary, tagWithRareWord, rareWordCount,
 				allRareWord);
-		Grammar intialG = new Grammar(grammarExtractor.treeBank, bRules, uRules, lexicon, bRuleBySameChildren,
-				uRuleBySameChildren, preRuleBySameChildren, bRuleBySameHead, uRuleBySameHead, preRuleBySameHead,
+		Grammar intialG = new Grammar(grammarExtractor.treeBank, bRules, uRules, lexicon,
 				grammarExtractor.nonterminalTable);
 		return intialG;
 	}
@@ -122,7 +126,6 @@ public class GrammarExtractorTool
 			System.out.println("开始提取初始文法");
 			Grammar g = GrammarExtractorTool.generateInitialGrammar(false, Lexicon.DEFAULT_RAREWORD_THRESHOLD,
 					"C:\\Users\\hp\\Desktop\\testTree.txt");
-			System.out.println("startSymbol:" + g.nonterminalTable.stringValue((short) 0));
 			g.split();
 			GrammarWriter.writerToFile(g, "C:\\Users\\hp\\Desktop\\grammartest");
 			System.out.println("提取初始文法完毕");

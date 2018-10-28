@@ -27,14 +27,14 @@ public class GrammarExtractor
 	protected HashMap<PreterminalRule, Integer>[] preRuleBySameHeadCount;// 长度与preterminal相同
 	protected HashMap<BinaryRule, Integer>[] bRuleBySameHeadCount;// 数组下标表示nonterminal对应的整数
 	protected HashMap<UnaryRule, Integer>[] uRuleBySameHeadCount;// 数组下标表示nonterminal对应的整数
-	// 添加相同孩子为key的map
-	protected HashMap<Integer, HashMap<Integer, PreterminalRule>> preRuleBySameChildren; // 外层map<childrenHashcode,内map>,内map<ruleHashcode/rule>
-	protected HashMap<Integer, HashMap<Integer, BinaryRule>> bRuleBySameChildren;
-	protected HashMap<Integer, HashMap<Integer, UnaryRule>> uRuleBySameChildren;
-	// 相同父节点的规则放在一个map中
-	protected HashMap<Short, HashMap<Integer, PreterminalRule>> preRuleBySameHead; // 内map<ruleHashcode/rule>
-	protected HashMap<Short, HashMap<Integer, BinaryRule>> bRuleBySameHead;
-	protected HashMap<Short, HashMap<Integer, UnaryRule>> uRuleBySameHead;
+//	// 添加相同孩子为key的map
+//	protected HashMap<Integer, HashMap<Integer, PreterminalRule>> preRuleBySameChildren; // 外层map<childrenHashcode,内map>,内map<ruleHashcode/rule>
+//	protected HashMap<Integer, HashMap<Integer, BinaryRule>> bRuleBySameChildren;
+//	protected HashMap<Integer, HashMap<Integer, UnaryRule>> uRuleBySameChildren;
+//	// 相同父节点的规则放在一个map中
+//	protected HashMap<Short, HashMap<Integer, PreterminalRule>> preRuleBySameHead; // 内map<ruleHashcode/rule>
+//	protected HashMap<Short, HashMap<Integer, BinaryRule>> bRuleBySameHead;
+//	protected HashMap<Short, HashMap<Integer, UnaryRule>> uRuleBySameHead;
 	public int[] numOfSameHeadRule;
 
 	@SuppressWarnings("unchecked")
@@ -60,13 +60,13 @@ public class GrammarExtractor
 		{
 			uRuleBySameHeadCount[i] = new HashMap<UnaryRule, Integer>();
 		}
-		preRuleBySameHead = new HashMap<Short, HashMap<Integer, PreterminalRule>>();
-		uRuleBySameHead = new HashMap<Short, HashMap<Integer, UnaryRule>>();
-		bRuleBySameHead = new HashMap<Short, HashMap<Integer, BinaryRule>>();
-
-		preRuleBySameChildren = new HashMap<Integer, HashMap<Integer, PreterminalRule>>();
-		uRuleBySameChildren = new HashMap<Integer, HashMap<Integer, UnaryRule>>();
-		bRuleBySameChildren = new HashMap<Integer, HashMap<Integer, BinaryRule>>();
+//		preRuleBySameHead = new HashMap<Short, HashMap<Integer, PreterminalRule>>();
+//		uRuleBySameHead = new HashMap<Short, HashMap<Integer, UnaryRule>>();
+//		bRuleBySameHead = new HashMap<Short, HashMap<Integer, BinaryRule>>();
+//
+//		preRuleBySameChildren = new HashMap<Integer, HashMap<Integer, PreterminalRule>>();
+//		uRuleBySameChildren = new HashMap<Integer, HashMap<Integer, UnaryRule>>();
+//		bRuleBySameChildren = new HashMap<Integer, HashMap<Integer, BinaryRule>>();
 
 		numOfSameHeadRule = new int[this.nonterminalTable.getNumSymbol()];
 	}
@@ -102,16 +102,16 @@ public class GrammarExtractor
 							bRuleBySameHeadCount[parent].put(bRule, count);
 						}
 
-						if (!bRuleBySameHead.containsKey(parent))
-						{
-							bRuleBySameHead.put(parent, new HashMap<Integer, BinaryRule>());
-						}
-						bRuleBySameHead.get(parent).put(bRule.hashCode(), bRule);
-						if (!bRuleBySameChildren.containsKey(bRule.chidrenHashcode()))
-						{
-							bRuleBySameChildren.put(bRule.chidrenHashcode(), new HashMap<Integer, BinaryRule>());
-						}
-						bRuleBySameChildren.get(bRule.chidrenHashcode()).put(bRule.hashCode(), bRule);
+//						if (!bRuleBySameHead.containsKey(parent))
+//						{
+//							bRuleBySameHead.put(parent, new HashMap<Integer, BinaryRule>());
+//						}
+//						bRuleBySameHead.get(parent).put(bRule.hashCode(), bRule);
+//						if (!bRuleBySameChildren.containsKey(bRule.chidrenHashcode()))
+//						{
+//							bRuleBySameChildren.put(bRule.chidrenHashcode(), new HashMap<Integer, BinaryRule>());
+//						}
+//						bRuleBySameChildren.get(bRule.chidrenHashcode()).put(bRule.hashCode(), bRule);
 					}
 				}
 				else if (queue.peek().getChildren().size() == 1)
@@ -133,16 +133,16 @@ public class GrammarExtractor
 								uRuleBySameHeadCount[parent].put(uRule, count);
 							}
 
-							if (!uRuleBySameHead.containsKey(parent))
-							{
-								uRuleBySameHead.put(parent, new HashMap<Integer, UnaryRule>());
-							}
-							uRuleBySameHead.get(parent).put(uRule.hashCode(), uRule);
-							if (!uRuleBySameChildren.containsKey(uRule.chidrenHashcode()))
-							{
-								uRuleBySameChildren.put(uRule.chidrenHashcode(), new HashMap<Integer, UnaryRule>());
-							}
-							uRuleBySameChildren.get(uRule.chidrenHashcode()).put(uRule.hashCode(), uRule);
+//							if (!uRuleBySameHead.containsKey(parent))
+//							{
+//								uRuleBySameHead.put(parent, new HashMap<Integer, UnaryRule>());
+//							}
+//							uRuleBySameHead.get(parent).put(uRule.hashCode(), uRule);
+//							if (!uRuleBySameChildren.containsKey(uRule.chidrenHashcode()))
+//							{
+//								uRuleBySameChildren.put(uRule.chidrenHashcode(), new HashMap<Integer, UnaryRule>());
+//							}
+//							uRuleBySameChildren.get(uRule.chidrenHashcode()).put(uRule.hashCode(), uRule);
 						}
 
 					}
@@ -161,17 +161,17 @@ public class GrammarExtractor
 							preRuleBySameHeadCount[preterminal.indexOf(parent)].remove(preRule);
 							preRuleBySameHeadCount[preterminal.indexOf(parent)].put(preRule, count);
 						}
-						if (!preRuleBySameHead.containsKey(parent))
-						{
-							preRuleBySameHead.put(parent, new HashMap<Integer, PreterminalRule>());
-						}
-						preRuleBySameHead.get(parent).put(preRule.hashCode(), preRule);
-						if (!preRuleBySameChildren.containsKey(preRule.chidrenHashcode()))
-						{
-							preRuleBySameChildren.put(preRule.chidrenHashcode(),
-									new HashMap<Integer, PreterminalRule>());
-						}
-						preRuleBySameChildren.get(preRule.chidrenHashcode()).put(preRule.hashCode(), preRule);
+//						if (!preRuleBySameHead.containsKey(parent))
+//						{
+//							preRuleBySameHead.put(parent, new HashMap<Integer, PreterminalRule>());
+//						}
+//						preRuleBySameHead.get(parent).put(preRule.hashCode(), preRule);
+//						if (!preRuleBySameChildren.containsKey(preRule.chidrenHashcode()))
+//						{
+//							preRuleBySameChildren.put(preRule.chidrenHashcode(),
+//									new HashMap<Integer, PreterminalRule>());
+//						}
+//						preRuleBySameChildren.get(preRule.chidrenHashcode()).put(preRule.hashCode(), preRule);
 					}
 				}
 

@@ -87,7 +87,7 @@ public class AnnotationTreeNode extends TreeNode
 			return false;
 	}
 
-	public AnnotationTreeNode forgetScore()
+	public AnnotationTreeNode forgetIOScore()
 	{
 		if (this.isLeaf() || this == null)
 			return this;
@@ -95,7 +95,7 @@ public class AnnotationTreeNode extends TreeNode
 		label.setOuterScores(null);
 		for (AnnotationTreeNode child : this.getChildren())
 		{
-			child.forgetScore();
+			child.forgetIOScore();
 		}
 		return this;
 	}

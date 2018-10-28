@@ -1,8 +1,8 @@
 package com.lc.nlp4han.constituent.unlex;
 
-import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Random;
 import java.util.TreeMap;
 
 /**
@@ -26,15 +26,32 @@ public class PreterminalRule extends Rule
 	@Override
 	public void split()
 	{
+		Random random = Grammar.random;
+		boolean randomPerturbation = true;
 		// split father
 		int pNumSubSymbol = scores.size();
 		for (int i = pNumSubSymbol - 1; i >= 0; i--)
 		{
-			// scores.add(i + 1, BigDecimal.valueOf(scores.get(i))
-			// .divide(BigDecimal.valueOf(2.0), 15,
-			// BigDecimal.ROUND_HALF_UP).doubleValue());
 			scores.add(i + 1, scores.get(i));
 			scores.set(i, scores.get(i + 1));
+		}
+		if (randomPerturbation)
+		{
+			double randomness = 1.0;
+			int parentSplitFactor = 2;
+			int pNumSub_beforeSplit = scores.size() / 2;
+			for (short pS = 0; pS < pNumSub_beforeSplit; pS++)
+			{
+				final double oldScore_beforeSplit = scores.get(pS * parentSplitFactor);
+
+				for (short p = 0; p < parentSplitFactor; p++)
+				{
+					double randomValue = (random.nextDouble() + 0.25) * 0.8;
+					double randomComponent = oldScore_beforeSplit * randomness / 100.0 * randomValue;
+					short newPS = (short) (parentSplitFactor * pS + p);
+					scores.set(newPS, oldScore_beforeSplit + randomComponent);
+				}
+			}
 		}
 	}
 

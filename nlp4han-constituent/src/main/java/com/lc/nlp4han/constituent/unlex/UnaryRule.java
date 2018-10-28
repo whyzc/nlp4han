@@ -1,8 +1,8 @@
 package com.lc.nlp4han.constituent.unlex;
 
-import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Random;
 import java.util.TreeMap;
 
 /**
@@ -24,7 +24,9 @@ public class UnaryRule extends Rule
 
 	@Override
 	public void split()
-	{// TODO:加入随机扰动
+	{
+		Random random = Grammar.random;
+		boolean randomPerturbation = true;
 		// split child
 		int pNumSubSymbol = scores.size();
 		for (int i = 0; i < pNumSubSymbol; i++)
@@ -34,8 +36,7 @@ public class UnaryRule extends Rule
 			for (int j = cNumSubSymbol - 1; j >= 0; j--)
 			{
 
-				sameFather.add(j + 1, BigDecimal.valueOf(sameFather.get(j))
-						.divide(BigDecimal.valueOf(2.0), 15, BigDecimal.ROUND_HALF_UP).doubleValue());
+				sameFather.add(j + 1, sameFather.get(j) / 2);
 				sameFather.set(j, sameFather.get(j + 1));
 			}
 			scores.set(i, sameFather);
@@ -51,6 +52,39 @@ public class UnaryRule extends Rule
 				LinkedList<Double> sameChild = new LinkedList<>(scores.get(i));
 				scores.add(i + 1, sameChild);
 			}
+		if (randomPerturbation)
+		{
+			double randomness = 1.0;
+			int parentSplitFactor = parent == 0 ? 1 : 2;
+			int childSplitFactor = 2;
+			int cNumSub_beforeSplit = scores.get(0).size() / 2;
+			int pNumSub_beforeSplit = parentSplitFactor == 1 ? 1 : scores.size() / 2;
+			for (short cS = 0; cS < cNumSub_beforeSplit; cS++)
+			{
+				for (short pS = 0; pS < pNumSub_beforeSplit; pS++)
+				{
+					final double oldScore_beforeSplit = scores.get(pS * parentSplitFactor).get(cS * childSplitFactor)
+							* 2;
+					for (short p = 0; p < parentSplitFactor; p++)
+					{
+						double divFactor = childSplitFactor;
+						double randomValue = (random.nextDouble() + 0.25) * 0.8;
+						double randomComponent = oldScore_beforeSplit / divFactor * randomness / 100.0 * randomValue;
+						for (short c = 0; c < childSplitFactor; c++)
+						{
+							if (c == 1)
+							{
+								randomComponent = randomComponent * -1;
+							}
+							short newPS = (short) (parentSplitFactor * pS + p);
+							short newLCS = (short) (childSplitFactor * cS + c);
+							double splitFactor = childSplitFactor;
+							scores.get(newPS).set(newLCS, oldScore_beforeSplit / splitFactor + randomComponent);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	public int hashCode()
@@ -61,10 +95,10 @@ public class UnaryRule extends Rule
 		return result;
 	}
 
-	public int chidrenHashcode()
-	{
-		return child;
-	}
+	// public int chidrenHashcode()
+	// {
+	// return child;
+	// }
 
 	public boolean equals(Object obj)
 	{
@@ -180,12 +214,12 @@ public class UnaryRule extends Rule
 			{
 				parentStr = nonterminalTable.stringValue(parent) + "_" + i;
 			}
-			BigDecimal A_iScore = BigDecimal.valueOf(0.0);
+			double A_iScore = 0.0;
 			for (int j = 0; j < scores.get(0).size(); j++)
 			{
-				A_iScore = A_iScore.add(BigDecimal.valueOf(scores.get(i).get(j)));
+				A_iScore = A_iScore + scores.get(i).get(j);
 			}
-			A_iBRuleSum.put(parentStr, A_iScore.doubleValue());
+			A_iBRuleSum.put(parentStr, A_iScore);
 		}
 		return A_iBRuleSum;
 	}

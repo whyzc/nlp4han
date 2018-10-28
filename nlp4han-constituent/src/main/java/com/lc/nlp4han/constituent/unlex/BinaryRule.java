@@ -1,8 +1,8 @@
 package com.lc.nlp4han.constituent.unlex;
 
-import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Random;
 import java.util.TreeMap;
 
 /**
@@ -29,6 +29,8 @@ public class BinaryRule extends Rule
 	@Override
 	public void split()
 	{
+		Random random = Grammar.random;
+		boolean randomPerturbation = true;
 		// split rightChild
 		int pNumSubSymbol = scores.size();
 		for (int i = 0; i < pNumSubSymbol; i++)
@@ -39,8 +41,7 @@ public class BinaryRule extends Rule
 				int rCNumSubsymbol = scores.get(i).get(j).size();
 				for (int k = rCNumSubsymbol - 1; k >= 0; k--)
 				{
-					scores.get(i).get(j).add(k + 1, BigDecimal.valueOf(scores.get(i).get(j).get(k))
-							.divide(BigDecimal.valueOf(2.0), 15, BigDecimal.ROUND_HALF_UP).doubleValue());
+					scores.get(i).get(j).add(k + 1, scores.get(i).get(j).get(k) / 2);
 					scores.get(i).get(j).set(k, scores.get(i).get(j).get(k + 1));
 				}
 			}
@@ -51,28 +52,75 @@ public class BinaryRule extends Rule
 			int lCNumSubsymbol = scores.get(i).size();
 			for (int j = lCNumSubsymbol - 1; j >= 0; j--)
 			{
-				scores.get(i).get(j).replaceAll(e -> BigDecimal.valueOf(e.doubleValue())
-						.divide(BigDecimal.valueOf(2.0), 15, BigDecimal.ROUND_HALF_UP).doubleValue());
+				scores.get(i).get(j).replaceAll(e -> e / 2);
 				LinkedList<Double> sameRC = new LinkedList<Double>(scores.get(i).get(j));
 				scores.get(i).add(j + 1, sameRC);
 			}
 
 		}
-		// split father
 		if (parent != 0)
 			for (int i = pNumSubSymbol - 1; i >= 0; i--)
 			{
 				LinkedList<LinkedList<Double>> sameFather = new LinkedList<LinkedList<Double>>();
 				for (int j = 0; j < scores.get(i).size(); j++)
 				{
-					// scores.get(i).get(j).replaceAll(e -> BigDecimal.valueOf(e.doubleValue())
-					// .divide(BigDecimal.valueOf(2.0), 15,
-					// BigDecimal.ROUND_HALF_UP).doubleValue());
 					LinkedList<Double> sameLRC = new LinkedList<Double>(scores.get(i).get(j));
 					sameFather.add(sameLRC);
 				}
 				scores.add(i + 1, sameFather);
 			}
+
+		if (randomPerturbation)
+		{
+			double randomness = 1.0;
+			int parentSplitFactor = parent == 0 ? 1 : 2;
+			int lChildSplitFactor = 2;
+			int rChildSplitFactor = 2;
+			int lCNumSub_beforeSplit = scores.get(0).size() / 2;
+			int rCNumSub_beforeSplit = scores.get(0).get(0).size() / 2;
+			int pNumSub_beforeSplit = parentSplitFactor == 1 ? 1 : scores.size() / 2;
+			for (short lcS = 0; lcS < lCNumSub_beforeSplit; lcS++)
+			{
+				for (short rcS = 0; rcS < rCNumSub_beforeSplit; rcS++)
+				{
+					for (short pS = 0; pS < pNumSub_beforeSplit; pS++)
+					{
+						final double oldScore_beforeSplit = scores.get(pS * parentSplitFactor)
+								.get(lcS * lChildSplitFactor).get(lcS * lChildSplitFactor) * 4;
+						for (short p = 0; p < parentSplitFactor; p++)
+						{
+							double divFactor = lChildSplitFactor * rChildSplitFactor;
+							double randomValue = (random.nextDouble() + 0.25) * 0.8;
+							double randomComponentLC = oldScore_beforeSplit / divFactor * randomness / 100
+									* randomValue;
+							for (short lc = 0; lc < lChildSplitFactor; lc++)
+							{
+								if (lc == 1)
+								{
+									randomComponentLC = randomComponentLC * -1;
+								}
+								double randomValue2 = (random.nextDouble() + 0.25) * 0.8;
+								double randomComponentRC = oldScore_beforeSplit / divFactor * randomness / 100
+										* randomValue2;
+								for (short rc = 0; rc < rChildSplitFactor; rc++)
+								{
+									if (rc == 1)
+									{
+										randomComponentRC = randomComponentRC * -1;
+									}
+									short newPS = (short) (parentSplitFactor * pS + p);
+									short newLCS = (short) (lChildSplitFactor * lcS + lc);
+									short newRCS = (short) (rChildSplitFactor * rcS + rc);
+									double splitFactor = lChildSplitFactor * rChildSplitFactor;
+									scores.get(newPS).get(newLCS).set(newRCS,
+											oldScore_beforeSplit / splitFactor + randomComponentLC + randomComponentRC);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	public boolean isSameRule(short parent, short lChild, short rChild)
@@ -92,13 +140,13 @@ public class BinaryRule extends Rule
 		return result;
 	}
 
-	public int chidrenHashcode()
-	{
-		final int prime = 31;
-		int result = leftChild;
-		result = result * prime + rightChild;
-		return result;
-	}
+	// public int chidrenHashcode()
+	// {
+	// final int prime = 31;
+	// int result = leftChild;
+	// result = result * prime + rightChild;
+	// return result;
+	// }
 
 	public boolean equals(Object obj)
 	{
@@ -235,15 +283,15 @@ public class BinaryRule extends Rule
 			{
 				parentStr = nonterminalTable.stringValue(parent) + "_" + i;
 			}
-			BigDecimal A_iScore = BigDecimal.valueOf(0.0);
+			double A_iScore = 0.0;
 			for (int j = 0; j < scores.get(0).size(); j++)
 			{
 				for (int k = 0; k < scores.get(0).get(0).size(); k++)
 				{
-					A_iScore = A_iScore.add(BigDecimal.valueOf(scores.get(i).get(j).get(k)));
+					A_iScore = A_iScore + scores.get(i).get(j).get(k);
 				}
 			}
-			A_iBCRuleSum.put(parentStr, A_iScore.doubleValue());
+			A_iBCRuleSum.put(parentStr, A_iScore);
 		}
 
 		return A_iBCRuleSum;
