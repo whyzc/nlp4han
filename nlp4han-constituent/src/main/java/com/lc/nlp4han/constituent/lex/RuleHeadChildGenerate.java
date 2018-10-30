@@ -1,7 +1,7 @@
 package com.lc.nlp4han.constituent.lex;
 /**
  * 用于存储生成头结点的数据
- * 
+ * 在解析过程还可用于向上生成单位规则
  * @author qyl
  *
  */

@@ -43,6 +43,11 @@ public class CTBPreprocessTool
 		}
 		else
 		{
+			//如果是类似NP->NN->中国，则不标记为NPB
+			if(node.getChildrenNum()==1&&node.getChild(0).getChildrenNum()==0) {
+				return false;
+			}
+			
 			for(TreeNode child:node.getChildren()) {
 				if(!traverseNode(child)) {
 					return false;
