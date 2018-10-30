@@ -116,6 +116,10 @@ public class PlainTextByTreeStream implements ObjectStream<String>
 			}
 		}
 
+		
+		if(line==null && readContent.length()==0)
+			return null;
+		
 		return readContent;
 	}
 

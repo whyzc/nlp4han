@@ -574,4 +574,10 @@ public class TreeNode implements Cloneable
 		}
 		return treestr;
 	}
+
+	public void setChildren(List<TreeNode> children)
+	{
+		this.children = children;
+	}
+	
 }

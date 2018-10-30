@@ -20,22 +20,22 @@ public class ConstituentTreeSample
 
 	private List<String> words = new ArrayList<String>();
 	private List<String> poses = new ArrayList<String>();
-	
+
 	private List<HeadTreeNode> posTree;
 	private List<HeadTreeNode> chunkTree;
 	private List<List<HeadTreeNode>> buildAndCheckTree;
 	private List<String> actions;
-	
+
 	private String[][] addtionalContext;
 
-	public ConstituentTreeSample(List<HeadTreeNode> posTree, List<HeadTreeNode> chunkTree, List<List<HeadTreeNode>> buildAndCheckTree,
-			List<String> actions)
+	public ConstituentTreeSample(List<HeadTreeNode> posTree, List<HeadTreeNode> chunkTree,
+			List<List<HeadTreeNode>> buildAndCheckTree, List<String> actions)
 	{
 		this(posTree, chunkTree, buildAndCheckTree, actions, null);
 	}
 
-	public ConstituentTreeSample(List<HeadTreeNode> posTree, List<HeadTreeNode> chunkTree, List<List<HeadTreeNode>> buildAndCheckTree,
-			List<String> actions, String[][] additionalContext)
+	public ConstituentTreeSample(List<HeadTreeNode> posTree, List<HeadTreeNode> chunkTree,
+			List<List<HeadTreeNode>> buildAndCheckTree, List<String> actions, String[][] additionalContext)
 	{
 		posTreeToWordsAndPoses(posTree);
 		this.posTree = Collections.unmodifiableList(posTree);
@@ -134,6 +134,24 @@ public class ConstituentTreeSample
 		return this.actions;
 	}
 
+	// 第一阶段动作序列
+	public List<String> getFirstActions()
+	{
+		return actions.subList(0, words.size());
+	}
+
+	// 第二阶段动作序列
+	public List<String> getSecondActions()
+	{
+		return actions.subList(words.size(), 2 * words.size());
+	}
+
+	// 第上阶段动作序列
+	public List<String> getThirdActions()
+	{
+		return actions.subList(2 * words.size(), actions.size());
+	}
+
 	/**
 	 * 获取额外的上下文信息
 	 * 
@@ -160,6 +178,12 @@ public class ConstituentTreeSample
 		{
 			return false;
 		}
+	}
+
+	@Override
+	public String toString()
+	{
+		return "words=" + words + ", actions=" + actions;
 	}
 
 	/**

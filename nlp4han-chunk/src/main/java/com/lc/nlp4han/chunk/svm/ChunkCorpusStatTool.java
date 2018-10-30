@@ -19,8 +19,7 @@ public class ChunkCorpusStatTool
 	private static Map<String, Info> chunks = new HashMap<String, Info>();
 	private static Set<String> words = new HashSet<String>();
 	private static Set<String> POSs = new HashSet<String>();
-	
-	
+
 	private static double avgChunkLen = 0;
 
 	public static void main(String[] args)
@@ -115,7 +114,7 @@ public class ChunkCorpusStatTool
 			{
 				processSample(tempString);
 			}
-			
+
 			postProcessing();
 
 			reader.close();
@@ -156,13 +155,13 @@ public class ChunkCorpusStatTool
 		{
 			String key = it.next();
 			Info ifr = chunks.get(key);
-			
+
 			chunkTotalLen += ifr.averageLength;
-			
+
 			ifr.averageLength /= ifr.number;
 		}
-		
-		avgChunkLen = chunkTotalLen / (double)chunkNum;
+
+		avgChunkLen = chunkTotalLen / (double) chunkNum;
 	}
 
 	private static void processSample(String sample)
@@ -189,7 +188,7 @@ public class ChunkCorpusStatTool
 						count(units[i], 0, 0);
 						i++;
 					}
-					
+
 					count(units[i], 2, i - j + 1);
 				}
 			}
@@ -213,7 +212,7 @@ public class ChunkCorpusStatTool
 			{
 				System.out.println("1" + str);
 			}
-			
+
 			wordNum++;
 			words.add(wordAndPOS[0]);
 			charaNum += wordAndPOS[0].length();
@@ -230,12 +229,12 @@ public class ChunkCorpusStatTool
 			{
 				String chunkStr = strs[1];
 				String[] wordAndPOS = strs[0].split("/");
-				
+
 				wordNum++;
 				words.add(wordAndPOS[0]);
 				charaNum += wordAndPOS[0].length();
 				POSs.add(wordAndPOS[1]);
-				
+
 				if (chunks.containsKey(chunkStr))
 				{
 					Info inf = chunks.get(chunkStr);
@@ -246,7 +245,7 @@ public class ChunkCorpusStatTool
 				{
 					chunks.put(chunkStr, new Info(1, chunkLen));
 				}
-				
+
 				chunkNum++;
 			}
 			else
@@ -276,7 +275,7 @@ public class ChunkCorpusStatTool
 			this.averageLength = averageLength;
 		}
 	}
-	
+
 	public static Map<String, Info> getChunks()
 	{
 		return chunks;

@@ -1,23 +1,16 @@
 package com.lc.nlp4han.constituent.unlex;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
+ * 表示结构树
  * @author 王宁
- * @version 创建时间：2018年9月23日 下午12:57:29 表示结构树
  */
 public class Tree<T>
 {
 	private T label;
 	private List<Tree<T>> children;
-
-	// private static Map<String, Integer> wordStatistics;
-	// private static Map<Integer, Map<Rule, Integer>> ruleStatistics;
-
-	private static NonterminalTable nonterminalTable;
 
 	public Tree(T label)
 	{
@@ -59,6 +52,14 @@ public class Tree<T>
 			return false;
 	}
 
+	public boolean isPreterminal()
+	{
+		if (getChildren().size() == 1 && getChildren().get(0).isLeaf())
+			return true;
+		else
+			return false;
+	}
+
 	public T getLabel()
 	{
 		return label;
@@ -79,4 +80,19 @@ public class Tree<T>
 		this.children = children;
 	}
 
+	public Tree<T> getParent(Tree<T> treeRoot)
+	{
+		if (treeRoot.isLeaf())
+			return null;
+		for (Tree<T> child : treeRoot.getChildren())
+		{
+			if (this == child)
+			{
+				return treeRoot;
+			}
+		}
+		for (Tree<T> subTree : treeRoot.getChildren())
+			getParent(subTree);
+		return null;
+	}
 }

@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -19,11 +20,18 @@ public class PCFG extends CFG
 
 	}
 
+	public PCFG(String startSymbol, Set<String> nonTerminalSet, Set<String> terminalSet,
+			HashMap<String, HashSet<RewriteRule>> ruleMapStartWithlhs,
+			HashMap<ArrayList<String>, HashSet<RewriteRule>> ruleMapStartWithrhs)
+	{
+		super(startSymbol,nonTerminalSet,terminalSet,ruleMapStartWithlhs,ruleMapStartWithrhs);
+	}
+
 	public PCFG(InputStream in, String encoding) throws IOException
 	{
 		super.readGrammar(in, encoding);
 	}
-	
+
 	protected RewriteRule readRule(String ruleStr)
 	{
 		return new PRule(ruleStr);
@@ -43,13 +51,13 @@ public class PCFG extends CFG
 				PRule prule = (PRule) rule;
 				pro += prule.getProb();
 			}
-			
+
 			if (Math.abs(1.0 - pro) > MaxErrorOfPCNF)
 			{
 				MaxErrorOfPCNF = Math.abs(1.0 - pro);
 			}
 		}
-		
+
 		return MaxErrorOfPCNF;
 	}
 
@@ -104,7 +112,7 @@ public class PCFG extends CFG
 				}
 			}
 		}
-		
+
 		if (k == 1)
 		{
 			pruleList.add(bestPRule);
@@ -113,7 +121,7 @@ public class PCFG extends CFG
 		{
 			Collections.sort(pruleList);
 		}
-		
+
 		/*
 		 * 若结果集中多余k个，则截取其中的前k个
 		 */
@@ -121,7 +129,7 @@ public class PCFG extends CFG
 		{
 			return (ArrayList<PRule>) pruleList.subList(0, k);
 		}
-		
+
 		return pruleList;
 	}
 }

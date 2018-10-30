@@ -100,7 +100,7 @@ public class ConstituentParserCKYP2NF implements ConstituentParser
 		}
 		for (String bracketString : bracketList)
 		{
-			TreeNode rootNode = RestoreTree.restoreTree(BracketExpUtil.generateTree(bracketString));
+			TreeNode rootNode = RestoreTree.restoreTree2(BracketExpUtil.generateTree(bracketString));
 			treeArray[i++] = new ConstituentTree(rootNode);
 		}
 		return treeArray;

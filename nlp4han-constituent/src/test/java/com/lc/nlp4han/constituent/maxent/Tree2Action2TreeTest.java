@@ -11,6 +11,7 @@ import org.junit.Test;
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.HeadGeneratorCollins;
+import com.lc.nlp4han.constituent.HeadRuleSetCTB;
 import com.lc.nlp4han.constituent.HeadRuleSetPTB;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.TreeNode;
@@ -33,23 +34,42 @@ public class Tree2Action2TreeTest
 	 * @throws CloneNotSupportedException
 	 */
 	@Test
-	public void testTreeToActions() throws FileNotFoundException, IOException, CloneNotSupportedException
+	public void testTreeToActionsPTB() throws FileNotFoundException, IOException, CloneNotSupportedException
 	{
 
-		AbstractHeadGenerator aghw = new HeadGeneratorCollins(new HeadRuleSetPTB());
+		AbstractHeadGenerator headGen = new HeadGeneratorCollins(new HeadRuleSetPTB());
 		// 节点有多个子节点
 		// 1 一个子节点
 		// 2 两个子节点
 		// 3 大于两个子节点
-		String treestr = "((S(NP(NNP Mr.)(NNP Vinken))(VP(VBZ is)(NP(NP(NN chairman))(PP(IN of) "
+		String treestr = "(S(NP(NNP Mr.)(NNP Vinken))(VP(VBZ is)(NP(NP(NN chairman))(PP(IN of) "
 				+ "(NP(NP(NNP Elsevier)(NNP N.V.))(, ,)"
-				+ "(NP(DT the)(NNP Dutch)(VBG publishing)(NN group))))))(. .)))";
-		TreeNode tree = BracketExpUtil.generateTreeNoTopBracket(treestr);
-		HeadTreeNode headTree = TreeToHeadTree.treeToHeadTree(tree, aghw);
+				+ "(NP(DT the)(NNP Dutch)(VBG publishing)(NN group))))))(. .))";
+		TreeNode tree = BracketExpUtil.generateTree(treestr);
+		HeadTreeNode headTree = TreeToHeadTree.treeToHeadTree(tree, headGen);
 
-		ConstituentTreeSample sample = HeadTreeToSample.headTreeToSample(headTree, aghw);
+		ConstituentTreeSample sample = HeadTreeToSample.headTreeToSample(headTree, headGen);
 		List<String> words = sample.getWords();
 		List<String> actions = sample.getActions();
+		TreeNode resulttree = ActionsToTree.actionsToTree(words, actions);
+		assertEquals(tree, resulttree);
+	}
+	
+	@Test
+	public void testTreeToActionsCTB() throws FileNotFoundException, IOException, CloneNotSupportedException
+	{
+
+		AbstractHeadGenerator headGen = new HeadGeneratorCollins(new HeadRuleSetCTB());
+		String treestr = "(ROOT(IP(NP(NT 一九九七年))(NP(NP(NP(NN 内地))(CC 与)(NP(NR 香港)))(NP(NN 经贸)(NN 交流)))(VP(VA 活跃))))";
+		TreeNode tree = BracketExpUtil.generateTree(treestr);
+		HeadTreeNode headTree = TreeToHeadTree.treeToHeadTree(tree, headGen);
+
+		ConstituentTreeSample sample = HeadTreeToSample.headTreeToSample(headTree, headGen);
+		List<String> words = sample.getWords();
+		List<String> actions = sample.getActions();
+		List<String> actions1 = sample.getFirstActions();
+		List<String> actions2 = sample.getSecondActions();
+		List<String> actions3 = sample.getThirdActions();
 		TreeNode resulttree = ActionsToTree.actionsToTree(words, actions);
 		assertEquals(tree, resulttree);
 	}
