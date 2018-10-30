@@ -219,7 +219,7 @@ public class ChunkerForParserME implements ChunkerForParser<HeadTreeNode>
 		}
 		for (int i = 0; i < chunkTree.size(); i++)
 		{
-			List<HeadTreeNode> node = ChunkTreeCombineUtil.combineToHeadTree(chunkTree.get(i), headGenerator);
+			List<HeadTreeNode> node = ChunkTreeCombineUtil.combineToChunkTrees(chunkTree.get(i), headGenerator);
 			combineChunkTree.add(node);
 		}
 		return combineChunkTree;
@@ -311,7 +311,7 @@ public class ChunkerForParserME implements ChunkerForParser<HeadTreeNode>
 	{
 		List<List<HeadTreeNode>> allposTree = new ArrayList<>();
 		allposTree.add(posTree);
-		return ChunkTreeCombineUtil.combineToHeadTree(tagChunk(allposTree, null), headGenerator);
+		return ChunkTreeCombineUtil.combineToChunkTrees(tagChunk(allposTree, null), headGenerator);
 	}
 
 	/**

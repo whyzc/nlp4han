@@ -2,10 +2,10 @@ package com.lc.nlp4han.chunk.svm;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Properties;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisMeasure;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.chunk.ChunkAnalysisContextGenerator;
-import com.lc.nlp4han.chunk.svm.libsvm.svm_model;
 import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosSampleStream;
 import com.lc.nlp4han.ml.util.CrossValidationPartitioner;
 import com.lc.nlp4han.ml.util.ObjectStream;
@@ -16,7 +16,7 @@ public class ChunkAnalysisSVMCrossValidation
 	/**
 	 * 训练的参数集
 	 */
-	private final String[] arg;
+	private final String[] args;
 
 	/**
 	 * 构造方法
@@ -28,9 +28,9 @@ public class ChunkAnalysisSVMCrossValidation
 	 * @param monitor
 	 *            监听器
 	 */
-	public ChunkAnalysisSVMCrossValidation(String[] arg)
+	public ChunkAnalysisSVMCrossValidation(String[] args)
 	{
-		this.arg = arg;
+		this.args = args;
 	}
 
 	/**
@@ -47,16 +47,21 @@ public class ChunkAnalysisSVMCrossValidation
 	 * @throws IOException
 	 */
 	public void evaluate(ObjectStream<AbstractChunkAnalysisSample> sampleStream, int nFolds,
-			ChunkAnalysisContextGenerator contextGenerator, AbstractChunkAnalysisMeasure measure) throws IOException
+			ChunkAnalysisContextGenerator contextGenerator, AbstractChunkAnalysisMeasure measure, Properties properties)
+			throws IOException
 	{
 		CrossValidationPartitioner<AbstractChunkAnalysisSample> partitioner = new CrossValidationPartitioner<AbstractChunkAnalysisSample>(
 				sampleStream, nFolds);
 
 		int run = 1;
+
+		String modelPath = args[args.length - 1];
+
 		// 小于折数的时候
 		while (partitioner.hasNext())
 		{
 			System.out.println("Run" + run + "...");
+
 			String label = ((ChunkAnalysisWordPosSampleStream) sampleStream).getScheme();
 			CrossValidationPartitioner.TrainingSampleStream<AbstractChunkAnalysisSample> trainingSampleStream = partitioner
 					.next();
@@ -64,25 +69,24 @@ public class ChunkAnalysisSVMCrossValidation
 			trainingSampleStream.reset();
 			measure.setDictionary(dict);
 
-			ChunkAnalysisSVMME me = new ChunkAnalysisSVMME();
+			ChunkAnalysisSVMME me = new ChunkAnalysisSVMME(contextGenerator, label);
 			long start = System.currentTimeMillis();
-			svm_model model = me.train(trainingSampleStream, arg, contextGenerator);
-			System.out.println("训练时间： " + (System.currentTimeMillis()-start));
-			
-			ChunkAnalysisSVMME svmme = new ChunkAnalysisSVMME(contextGenerator, model, label);
-			svmme.init(me.getFeatureStructure(), me.getClassificationResults(), me.getFeatures());
-			
-			ChunkAnalysisSVMEvaluator evaluator = new ChunkAnalysisSVMEvaluator(svmme, measure);
+			me.train(trainingSampleStream, args, contextGenerator);
+			me.setModel(modelPath);
+			System.out.println("训练时间： " + (System.currentTimeMillis() - start));
+
+			ChunkAnalysisSVMEvaluator evaluator = new ChunkAnalysisSVMEvaluator(me, measure);
 
 			evaluator.setMeasure(measure);
 
 			start = System.currentTimeMillis();
 			evaluator.evaluate(trainingSampleStream.getTestSampleStream());
-			System.out.println("标注时间： " + (System.currentTimeMillis()-start));
+			System.out.println("标注时间： " + (System.currentTimeMillis() - start));
 
 			System.out.println(measure);
 			run++;
 		}
+
 	}
 
 	/**
@@ -107,4 +111,5 @@ public class ChunkAnalysisSVMCrossValidation
 
 		return dictionary;
 	}
+
 }

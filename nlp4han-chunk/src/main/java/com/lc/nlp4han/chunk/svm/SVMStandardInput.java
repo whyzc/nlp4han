@@ -1,21 +1,23 @@
 package com.lc.nlp4han.chunk.svm;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.chunk.AbstractChunkSampleParser;
@@ -33,90 +35,92 @@ import com.lc.nlp4han.ml.util.PlainTextByLineStream;
 
 public class SVMStandardInput
 {
-	private static List<String> FeatureStructure = new ArrayList<String>(); // 存储用到的特征，如w_2,
-																			// p_2，用以记录各特征对应的序号，特征的（index+1）为SVM标准输入格式中该特征的序号
-	private static List<String> ClassificationResults = new ArrayList<String>(); // 存储分类结果，如BNP_B, BNP_I, BNP_E,
-																					// O，（index+1）为SVM标准分类结果
-	private static Map<String, Map<String, Integer>> Features = new HashMap<String, Map<String, Integer>>(); // 记录所有具体的特征，为每一特征赋值
 
-	public static String[] getStandardInput(String[] args) throws IOException
+	public static final String SEPARATOR = ".";
+
+	private Map<String, Integer> features = new HashMap<String, Integer>();
+
+	private List<Integer> numberOfFeatures = new ArrayList<Integer>();
+
+	private List<String> classificationResults = new ArrayList<String>();
+
+	private List<Integer> numberOfClassification = new ArrayList<Integer>();
+
+	private Map<String, Integer> numberOfFeatureCategory = new HashMap<String, Integer>();
+
+	private final int NUMBER = 500; // 一行放特征的个数
+
+	public Map<String, Integer> getFeatures()
 	{
-		String[] params = parseArgs(args);
+		return features;
+	}
 
-		Properties featureConf = getDefaultConf();
+	public List<Integer> getNumberOfFeatures()
+	{
+		return numberOfFeatures;
+	}
 
-		setFeatureStructure(featureConf);
+	public List<String> getClassificationResults()
+	{
+		return classificationResults;
+	}
 
-		ObjectStream<Event> es = getEventStream(params[0], params[1], params[2], featureConf);
+	public List<Integer> getNumberOfClassification()
+	{
+		return numberOfClassification;
+	}
 
-		String[] input = standardInput(es);
-
-		return input;
+	public Map<String, Integer> getNumberOfFeatureCategory()
+	{
+		return numberOfFeatureCategory;
 	}
 
 	/**
-	 * 将特征转换成SVM标准输入中的特征部分
+	 * 将特征转换成SVM标准输入中的特征部分（index1:value1 index2:value2 ...）
 	 * 
 	 * @param context
 	 *            特征，存储内容为"w_1=job", "p1=n",....
-	 * @param featureStructure
+	 * @param features
 	 *            特征序列，记录各特征对应的序号
-	 * @return SVM标准输入中的特征部分
+	 * @param numberOfFeatures
+	 *            记录各特征的数量
+	 * @param append
+	 *            features是否可增加
+	 * @return index1:value1 index2:value2 ...即 1:1 3:1 5:1 ......
 	 */
-	public static String getSVMStandardFeaturesInput(String[] context, List<String> featureStructure,
-			Map<String, Map<String, Integer>> features)
+	public static String getSVMStandardFeaturesInput(String[] context, SVMStandardInput ssi)
 	{
-		StringBuilder result = new StringBuilder();
-		for (int i = 0; i < featureStructure.size(); i++)
-		{
-			String indexStr = featureStructure.get(i);
+		Map<String, Integer> features = ssi.getFeatures();
 
-			for (int j = 0; j < context.length; j++)
+		StringBuilder intInput = new StringBuilder();
+
+		int[] order = new int[context.length]; // 用来记录每个特征对应的index
+
+		Integer index = null;
+
+		for (int i = 0; i < context.length; i++)
+		{
+			String[] strs = context[i].split("=");
+
+			if ((index = features.get(strs[0] + SEPARATOR + strs[1])) == null)
 			{
-				String[] strs = context[j].split("=");
-				if (strs[0].equals(indexStr))
-				{
-					if (features.containsKey(parseName(strs[0])))
-					{
-						Map<String, Integer> temp = features.get(parseName(indexStr));
-						if (temp.containsKey(strs[1]))
-						{
-							result.append(" " + (i + 1) + ":" + temp.get(strs[1]));
-						}
-						else
-						{ // 没有的特征，赋0值
-							result.append(" " + (i + 1) + ":" + 0);
-						}
-					}
-					else
-					{
-						System.err.println("训练集中无此特征：" + strs[0]);
-						System.exit(1);
-					}
-				}
+				index = -1;
+			}
+
+			order[i] = index;
+		}
+
+		Arrays.sort(order);
+
+		for (int i = 0; i < order.length; i++)
+		{
+			if (order[i] != -1)
+			{
+				intInput.append(order[i] + ":1 "); // 此处为赋value值
 			}
 		}
-		if (result.length() > 1)
-			return result.substring(1);
-		else
-			return null;
-	}
 
-	/**
-	 * 
-	 */
-	private static void setFeatureStructure(Properties featureConf)
-	{
-		Set<Object> keys = featureConf.keySet();
-		Iterator<Object> it = keys.iterator();
-		while (it.hasNext())
-		{
-			String str = (String) it.next();
-			if (featureConf.getProperty(str).equals("true"))
-			{
-				FeatureStructure.add(str.substring(8));
-			}
-		}
+		return intInput.toString().trim();
 	}
 
 	/**
@@ -144,6 +148,8 @@ public class SVMStandardInput
 
 		String scheme = "BIEOS";
 
+		String savePath = null;
+
 		for (int i = 0; i < args.length; i++)
 		{
 			if ("-encoding".equals(args[i]))
@@ -161,6 +167,12 @@ public class SVMStandardInput
 				scheme = args[i + 1];
 				i++;
 			}
+			else if ("-save".equals(args[i]))
+			{
+				savePath = args[i + 1];
+				i++;
+			}
+
 		}
 
 		if (docPath == null)
@@ -178,10 +190,17 @@ public class SVMStandardInput
 			System.exit(1);
 		}
 
-		String[] result = new String[3];
+		String[] result = null;
+
+		result = new String[4];
 		result[0] = docPath;
 		result[1] = scheme;
 		result[2] = encoding;
+		if (savePath != null)
+			result[3] = savePath;
+		else
+			result[3] = docPath + ".svm";
+
 		return result;
 	}
 
@@ -224,7 +243,7 @@ public class SVMStandardInput
 	/**
 	 * 生成SVM标准的输入格式
 	 */
-	public static String[] standardInput(ObjectStream<Event> es)
+	public static String[] standardInput(ObjectStream<Event> es, SVMStandardInput ssi)
 	{
 		List<String> inputList = new ArrayList<String>();
 
@@ -234,35 +253,16 @@ public class SVMStandardInput
 		{
 			while ((temp = es.read()) != null)
 			{
-				String sample = convert2StandardFormat(temp, Features);
+				String sample = convert2StandardFormat(temp, ssi);
 				inputList.add(sample);
 			}
-
 
 		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
-//		finally
-//		{
-//
-//			if (es != null)
-//			{
-//
-//				try
-//				{
-//					es.close();
-//				}
-//				catch (IOException e1)
-//				{
-//
-//				}
-//
-//			}
-//
-//		}
-		
+
 		String[] input = new String[inputList.size()];
 
 		inputList.toArray(input);
@@ -271,75 +271,76 @@ public class SVMStandardInput
 	}
 
 	/**
-	 * 将一个event转成标准的输入格式，如 1 3:3 5:1 6:3 7:2 8:1 fs记录所有的特征，用于赋值
+	 * 将一个event转成标准的输入格式，如 1 3:3 5:1 6:3 7:2 8:1
 	 */
-	private static String convert2StandardFormat(Event event, Map<String, Map<String, Integer>> fs)
+	public static String convert2StandardFormat(Event event, SVMStandardInput ssi)
 	{
 
 		StringBuilder result = new StringBuilder();
-		String[] features = event.getContext();
+		String[] contexts = event.getContext();
 		if (event != null)
 		{
-			if (!ClassificationResults.contains(event.getOutcome()))
-			{
-				ClassificationResults.add(event.getOutcome());
-				result.append(ClassificationResults.size());
-			}
-			else
-			{
-				result.append(ClassificationResults.indexOf(event.getOutcome()) + 1);
-			}
+			Integer index = ssi.getClassificationResults().indexOf(event.getOutcome()) + 1;
+			result.append(index);
+
+			String str = getSVMStandardFeaturesInput(contexts, ssi);
+			result.append(" " + str);
 		}
-
-		for (int i = 0; i < FeatureStructure.size(); i++)
-		{
-			String indexStr = FeatureStructure.get(i);
-
-			for (int j = 0; j < features.length; j++)
-			{
-				String[] strs = features[j].split("=");
-				if (strs[0].equals(indexStr))
-				{
-					if (fs.containsKey(parseName(strs[0])))
-					{
-						Map<String, Integer> temp = fs.get(parseName(indexStr));
-						if (temp.containsKey(strs[1]))
-						{
-							result.append(" " + (i + 1) + ":" + temp.get(strs[1]));
-						}
-						else
-						{
-							temp.put(strs[1], temp.size() + 1);
-							result.append(" " + (i + 1) + ":" + temp.size());
-						}
-					}
-					else
-					{
-						result.append(" " + (i + 1) + ":" + 1);
-
-						Map<String, Integer> temp = new HashMap<String, Integer>();
-						temp.put(strs[1], 1);
-						fs.put(parseName(strs[0]), temp);
-					}
-				}
-			}
-		}
-		/*
-		 * for (int i=0 ; i<FeatureStructure.length ; i++) { String[] strs =
-		 * features[i].split("="); int in = FeatureStructure.get("feature." + strs[0]);
-		 * if (fs.containsKey(parseName(strs[0]))) { Map<String, Integer> temp =
-		 * fs.get(parseName(strs[0])); if (temp.containsKey(strs[1])) {
-		 * result.append(" " + in + ":" + temp.get(strs[1])); } else { temp.put(strs[1],
-		 * temp.size()+1); result.append(" " + in + ":" + temp.size()); } } else {
-		 * result.append(" " + in + ":" + 1);
-		 * 
-		 * Map<String, Integer> temp = new HashMap<String, Integer>(); temp.put(strs[1],
-		 * 1); fs.put(parseName(strs[0]), temp); } }
-		 */
 		return result.toString();
 	}
 
-	private static String parseName(String name)
+	public void init(ObjectStream<Event> es) throws IOException
+	{
+		Event event = null;
+		while ((event = es.read()) != null)
+		{
+			if (!classificationResults.contains(event.getOutcome()))
+			{
+				classificationResults.add(event.getOutcome());
+
+				numberOfClassification.add(1);
+			}
+			else
+			{
+				int index = classificationResults.indexOf(event.getOutcome());
+
+				numberOfClassification.set(index, numberOfClassification.get(index) + 1);
+			}
+
+			String[] contexts = event.getContext();
+
+			Integer index = null;
+
+			for (int i = 0; i < contexts.length; i++)
+			{
+				String[] strs = contexts[i].split("=");
+
+				if ((index = features.get(strs[0] + SEPARATOR + strs[1])) == null)
+				{
+					index = features.size() + 1;
+					features.put(strs[0] + SEPARATOR + strs[1], index);
+
+					numberOfFeatures.add(1);
+				}
+				else
+				{
+					numberOfFeatures.set(index - 1, numberOfFeatures.get(index - 1) + 1);
+				}
+
+				String key = parseName(strs[0]);
+				if (numberOfFeatureCategory.containsKey(key))
+				{
+					numberOfFeatureCategory.put(key, numberOfFeatureCategory.get(key) + 1);
+				}
+				else
+				{
+					numberOfFeatureCategory.put(key, 1);
+				}
+			}
+		}
+	}
+
+	private String parseName(String name)
 	{
 		if (name != null)
 			return name.replaceAll("[^a-z^A-Z]", "");
@@ -349,27 +350,60 @@ public class SVMStandardInput
 
 	public static void main(String[] args) throws IOException
 	{
-		String path = parseArgs(args)[0] + ".svm";
-		String[] input = getStandardInput(args);
-		writeToFile(path, input, false, "utf-8");
-
+		run(args);
 	}
 
-	private static void writeToFile(String file, String[] msg, boolean append, String enconding)
+	/**
+	 * 根据参数args，读取文件，转换成svm标准输入格式并保存，同时生成转换的信息文件，返回转换信息类SVMStandardInput
+	 */
+	public static SVMStandardInput run(String[] args) throws IOException
 	{
-		Writer fw = null;
+		String[] params = parseArgs(args);
+
+		Properties featureConf = getDefaultConf();
+
+		ObjectStream<Event> es = getEventStream(params[0], params[1], params[2], featureConf);
+
+		SVMStandardInput ssi = new SVMStandardInput();
+		ssi.init(es);
+
+		es.reset();
+		String[] input = standardInput(es, ssi);
+
+		es.close();
+
+		String savePath = params[3];
+		writeToFile(savePath, input, "utf-8");
+
+		ssi.saveConversionInfo(savePath + ".info", "utf-8");
+
+		return ssi;
+	}
+
+	/**
+	 * 将字符数组msg按行写出到filePath文件
+	 * 
+	 * @param filePath
+	 *            文件地址
+	 * @param msg
+	 *            文件内容
+	 * @param encoding
+	 *            编码格式
+	 */
+	public static void writeToFile(String filePath, String[] msg, String encoding)
+	{
 		BufferedWriter bw = null;
 		try
 		{
-			fw = new FileWriter(file, append);
-			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), enconding));
+			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), encoding));
 			for (int i = 0; i < msg.length; i++)
 			{
-				fw.write(msg[i]);
-				fw.write("\n");
+				bw.write(msg[i]);
+				bw.write("\n");
 			}
 
-			fw.flush();
+			bw.flush();
+			bw.close();
 		}
 		catch (FileNotFoundException e)
 		{
@@ -395,19 +429,208 @@ public class SVMStandardInput
 		}
 	}
 
-	public static List<String> getFeatureStructure()
+	/**
+	 * 将SVMStandardInput序列化
+	 */
+	private void saveConversionInfo(String filePath, String encoding) throws IOException
 	{
-		return FeatureStructure;
+		BufferedWriter bf = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), encoding));
+		;
+
+		bf.write("features=" + features.size() + "\n");
+		writeMap(features, NUMBER, bf);
+
+		bf.write("classificationResults=" + classificationResults.size() + "\n");
+		writeList(classificationResults, NUMBER, bf);
+
+		bf.write("numberOfFeatures=" + numberOfFeatures.size() + "\n");
+		writeList(numberOfFeatures, NUMBER, bf);
+
+		bf.write("numberOfClassification=" + numberOfClassification.size() + "\n");
+		writeList(numberOfClassification, NUMBER, bf);
+
+		bf.write("numberOfFeatureCategory=" + numberOfFeatureCategory.size() + "\n");
+		writeMap(numberOfFeatureCategory, NUMBER, bf);
+
+		bf.flush();
+		bf.close();
 	}
 
-	public static List<String> getClassificationResults()
+	private <T> void writeList(List<T> numList, int numberOfOneLine, BufferedWriter bf) throws IOException
 	{
-		return ClassificationResults;
+		int count = 0;
+		StringBuilder sb = new StringBuilder();
+		for (T n : numList)
+		{
+			sb.append(n);
+			count++;
+			if (count < numberOfOneLine)
+			{
+				sb.append(" ");
+			}
+			else
+			{
+				bf.write(sb.toString() + "\n");
+				count = 0;
+				sb = new StringBuilder();
+			}
+		}
+		if (count > 0)
+		{
+			bf.write(sb.toString().trim() + "\n");
+		}
 	}
 
-	public static Map<String, Map<String, Integer>> getFeatures()
+	private void writeMap(Map<String, Integer> map, int numberOfOneLine, BufferedWriter bf) throws IOException
 	{
-		return Features;
+		Set<Entry<String, Integer>> entries = map.entrySet();
+		int count = 0;
+		StringBuilder sb = new StringBuilder();
+		for (Entry<String, Integer> entry : entries)
+		{
+			sb.append(entry.getKey() + "=" + entry.getValue());
+			count++;
+			if (count < numberOfOneLine)
+			{
+				sb.append(" ");
+			}
+			else
+			{
+				bf.write(sb.toString() + "\n");
+				count = 0;
+				sb = new StringBuilder();
+			}
+		}
+		if (count > 0)
+		{
+			bf.write(sb.toString().trim() + "\n");
+		}
 	}
 
+	/**
+	 * 将SVMStandardInput反序列化
+	 */
+	public SVMStandardInput readConversionInfo(String filePath, String encoding) throws IOException
+	{
+		BufferedReader reader = new BufferedReader(
+				new InputStreamReader(new FileInputStream(new File(filePath)), encoding));
+
+		String temp = null;
+
+		if ((temp = reader.readLine()) != null)
+		{
+			String[] str = temp.split("=");
+			if (!str[0].equals("features"))
+			{
+				System.err.println(".info文件格式错误！");
+				System.exit(0);
+			}
+			this.features = readMap(Integer.valueOf(str[1]), NUMBER, reader);
+		}
+
+		if ((temp = reader.readLine()) != null)
+		{
+			String[] str = temp.split("=");
+			if (!str[0].equals("classificationResults"))
+			{
+				System.err.println(".info文件格式错误！");
+				System.exit(0);
+			}
+			this.classificationResults = readStringList(Integer.valueOf(str[1]), NUMBER, reader);
+		}
+
+		if ((temp = reader.readLine()) != null)
+		{
+			String[] str = temp.split("=");
+			if (!str[0].equals("numberOfFeatures"))
+			{
+				System.err.println(".info文件格式错误！");
+				System.exit(0);
+			}
+			this.numberOfFeatures = readIntList(Integer.valueOf(str[1]), NUMBER, reader);
+		}
+
+		if ((temp = reader.readLine()) != null)
+		{
+			String[] str = temp.split("=");
+			if (!str[0].equals("numberOfClassification"))
+			{
+				System.err.println(".info文件格式错误！");
+				System.exit(0);
+			}
+			this.numberOfClassification = readIntList(Integer.valueOf(str[1]), NUMBER, reader);
+		}
+
+		if ((temp = reader.readLine()) != null)
+		{
+			String[] str = temp.split("=");
+			if (!str[0].equals("numberOfFeatureCategory"))
+			{
+				System.err.println(".info文件格式错误！");
+				System.exit(0);
+			}
+			this.numberOfFeatureCategory = readMap(Integer.valueOf(str[1]), NUMBER, reader);
+		}
+
+		return null;
+	}
+
+	private Map<String, Integer> readMap(int total, int numberOfOneLine, BufferedReader reader) throws IOException
+	{
+		Map<String, Integer> result = new HashMap<String, Integer>();
+		int n = total / numberOfOneLine;
+		if (total % numberOfOneLine != 0)
+			n++;
+
+		for (int i = 0; i < n; i++)
+		{
+			String line = reader.readLine();
+			String[] strs = line.split(" +");
+			for (String str : strs)
+			{
+				String[] s = str.split("=");
+				result.put(s[0], Integer.valueOf(s[1]));
+			}
+		}
+		return result;
+	}
+
+	private List<String> readStringList(Integer total, int numberOfOneLine, BufferedReader reader) throws IOException
+	{
+		List<String> result = new ArrayList<String>();
+		int n = total / numberOfOneLine;
+		if (total % numberOfOneLine != 0)
+			n++;
+
+		for (int i = 0; i < n; i++)
+		{
+			String line = reader.readLine();
+			String[] strs = line.split(" +");
+			for (String str : strs)
+			{
+				result.add(str);
+			}
+		}
+		return result;
+	}
+
+	private List<Integer> readIntList(int total, int numberOfOneLine, BufferedReader reader) throws IOException
+	{
+		List<Integer> result = new ArrayList<Integer>();
+		int n = total / numberOfOneLine;
+		if (total % numberOfOneLine != 0)
+			n++;
+
+		for (int i = 0; i < n; i++)
+		{
+			String line = reader.readLine();
+			String[] strs = line.split(" +");
+			for (String str : strs)
+			{
+				result.add(Integer.valueOf(str));
+			}
+		}
+		return result;
+
+	}
 }
