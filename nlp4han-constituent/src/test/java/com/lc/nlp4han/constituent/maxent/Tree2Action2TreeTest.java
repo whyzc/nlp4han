@@ -67,6 +67,9 @@ public class Tree2Action2TreeTest
 		ConstituentTreeSample sample = HeadTreeToSample.headTreeToSample(headTree, headGen);
 		List<String> words = sample.getWords();
 		List<String> actions = sample.getActions();
+		List<String> actions1 = sample.getFirstActions();
+		List<String> actions2 = sample.getSecondActions();
+		List<String> actions3 = sample.getThirdActions();
 		TreeNode resulttree = ActionsToTree.actionsToTree(words, actions);
 		assertEquals(tree, resulttree);
 	}

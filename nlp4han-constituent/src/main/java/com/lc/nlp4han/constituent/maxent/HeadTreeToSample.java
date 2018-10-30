@@ -28,7 +28,7 @@ public class HeadTreeToSample
 	// 第三步得到的列表
 	private static List<List<HeadTreeNode>> buildAndCheckTree = new ArrayList<List<HeadTreeNode>>();
 	
-	private static int i = 0;// List<TreeNode> subTree中的index
+	private static int indexSubTree = 0;// List<TreeNode> subTree中的index
 
 	/**
 	 * 第一步POS
@@ -152,7 +152,7 @@ public class HeadTreeToSample
 		// 这里的TreeNode实现了克隆的接口，这里也就是深拷贝
 		List<HeadTreeNode> subTreeCopy;
 		
-		if (subTree.get(i).equals(tree)) // 如果当前的节点子树是第二步CHUNK后合并后的一个结果
+		if (subTree.get(indexSubTree).equals(tree)) // 如果当前的节点子树是第二步CHUNK后合并后的一个结果
 		{
 			if (tree.getParent().getChildrenNum() == 1)
 			{
@@ -161,9 +161,9 @@ public class HeadTreeToSample
 				
 				// 改变subTreeCopy
 				HeadTreeNode node = new HeadTreeNode("start_" + tree.getParent().getNodeName());
-				node.addChild(subTree.get(i));
+				node.addChild(subTree.get(indexSubTree));
 				
-				subTree.set(i, node);
+				subTree.set(indexSubTree, node);
 				
 				subTreeCopy = new ArrayList<HeadTreeNode>(subTree);
 				buildAndCheckTree.add(subTreeCopy);
@@ -182,7 +182,7 @@ public class HeadTreeToSample
 				tempnode.addChild(tree.getParent().getFirstChild());
 				
 				tree.getParent().getFirstChild().setParent(tempnode);
-				subTree.set(i, tree.getParent());
+				subTree.set(indexSubTree, tree.getParent());
 				
 				// 合并之后，以合并后的节点的父节点继续递归
 				if (tree.getParent().getParent() == null)
@@ -202,9 +202,9 @@ public class HeadTreeToSample
 					actions.add("start_" + tree.getParent().getNodeName());
 					
 					HeadTreeNode node = new HeadTreeNode("start_" + tree.getParent().getNodeName());
-					node.addChild(subTree.get(i));
+					node.addChild(subTree.get(indexSubTree));
 					
-					subTree.set(i, node);
+					subTree.set(indexSubTree, node);
 					
 					subTreeCopy = new ArrayList<HeadTreeNode>(subTree);
 					buildAndCheckTree.add(subTreeCopy);
@@ -215,8 +215,8 @@ public class HeadTreeToSample
 					// 为no的时候没有合并的操作，其实是不变的
 					buildAndCheckTree.add(subTreeCopy);
 					
-					i++;
-					if (i >= subTree.size())
+					indexSubTree++;
+					if (indexSubTree >= subTree.size())
 					{
 						return;
 					}
@@ -226,9 +226,9 @@ public class HeadTreeToSample
 					actions.add("join_" + tree.getParent().getNodeName());
 					
 					HeadTreeNode tempnode = new HeadTreeNode("join_" + tree.getParent().getNodeName());
-					tempnode.addChild(subTree.get(i));
+					tempnode.addChild(subTree.get(indexSubTree));
 					
-					subTree.set(i, tempnode);
+					subTree.set(indexSubTree, tempnode);
 					
 					subTreeCopy = new ArrayList<HeadTreeNode>(subTree);
 					buildAndCheckTree.add(subTreeCopy);
@@ -252,17 +252,17 @@ public class HeadTreeToSample
 					
 					// 对subTreeCopy更改
 					// 要更改的位置
-					int index = i - tree.getParent().getChildren().size() + 1;
+					int index = indexSubTree - tree.getParent().getChildren().size() + 1;
 					subTree.set(index, node);
 					
 					// 删除那些用于合并的join
-					for (int k = i; k >= index + 1; k--)
+					for (int k = indexSubTree; k >= index + 1; k--)
 					{
 						subTree.remove(index + 1);
 					}
 					
 					// 更改i为了下一次
-					i = index;
+					indexSubTree = index;
 					
 					// 合并之后，以合并后的节点的父节点继续递归，直到没有父节点，退出递归
 					if (node.getParent() == null)
@@ -279,9 +279,9 @@ public class HeadTreeToSample
 					actions.add("join_" + tree.getParent().getNodeName());
 					
 					HeadTreeNode node = new HeadTreeNode("join_" + tree.getParent().getNodeName());
-					node.addChild(subTree.get(i));
+					node.addChild(subTree.get(indexSubTree));
 					
-					subTree.set(i, node);
+					subTree.set(indexSubTree, node);
 					
 					subTreeCopy = new ArrayList<HeadTreeNode>(subTree);
 					buildAndCheckTree.add(subTreeCopy);
@@ -291,8 +291,8 @@ public class HeadTreeToSample
 					subTreeCopy = new ArrayList<HeadTreeNode>(subTree);
 					buildAndCheckTree.add(subTreeCopy);
 					
-					i++;
-					if (i >= subTree.size())
+					indexSubTree++;
+					if (indexSubTree >= subTree.size())
 					{
 						return;
 					}
@@ -321,7 +321,7 @@ public class HeadTreeToSample
 	public static ConstituentTreeSample headTreeToSample(HeadTreeNode tree, AbstractHeadGenerator headGen)
 			throws CloneNotSupportedException
 	{
-		i = 0;
+		indexSubTree = 0;
 		posTree.clear();
 		chunkTree.clear();
 		buildAndCheckTree.clear();
