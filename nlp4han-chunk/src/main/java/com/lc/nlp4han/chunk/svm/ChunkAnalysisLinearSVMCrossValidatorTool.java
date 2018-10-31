@@ -23,36 +23,47 @@ import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 import com.lc.nlp4han.ml.util.PlainTextByLineStream;
 
-public class ChunkAnalysisSVMCrossValidatorTool
+public class ChunkAnalysisLinearSVMCrossValidatorTool
 {
-	private static final String USAGE = "Usage: ChunkAnalysisSVMCrossValidatorTool [options] -data training_set_file\n"
+	private static final String USAGE = "Usage: ChunkAnalysisLinearLinearSVMCrossValidatorTool [options] -data training_set_file\n"
 			+ "options:\n" + "-encoding encoding : set encoding\n" 
 			+ "-label label : such as BIOE, BIOES\n"
 			+ "-v n : n-fold cross validation mode(default 10)\n" 
-			+ "-s svm_type : set type of SVM (default 0)\n"
-			+ "	0 -- C-SVC		(multi-class classification)\n" 
-			+ "	1 -- nu-SVC		(multi-class classification)\n"
-			+ "	2 -- one-class SVM\n" + "	3 -- epsilon-SVR	(regression)\n" 
-			+ "	4 -- nu-SVR		(regression)\n"
-			+ "-t kernel_type : set type of kernel function (default 2)\n" 
-			+ "	0 -- linear: u'*v\n"
-			+ "	1 -- polynomial: (gamma*u'*v + coef0)^degree\n" 
-			+ "	2 -- radial basis function: exp(-gamma*|u-v|^2)\n"
-			+ "	3 -- sigmoid: tanh(gamma*u'*v + coef0)\n"
-			+ "	4 -- precomputed kernel (kernel values in training_set_file)\n"
-			+ "-d degree : set degree in kernel function (default 3)\n"
-			+ "-g gamma : set gamma in kernel function (default 1/num_features)\n"
-			+ "-r coef0 : set coef0 in kernel function (default 0)\n"
-			+ "-c cost : set the parameter C of C-SVC, epsilon-SVR, and nu-SVR (default 1)\n"
-			+ "-n nu : set the parameter nu of nu-SVC, one-class SVM, and nu-SVR (default 0.5)\n"
-			+ "-p epsilon : set the epsilon in loss function of epsilon-SVR (default 0.1)\n"
-			+ "-m cachesize : set cache memory size in MB (default 100)\n"
-			+ "-e epsilon : set tolerance of termination criterion (default 0.001)\n"
-			+ "-h shrinking : whether to use the shrinking heuristics, 0 or 1 (default 1)\n"
-			+ "-b probability_estimates : whether to train a SVC or SVR model for probability estimates, 0 or 1 (default 0)\n"
-			+ "-wi weight : set the parameter C of class i to weight*C, for C-SVC (default 1)\n"
-			+ "-q : quiet mode (no outputs)\n";
-
+			+ "-s type : set type of solver (default 1)%n" 
+			+ "  for multi-class classification%n"
+			+ "    0 -- L2-regularized logistic regression (primal)%n"
+			+ "    1 -- L2-regularized L2-loss support vector classification (dual)%n"
+			+ "    2 -- L2-regularized L2-loss support vector classification (primal)%n"
+			+ "    3 -- L2-regularized L1-loss support vector classification (dual)%n"
+			+ "    4 -- support vector classification by Crammer and Singer%n"
+			+ "    5 -- L1-regularized L2-loss support vector classification%n"
+			+ "    6 -- L1-regularized logistic regression%n" 
+			+ "    7 -- L2-regularized logistic regression (dual)%n"
+			+ "  for regression%n" 
+			+ "   11 -- L2-regularized L2-loss support vector regression (primal)%n"
+			+ "   12 -- L2-regularized L2-loss support vector regression (dual)%n"
+			+ "   13 -- L2-regularized L1-loss support vector regression (dual)%n"
+			+ "-c cost : set the parameter C (default 1)%n"
+			+ "-p epsilon : set the epsilon in loss function of SVR (default 0.1)%n"
+			+ "-e epsilon : set tolerance of termination criterion%n" 
+			+ "   -s 0 and 2%n"
+			+ "       |f'(w)|_2 <= eps*min(pos,neg)/l*|f'(w0)|_2,%n"
+			+ "       where f is the primal function and pos/neg are # of%n"
+			+ "       positive/negative data (default 0.01)%n" 
+			+ "   -s 11%n"
+			+ "       |f'(w)|_2 <= eps*|f'(w0)|_2 (default 0.001)%n" 
+			+ "   -s 1, 3, 4 and 7%n"
+			+ "       Dual maximal violation <= eps; similar to libsvm (default 0.1)%n" 
+			+ "   -s 5 and 6%n"
+			+ "       |f'(w)|_1 <= eps*min(pos,neg)/l*|f'(w0)|_1,%n"
+			+ "       where f is the primal function (default 0.01)%n" 
+			+ "   -s 12 and 13%n"
+			+ "       |f'(alpha)|_1 <= eps |f'(alpha0)|,%n" 
+			+ "       where f is the dual function (default 0.1)%n"
+			+ "-B bias : if bias >= 0, instance x becomes [x; bias]; if < 0, no bias term added (default -1)%n"
+			+ "-wi weight: weights adjust the parameter C of different classes (see README for details)%n"
+			+ "-C : find parameter C (only for -s 0 and 2)%n" 
+			+ "-q : quiet mode (no outputs)%n";
 
 	public static void main(String[] args) throws IOException, InvalidInputDataException
 	{
@@ -60,7 +71,6 @@ public class ChunkAnalysisSVMCrossValidatorTool
 		String scheme = "BIOE";
 		String encoding = "UTF-8";
 		String corpusFile = null;
-		String[] trainArgs = null;
 		List<String> trainArgsList = new ArrayList<String>();
 
 		for (int i = 0; i < args.length; i++)
@@ -91,37 +101,7 @@ public class ChunkAnalysisSVMCrossValidatorTool
 				trainArgsList.add(args[i + 1]);
 				i++;
 			}
-			else if (args[i].equals("-t"))
-			{
-				trainArgsList.add(args[i]);
-				trainArgsList.add(args[i + 1]);
-				i++;
-			}
-			else if (args[i].equals("-d"))
-			{
-				trainArgsList.add(args[i]);
-				trainArgsList.add(args[i + 1]);
-				i++;
-			}
-			else if (args[i].equals("-g"))
-			{
-				trainArgsList.add(args[i]);
-				trainArgsList.add(args[i + 1]);
-				i++;
-			}
-			else if (args[i].equals("-r"))
-			{
-				trainArgsList.add(args[i]);
-				trainArgsList.add(args[i + 1]);
-				i++;
-			}
 			else if (args[i].equals("-c"))
-			{
-				trainArgsList.add(args[i]);
-				trainArgsList.add(args[i + 1]);
-				i++;
-			}
-			else if (args[i].equals("-n"))
 			{
 				trainArgsList.add(args[i]);
 				trainArgsList.add(args[i + 1]);
@@ -133,29 +113,21 @@ public class ChunkAnalysisSVMCrossValidatorTool
 				trainArgsList.add(args[i + 1]);
 				i++;
 			}
-			else if (args[i].equals("-m"))
-			{
-				trainArgsList.add(args[i]);
-				trainArgsList.add(args[i + 1]);
-				i++;
-			}
 			else if (args[i].equals("-e"))
 			{
 				trainArgsList.add(args[i]);
 				trainArgsList.add(args[i + 1]);
 				i++;
 			}
-			else if (args[i].equals("-h"))
+			else if (args[i].equals("-B"))
 			{
 				trainArgsList.add(args[i]);
 				trainArgsList.add(args[i + 1]);
 				i++;
 			}
-			else if (args[i].equals("-b"))
+			else if (args[i].equals("-C"))
 			{
 				trainArgsList.add(args[i]);
-				trainArgsList.add(args[i + 1]);
-				i++;
 			}
 			else if (args[i].equals("-q"))
 			{
@@ -176,6 +148,7 @@ public class ChunkAnalysisSVMCrossValidatorTool
 				}
 			}
 		}
+		
 		if (corpusFile == null)
 		{
 			System.err.println(USAGE);
@@ -193,8 +166,9 @@ public class ChunkAnalysisSVMCrossValidatorTool
 		
 		trainArgsList.add(corpusFile + ".svm.cv");
 		trainArgsList.add(corpusFile + ".model.cv");
+		
 
-		trainArgs = trainArgsList.toArray(new String[trainArgsList.size()]);
+		String[] trainArgs = trainArgsList.toArray(new String[trainArgsList.size()]);
 
 		ObjectStream<String> lineStream = new PlainTextByLineStream(
 				new MarkableFileInputStreamFactory(new File(corpusFile)), encoding);
@@ -222,7 +196,7 @@ public class ChunkAnalysisSVMCrossValidatorTool
 		Properties p = SVMStandardInput.getDefaultConf();
 		ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisWordPosContextGeneratorConf(p);
 		ChunkAnalysisSVMCrossValidation crossValidator = new ChunkAnalysisSVMCrossValidation(trainArgs);
-		ChunkAnalysisSVMME me = new ChunkAnalysisSVMME();
+		ChunkAnalysisLinearSVMME me = new ChunkAnalysisLinearSVMME();
 		crossValidator.evaluate(sampleStream, folds, me, contextGen, measure, p);
 
 		sampleStream.close();

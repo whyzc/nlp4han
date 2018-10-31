@@ -1,70 +1,26 @@
 package com.lc.nlp4han.chunk.svm;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisMeasure;
-import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.chunk.AbstractChunkSampleParser;
-import com.lc.nlp4han.chunk.ChunkAnalysisContextGenerator;
-import com.lc.nlp4han.chunk.ChunkAnalysisErrorPrinter;
-import com.lc.nlp4han.chunk.ChunkAnalysisEvaluateMonitor;
 import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIEO;
 import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIEOS;
 import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIO;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosContextGeneratorConf;
 import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosParserBIEO;
 import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosParserBIEOS;
 import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosParserBIO;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosSampleStream;
-import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
-import com.lc.nlp4han.ml.util.ObjectStream;
-import com.lc.nlp4han.ml.util.PlainTextByLineStream;
 
-public class ChunkAnalysisSVMEvalTool
+public class ChunkAnalysisLinearSVMEvalTool
 {
-	private static final String USAGE = "Usage: ChunkAnalysisSVMEvalTool [options] -goal predicting_set_file\n"
+	private static final String USAGE = "Usage: ChunkAnalysisLinearSVMEvalTool [options] -goal predicting_set_file\n"
 			+ "options:\n" 
 			+ "-label label : such as BIOE, BIOES\n"
 			+ "-encoding encoding : set encoding form\n" 
 			+ "-model model_file : set model path\n"
 			+ "-transform transformation_file : set transformation file, end with '.info' \n"
 			+ "-error error_messages_file : output error messages\n";
-
-	public static void eval(String modelFile, String goldFile, String path, String encoding, File errorFile,
-			SVMME tagger, AbstractChunkSampleParser parse, AbstractChunkAnalysisMeasure measure, String label) throws IOException
-	{
-		long start = System.currentTimeMillis();
-
-		ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisWordPosContextGeneratorConf();
-		tagger.setContextgenerator(contextGen);
-		tagger.setLabel(label);
-		tagger.setSVMStandardInput(path);
-		tagger.setModel(modelFile);
-		ChunkAnalysisSVMEvaluator evaluator = null;
-
-		if (errorFile != null)
-		{
-			ChunkAnalysisEvaluateMonitor errorMonitor = new ChunkAnalysisErrorPrinter(new FileOutputStream(errorFile));
-			evaluator = new ChunkAnalysisSVMEvaluator(tagger, measure, errorMonitor);
-		}
-		else
-			evaluator = new ChunkAnalysisSVMEvaluator(tagger);
-
-		evaluator.setMeasure(measure);
-
-		ObjectStream<String> goldStream = new PlainTextByLineStream(
-				new MarkableFileInputStreamFactory(new File(goldFile)), encoding);
-		ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkAnalysisWordPosSampleStream(goldStream, parse,
-				label);
-
-		start = System.currentTimeMillis();
-		evaluator.evaluate(testStream);
-		System.out.println("标注时间： " + (System.currentTimeMillis() - start));
-
-		System.out.println(evaluator.getMeasure());
-	}
-
 	public static void main(String[] args) throws IOException
 	{
 		String usage = USAGE;
@@ -131,7 +87,7 @@ public class ChunkAnalysisSVMEvalTool
 
 		AbstractChunkSampleParser parse;
 		AbstractChunkAnalysisMeasure measure;
-		ChunkAnalysisSVMME tagger = new ChunkAnalysisSVMME();
+		ChunkAnalysisLinearSVMME tagger = new ChunkAnalysisLinearSVMME();
 
 		if (scheme.equals("BIEOS"))
 		{
@@ -150,9 +106,11 @@ public class ChunkAnalysisSVMEvalTool
 		}
 
 		if (errorFile != null)
-			eval(modelpath, goldFile, transformationFile, encoding, new File(errorFile), tagger, parse, measure, scheme);
+			ChunkAnalysisSVMEvalTool.eval(modelpath, goldFile, transformationFile, encoding, new File(errorFile),
+					tagger, parse, measure, scheme);
 		else
-			eval(modelpath, goldFile, transformationFile, encoding, null, tagger, parse, measure, scheme);
+			ChunkAnalysisSVMEvalTool.eval(modelpath, goldFile, transformationFile, encoding, null, tagger, parse,
+					measure, scheme);
 
 	}
 }
