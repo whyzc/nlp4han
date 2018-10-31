@@ -7,38 +7,50 @@ import java.util.List;
 import java.util.Map;
 
 import com.lc.nlp4han.chunk.svm.liblinear.InvalidInputDataException;
+import com.lc.nlp4han.chunk.svm.liblinear.Train;
 
-public class ChunkAnalysisSVMTrainerTool
+public class ChunkAnalysisLinearSVMTrainerTool
 {
-	private static final String USAGE = "Usage: ChunkAnalysisSVMTrainerTool [options] -data training_set_file\n"
+	private static final String USAGE = "Usage: ChunkAnalysisLinearSVMTrainerTool [options] -data training_set_file\n"
 			+ "options:\n" 
 			+ "-encoding encoding : set encoding\n" 
 			+ "-label label : such as BIOE, BIOES\n"
 			+ "-model model_path : set the model save path\n"
-			+ "-s svm_type : set type of SVM (default 0)\n" 
-			+ "	0 -- C-SVC		(multi-class classification)\n"
-			+ "	1 -- nu-SVC		(multi-class classification)\n" 
-			+ "	2 -- one-class SVM\n"
-			+ "	3 -- epsilon-SVR	(regression)\n" 
-			+ "	4 -- nu-SVR		(regression)\n"
-			+ "-t kernel_type : set type of kernel function (default 2)\n" 
-			+ "	0 -- linear: u'*v\n"
-			+ "	1 -- polynomial: (gamma*u'*v + coef0)^degree\n" 
-			+ "	2 -- radial basis function: exp(-gamma*|u-v|^2)\n"
-			+ "	3 -- sigmoid: tanh(gamma*u'*v + coef0)\n"
-			+ "	4 -- precomputed kernel (kernel values in training_set_file)\n"
-			+ "-d degree : set degree in kernel function (default 3)\n"
-			+ "-g gamma : set gamma in kernel function (default 1/num_features)\n"
-			+ "-r coef0 : set coef0 in kernel function (default 0)\n"
-			+ "-c cost : set the parameter C of C-SVC, epsilon-SVR, and nu-SVR (default 1)\n"
-			+ "-n nu : set the parameter nu of nu-SVC, one-class SVM, and nu-SVR (default 0.5)\n"
-			+ "-p epsilon : set the epsilon in loss function of epsilon-SVR (default 0.1)\n"
-			+ "-m cachesize : set cache memory size in MB (default 100)\n"
-			+ "-e epsilon : set tolerance of termination criterion (default 0.001)\n"
-			+ "-h shrinking : whether to use the shrinking heuristics, 0 or 1 (default 1)\n"
-			+ "-b probability_estimates : whether to train a SVC or SVR model for probability estimates, 0 or 1 (default 0)\n"
-			+ "-wi weight : set the parameter C of class i to weight*C, for C-SVC (default 1)\n"
-			+ "-q : quiet mode (no outputs)\n";
+			+ "-s type : set type of solver (default 1)%n" 
+			+ "  for multi-class classification%n"
+			+ "    0 -- L2-regularized logistic regression (primal)%n"
+			+ "    1 -- L2-regularized L2-loss support vector classification (dual)%n"
+			+ "    2 -- L2-regularized L2-loss support vector classification (primal)%n"
+			+ "    3 -- L2-regularized L1-loss support vector classification (dual)%n"
+			+ "    4 -- support vector classification by Crammer and Singer%n"
+			+ "    5 -- L1-regularized L2-loss support vector classification%n"
+			+ "    6 -- L1-regularized logistic regression%n" 
+			+ "    7 -- L2-regularized logistic regression (dual)%n"
+			+ "  for regression%n" 
+			+ "   11 -- L2-regularized L2-loss support vector regression (primal)%n"
+			+ "   12 -- L2-regularized L2-loss support vector regression (dual)%n"
+			+ "   13 -- L2-regularized L1-loss support vector regression (dual)%n"
+			+ "-c cost : set the parameter C (default 1)%n"
+			+ "-p epsilon : set the epsilon in loss function of SVR (default 0.1)%n"
+			+ "-e epsilon : set tolerance of termination criterion%n" 
+			+ "   -s 0 and 2%n"
+			+ "       |f'(w)|_2 <= eps*min(pos,neg)/l*|f'(w0)|_2,%n"
+			+ "       where f is the primal function and pos/neg are # of%n"
+			+ "       positive/negative data (default 0.01)%n" 
+			+ "   -s 11%n"
+			+ "       |f'(w)|_2 <= eps*|f'(w0)|_2 (default 0.001)%n" 
+			+ "   -s 1, 3, 4 and 7%n"
+			+ "       Dual maximal violation <= eps; similar to libsvm (default 0.1)%n" 
+			+ "   -s 5 and 6%n"
+			+ "       |f'(w)|_1 <= eps*min(pos,neg)/l*|f'(w0)|_1,%n"
+			+ "       where f is the primal function (default 0.01)%n" 
+			+ "   -s 12 and 13%n"
+			+ "       |f'(alpha)|_1 <= eps |f'(alpha0)|,%n" 
+			+ "       where f is the dual function (default 0.1)%n"
+			+ "-B bias : if bias >= 0, instance x becomes [x; bias]; if < 0, no bias term added (default -1)%n"
+			+ "-wi weight: weights adjust the parameter C of different classes (see README for details)%n"
+			+ "-C : find parameter C (only for -s 0 and 2)%n" 
+			+ "-q : quiet mode (no outputs)%n";
 
 	public static void main(String[] args) throws IOException, InvalidInputDataException
 	{
@@ -58,7 +70,7 @@ public class ChunkAnalysisSVMTrainerTool
 
 		String[] trainArgs = as.get("train");
 
-		svm_train.main(trainArgs);
+		Train.main(trainArgs);
 
 		long endTime = System.currentTimeMillis();
 		System.out.println("共耗时：" + (endTime - startTime) * 1.0 / 60000 + "mins");
@@ -84,7 +96,7 @@ public class ChunkAnalysisSVMTrainerTool
 			case "-data":
 				standardInputArgs.add(args[i]);
 				standardInputArgs.add(args[i + 1]);
-				dataPath = args[i+1];
+				dataPath = args[i + 1];
 				i++;
 				break;
 			case "-encoding":
@@ -103,42 +115,7 @@ public class ChunkAnalysisSVMTrainerTool
 				trainArgs.add(args[i + 1]);
 				i++;
 				break;
-			case "-t":
-				trainArgs.add(args[i]);
-				trainArgs.add(args[i + 1]);
-				i++;
-				break;
-			case "-d":
-				trainArgs.add(args[i]);
-				trainArgs.add(args[i + 1]);
-				i++;
-				break;
-			case "-g":
-				trainArgs.add(args[i]);
-				trainArgs.add(args[i + 1]);
-				i++;
-				break;
-			case "-r":
-				trainArgs.add(args[i]);
-				trainArgs.add(args[i + 1]);
-				i++;
-				break;
-			case "-n":
-				trainArgs.add(args[i]);
-				trainArgs.add(args[i + 1]);
-				i++;
-				break;
-			case "-m":
-				trainArgs.add(args[i]);
-				trainArgs.add(args[i + 1]);
-				i++;
-				break;
 			case "-c":
-				trainArgs.add(args[i]);
-				trainArgs.add(args[i + 1]);
-				i++;
-				break;
-			case "-e":
 				trainArgs.add(args[i]);
 				trainArgs.add(args[i + 1]);
 				i++;
@@ -148,21 +125,24 @@ public class ChunkAnalysisSVMTrainerTool
 				trainArgs.add(args[i + 1]);
 				i++;
 				break;
-			case "-h":
+			case "-e":
 				trainArgs.add(args[i]);
 				trainArgs.add(args[i + 1]);
 				i++;
 				break;
-			case "-b":
+			case "-B":
 				trainArgs.add(args[i]);
 				trainArgs.add(args[i + 1]);
 				i++;
+				break;
+			case "-C":
+				trainArgs.add(args[i]);
 				break;
 			case "-q":
 				trainArgs.add(args[i]);
 				break;
 			case "-model":
-				modelPath = args[i+1];
+				modelPath = args[i + 1];
 				i++;
 				break;
 			default:
@@ -177,10 +157,9 @@ public class ChunkAnalysisSVMTrainerTool
 					System.err.println(USAGE);
 					System.exit(1);
 				}
-
 			}
 		}
-		
+
 		if (dataPath == null)
 		{
 			System.err.println(USAGE);

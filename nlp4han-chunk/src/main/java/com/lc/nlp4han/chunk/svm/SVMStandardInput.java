@@ -35,7 +35,13 @@ import com.lc.nlp4han.ml.util.PlainTextByLineStream;
 
 public class SVMStandardInput
 {
-
+	private static final String USAGE = "Usage: SVMStandardInput [options] -data data_file\n"
+			+ "options:\n" 
+			+ "-label label : such as BIOE, BIOES\n"
+			+ "-encoding encoding : set encoding form\n" 
+			+ "-save save_file : set save file path\n"
+			;
+	
 	public static final String SEPARATOR = ".";
 
 	private Map<String, Integer> features = new HashMap<String, Integer>();
@@ -140,7 +146,7 @@ public class SVMStandardInput
 	 */
 	private static String[] parseArgs(String[] args)
 	{
-		String usage = ChunkAnalysisSVMTrainerTool.USAGE;
+		String usage = USAGE;
 
 		String encoding = "utf-8";
 
@@ -172,12 +178,17 @@ public class SVMStandardInput
 				savePath = args[i + 1];
 				i++;
 			}
+			else
+			{
+				System.err.println(usage);
+				System.exit(1);
+			}
 
 		}
 
 		if (docPath == null)
 		{
-			System.err.println("Usage: " + usage);
+			System.err.println(usage);
 			System.exit(1);
 		}
 
@@ -631,6 +642,5 @@ public class SVMStandardInput
 			}
 		}
 		return result;
-
 	}
 }

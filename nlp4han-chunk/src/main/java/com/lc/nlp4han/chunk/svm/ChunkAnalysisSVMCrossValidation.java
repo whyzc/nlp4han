@@ -6,6 +6,7 @@ import java.util.Properties;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisMeasure;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.chunk.ChunkAnalysisContextGenerator;
+import com.lc.nlp4han.chunk.svm.liblinear.InvalidInputDataException;
 import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosSampleStream;
 import com.lc.nlp4han.ml.util.CrossValidationPartitioner;
 import com.lc.nlp4han.ml.util.ObjectStream;
@@ -45,10 +46,11 @@ public class ChunkAnalysisSVMCrossValidation
 	 * @param measure
 	 *            组块分析评价器
 	 * @throws IOException
+	 * @throws InvalidInputDataException 
 	 */
 	public void evaluate(ObjectStream<AbstractChunkAnalysisSample> sampleStream, int nFolds,
-			ChunkAnalysisContextGenerator contextGenerator, AbstractChunkAnalysisMeasure measure, Properties properties)
-			throws IOException
+			SVMME me, ChunkAnalysisContextGenerator contextGenerator, AbstractChunkAnalysisMeasure measure, Properties properties)
+			throws IOException, InvalidInputDataException
 	{
 		CrossValidationPartitioner<AbstractChunkAnalysisSample> partitioner = new CrossValidationPartitioner<AbstractChunkAnalysisSample>(
 				sampleStream, nFolds);
@@ -69,7 +71,8 @@ public class ChunkAnalysisSVMCrossValidation
 			trainingSampleStream.reset();
 			measure.setDictionary(dict);
 
-			ChunkAnalysisSVMME me = new ChunkAnalysisSVMME(contextGenerator, label);
+			me.setContextgenerator(contextGenerator);
+			me.setLabel(label);
 			long start = System.currentTimeMillis();
 			me.train(trainingSampleStream, args, contextGenerator);
 			me.setModel(modelPath);

@@ -4,30 +4,30 @@ import java.io.IOException;
 
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisMeasure;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
+import com.lc.nlp4han.chunk.ChunkAnalysisEvaluateMonitor;
 import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosSample;
-import com.lc.nlp4han.ml.util.EvaluationMonitor;
 import com.lc.nlp4han.ml.util.Evaluator;
 
 public class ChunkAnalysisSVMEvaluator extends Evaluator<AbstractChunkAnalysisSample>
 {
-	private ChunkAnalysisSVMME chunkTagger;
+	private SVMME chunkTagger;
 
 	private AbstractChunkAnalysisMeasure measure;
 
-	public ChunkAnalysisSVMEvaluator(ChunkAnalysisSVMME chunkTagger, AbstractChunkAnalysisMeasure measure,
-			EvaluationMonitor<AbstractChunkAnalysisSample>... aListeners)
+	public ChunkAnalysisSVMEvaluator(SVMME chunkTagger, AbstractChunkAnalysisMeasure measure,
+			ChunkAnalysisEvaluateMonitor... evaluateMonitors)
 	{
-		super(aListeners);
+		super(evaluateMonitors);
 		this.chunkTagger = chunkTagger;
 		this.measure = measure;
 	}
 
-	public ChunkAnalysisSVMEvaluator(ChunkAnalysisSVMME chunkTagger)
+	public ChunkAnalysisSVMEvaluator(SVMME chunkTagger)
 	{
 		this.chunkTagger = chunkTagger;
 	}
 
-	public void setChunkTagger(ChunkAnalysisSVMME chunkTagger)
+	public void setChunkTagger(SVMME chunkTagger)
 	{
 		this.chunkTagger = chunkTagger;
 	}

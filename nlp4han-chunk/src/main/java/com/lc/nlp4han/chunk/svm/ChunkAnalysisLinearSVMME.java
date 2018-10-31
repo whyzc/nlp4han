@@ -1,19 +1,25 @@
 package com.lc.nlp4han.chunk.svm;
 
+import java.io.File;
 import java.io.IOException;
-import com.lc.nlp4han.chunk.Chunk;
-import com.lc.nlp4han.chunk.svm.libsvm.svm;
-import com.lc.nlp4han.chunk.svm.libsvm.svm_model;
 
-public class ChunkAnalysisSVMME extends SVMME
+import com.lc.nlp4han.chunk.Chunk;
+import com.lc.nlp4han.chunk.svm.liblinear.InvalidInputDataException;
+import com.lc.nlp4han.chunk.svm.liblinear.Linear;
+import com.lc.nlp4han.chunk.svm.liblinear.Model;
+import com.lc.nlp4han.chunk.svm.liblinear.PredictLinear;
+import com.lc.nlp4han.chunk.svm.liblinear.Train;
+
+public class ChunkAnalysisLinearSVMME extends SVMME
 {
-	private svm_model model = null;
+	Model model = null;
 	
 	@Override
 	public double predictOneLine(String line, Object model) throws IOException
 	{
-		svm_model svmModel = (svm_model)model;
-		return SVMPredict.predict(line, svmModel, 0);
+		Model modelLinear = (Model)model;
+		return PredictLinear.doPredict(line, modelLinear);
+		
 	}
 
 	@Override
@@ -21,9 +27,9 @@ public class ChunkAnalysisSVMME extends SVMME
 	{
 		try
 		{
-			svm_train.main(arg);
+			Train.main(arg);
 		}
-		catch (IOException e)
+		catch (IOException | InvalidInputDataException e)
 		{
 			e.printStackTrace();
 		}
@@ -41,7 +47,7 @@ public class ChunkAnalysisSVMME extends SVMME
 	{
 		try
 		{
-			this.model = svm.svm_load_model(modelPath);
+			this.model = Linear.loadModel(new File(modelPath));
 		}
 		catch (IOException e)
 		{
@@ -52,7 +58,7 @@ public class ChunkAnalysisSVMME extends SVMME
 	@Override
 	public void setModel(Object model)
 	{
-		this.model = (svm_model)model;
+		this.model = (Model)model;
 	}
 	
 	@Override
