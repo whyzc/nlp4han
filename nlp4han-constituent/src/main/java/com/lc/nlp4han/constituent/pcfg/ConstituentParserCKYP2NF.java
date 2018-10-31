@@ -14,9 +14,13 @@ public class ConstituentParserCKYP2NF implements ConstituentParser
 {
 	private CKYTreeNode[][] table;// 存储在该点的映射表
 	private PCFG pcnf;
+	private double pruneThreshold;// 剪枝阈值
+	private boolean secondPrune;// 是否进行二次剪枝
 
-	public ConstituentParserCKYP2NF(PCFG pcnf)
+	public ConstituentParserCKYP2NF(PCFG pcnf, double pruneThreshold, boolean secondPrune)
 	{
+		this.pruneThreshold = pruneThreshold;
+		this.secondPrune = secondPrune;
 		this.pcnf = pcnf;
 	}
 
@@ -94,7 +98,7 @@ public class ConstituentParserCKYP2NF implements ConstituentParser
 		int i = 0;
 		ConstituentTree[] treeArray = new ConstituentTree[k];
 		ArrayList<String> bracketList = parseCKY(words, poses, k, true);
-		if (bracketList.size() == 0 && words.length <= 70)
+		if (secondPrune && bracketList.size() == 0 && words.length <= 70)
 		{
 			bracketList = parseCKY(words, poses, k, false);
 		}
@@ -120,7 +124,7 @@ public class ConstituentParserCKYP2NF implements ConstituentParser
 	 * 
 	 * @return 输出k个句子解析结果
 	 */
-	private ArrayList<String> parseCKY(String[] words, String[] pos, int numOfResulets, boolean prun)
+	private ArrayList<String> parseCKY(String[] words, String[] pos, int numOfResulets, boolean prune)
 	{
 		int n = words.length;
 		// 初始化
@@ -137,7 +141,7 @@ public class ConstituentParserCKYP2NF implements ConstituentParser
 					updateTable(i, k, j, n, numOfResulets);
 				}
 				// 剪枝
-				if (prun)
+				if (prune)
 				{
 					prunEdge(i, j);
 				}
@@ -169,7 +173,7 @@ public class ConstituentParserCKYP2NF implements ConstituentParser
 		}
 		for (String str : map.keySet())
 		{
-			if (map.get(str).get(0).getProb() < bestPro * 0.0001)
+			if (map.get(str).get(0).getProb() < bestPro * pruneThreshold)
 			{
 				deleteList.add(str);
 			}

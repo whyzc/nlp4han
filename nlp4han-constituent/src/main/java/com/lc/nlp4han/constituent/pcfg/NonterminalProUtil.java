@@ -14,7 +14,6 @@ public class NonterminalProUtil
 {
 	public static HashMap<String, Double> getNonterminalPro(String fileName, String enCoding) throws IOException
 	{
-		System.out.println("进来了");
 		// 括号表达式树拼接成括号表达式String数组
 		PlainTextByTreeStream ptbt = new PlainTextByTreeStream(new FileInputStreamFactory(new File(fileName)),
 				enCoding);
@@ -26,23 +25,19 @@ public class NonterminalProUtil
 			bracketStr = ptbt.read();
 		}
 		ptbt.close();
-		System.out.println("句子个数= " + bracketStrList.size());
 		// 括号表达式生成文法
 		HashMap<String, Double> map = brackets2Map(bracketStrList);
-		System.out.println("出去了  " + map.size());
 		return map;
 	}
 
 	private static HashMap<String, Double> brackets2Map(ArrayList<String> bracketStrList)
 	{
-		System.out.println("进来了1");
 		HashMap<String, Integer> map = new HashMap<String, Integer>();
 		for (String bracketStr : bracketStrList)
 		{
 			TreeNode rootNode1 = BracketExpUtil.generateTree(bracketStr);
 			traverse(rootNode1, map);
 		}
-		System.out.println("整数map的大小  " + map.size());
 		HashMap<String, Double> map1 = computePro(map);
 		return map1;
 	}

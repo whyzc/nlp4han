@@ -158,6 +158,6 @@ public class RewriteRule
 			strb.append(st);
 			strb.append(" ");
 		}
-		return strb.toString();
+		return strb.toString().trim();
 	}
 }
