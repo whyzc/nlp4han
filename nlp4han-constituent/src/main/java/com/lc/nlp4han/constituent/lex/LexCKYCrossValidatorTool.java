@@ -88,7 +88,6 @@ public class LexCKYCrossValidatorTool
 	{
 		if (args.length < 1)
 		{
-			// usage();
 			return;
 		}
 

@@ -50,7 +50,6 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 		return parse(words, null, 1)[0];
 	}
 
-
 	/**
 	 * 得到概率最高k个的成分树
 	 * 
@@ -79,7 +78,11 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 	public ConstituentTree[] parse(String[] words, String[] poses, int k)
 	{
 		ConstituentTree[] treeArray = new ConstituentTree[k];
-		ArrayList<String> bracketList = parseCKY(words, poses, k);
+		ArrayList<String> bracketList = parseCKY(words, poses, k, true);
+/*		if (bracketList.size() == 0 && words.length <= 70)
+		{
+			bracketList = parseCKY(words, poses, k, false);
+		}*/
 		int i = 0;
 		for (String bracketString : bracketList)
 		{
@@ -105,67 +108,120 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 	 * 
 	 * @return 输出k个句子解析结果
 	 */
-	private ArrayList<String> parseCKY(String[] words, String[] pos, Integer numOfResulets)
+	private ArrayList<String> parseCKY(String[] words, String[] pos, Integer numOfResulets, boolean prun)
 	{
 		int n = words.length;
-		table = new CKYCell[n + 1][n + 1];
-		for (int i = 0; i <= n; i++)
+
+		// 初始化
+		initializeChart(words, pos);
+
+		// 填充chart图中的边
+		for (int span = 2; span <= n; span++)
 		{
-			for (int j = 1; j <= n; j++)
+			for (int i = 0; i <= n - span; i++)
 			{
-
-				if (j > i + 1)
-				{// 矩阵的上三角才会用于存储数据
-					table[i][j] = new CKYCell(new HashMap<String, CKYPRule>(), false);
-				}
-				else if (j == i + 1)
-				{// 对角线上的点的flag需要标记为true作为区别
-					table[i][j] = new CKYCell(new HashMap<String, CKYPRule>(), true);
-				}
-
-			}
-		}
-		
-		// 开始剖析
-		for (int j = 1; j <= n; j++)
-		{// 从第一列开始，由左往右
-			HashMap<String, CKYPRule> ruleMap = table[j - 1][j].getPruleMap();
-			if (pos == null)
-			{// 由分词结果反推得到规则，并进行table表对角线的初始化
-				for (RewriteRule rule0 : pcnf.getRuleByrhs(words[j - 1]))
-				{
-					PRule rule = (PRule) rule0;
-					String lhs = rule.getLhs().split("@")[0];
-					CKYPRule ckyrule = new CKYPRule(rule.getProb(), rule.getLhs(), rule.getRhs(), 0, 0, 0);
-					ruleMap.put(lhs, ckyrule);
-					updateCellRules(rule.getProb(), ruleMap, rule.getLhs(), words[j - 1], null, 0);
-				}
-			}
-			else
-			{// 根据分词和词性标注的结果进行table表对角线的j初始化
-				CKYPRule ckyrule = new CKYPRule(1.0, pos[j - 1], words[j - 1], 0, 0, 0);
-				ruleMap.put(pos[j - 1], ckyrule);
-				updateCellRules(1.0, ruleMap, pos[j - 1], words[j - 1], null, 0);
-			}
-			
-			if (j <= 1)
-			{
-				continue;
-			}
-			
-			for (int i = j - 2; i >= 0; i--)
-			{// 从第j-2行开始，由下到上
+				int j = i + span;
 				for (int k = i + 1; k <= j - 1; k++)
 				{// 遍历table[i][k]和table[k][j]中的映射表，更新table[i][j]和back[i][j]
 					updateTable(i, k, j, n, numOfResulets);
 				}
+				// 剪枝
+				if (prun)
+				{
+					prunEdge(i, j);
+				}
+
 			}
 		}
-		
+
+		/*
+		 * for (int i = 0; i < 4; i++) { for (int j = 1; j <= 4; j++) {
+		 * System.out.println("i=  " + i + "   j=" + j +
+		 * "------------------------------"); if (table[i][j] == null) { break; } for
+		 * (String str : table[i][j].getPruleMap().keySet()) {
+		 * System.out.println("String= " + str + "  规则=" +
+		 * table[i][j].getPruleMap().get(str)); } System.out.println(""); } }
+		 */
+
 		// 回溯并生成括号表达式列表
 		ArrayList<String> resultList = creatBracketStringList(n, numOfResulets);
-		
+
 		return resultList;
+	}
+
+	/**
+	 * 剪枝
+	 * 
+	 * @param i
+	 * @param j
+	 */
+	private void prunEdge(int i, int j)
+	{
+		HashMap<String, CKYPRule> map = table[i][j].getPruleMap();
+		ArrayList<String> deleteList = new ArrayList<String>();
+		double bestPro = -1.0;
+		for (String str : map.keySet())
+		{
+			if (map.get(str).getProb() > bestPro)
+			{
+				bestPro = map.get(str).getProb();
+			}
+		}
+		for (String str : map.keySet())
+		{
+			if (map.get(str).getProb() < bestPro * 0.0001)
+			{
+				deleteList.add(str);
+			}
+		}
+		for (String str : deleteList)
+		{
+			map.remove(str);
+		}
+	}
+
+	/**
+	 * 初始化
+	 * 
+	 * @param words
+	 * @param poses
+	 */
+	private void initializeChart(String[] words, String[] poses)
+	{
+		int n = words.length;
+		table = new CKYCell[n + 1][n + 1];
+		for (int i = 0; i < n; i++)
+		{
+			for (int j = 1; j <= n; j++)
+			{
+				if (j >= i + 1)
+				{// 只有矩阵的上三角存储数据
+					table[i][j] = new CKYCell(new HashMap<String, CKYPRule>(), false);
+				}
+				if (j == i + 1)
+				{
+					table[i][j].setFlag(true);
+					HashMap<String, CKYPRule> ruleMap = table[i][j].getPruleMap();
+					if (poses == null)
+					{// 由分词结果反推得到规则，并进行table表对角线的初始化
+						for (RewriteRule rule0 : pcnf.getRuleByrhs(words[i]))
+						{
+							PRule rule = (PRule) rule0;
+							String lhs = rule.getLhs().split("@")[0];
+							CKYPRule ckyrule = new CKYPRule(rule.getProb(), rule.getLhs(), rule.getRhs(), 0, 0, 0);
+							ruleMap.put(lhs, ckyrule);
+							updateCellRules(rule.getProb(), ruleMap, rule.getLhs(), words[j - 1], null, 0);
+						}
+					}
+					else
+					{// 根据分词和词性标注的结果进行table表对角线的j初始化
+						CKYPRule ckyrule = new CKYPRule(1.0, poses[i], words[i], 0, 0, 0);
+						ruleMap.put(poses[i], ckyrule);
+						updateCellRules(1.0, ruleMap, poses[i], words[i], null, 0);
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -234,7 +290,7 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 			rhs.add(rhs1);
 			ruleSet = pcnf.getRuleByrhs(lhs0);
 		}
-		
+
 		if (ruleSet != null)
 		{
 			for (RewriteRule rule : ruleSet)
@@ -248,7 +304,7 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 				}
 				CKYPRule ckyrule1 = new CKYPRule(prule.getProb() * pro, lhsOfckyrule1, rhs, k, 0, 0);
 				String lhs = prule.getLhs().split("@")[0];// 取左侧第一个为ruleMap的key值，如NP@NN中的NP
-				
+
 				if (!ruleMap.keySet().contains(lhs))
 				{// 该非终结符对应的规则不存在，直接添加
 					ruleMap.put(lhs, ckyrule1);
@@ -272,19 +328,19 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 	private ArrayList<String> creatBracketStringList(int n, int numOfResulets)
 	{
 		ArrayList<String> resultList = new ArrayList<String>();
-		
+
 		// 查找概率最大的n个结果
-		CKYPRule resultRule = table[0][n].getPruleMap().get(pcnf.getStartSymbol());		
+		CKYPRule resultRule = table[0][n].getPruleMap().get(pcnf.getStartSymbol());
 		if (resultRule == null)
 		{// 如果没有Parse结果则直接返回
 			return resultList;
 		}
-			
+
 		StringBuilder strBuilder = new StringBuilder();
 		getParseResult(0, n, resultRule, strBuilder);// 从最后一个节点[0,n]开始回溯
-		
+
 		resultList.add(strBuilder.toString());
-		
+
 		return resultList;
 	}
 
@@ -321,7 +377,7 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 			strBuilder.append("(");
 			strBuilder.append(lhs);
 		}
-		
+
 		if (table[i][j].isFlag())
 		{
 			strBuilder.append(" ");
@@ -332,7 +388,7 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 			backTrack(i, prule.getK(), prule, 0, strBuilder);
 			backTrack(prule.getK(), j, prule, 1, strBuilder);
 		}
-		
+
 		while (count > 0)
 		{
 			strBuilder.append(")");
@@ -374,7 +430,7 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 			{
 				strBuilder.append(pos);// 词性标注
 			}
-			
+
 			strBuilder.append(" ");
 			strBuilder.append(prule1.getRhs().get(0));// 词
 			while (count > 0)
@@ -400,7 +456,6 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 
 		public CKYCell(HashMap<String, CKYPRule> pruleMap, boolean flag)
 		{
-			super();
 			this.pruleMap = pruleMap;
 			this.flag = flag;
 		}
@@ -425,20 +480,20 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 			this.flag = flag;
 		}
 	}
-	
+
 	public static void main(String[] args) throws IOException
 	{
 		PCFG p2nf = new PCFG(new FileInputStream(new File(args[0])), args[1]);
-		
+
 		ConstituentParserCKYPCNF parser = new ConstituentParserCKYPCNF(p2nf);
-		
+
 		Scanner input = new Scanner(System.in);
 		String text = "";
 		while (true)
 		{
 			System.out.println("请输入待分析的文本：");
 			text = input.nextLine();
-			
+
 			if (text.equals(""))
 			{
 				System.out.println("内容为空，请重新输入！");
@@ -454,7 +509,7 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 				System.out.println(tree.toPrettyString());
 			}
 		}
-		
+
 		input.close();
 	}
 }

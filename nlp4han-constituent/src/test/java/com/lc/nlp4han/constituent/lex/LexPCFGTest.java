@@ -36,17 +36,11 @@ public class LexPCFGTest
 		//测试由headChild得到可行的Parent/或者向上延伸的单元规则
 		HashSet<String> parentSet=lexpcfg.getParentSet(rhcg0);
 
-		//得到生成NPB(基本名词短语)两侧的概率 即Pl/Pr(L(lpos,lword)|P,preModifer,preM(pos,word))
-		double pro4=lexpcfg.getProForGenerateNPBSides(npbRule);
-
 		/**
 		 * 得到并列结构（CC）或者含有顿号结构的概率
 		 * 即P(CC,word|P,leftLabel,rightLabel,leftWord,righrWord)的概率
 		 */
 		double pro5=lexpcfg.getProForSpecialCase(specialRule);
-
-		//得到用于平滑运算的λ值
-		double pro6=lexpcfg.getProByPOS(f,u);
 		
 		//获取某种规则的概率
 		double pro7=lexpcfg.getGeneratePro(null, null);

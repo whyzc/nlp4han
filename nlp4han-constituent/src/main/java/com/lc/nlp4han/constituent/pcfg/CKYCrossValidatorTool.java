@@ -35,9 +35,9 @@ public class CKYCrossValidatorTool
 		PCFG pcfg = GrammarExtractor.getPCFG(bracketList);
 		
 		System.out.println("对文法进行转换...");
-		PCFG pcnf = GrammarConvertor.convertPCFGToP2NF(pcfg);
+		PCFG pcnf = GrammarConvertor.convertPCFGToPCNF(pcfg);
 
-		return new ConstituentParserCKYP2NF(pcnf);
+		return new ConstituentParserCKYPCNF(pcnf);
 	}
 
 	/**
@@ -58,6 +58,7 @@ public class CKYCrossValidatorTool
 		CrossValidationPartitioner<ConstituentTree> partitioner = new CrossValidationPartitioner<ConstituentTree>(
 				sampleStream, nFolds);
 		int run = 1;
+		double totalTime=0;
 		while (partitioner.hasNext())
 		{
 			System.out.println("Run" + run + "...");
@@ -75,10 +76,12 @@ public class CKYCrossValidatorTool
 			start = System.currentTimeMillis();
 			evaluator.evaluate(trainingSampleStream.getTestSampleStream());
 			System.out.println("解析评价时间：" + (System.currentTimeMillis() - start) + "ms");
+			totalTime+=(System.currentTimeMillis() - start);
 			
 			System.out.println(measure);
 			run++;
 		}
+		System.out.println("总体时间： "+totalTime+"ms");
 	}
 
 	public static void main(String[] args) throws IOException
