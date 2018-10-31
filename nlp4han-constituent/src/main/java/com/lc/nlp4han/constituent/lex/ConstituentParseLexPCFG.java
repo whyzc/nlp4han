@@ -14,10 +14,14 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	private boolean coorAndPc = false;// 判断是否处理并列结构及标点符号
 	private LexNode[][] chart = null;
 	private LexPCFG lexpcfg = null;
+	private double pruneThreshold;
+	private boolean secondPrune;
 
-	public ConstituentParseLexPCFG(LexPCFG lexpcfg)
+	public ConstituentParseLexPCFG(LexPCFG lexpcfg, double pruneThreshold, boolean secondPrune)
 	{
 		this.lexpcfg = lexpcfg;
+		this.pruneThreshold = pruneThreshold;
+		this.secondPrune = secondPrune;
 	}
 
 	/**
@@ -88,9 +92,13 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 */
 	private ConstituentTree[] getParseResult(String[] words, String[] poses, int k)
 	{
-		ConstituentTree[] treeArray = new ConstituentTree[k];
-		ArrayList<String> bracketList = parseLex(words, poses, k);
 		int i = 0;
+		ConstituentTree[] treeArray = new ConstituentTree[k];
+		ArrayList<String> bracketList = parseLex(words, poses, k, true);
+		if (bracketList == null && secondPrune && words.length <= 70)
+		{
+			bracketList = parseLex(words, poses, k, false);
+		}
 		for (String bracketString : bracketList)
 		{
 			TreeNode rootNode = BracketExpUtil.generateTree(bracketString);
@@ -107,7 +115,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 * @param k
 	 * @return
 	 */
-	private ArrayList<String> parseLex(String[] words, String[] poses, int k)
+	private ArrayList<String> parseLex(String[] words, String[] poses, int k, boolean prune)
 	{
 		// 初始化
 		initializeChart(words, poses);
@@ -121,7 +129,10 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 				int j = i + span;
 				fillEdgeOfChart(i, j);
 				// 剪枝
-				pruneEdge(i, j);
+				if (prune)
+				{
+					pruneEdge(i, j);
+				}
 			}
 		}
 		return BracketListToTree.bracketexpressionGet(chart, words.length, k);
@@ -152,11 +163,11 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 		}
 		for (Edge edge : map.keySet())
 		{
-			if (edge.isStop() && map.get(edge) < 0.0001 * bestPro1)
+			if (edge.isStop() && map.get(edge) < pruneThreshold * bestPro1)
 			{
 				deleteList.add(edge);
 			}
-			else if (!edge.isStop() && map.get(edge) < 0.0001 * bestPro2)
+			else if (!edge.isStop() && map.get(edge) < pruneThreshold * bestPro2)
 			{
 				deleteList.add(edge);
 			}

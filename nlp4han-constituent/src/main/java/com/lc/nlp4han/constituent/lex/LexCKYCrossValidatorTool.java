@@ -24,23 +24,23 @@ import com.lc.nlp4han.ml.util.CrossValidationPartitioner.TrainingSampleStream;
 public class LexCKYCrossValidatorTool
 {
 
-	private static ConstituentParser getParser(TrainingSampleStream<ConstituentTree> trainingSampleStream)
-			throws IOException
+	private static ConstituentParser getParser(TrainingSampleStream<ConstituentTree> trainingSampleStream,
+			double pruneThreshold, boolean secondPrune) throws IOException
 	{
 		ArrayList<String> bracketList = new ArrayList<String>();
 		ConstituentTree tree = trainingSampleStream.read();
-		int i=0;
+		int i = 0;
 		while (tree != null)
 		{
 			bracketList.add(tree.getRoot().toString());
 			tree = trainingSampleStream.read();
 			i++;
 		}
-        System.out.println("训练模型句子的个数是 "+i);
+		System.out.println("训练模型句子的个数是 " + i);
 		System.out.println("从树库提取文法...");
 		LexPCFG lexpcfg = LexGrammarExtractor.getLexPCFG(bracketList);
 
-		return new ConstituentParseLexPCFG(lexpcfg);
+		return new ConstituentParseLexPCFG(lexpcfg,pruneThreshold,secondPrune);
 	}
 
 	/**
@@ -54,8 +54,8 @@ public class LexCKYCrossValidatorTool
 	 *            上下文
 	 * @throws IOException
 	 */
-	public void evaluate(ObjectStream<ConstituentTree> sampleStream, int nFolds, ConstituentMeasure measure)
-			throws IOException
+	public void evaluate(ObjectStream<ConstituentTree> sampleStream, int nFolds, ConstituentMeasure measure,
+			double pruneThreshold, boolean secondPrune) throws IOException
 	{
 
 		CrossValidationPartitioner<ConstituentTree> partitioner = new CrossValidationPartitioner<ConstituentTree>(
@@ -67,7 +67,7 @@ public class LexCKYCrossValidatorTool
 
 			long start = System.currentTimeMillis();
 			CrossValidationPartitioner.TrainingSampleStream<ConstituentTree> trainingSampleStream = partitioner.next();
-			ConstituentParser parser = getParser(trainingSampleStream);
+			ConstituentParser parser = getParser(trainingSampleStream, pruneThreshold, secondPrune);
 			System.out.println("训练学习时间：" + (System.currentTimeMillis() - start) + "ms");
 
 			CKYParserEvaluator evaluator = new CKYParserEvaluator(parser);
@@ -94,6 +94,8 @@ public class LexCKYCrossValidatorTool
 		int folds = 10;
 		File corpusFile = null;
 		String encoding = null;
+		double pruneThreshold = 0.0001;
+		boolean secondPrune = false;
 		for (int i = 0; i < args.length; i++)
 		{
 			if (args[i].equals("-data"))
@@ -111,6 +113,16 @@ public class LexCKYCrossValidatorTool
 				folds = Integer.parseInt(args[i + 1]);
 				i++;
 			}
+			else if (args[i].equals("-pruneThreshold"))
+			{
+				pruneThreshold = Double.parseDouble(args[i + 1]);
+				i++;
+			}
+			else if (args[i].equals("-secondPrune"))
+			{
+				secondPrune = Boolean.getBoolean(args[i + 1]);
+				i++;
+			}
 		}
 
 		ObjectStream<String> treeStream = new PlainTextByTreeStream(new FileInputStreamFactory(corpusFile), encoding);
@@ -118,6 +130,6 @@ public class LexCKYCrossValidatorTool
 		LexCKYCrossValidatorTool run = new LexCKYCrossValidatorTool();
 		ConstituentMeasure measure = new ConstituentMeasure();
 
-		run.evaluate(sampleStream, folds, measure);
+		run.evaluate(sampleStream, folds, measure, pruneThreshold, secondPrune);
 	}
 }

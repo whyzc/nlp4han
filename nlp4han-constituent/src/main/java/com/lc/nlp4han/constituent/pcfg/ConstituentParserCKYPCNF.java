@@ -18,9 +18,13 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 {
 	private CKYCell[][] table;// 存储在该点的映射表
 	private PCFG pcnf;
+	private double pruneThreshold;// 剪枝阈值
+	private boolean secondPrune;// 是否进行二次剪枝
 
-	public ConstituentParserCKYPCNF(PCFG pcnf)
+	public ConstituentParserCKYPCNF(PCFG pcnf, double pruneThreshold, boolean secondPrune)
 	{
+		this.pruneThreshold = pruneThreshold;
+		this.secondPrune = secondPrune;
 		this.pcnf = pcnf;
 	}
 
@@ -79,10 +83,10 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 	{
 		ConstituentTree[] treeArray = new ConstituentTree[k];
 		ArrayList<String> bracketList = parseCKY(words, poses, k, true);
-/*		if (bracketList.size() == 0 && words.length <= 70)
+		if (secondPrune && bracketList.size() == 0 && words.length <= 70)
 		{
 			bracketList = parseCKY(words, poses, k, false);
-		}*/
+		}
 		int i = 0;
 		for (String bracketString : bracketList)
 		{
@@ -133,16 +137,6 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 
 			}
 		}
-
-		/*
-		 * for (int i = 0; i < 4; i++) { for (int j = 1; j <= 4; j++) {
-		 * System.out.println("i=  " + i + "   j=" + j +
-		 * "------------------------------"); if (table[i][j] == null) { break; } for
-		 * (String str : table[i][j].getPruleMap().keySet()) {
-		 * System.out.println("String= " + str + "  规则=" +
-		 * table[i][j].getPruleMap().get(str)); } System.out.println(""); } }
-		 */
-
 		// 回溯并生成括号表达式列表
 		ArrayList<String> resultList = creatBracketStringList(n, numOfResulets);
 
@@ -169,7 +163,7 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 		}
 		for (String str : map.keySet())
 		{
-			if (map.get(str).getProb() < bestPro * 0.0001)
+			if (map.get(str).getProb() < bestPro * pruneThreshold)
 			{
 				deleteList.add(str);
 			}
@@ -484,8 +478,10 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 	public static void main(String[] args) throws IOException
 	{
 		PCFG p2nf = new PCFG(new FileInputStream(new File(args[0])), args[1]);
-
-		ConstituentParserCKYPCNF parser = new ConstituentParserCKYPCNF(p2nf);
+         double pruneThreshold=Double.parseDouble(args[2]);
+         boolean secondPrune=Boolean.getBoolean(args[3]);
+         
+		ConstituentParserCKYPCNF parser = new ConstituentParserCKYPCNF(p2nf,pruneThreshold,secondPrune);
 
 		Scanner input = new Scanner(System.in);
 		String text = "";
