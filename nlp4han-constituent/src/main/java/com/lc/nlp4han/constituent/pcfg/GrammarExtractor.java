@@ -37,7 +37,7 @@ public class GrammarExtractor
 				enCoding);
 		String bracketStr = ptbt.read();
 		ArrayList<String> bracketStrList = new ArrayList<String>();
-		while (bracketStr.length() != 0)
+		while (bracketStr!=null)
 		{
 			bracketStrList.add(bracketStr);
 			bracketStr = ptbt.read();
