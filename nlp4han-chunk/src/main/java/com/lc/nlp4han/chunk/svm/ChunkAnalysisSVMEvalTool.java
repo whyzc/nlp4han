@@ -12,8 +12,6 @@ import com.lc.nlp4han.chunk.ChunkAnalysisEvaluateMonitor;
 import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIEO;
 import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIEOS;
 import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIO;
-import com.lc.nlp4han.chunk.svm.libsvm.svm;
-import com.lc.nlp4han.chunk.svm.libsvm.svm_model;
 import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosContextGeneratorConf;
 import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosParserBIEO;
 import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosParserBIEOS;
@@ -25,24 +23,24 @@ import com.lc.nlp4han.ml.util.PlainTextByLineStream;
 
 public class ChunkAnalysisSVMEvalTool
 {
-	public static final String USAGE = "Usage: ChunkAnalysisSVMEvalTool [options] -data training_set_file\n"
-			+"options:\n"
-			+"-data training_set_file : set training set file path\n"
-			+"-encoding encoding : set encoding form\n"
-			+"-model model_file : set model path\n"
-			+"-transform transformation_file : set transformation file, end with '.dfc' "
-			;
-	
+	private static final String USAGE = "Usage: ChunkAnalysisSVMEvalTool [options] -goal predicting_set_file\n"
+			+ "options:\n" 
+			+ "-label label : such as BIOE, BIOES\n"
+			+ "-encoding encoding : set encoding form\n" 
+			+ "-model model_file : set model path\n"
+			+ "-transform transformation_file : set transformation file, end with '.info' \n"
+			+ "-error error_messages_file : output error messages\n";
+
 	public static void eval(String modelFile, String goldFile, String path, String encoding, File errorFile,
-			AbstractChunkSampleParser parse,
-			AbstractChunkAnalysisMeasure measure, String label) throws IOException
+			SVMME tagger, AbstractChunkSampleParser parse, AbstractChunkAnalysisMeasure measure, String label) throws IOException
 	{
 		long start = System.currentTimeMillis();
 
-		svm_model model = svm.svm_load_model(modelFile);
-
 		ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisWordPosContextGeneratorConf();
-		ChunkAnalysisSVMME tagger = new ChunkAnalysisSVMME(contextGen, model, path, label);
+		tagger.setContextgenerator(contextGen);
+		tagger.setLabel(label);
+		tagger.setSVMStandardInput(path);
+		tagger.setModel(modelFile);
 		ChunkAnalysisSVMEvaluator evaluator = null;
 
 		if (errorFile != null)
@@ -55,8 +53,8 @@ public class ChunkAnalysisSVMEvalTool
 
 		evaluator.setMeasure(measure);
 
-		ObjectStream<String> goldStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(new File(goldFile)),
-				encoding);
+		ObjectStream<String> goldStream = new PlainTextByLineStream(
+				new MarkableFileInputStreamFactory(new File(goldFile)), encoding);
 		ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkAnalysisWordPosSampleStream(goldStream, parse,
 				label);
 
@@ -66,7 +64,7 @@ public class ChunkAnalysisSVMEvalTool
 
 		System.out.println(evaluator.getMeasure());
 	}
-	
+
 	public static void main(String[] args) throws IOException
 	{
 		String usage = USAGE;
@@ -84,7 +82,7 @@ public class ChunkAnalysisSVMEvalTool
 				encoding = args[i + 1];
 				i++;
 			}
-			else if ("-tag".equals(args[i]))
+			else if ("-label".equals(args[i]))
 			{
 				scheme = args[i + 1];
 				i++;
@@ -94,7 +92,7 @@ public class ChunkAnalysisSVMEvalTool
 				transformationFile = args[i + 1];
 				i++;
 			}
-			else if ("-modelpath".equals(args[i]))
+			else if ("-model".equals(args[i]))
 			{
 				modelpath = args[i + 1];
 				i++;
@@ -109,11 +107,16 @@ public class ChunkAnalysisSVMEvalTool
 				goldFile = args[i + 1];
 				i++;
 			}
+			else
+			{
+				System.err.println(usage);
+				System.exit(1);
+			}
 		}
 
 		if (goldFile == null)
 		{
-			System.err.println("Usage: " + usage);
+			System.err.println(usage);
 			System.exit(1);
 		}
 
@@ -125,9 +128,10 @@ public class ChunkAnalysisSVMEvalTool
 					+ "' does not exist or is not readable, please check the path");
 			System.exit(1);
 		}
-		
+
 		AbstractChunkSampleParser parse;
 		AbstractChunkAnalysisMeasure measure;
+		ChunkAnalysisSVMME tagger = new ChunkAnalysisSVMME();
 
 		if (scheme.equals("BIEOS"))
 		{
@@ -146,9 +150,9 @@ public class ChunkAnalysisSVMEvalTool
 		}
 
 		if (errorFile != null)
-			eval(modelpath, goldFile, transformationFile, encoding, new File(errorFile), parse, measure, scheme);
+			eval(modelpath, goldFile, transformationFile, encoding, new File(errorFile), tagger, parse, measure, scheme);
 		else
-			eval(modelpath, goldFile, transformationFile, encoding, null, parse, measure, scheme);
+			eval(modelpath, goldFile, transformationFile, encoding, null, tagger, parse, measure, scheme);
 
 	}
 }

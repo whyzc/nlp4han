@@ -63,7 +63,7 @@ public class BracketTest
 		assertEquals(toStringWordIndexNoNone, testStringWithIndex);
 
 		// 测试六，从树库中提取词和词性标注
-		assertEquals(Bracket2POSTool.extractWordAndPos(toString, "->").trim(), testPosAndWord);
+		assertEquals(BracketExpUtil.extractWordAndPos(toString, "->").trim(), testPosAndWord);
 
 		/*
 		 * 测试七,printTree，输出树时，它的空格数目不好计算，而且只要看它的括号表达式中的左右括号是否转换，所以，我直接打印出来观看,其结果如下 (IP

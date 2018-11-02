@@ -13,25 +13,49 @@ import com.lc.nlp4han.constituent.TreeNode;
  */
 public class RestoreTree
 {
-	// 先将将孩子节点中的@符号去掉再将根节点中的@去掉
+	/**
+	 * 后序遍历 先将将孩子节点中的@符号去掉再将根节点中的@去掉
+	 * 
+	 * @param node
+	 * @return
+	 */
 	public static TreeNode restoreTree2(TreeNode node)
 	{
 		if (node.isLeaf())
 			return null;
-		for (int i = 0; i < 2; i++)
-		{
-			restoreTree2(node.getFirstChild());
-			restoreTree2(node.getLastChild());
-		}
 
-		if (node.getNodeName().startsWith("@"))
+		// 遍历孩子
+		restoreTree2(node.getFirstChild());
+		restoreTree2(node.getLastChild());
+
+		// 遍历本节点
+		if (node.getNodeName().contains("$"))
 		{
+			TreeNode parent = node.getParent();
+			List<TreeNode> realChildren = new ArrayList<TreeNode>();
+			TreeNode child = node.getChild(0);
+			if (parent.getFirstChildName().contains("$"))
+			{
+				realChildren.add(child);
+				realChildren.add(parent.getChild(1));
+			}
+			else
+			{
+				realChildren.add(parent.getChild(0));
+				realChildren.add(child);
+			}
+			child.setParent(parent);
+			parent.setChildren(realChildren);
+		}
+		else if (node.getNodeName().contains("&"))
+		{
+			List<TreeNode> realChildren = new ArrayList<TreeNode>();
 			for (TreeNode child : node.getChildren())
 			{
 				child.setParent(node.getParent());
 			}
-			List<TreeNode> realChildren = new ArrayList<TreeNode>(node.getChildren());
-			realChildren.add(node.getParent().getChild(1));
+			realChildren.add(node.getParent().getChild(0));
+			realChildren.addAll(node.getChildren());
 			node.getParent().setChildren(realChildren);
 		}
 		else if (node.getNodeName().contains("@"))
@@ -54,6 +78,7 @@ public class RestoreTree
 				child.setParent(temp);
 			}
 		}
+
 		return node;
 	}
 
@@ -78,12 +103,12 @@ public class RestoreTree
 
 		// 若为两个非终结符合并形成的伪非终结符，跳过
 		if (lhs.contains("&"))
-		{// 跳过直接处理node的孩子，也就是相当于parentNode的第二个和第三个孩子
+		{// 直接处理node的孩子，也就是相当于parentNode的第二个和第三个孩子
 			traverseConvert(parentNode, node.getChild(0), 1);
 			traverseConvert(parentNode, node.getChild(1), 2);
 			return;
 		}
-		// 若为伪非终结符
+		// 若为伪非终结符，跳过直接处理孩子
 		if (lhs.contains("$"))
 		{
 			newNode = new TreeNode(node.getChildName(0));

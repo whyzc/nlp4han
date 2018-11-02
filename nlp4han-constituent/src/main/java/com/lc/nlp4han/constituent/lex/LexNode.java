@@ -1,7 +1,11 @@
 package com.lc.nlp4han.constituent.lex;
 
 import java.util.HashMap;
-
+/**
+ * 解析过程中二维矩阵的节点类
+ * @author qyl
+ *
+ */
 public class LexNode
 {
 	private boolean flag;
