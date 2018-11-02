@@ -104,7 +104,7 @@ public class ConstituentParserCKYP2NF implements ConstituentParser
 		}
 		for (String bracketString : bracketList)
 		{
-			TreeNode rootNode = RestoreTree.restoreTree2(BracketExpUtil.generateTree(bracketString));
+			TreeNode rootNode = RestoreTree.restoreTree(BracketExpUtil.generateTree(bracketString));
 			treeArray[i++] = new ConstituentTree(rootNode);
 		}
 		return treeArray;
@@ -140,8 +140,9 @@ public class ConstituentParserCKYP2NF implements ConstituentParser
 				{// 遍历table[i][k]和table[k][j]中的映射表，更新table[i][j]和back[i][j]
 					updateTable(i, k, j, n, numOfResulets);
 				}
+				//System.out.println("完成了 "+i+"和"+j+"点");
 				// 剪枝
-				if (prune)
+				if (prune&&!(i==0&&j==128))
 				{
 					prunEdge(i, j);
 				}
