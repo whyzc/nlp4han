@@ -25,8 +25,7 @@ public class UnlexEvalTool
 	public static void eval(String trainF, String goldF, String trainEn, String goldEn, int iterations)
 			throws IOException
 	{
-		Grammar g = GrammarExtractorTool.generateInitialGrammar(true, Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF,
-				trainEn);
+		Grammar g = GrammarExtractorTool.getGrammar(true, Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF, trainEn);
 		PCFG p2nf = g.getPCFG();
 
 		UnlexEvaluator evaluator = new UnlexEvaluator(p2nf);

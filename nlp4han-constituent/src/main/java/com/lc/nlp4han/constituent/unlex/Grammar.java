@@ -2,12 +2,15 @@ package com.lc.nlp4han.constituent.unlex;
 
 //import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Random;
+import java.util.TreeSet;
 
 import com.lc.nlp4han.constituent.pcfg.PCFG;
 import com.lc.nlp4han.constituent.pcfg.PRule;
@@ -22,6 +25,7 @@ public class Grammar
 {
 	public static int iterations = 50;
 	public static int countsssss = 0;
+	public static double rulethres = 1.0e-30;
 	protected List<AnnotationTreeNode> treeBank;
 
 	protected HashSet<BinaryRule> bRules;
@@ -29,7 +33,7 @@ public class Grammar
 	protected Lexicon lexicon;// 包含preRules
 
 	// 添加相同孩子为key的map
-	protected HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>> preRuleBySameChildren; // 外层map<childrenHashcode,内map>,内map<ruleHashcode/rule>
+	protected HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>> preRuleBySameChildren; // 外层map<word在字典中的索引,内map>
 	protected HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>> bRuleBySameChildren;
 	protected HashMap<Short, HashMap<UnaryRule, UnaryRule>> uRuleBySameChildren;
 	// 相同父节点的规则放在一个map中
@@ -38,6 +42,8 @@ public class Grammar
 	protected HashMap<Short, HashMap<UnaryRule, UnaryRule>> uRuleBySameHead;
 
 	protected NonterminalTable nonterminalTable;
+	// 使用规则数量的期望的比作为新的规则概率
+	protected HashMap<Short, Double[]> sameParentRulesCount = new HashMap<>();// <parent,[ParentSubIndex,denominator]>
 
 	public static Random random = new Random(0);
 
@@ -65,9 +71,77 @@ public class Grammar
 		EM(Grammar.iterations);
 	}
 
-	public void merger()
+	public void merger(double mergeRate)
 	{
-		// assume a nonterminal without split
+		PriorityQueue<SentenceLikehood> senScoreGradient = new PriorityQueue<>();
+		// assume a subState without split,root 没有分裂
+		for (short i = 1; i < nonterminalTable.getNumSymbol(); i++)
+		{
+			for (short j = 0; j < nonterminalTable.getNumSubsymbolArr().get(i); j++)
+			{
+				double tallyGradient = 1;
+				for (AnnotationTreeNode tree : treeBank)
+				{
+					double sentenceScoreGradient = 1;
+					mergeHelper(tree, i, j, sentenceScoreGradient);
+					tallyGradient *= sentenceScoreGradient;
+				}
+				senScoreGradient.add(new SentenceLikehood(i, j, tallyGradient));
+				j++;
+			}
+		}
+		int mergeCount = (int) (senScoreGradient.size() * mergeRate);
+		PriorityQueue<SentenceLikehood> newQueue = new PriorityQueue<>(new Comparator<SentenceLikehood>()
+		{
+			@Override
+			public int compare(SentenceLikehood o1, SentenceLikehood o2)
+			{
+				if (o1.symbol > o2.symbol)
+					return 1;
+				else if (o1.symbol < o2.symbol)
+					return -1;
+				else
+				{
+					if (o1.subSymbolIndex > o2.subSymbolIndex)
+						return 1;
+					else if (o1.subSymbolIndex < o2.subSymbolIndex)
+						return -1;
+					else
+						return 0;
+				}
+			}
+		});
+		for (int i = 0; i < mergeCount; i++)
+		{
+			newQueue.add(senScoreGradient.poll());
+		}
+		for (SentenceLikehood sLikehood : newQueue)
+		{
+			short symbol = sLikehood.symbol;
+			short subSymbolIndex = sLikehood.subSymbolIndex;
+			realMerge(symbol, subSymbolIndex);
+		}
+
+	}
+
+	public void mergeHelper(AnnotationTreeNode tree, short symbol, short subSymbolIndex, double senScoreGradient)
+	{
+		if (tree.isLeaf())
+			return;
+		if (tree.getLabel().getSymbol() == symbol)
+		{
+			senScoreGradient = calSenSocreAssumeMergeState_i(tree, subSymbolIndex) / calculateSentenceSocre(tree);
+		}
+		for (AnnotationTreeNode child : tree.getChildren())
+		{
+			mergeHelper(child, symbol, subSymbolIndex, senScoreGradient);
+		}
+	}
+
+	// TODO:
+	public void realMerge(short symbol, short subSymbolIndex)
+	{
+
 	}
 
 	/**
@@ -85,11 +159,15 @@ public class Grammar
 				calculateInnerScore(tree);
 				calculateOuterScore(tree);
 				refreshRuleCountExpectation(tree, tree);
-				tree.forgetIOScore();
+				if (i != iterations - 1)
+				{
+					tree.forgetIOScore();
+				}
 			}
 			refreshRuleScore();
 			if (i != iterations - 1)
 			{
+				sameParentRulesCount = new HashMap<>();
 				forgetRuleCountExpectation();
 			}
 			System.out.println("第" + (i + 1) + "次EM结束");
@@ -475,8 +553,7 @@ public class Grammar
 
 	public void refreshRuleScore()
 	{
-		// 使用规则数量的期望的比作为新的规则概率
-		HashMap<Short, Double[]> sameParentRulesCount = new HashMap<>();// <parent,<ParentSubIndex,denominator>>
+
 		// int count = 0;
 		for (BinaryRule bRule : bRules)
 		{
@@ -613,7 +690,6 @@ public class Grammar
 				countArr[pSubSymbolIndex] = ruleCount;
 				sameParentRulesCount.put((short) parent, countArr);
 			}
-
 			return ruleCount;
 		}
 		else
@@ -622,9 +698,60 @@ public class Grammar
 		}
 	}
 
-	public double calculateLikelihood()
-	{// 利用规则计算treeBank的似然值
-		return 0.0;
+	public double calculateSentenceSocre(AnnotationTreeNode node)
+	{
+		if (node.getLabel().getInnerScores() == null || node.getLabel().getOuterScores() == null)
+			throw new Error("没有计算树上节点的内外向概率。");
+		if (node.isLeaf())
+			throw new Error("不能利用叶子节点计算内外向概率。");
+		double sentenceScore = 0.0;
+		Double[] innerScore = node.getLabel().getInnerScores();
+		Double[] outerScores = node.getLabel().getOuterScores();
+		for (int i = 0; i < innerScore.length; i++)
+		{
+			sentenceScore += innerScore[i] * outerScores[i];
+		}
+		return sentenceScore;
+	}
+
+	/**
+	 * @param 树中要合并的节点
+	 * @param 树中要合并的节点的subStateIndex
+	 * @return 树的似然值
+	 */
+	public double calSenSocreAssumeMergeState_i(AnnotationTreeNode node, int subStateIndex)
+	{
+		if (node.getLabel().getInnerScores() == null || node.getLabel().getOuterScores() == null)
+			throw new Error("没有计算树上节点的内外向概率。");
+		if (node.isLeaf())
+			throw new Error("不能利用叶子节点计算内外向概率。");
+		double sentenceScore = 0.0;
+		Double[] innerScore = node.getLabel().getInnerScores();
+		Double[] outerScores = node.getLabel().getOuterScores();
+		int numSubState = innerScore.length;
+		if (subStateIndex % 2 == 1)
+		{
+			subStateIndex = subStateIndex - 1;
+		}
+		for (int i = 0; i < numSubState; i++)
+		{
+			if (i == subStateIndex)
+			{
+				double iRuleCount = calculateSameParentRuleCount(sameParentRulesCount, node.getLabel().getSymbol(), i);
+				double fullBrotherRuleCount = calculateSameParentRuleCount(sameParentRulesCount,
+						node.getLabel().getSymbol(), i + 1);
+				double iFrequency = iRuleCount / iRuleCount + fullBrotherRuleCount;
+				double brotherFrequency = fullBrotherRuleCount / iRuleCount + fullBrotherRuleCount;
+				sentenceScore += (iFrequency * innerScore[i] + brotherFrequency * innerScore[i + 1])
+						* (outerScores[i] + outerScores[i + 1]);
+				i++;
+			}
+			else
+			{
+				sentenceScore += innerScore[i] * outerScores[i];
+			}
+		}
+		return sentenceScore;
 	}
 
 	public void forgetRuleCountExpectation()
@@ -812,4 +939,29 @@ public class Grammar
 		return nonterminalTable;
 	}
 
+	class SentenceLikehood implements Comparable<SentenceLikehood>
+	{
+		short symbol;
+		short subSymbolIndex;
+		double sentenceScoreGradient;
+
+		SentenceLikehood(short symbol, short subSymbolIndex, double sentenceScoreGradient)
+		{
+			this.sentenceScoreGradient = sentenceScoreGradient;
+			this.symbol = symbol;
+			this.subSymbolIndex = subSymbolIndex;
+		}
+
+		@Override
+		public int compareTo(SentenceLikehood o)
+		{
+			if (this.sentenceScoreGradient > o.sentenceScoreGradient)
+				return 1;
+			else if (this.sentenceScoreGradient < o.sentenceScoreGradient)
+				return -1;
+			else
+				return 0;
+		}
+
+	}
 }
