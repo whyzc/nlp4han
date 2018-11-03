@@ -6,8 +6,8 @@ import java.util.List;
 import com.lc.nlp4han.constituent.TreeNode;
 
 /**
- * @author 作者
- * @version 创建时间：2018年10月19日 下午1:53:37 类说明
+ * @author 王宁
+ * 将树二叉化
  */
 public class Binarization
 {

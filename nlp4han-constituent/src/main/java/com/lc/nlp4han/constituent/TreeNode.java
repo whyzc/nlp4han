@@ -264,7 +264,7 @@ public class TreeNode implements Cloneable
 	{
 		return this.flag;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -301,7 +301,7 @@ public class TreeNode implements Cloneable
 		else
 		{
 			String treestr = "";
-			treestr = "(" + this.nodename;
+			treestr = "(" + this.getNodeName();
 			for (TreeNode node : this.children)
 			{
 				treestr += node.toString();
@@ -324,12 +324,12 @@ public class TreeNode implements Cloneable
 	{
 		if (this.children.size() == 0)
 		{
-			return " " + escapeBracket(this.getNodeName()) + "[" + this.wordindex + "]";
+			return " " + escapeBracket(this.getNodeName()) + "[" + getWordIndex() + "]";
 		}
 		else
 		{
 			String treestr = "";
-			treestr = "(" + this.nodename;
+			treestr = "(" + this.getNodeName();
 			for (TreeNode node : this.children)
 			{
 				treestr += node.toString();
@@ -349,16 +349,16 @@ public class TreeNode implements Cloneable
 	 */
 	public String toStringNoNone()
 	{
-		if (this.children.size() == 0 && this.flag == true)
+		if (this.children.size() == 0 && this.getFlag() == true)
 		{
 			return " " + escapeBracket(this.getNodeName());
 		}
 		else
 		{
 			String treestr = "";
-			if (this.flag == true)
+			if (this.getFlag() == true)
 			{
-				treestr = "(" + this.nodename;
+				treestr = "(" + this.getNodeName();
 			}
 
 			for (TreeNode node : this.children)
@@ -367,7 +367,7 @@ public class TreeNode implements Cloneable
 				treestr += node.toStringNoNone();
 			}
 
-			if (this.flag == true)
+			if (this.getFlag() == true)
 			{
 				treestr += ")";
 			}
@@ -375,7 +375,6 @@ public class TreeNode implements Cloneable
 			return treestr;
 		}
 	}
-
 
 	/**
 	 * 输出一行没有空节点带单词位置的的括号表达式形式
@@ -386,16 +385,16 @@ public class TreeNode implements Cloneable
 	 */
 	public String toStringWordIndexNoNone()
 	{
-		if (this.children.size() == 0 && this.flag == true)
+		if (this.children.size() == 0 && this.getFlag() == true)
 		{
-			return " " + escapeBracket(this.getNodeName()) + "[" + this.wordindex + "]";
+			return " " + escapeBracket(this.getNodeName()) + "[" + getWordIndex() + "]";
 		}
 		else
 		{
 			String treestr = "";
-			if (this.flag == true)
+			if (this.getFlag() == true)
 			{
-				treestr = "(" + this.nodename;
+				treestr = "(" + this.getNodeName();
 			}
 
 			for (TreeNode node : this.children)
@@ -404,7 +403,7 @@ public class TreeNode implements Cloneable
 				treestr += node.toStringWordIndexNoNone();
 			}
 
-			if (this.flag == true)
+			if (this.getFlag() == true)
 			{
 				treestr += ")";
 			}
@@ -528,7 +527,7 @@ public class TreeNode implements Cloneable
 		}
 		if (flag)
 		{
-//			System.out.println("所有孩子都是词性标注tree.getChildren()==" + tree.getChildren());
+			// System.out.println("所有孩子都是词性标注tree.getChildren()==" + tree.getChildren());
 		}
 		return flag;
 	}
@@ -579,5 +578,5 @@ public class TreeNode implements Cloneable
 	{
 		this.children = children;
 	}
-	
+
 }

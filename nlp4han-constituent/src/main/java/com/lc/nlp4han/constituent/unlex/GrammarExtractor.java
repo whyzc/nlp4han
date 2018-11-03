@@ -1,12 +1,21 @@
 package com.lc.nlp4han.constituent.unlex;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import com.lc.nlp4han.constituent.BracketExpUtil;
+import com.lc.nlp4han.constituent.PlainTextByTreeStream;
+import com.lc.nlp4han.constituent.TreeNode;
+import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 
 /**
  * 对二叉树得到初始语法
@@ -17,35 +26,69 @@ import java.util.Map;
 public class GrammarExtractor
 {
 	// 统计树库过程中得到
-	// protected List<Tree<Annotation>> treeBank;
-	protected List<AnnotationTreeNode> treeBank;
-	protected NonterminalTable nonterminalTable;
-	protected HashSet<String> dictionary;
+	public List<AnnotationTreeNode> treeBank;
+	public NonterminalTable nonterminalTable;
+	public HashSet<String> dictionary;
 
-	protected List<Short> preterminal;// 词性标注对应的整数
+	public List<Short> preterminal;// 词性标注对应的整数
 
-	protected HashMap<PreterminalRule, Integer>[] preRuleBySameHeadCount;// 长度与preterminal相同
-	protected HashMap<BinaryRule, Integer>[] bRuleBySameHeadCount;// 数组下标表示nonterminal对应的整数
-	protected HashMap<UnaryRule, Integer>[] uRuleBySameHeadCount;// 数组下标表示nonterminal对应的整数
-//	// 添加相同孩子为key的map
-//	protected HashMap<Integer, HashMap<Integer, PreterminalRule>> preRuleBySameChildren; // 外层map<childrenHashcode,内map>,内map<ruleHashcode/rule>
-//	protected HashMap<Integer, HashMap<Integer, BinaryRule>> bRuleBySameChildren;
-//	protected HashMap<Integer, HashMap<Integer, UnaryRule>> uRuleBySameChildren;
-//	// 相同父节点的规则放在一个map中
-//	protected HashMap<Short, HashMap<Integer, PreterminalRule>> preRuleBySameHead; // 内map<ruleHashcode/rule>
-//	protected HashMap<Short, HashMap<Integer, BinaryRule>> bRuleBySameHead;
-//	protected HashMap<Short, HashMap<Integer, UnaryRule>> uRuleBySameHead;
+	public HashMap<PreterminalRule, Integer>[] preRuleBySameHeadCount;// 长度与preterminal相同
+	public HashMap<BinaryRule, Integer>[] bRuleBySameHeadCount;// 数组下标表示nonterminal对应的整数
+	public HashMap<UnaryRule, Integer>[] uRuleBySameHeadCount;// 数组下标表示nonterminal对应的整数
 	public int[] numOfSameHeadRule;
+	public int rareWordThreshold;
+
+	public GrammarExtractor(boolean addParentLabel, int rareWordThreshold, String treeBankPath, String encoding)
+	{
+		try
+		{
+			initTreeBank(addParentLabel, treeBankPath, encoding);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		init(rareWordThreshold);
+	}
+
+	public GrammarExtractor()
+	{
+	}
+
+	public void initTreeBank(boolean addParentLabel, String treeBankPath, String encoding) throws IOException
+	{
+		List<AnnotationTreeNode> annotationTrees = new ArrayList<AnnotationTreeNode>();
+		PlainTextByTreeStream stream = new PlainTextByTreeStream(new FileInputStreamFactory(new File(treeBankPath)),
+				encoding);
+		String expression = stream.read();
+		while (expression != "")// 用来得到树库对应的所有结构树Tree<String>
+		{
+			expression = expression.trim();
+			if (!expression.equals(""))
+			{
+				TreeNode tree = BracketExpUtil.generateTree(expression);
+				tree = TreeUtil.removeL2LRule(tree);
+				if (addParentLabel)
+					tree = TreeUtil.addParentLabel(tree);
+
+				tree = Binarization.binarizeTree(tree);
+				annotationTrees.add(AnnotationTreeNode.getInstance(tree));
+			}
+			expression = stream.read();
+		}
+		stream.close();
+		this.treeBank = annotationTrees;
+	}
 
 	@SuppressWarnings("unchecked")
-	public GrammarExtractor(List<AnnotationTreeNode> treeBank, NonterminalTable nonterminalTable)
+	public void init(int rareWordThreshold)
 	{
-		this.treeBank = treeBank;
-		this.nonterminalTable = nonterminalTable;
+		this.nonterminalTable = AnnotationTreeNode.nonterminalTable;
+		Rule.nonterminalTable = AnnotationTreeNode.nonterminalTable;
+		this.rareWordThreshold = rareWordThreshold;
 		dictionary = new HashSet<String>();
 		preterminal = nonterminalTable.getIntValueOfPreterminalArr();
 		preRuleBySameHeadCount = new HashMap[preterminal.size()];
-		Rule.nonterminalTable = AnnotationTreeNode.nonterminalTable;
 		for (int i = 0; i < preterminal.size(); i++)
 		{
 			preRuleBySameHeadCount[i] = new HashMap<PreterminalRule, Integer>();
@@ -60,18 +103,10 @@ public class GrammarExtractor
 		{
 			uRuleBySameHeadCount[i] = new HashMap<UnaryRule, Integer>();
 		}
-//		preRuleBySameHead = new HashMap<Short, HashMap<Integer, PreterminalRule>>();
-//		uRuleBySameHead = new HashMap<Short, HashMap<Integer, UnaryRule>>();
-//		bRuleBySameHead = new HashMap<Short, HashMap<Integer, BinaryRule>>();
-//
-//		preRuleBySameChildren = new HashMap<Integer, HashMap<Integer, PreterminalRule>>();
-//		uRuleBySameChildren = new HashMap<Integer, HashMap<Integer, UnaryRule>>();
-//		bRuleBySameChildren = new HashMap<Integer, HashMap<Integer, BinaryRule>>();
-
 		numOfSameHeadRule = new int[this.nonterminalTable.getNumSymbol()];
 	}
 
-	public void extractor()
+	private void tally()
 	{
 		ArrayDeque<AnnotationTreeNode> queue = new ArrayDeque<AnnotationTreeNode>();
 		for (AnnotationTreeNode tree : treeBank)
@@ -84,9 +119,7 @@ public class GrammarExtractor
 
 				if (queue.peek().getChildren().size() == 2)
 				{
-					// if(queue.peek().getChildren().get(0).getLabel().getWord() == null)
 					leftChild = queue.peek().getChildren().get(0).getLabel().getSymbol();
-					// if(queue.peek().getChildren().get(1).getLabel().getWord() == null)
 					rightChild = queue.peek().getChildren().get(1).getLabel().getSymbol();
 					if (leftChild != -1 && rightChild != -1)
 					{
@@ -101,17 +134,6 @@ public class GrammarExtractor
 							bRuleBySameHeadCount[parent].remove(bRule);
 							bRuleBySameHeadCount[parent].put(bRule, count);
 						}
-
-//						if (!bRuleBySameHead.containsKey(parent))
-//						{
-//							bRuleBySameHead.put(parent, new HashMap<Integer, BinaryRule>());
-//						}
-//						bRuleBySameHead.get(parent).put(bRule.hashCode(), bRule);
-//						if (!bRuleBySameChildren.containsKey(bRule.chidrenHashcode()))
-//						{
-//							bRuleBySameChildren.put(bRule.chidrenHashcode(), new HashMap<Integer, BinaryRule>());
-//						}
-//						bRuleBySameChildren.get(bRule.chidrenHashcode()).put(bRule.hashCode(), bRule);
 					}
 				}
 				else if (queue.peek().getChildren().size() == 1)
@@ -132,19 +154,7 @@ public class GrammarExtractor
 								uRuleBySameHeadCount[parent].remove(uRule);
 								uRuleBySameHeadCount[parent].put(uRule, count);
 							}
-
-//							if (!uRuleBySameHead.containsKey(parent))
-//							{
-//								uRuleBySameHead.put(parent, new HashMap<Integer, UnaryRule>());
-//							}
-//							uRuleBySameHead.get(parent).put(uRule.hashCode(), uRule);
-//							if (!uRuleBySameChildren.containsKey(uRule.chidrenHashcode()))
-//							{
-//								uRuleBySameChildren.put(uRule.chidrenHashcode(), new HashMap<Integer, UnaryRule>());
-//							}
-//							uRuleBySameChildren.get(uRule.chidrenHashcode()).put(uRule.hashCode(), uRule);
 						}
-
 					}
 					else
 					{
@@ -161,17 +171,6 @@ public class GrammarExtractor
 							preRuleBySameHeadCount[preterminal.indexOf(parent)].remove(preRule);
 							preRuleBySameHeadCount[preterminal.indexOf(parent)].put(preRule, count);
 						}
-//						if (!preRuleBySameHead.containsKey(parent))
-//						{
-//							preRuleBySameHead.put(parent, new HashMap<Integer, PreterminalRule>());
-//						}
-//						preRuleBySameHead.get(parent).put(preRule.hashCode(), preRule);
-//						if (!preRuleBySameChildren.containsKey(preRule.chidrenHashcode()))
-//						{
-//							preRuleBySameChildren.put(preRule.chidrenHashcode(),
-//									new HashMap<Integer, PreterminalRule>());
-//						}
-//						preRuleBySameChildren.get(preRule.chidrenHashcode()).put(preRule.hashCode(), preRule);
 					}
 				}
 
@@ -184,7 +183,59 @@ public class GrammarExtractor
 			}
 		}
 		calculateRuleScores();
+	}
 
+	public Grammar getInitialGrammar() throws IOException
+	{
+		tally();
+		HashSet<BinaryRule> bRules;
+		HashSet<UnaryRule> uRules;
+		HashSet<PreterminalRule> preRules;
+		HashMap<BinaryRule, Integer> allBRule = new HashMap<BinaryRule, Integer>();
+		HashMap<PreterminalRule, Integer> allPreRule = new HashMap<PreterminalRule, Integer>();
+		HashMap<UnaryRule, Integer> allURule = new HashMap<UnaryRule, Integer>();
+
+		ArrayList<Short> tagWithRareWord = new ArrayList<Short>();
+		ArrayList<Integer> rareWordCount = new ArrayList<Integer>();
+		int allRareWord = 0;
+
+		for (HashMap<BinaryRule, Integer> map : this.bRuleBySameHeadCount)
+		{
+			allBRule.putAll(map);
+
+		}
+		for (HashMap<PreterminalRule, Integer> map : this.preRuleBySameHeadCount)
+		{
+			allPreRule.putAll(map);
+			for (Map.Entry<PreterminalRule, Integer> entry : map.entrySet())
+			{
+				boolean flag = false;// 表示该规则的左部的tag是否添加到tagWithRareWord中
+				if (entry.getValue() <= rareWordThreshold)
+				{
+					if (!flag)
+					{
+						tagWithRareWord.add(entry.getKey().getParent());
+						rareWordCount.add(1);
+						flag = true;
+					}
+					else
+					{
+						rareWordCount.set(rareWordCount.size() - 1, rareWordCount.get(rareWordCount.size() - 1) + 1);
+					}
+					allRareWord++;
+				}
+			}
+		}
+		for (HashMap<UnaryRule, Integer> map : this.uRuleBySameHeadCount)
+		{
+			allURule.putAll(map);
+		}
+		bRules = new HashSet<BinaryRule>(allBRule.keySet());
+		uRules = new HashSet<UnaryRule>(allURule.keySet());
+		preRules = new HashSet<PreterminalRule>(allPreRule.keySet());
+		Lexicon lexicon = new Lexicon(preRules, this.dictionary, tagWithRareWord, rareWordCount, allRareWord);
+		Grammar intialG = new Grammar(this.treeBank, bRules, uRules, lexicon, this.nonterminalTable);
+		return intialG;
 	}
 
 	// 计算初始文法的概率
