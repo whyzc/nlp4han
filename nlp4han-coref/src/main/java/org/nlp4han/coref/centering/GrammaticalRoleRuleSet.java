@@ -36,6 +36,7 @@ public class GrammaticalRoleRuleSet
 		String OBJRule5 = "NP#(VP(VC _))";
 		String OBJRule6 = "NP#(VP(VV AS NP _))";
 		String OBJRule7 = "NP#(PP(VV _))";
+		String OBJRule8 = "NP#(PP(P _))";
 		OBJRules.add(OBJRule1);
 		OBJRules.add(OBJRule2);
 		OBJRules.add(OBJRule3);
@@ -43,6 +44,7 @@ public class GrammaticalRoleRuleSet
 		OBJRules.add(OBJRule5);
 		OBJRules.add(OBJRule6);
 		OBJRules.add(OBJRule7);
+		OBJRules.add(OBJRule8);
 
 		grammaticalRoleRuleSet.put("OBJ", OBJRules);
 

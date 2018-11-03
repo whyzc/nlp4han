@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.nlp4han.coref.AnaphoraResolution;
 import org.nlp4han.coref.hobbs.AttributeFilter;
@@ -47,12 +49,12 @@ public class CenteringBFP implements AnaphoraResolution
 		List<Center> centersOfUtterances = new ArrayList<Center>(); // Utterances的Center集合
 		if (entitiesOfUtterances.size() > 1)
 		{
-			Center ui = generateCenter(entitiesOfUtterances.get(0), null, rootNodesOfUtterances.get(0), null);
+			Center ui = generateCenter(entitiesOfUtterances.get(0), null, null, rootNodesOfUtterances.get(0), null);
 			centersOfUtterances.add(ui);
 			for (int i = 1; i < entitiesOfUtterances.size(); i++)
 			{
 				List<Entity> utter = entitiesOfUtterances.get(i);
-				ui = generateCenter(utter, ui, rootNodesOfUtterances.get(i), rootNodesOfUtterances.get(i - 1));
+				ui = generateCenter(utter, entitiesOfUtterances.get(i-1), ui, rootNodesOfUtterances.get(i), rootNodesOfUtterances.get(i - 1));
 				centersOfUtterances.add(ui);
 			}
 			return extractEntitySet(centersOfUtterances);
@@ -69,7 +71,7 @@ public class CenteringBFP implements AnaphoraResolution
 	 *            实体e对应结点的根结点
 	 * @return
 	 */
-	private static boolean isPronoun(Entity e, TreeNode root)
+	private boolean isPronoun(Entity e, TreeNode root)
 	{
 		if (e == null)
 			throw new RuntimeException("输入错误");
@@ -87,7 +89,7 @@ public class CenteringBFP implements AnaphoraResolution
 	 * @param centersOfUtterances
 	 * @return
 	 */
-	private static List<List<Entity>> extractEntitySet(List<Center> centersOfUtterances)
+	private List<List<Entity>> extractEntitySet(List<Center> centersOfUtterances)
 	{
 		if (centersOfUtterances != null)
 		{
@@ -122,19 +124,19 @@ public class CenteringBFP implements AnaphoraResolution
 	}
 
 	/**
-	 * 生成话语的中心数值（Cb、Cf、Cp）
+	 * 生成话语的最优的中心数值（Cb、Cf、Cp）
 	 * 
 	 * @param entitiesOfUi
 	 *            当前会话的实体集
 	 * @param centerOfUi_1
-	 *            前句会话的实体集
+	 *            前句会话的实体中心
 	 * @param rootOfUi
 	 *            当前会话的根节点
 	 * @param rootOfUi_1
 	 *            前句会话的根节点
 	 * @return
 	 */
-	public Center generateCenter(List<Entity> entitiesOfUi, Center centerOfUi_1, TreeNode rootOfUi, TreeNode rootOfUi_1)
+	public Center generateCenter(List<Entity> entitiesOfUi, List<Entity> entitiesOfUi_1, Center centerOfUi_1, TreeNode rootOfUi, TreeNode rootOfUi_1)
 	{
 		if (entitiesOfUi == null)
 		{
@@ -145,7 +147,7 @@ public class CenteringBFP implements AnaphoraResolution
 			List<Entity> pronounEntities = getPronounEntities(entitiesOfUi, rootOfUi);
 			if (pronounEntities.isEmpty())
 				return new Center(entitiesOfUi, entitiesOfUi);
-			List<List<Entity>> anaphorEntitiesList = generateAllAnaphorEntities(pronounEntities, centerOfUi_1, rootOfUi,
+			List<List<Entity>> anaphorEntitiesList = generateAllAnaphorEntities(pronounEntities, entitiesOfUi_1, centerOfUi_1, rootOfUi,
 					rootOfUi_1);
 			List<Center> candidates = new ArrayList<Center>();
 			List<String> transitions = new ArrayList<String>();
@@ -180,7 +182,7 @@ public class CenteringBFP implements AnaphoraResolution
 	 * @param anaphorEntitiesOfUi_1
 	 * @return
 	 */
-	private static List<Entity> replaceEntity(List<Entity> entitiesOfUi, List<Entity> pronounEntitiesOfUi,
+	private List<Entity> replaceEntity(List<Entity> entitiesOfUi, List<Entity> pronounEntitiesOfUi,
 			List<Entity> anaphorEntitiesOfUi_1)
 	{
 		if (entitiesOfUi == null || pronounEntitiesOfUi == null || anaphorEntitiesOfUi_1 == null)
@@ -208,7 +210,7 @@ public class CenteringBFP implements AnaphoraResolution
 	 * @param rootOfUi
 	 * @return
 	 */
-	private static List<Entity> getPronounEntities(List<Entity> entitiesOfUi, TreeNode rootOfUi)
+	private List<Entity> getPronounEntities(List<Entity> entitiesOfUi, TreeNode rootOfUi)
 	{
 		if (entitiesOfUi != null)
 		{
@@ -262,7 +264,7 @@ public class CenteringBFP implements AnaphoraResolution
 	/**
 	 * 生成所有的回指实体集，用以确定Cb
 	 */
-	private List<List<Entity>> generateAllAnaphorEntities(List<Entity> pronounEntitiesOfUi, Center centerOfUi_1,
+	private List<List<Entity>> generateAllAnaphorEntities(List<Entity> pronounEntitiesOfUi, List<Entity> entitiesOfUi_1, Center centerOfUi_1,
 			TreeNode rootOfUi, TreeNode rootOfUi_1)
 	{
 		if (pronounEntitiesOfUi == null || centerOfUi_1 == null)
@@ -274,12 +276,12 @@ public class CenteringBFP implements AnaphoraResolution
 			return new ArrayList<List<Entity>>();
 		}
 		List<List<Entity>> result;
-		List<Entity> entitiesOfUi_1 = centerOfUi_1.getCf();
+		List<Entity> newEntitiesOfUi_1 = centerOfUi_1.getCf();
 		List<List<Entity>> tmp = new ArrayList<List<Entity>>();
 
 		for (int i = 0; i < pronounEntitiesOfUi.size(); i++)
 		{
-			List<Entity> candidates = getMatchingEntities(entitiesOfUi_1, pronounEntitiesOfUi.get(i), attributeFilter,
+			List<Entity> candidates = getMatchingEntities(newEntitiesOfUi_1, entitiesOfUi_1, pronounEntitiesOfUi.get(i), attributeFilter,
 					rootOfUi, rootOfUi_1);
 			tmp.add(candidates);
 		}
@@ -331,7 +333,7 @@ public class CenteringBFP implements AnaphoraResolution
 	 * entity为Ui中的代词实体，在Ui-1的实体集entitiesOfUi_1中找出属性相容的实体
 	 * filter为属性过滤器，rootOfUi为Ui的结构树根结点，rootOfUi_1为Ui-1的结构树根结点
 	 */
-	private static List<Entity> getMatchingEntities(List<Entity> entitiesOfUi_1, Entity entity, CandidateFilter filter,
+	private static List<Entity> getMatchingEntities(List<Entity> newEntitiesOfUi_1, List<Entity> entitiesOfUi_1, Entity entity, CandidateFilter filter,
 			TreeNode rootOfUi, TreeNode rootOfUi_1)
 	{
 		List<Entity> result = new ArrayList<Entity>();
@@ -347,9 +349,12 @@ public class CenteringBFP implements AnaphoraResolution
 			nodes_copy.add(tmp);
 		}
 
-		filter.setReferenceConditions(node);
-		filter.setFilteredNodes(nodes_copy);
-		filter.filter();
+		if (filter != null)
+		{
+			filter.setReferenceConditions(node);
+			filter.setFilteredNodes(nodes_copy);
+			filter.filter();
+		}
 
 		for (TreeNode n : nodes_copy)
 		{
@@ -358,7 +363,7 @@ public class CenteringBFP implements AnaphoraResolution
 			else
 			{
 				int index = nodes.indexOf(n);
-				result.add(entitiesOfUi_1.get(index));
+				result.add(newEntitiesOfUi_1.get(index));
 			}
 		}
 
@@ -475,11 +480,23 @@ public class CenteringBFP implements AnaphoraResolution
 				{
 					TreeNode root1 = rootNodesOfUtterances.get(i);
 					TreeNode ponoun = TreeNodeUtil.getAllLeafNodes(root1).get(oldEntitiesSet.get(i).get(j).getSite());
-
-					int index = oldEntitiesSet.get(i - 1).indexOf(newEntitiesSet.get(i).get(j));
-					Entity e = oldEntitiesSet.get(i - 1).get(index);
-					TreeNode root2 = rootNodesOfUtterances.get(i - 1);
-					TreeNode antecedent = TreeNodeUtil.getAllLeafNodes(root2).get(e.getSite());
+					TreeNode antecedent = null;
+					int k=i-1;
+					int index;
+					while (k>-1)
+					{
+						if ((index = oldEntitiesSet.get(k).indexOf(newEntitiesSet.get(i).get(j))) > -1)
+						{
+							Entity e = oldEntitiesSet.get(k).get(index);
+							TreeNode root2 = rootNodesOfUtterances.get(k);
+							antecedent = TreeNodeUtil.getAllLeafNodes(root2).get(e.getSite());
+							break;
+						}
+						else
+						{
+							k--;
+						}
+					}
 
 					result.put(ponoun, antecedent);
 				}
@@ -514,7 +531,13 @@ public class CenteringBFP implements AnaphoraResolution
 	@Override
 	public TreeNode resolve(List<TreeNode> sentences, TreeNode pronoun)
 	{
-		// TODO
+		Map<TreeNode, TreeNode> allResults = resolve(sentences);
+		Set<Entry<TreeNode, TreeNode>> enteries = allResults.entrySet();
+		for (Entry<TreeNode, TreeNode> e : enteries)
+		{
+			if (e.getKey().equals(TreeNodeUtil.getAllLeafNodes(pronoun).get(0)))
+				return e.getValue();
+		}
 		return null;
 	}
 

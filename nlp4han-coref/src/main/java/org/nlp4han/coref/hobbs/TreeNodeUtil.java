@@ -383,47 +383,6 @@ public class TreeNodeUtil
 		return result;
 	}
 
-	// public static TreeNode getHead(TreeNode nPNode)
-	// {
-	// if (nPNode == null || !nPNode.getNodeName().equals("NP"))
-	// {
-	// throw new RuntimeException("NPNode错误！");
-	// }
-	//
-	// TreeNode result = nPNode;
-	//
-	// if (nPNode.getChildrenNum() > 1)
-	// {
-	// List<TreeNode> childrenNodes = (List<TreeNode>) nPNode.getChildren();
-	//
-	// if (isParataxisNP(result))
-	// return result;
-	// if (allNodeNames(childrenNodes, POSTAGS))
-	// {
-	// if (allNodeNames(childrenNodes, new String[] { "NN", "NR" }) &&
-	// childrenNodes.size() < 3)
-	// {
-	// return result;
-	// }
-	// else
-	// {
-	// result = getLastNodeWithSpecifiedName(childrenNodes, new String[] { "NN",
-	// "NR" });
-	// return result;
-	// }
-	// }
-	// else
-	// {
-	// result = getLastNodeWithSpecifiedName(childrenNodes, new String[] { "NN",
-	// "NR", "NP" });
-	// if (result.getNodeName().equals("NP"))
-	// result = getHead(result);
-	// return result;
-	// }
-	//
-	// }
-	// return result;
-	// }
 
 	/**
 	 * 是否为并列结构的NP结点
@@ -432,7 +391,7 @@ public class TreeNodeUtil
 	 * @return
 	 */
 	public static boolean isCoordinatingNP(TreeNode treeNode)
-	{ // TODO：算法有待改善
+	{ 
 		if (treeNode == null || !treeNode.getNodeName().equals("NP"))
 		{
 			throw new RuntimeException("NPNode错误！");
