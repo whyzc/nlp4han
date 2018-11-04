@@ -1,7 +1,9 @@
 package com.lc.nlp4han.constituent.unlex;
 
+import java.util.ArrayList;
 //import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,7 +26,6 @@ import com.lc.nlp4han.constituent.pcfg.PRule;
 public class Grammar
 {
 	public static int iterations = 50;
-	public static int countsssss = 0;
 	public static double rulethres = 1.0e-30;
 	protected List<AnnotationTreeNode> treeBank;
 
@@ -44,7 +45,7 @@ public class Grammar
 	protected NonterminalTable nonterminalTable;
 	// 使用规则数量的期望的比作为新的规则概率
 	protected HashMap<Short, Double[]> sameParentRulesCount = new HashMap<>();// <parent,[ParentSubIndex,denominator]>
-
+	public double mergeWeight[][];
 	public static Random random = new Random(0);
 
 	public Grammar(List<AnnotationTreeNode> treeBank, HashSet<BinaryRule> bRules, HashSet<UnaryRule> uRules,
@@ -65,14 +66,79 @@ public class Grammar
 		grammarExam();
 	}
 
+	public Grammar train(int SMCycle, double mergeRate)
+	{
+//		for (int i = 0; i < SMCycle; i++)
+//		{
+//			split();
+//			merge(mergeRate);
+//		}
+		return this;
+	}
+
 	public void split()
 	{
 		GrammarSpliter.splitGrammar(this);
 		EM(Grammar.iterations);
 	}
 
-	public void merger(double mergeRate)
+	public void merge(double mergeRate)
 	{
+		this.mergeWeight = computerMergerWeight();
+		ArrayList<Short> newNumSubsymbolArr = new ArrayList<>(nonterminalTable.getNumSubsymbolArr().size());
+		Collections.copy(newNumSubsymbolArr, nonterminalTable.getNumSubsymbolArr());
+		Short[][] mergeSymbols = getMergeSymbol(mergeRate, newNumSubsymbolArr);
+		mergeRule(mergeSymbols, mergeWeight);
+		forgetRuleCountExpectation();
+		nonterminalTable.setNumSubsymbolArr(newNumSubsymbolArr);
+		sameParentRulesCount = new HashMap<>();
+		mergeWeight = null;
+		mergeTrees();
+		EM(Grammar.iterations);
+	}
+
+	public void mergeRule(Short[][] mergeSymbols, double[][] mergeWeight)
+	{
+		for (BinaryRule bRule : bRules)
+		{
+			bRule.merge(mergeSymbols, mergeWeight);
+		}
+		for (UnaryRule uRule : uRules)
+		{
+			uRule.merge(mergeSymbols, mergeWeight);
+		}
+		for (PreterminalRule preRule : lexicon.getPreRules())
+		{
+			preRule.merge(mergeSymbols, mergeWeight);
+		}
+	}
+
+	public void mergeTrees()
+	{
+		for (AnnotationTreeNode tree : treeBank)
+		{
+			mergeTreeAnnotation(tree);
+		}
+	}
+
+	private void mergeTreeAnnotation(AnnotationTreeNode tree)
+	{
+		if (tree.isLeaf())
+			return;
+		tree.getLabel().setNumSubSymbol(nonterminalTable.getNumSubsymbolArr().get(tree.getLabel().getSymbol()));
+		tree.forgetIOScore();
+		tree.getLabel().setInnerScores(null);
+		tree.getLabel().setOuterScores(null);
+		for (AnnotationTreeNode child : tree.getChildren())
+		{
+			mergeTreeAnnotation(child);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public Short[][] getMergeSymbol(double mergeRate, ArrayList<Short> newNumSubsymbolArr)
+	{
+		ArrayList<Short>[] symbolToMerge = new ArrayList[nonterminalTable.getNumSymbol()];
 		PriorityQueue<SentenceLikehood> senScoreGradient = new PriorityQueue<>();
 		// assume a subState without split,root 没有分裂
 		for (short i = 1; i < nonterminalTable.getNumSymbol(); i++)
@@ -83,7 +149,7 @@ public class Grammar
 				for (AnnotationTreeNode tree : treeBank)
 				{
 					double sentenceScoreGradient = 1;
-					mergeHelper(tree, i, j, sentenceScoreGradient);
+					getMergeSymbolHelper(tree, i, j, sentenceScoreGradient);
 					tallyGradient *= sentenceScoreGradient;
 				}
 				senScoreGradient.add(new SentenceLikehood(i, j, tallyGradient));
@@ -91,57 +157,71 @@ public class Grammar
 			}
 		}
 		int mergeCount = (int) (senScoreGradient.size() * mergeRate);
-		PriorityQueue<SentenceLikehood> newQueue = new PriorityQueue<>(new Comparator<SentenceLikehood>()
+		for (int i = 0; i < mergeCount; i++)
 		{
-			@Override
-			public int compare(SentenceLikehood o1, SentenceLikehood o2)
+			SentenceLikehood s = senScoreGradient.poll();
+			if (symbolToMerge[s.symbol] == null)
 			{
-				if (o1.symbol > o2.symbol)
-					return 1;
-				else if (o1.symbol < o2.symbol)
-					return -1;
-				else
+				symbolToMerge[s.symbol] = new ArrayList<Short>();
+			}
+			symbolToMerge[s.symbol].add(s.subSymbolIndex);
+		}
+		Short[][] mergeSymbols = new Short[symbolToMerge.length][];
+		Short[] subSymbolToMerge;
+		//// assume a subState without split,root 没有分裂
+		for (int i = 1; i < symbolToMerge.length; i++)
+		{
+			symbolToMerge[i].sort(new Comparator<Short>()
+			{
+				@Override
+				public int compare(Short o1, Short o2)
 				{
-					if (o1.subSymbolIndex > o2.subSymbolIndex)
-						return 1;
-					else if (o1.subSymbolIndex < o2.subSymbolIndex)
+					if (o1 < o2)
 						return -1;
+					else if (o1 > o2)
+						return 1;
 					else
 						return 0;
 				}
-			}
-		});
-		for (int i = 0; i < mergeCount; i++)
-		{
-			newQueue.add(senScoreGradient.poll());
+			});
+			subSymbolToMerge = symbolToMerge[i].toArray(new Short[symbolToMerge[i].size()]);
+			mergeSymbols[i] = subSymbolToMerge;
+			newNumSubsymbolArr.set(i, (short) (nonterminalTable.getNumSubsymbolArr().get(i) - subSymbolToMerge.length));
 		}
-		for (SentenceLikehood sLikehood : newQueue)
-		{
-			short symbol = sLikehood.symbol;
-			short subSymbolIndex = sLikehood.subSymbolIndex;
-			realMerge(symbol, subSymbolIndex);
-		}
-
+		return mergeSymbols;
 	}
 
-	public void mergeHelper(AnnotationTreeNode tree, short symbol, short subSymbolIndex, double senScoreGradient)
+	public void getMergeSymbolHelper(AnnotationTreeNode tree, short symbol, short subSymbolIndex,
+			double senScoreGradient)
 	{
 		if (tree.isLeaf())
 			return;
-		if (tree.getLabel().getSymbol() == symbol)
+		if (tree.getLabel().getSymbol() == symbol && symbol != 0)
 		{
 			senScoreGradient = calSenSocreAssumeMergeState_i(tree, subSymbolIndex) / calculateSentenceSocre(tree);
 		}
 		for (AnnotationTreeNode child : tree.getChildren())
 		{
-			mergeHelper(child, symbol, subSymbolIndex, senScoreGradient);
+			getMergeSymbolHelper(child, symbol, subSymbolIndex, senScoreGradient);
 		}
 	}
 
-	// TODO:
-	public void realMerge(short symbol, short subSymbolIndex)
+	public double[][] computerMergerWeight()
 	{
-
+		double[][] mergerWeight = new double[nonterminalTable.getNumSymbol()][];
+		for (short i = 0; i < mergerWeight.length; i++)
+		{
+			mergerWeight[i] = new double[nonterminalTable.getNumSubsymbolArr().get(i)];
+			for (short j = 0; j < mergerWeight[i].length; j++)
+			{
+				mergerWeight[i][j] = sameParentRulesCount.get(i)[j]
+						/ (sameParentRulesCount.get(i)[j] + sameParentRulesCount.get(i)[j + 1]);
+				mergerWeight[i][j + 1] = sameParentRulesCount.get(i)[j]
+						/ (sameParentRulesCount.get(i)[j] + sameParentRulesCount.get(i)[j + 1]);
+				j++;
+			}
+		}
+		return mergerWeight;
 	}
 
 	/**
@@ -721,10 +801,13 @@ public class Grammar
 	 */
 	public double calSenSocreAssumeMergeState_i(AnnotationTreeNode node, int subStateIndex)
 	{
+
 		if (node.getLabel().getInnerScores() == null || node.getLabel().getOuterScores() == null)
 			throw new Error("没有计算树上节点的内外向概率。");
 		if (node.isLeaf())
 			throw new Error("不能利用叶子节点计算内外向概率。");
+		if (node.getLabel().getSymbol() == 0)// root不分裂不合并
+			return 0;
 		double sentenceScore = 0.0;
 		Double[] innerScore = node.getLabel().getInnerScores();
 		Double[] outerScores = node.getLabel().getOuterScores();
@@ -737,12 +820,9 @@ public class Grammar
 		{
 			if (i == subStateIndex)
 			{
-				double iRuleCount = calculateSameParentRuleCount(sameParentRulesCount, node.getLabel().getSymbol(), i);
-				double fullBrotherRuleCount = calculateSameParentRuleCount(sameParentRulesCount,
-						node.getLabel().getSymbol(), i + 1);
-				double iFrequency = iRuleCount / iRuleCount + fullBrotherRuleCount;
-				double brotherFrequency = fullBrotherRuleCount / iRuleCount + fullBrotherRuleCount;
-				sentenceScore += (iFrequency * innerScore[i] + brotherFrequency * innerScore[i + 1])
+				double iWeight = mergeWeight[node.getLabel().getSymbol()][i];
+				double brotherWeight = mergeWeight[node.getLabel().getSymbol()][i + 1];
+				sentenceScore += (iWeight * innerScore[i] + brotherWeight * innerScore[i + 1])
 						* (outerScores[i] + outerScores[i + 1]);
 				i++;
 			}
@@ -956,9 +1036,9 @@ public class Grammar
 		public int compareTo(SentenceLikehood o)
 		{
 			if (this.sentenceScoreGradient > o.sentenceScoreGradient)
-				return 1;
-			else if (this.sentenceScoreGradient < o.sentenceScoreGradient)
 				return -1;
+			else if (this.sentenceScoreGradient < o.sentenceScoreGradient)
+				return 1;
 			else
 				return 0;
 		}

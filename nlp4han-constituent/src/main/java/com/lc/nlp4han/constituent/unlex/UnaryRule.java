@@ -87,6 +87,54 @@ public class UnaryRule extends Rule
 		}
 	}
 
+	@Override
+	public void merge(Short[][] symbolToMerge, double[][] weights)
+	{
+		if (symbolToMerge[parent] == null && symbolToMerge[child] == null)
+			return;
+		// 合并child
+		if (symbolToMerge[child] != null)
+		{
+			int nCToMerge = symbolToMerge[child].length;
+			for (int indexCToMerge = nCToMerge - 1; indexCToMerge >= 0; indexCToMerge--)
+			{
+				short indexC = symbolToMerge[child][indexCToMerge];
+				for (int indexP = 0; indexP < scores.size(); indexP++)
+				{
+
+					double scoreP2C1 = scores.get(indexP).get(indexC);
+					double scoreP2C2 = scores.get(indexP).get(indexC + 1);
+					scores.get(indexP).set(indexC, scoreP2C1 + scoreP2C2);
+					scores.remove(indexC + 1);
+
+				}
+			}
+		}
+
+		// 合并parent
+		if (symbolToMerge[parent] != null)
+		{
+			int nPToMerge = symbolToMerge[parent].length;
+			for (int indexPToMerge = nPToMerge - 1; indexPToMerge >= 0; indexPToMerge--)
+			{
+				int indexP = symbolToMerge[parent][indexPToMerge];
+				LinkedList<Double> scoresP1 = scores.get(indexP);
+				LinkedList<Double> scoresP2 = scores.get(indexP + 1);
+				for (int indexC = 0; indexC < scoresP1.size(); indexC++)
+				{
+					double scoresP1ToC = scoresP1.get(indexC);
+					double scoresP2ToC = scoresP2.get(indexC);
+
+					// 合并parent的subSymbol时需要赋予规则概率权重
+					scoresP1.set(indexC,
+							scoresP1ToC * weights[parent][indexP] + scoresP2ToC * weights[parent][indexP + 1]);
+
+				}
+				scores.remove(indexP + 1);
+			}
+		}
+	}
+
 	public int hashCode()
 	{
 		final int prime = 31;

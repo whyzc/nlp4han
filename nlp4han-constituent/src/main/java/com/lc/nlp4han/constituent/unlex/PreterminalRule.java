@@ -55,6 +55,24 @@ public class PreterminalRule extends Rule
 		}
 	}
 
+	@Override
+	public void merge(Short[][] symbolToMerge, double[][] weights)
+	{
+		if (symbolToMerge[parent] == null)
+			return;
+		// 合并parent
+		int nPToMerge = symbolToMerge[parent].length;
+		for (int indexPToMerge = nPToMerge - 1; indexPToMerge >= 0; indexPToMerge--)
+		{
+			int indexP = symbolToMerge[parent][indexPToMerge];
+			double scoresP1ToC = scores.get(indexP);
+			double scoresP2ToC = scores.get(indexP + 1);
+			// 合并parent的subSymbol时需要赋予规则概率权重
+			scores.set(indexP, scoresP1ToC * weights[parent][indexP] + scoresP2ToC * weights[parent][indexP + 1]);
+			scores.remove(indexP + 1);
+		}
+	}
+
 	public int hashCode()
 	{
 		final int prime = 31;
