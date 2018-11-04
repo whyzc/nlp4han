@@ -33,6 +33,11 @@ import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 import com.lc.nlp4han.ml.util.PlainTextByLineStream;
 
+/**
+ * 数据转换信息类，将组块字符序列转换成SVM输入格式，并存储相关信息
+ * @author 杨智超
+ *
+ */
 public class SVMStandardInput
 {
 	private static final String USAGE = "Usage: SVMStandardInput [options] -data data_file\n"
@@ -300,6 +305,11 @@ public class SVMStandardInput
 		return result.toString();
 	}
 
+	/**
+	 * 根据事件流，生成数据转换信息
+	 * @param es
+	 * @throws IOException
+	 */
 	public void init(ObjectStream<Event> es) throws IOException
 	{
 		Event event = null;

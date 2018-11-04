@@ -57,11 +57,19 @@ public abstract class SVMME implements Chunker
 		return this.model;
 	}
 
+	/**
+	 * 设置数据转换信息SVMStandardInput
+	 * @param ssi
+	 */
 	public void setSVMStandardInput(SVMStandardInput ssi)
 	{
 		this.ssi = ssi;
 	}
 	
+	/**
+	 * 读取组块文件，生成数据转换信息
+	 * @param filePath
+	 */
 	public void setSVMStandardInput(String filePath)
 	{
 		try
@@ -85,6 +93,10 @@ public abstract class SVMME implements Chunker
 		this.label = label;
 	}
 
+	/**
+	 * 根据模型路径，加载model
+	 * @param modelPath
+	 */
 	public abstract void setModel(String modelPath);
 
 	@Override
@@ -180,8 +192,16 @@ public abstract class SVMME implements Chunker
 		SVMStandardInput.writeToFile(arg[arg.length - 2], input, "utf-8");
 	}
 
+	/**
+	 * 根据训练参数进行训练
+	 * @param arg
+	 */
 	public abstract void train(String[] arg);
 
+	/**
+	 * 根据事件流生成数据转换信息
+	 * @param es
+	 */
 	private void init(ObjectStream<Event> es)
 	{
 		this.ssi = new SVMStandardInput();

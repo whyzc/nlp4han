@@ -77,19 +77,7 @@ public class Entity implements Comparable<Entity>
 	{
 		this.site = site;
 	}
-
-	/**
-	 * 根据字符串生成其所有实体对象
-	 * 
-	 * @param sentence
-	 * @return
-	 */
-	public static List<Entity> entities(String sentence)
-	{
-		// TODO
-		return null;
-	}
-
+	
 	/**
 	 * 根据语法角色规则，从短语结构树中提取实体集
 	 * 
@@ -111,18 +99,6 @@ public class Entity implements Comparable<Entity>
 			result.addAll(maps.get(key));
 		}
 		return sort(result);
-	}
-
-	/**
-	 * 从短语结构树中提取实体集
-	 * 
-	 * @param root
-	 * @return
-	 */
-	public static List<Entity> entities(TreeNode root)
-	{
-		// TODO : To Implement
-		return null;
 	}
 
 	/**
