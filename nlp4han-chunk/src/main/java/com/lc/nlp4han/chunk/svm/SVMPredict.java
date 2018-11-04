@@ -19,11 +19,11 @@ class SVMPredict extends svm_predict
 	}
 
 	/**
+	 * 预测，输入形如“2 1:5 3:6 ......”，返回预测结果
 	 * @param line
 	 *            2 1:5 3:6 ......
 	 * @param model
 	 * @param predict_probability
-	 *            暂不支持概率预测，此处设为0
 	 * @throws IOException
 	 */
 	public static Double predict(String line, svm_model model, int predict_probability) throws IOException

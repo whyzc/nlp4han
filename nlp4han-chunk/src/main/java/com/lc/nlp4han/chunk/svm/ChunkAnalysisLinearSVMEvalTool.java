@@ -14,7 +14,7 @@ import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosParserBIO;
 
 public class ChunkAnalysisLinearSVMEvalTool
 {
-	private static final String USAGE = "Usage: ChunkAnalysisLinearSVMEvalTool [options] -goal predicting_set_file\n"
+	private static final String USAGE = "Usage: ChunkAnalysisLinearSVMEvalTool [options] -model model_file -transform transformation_information_file -goal predicting_set_file\n"
 			+ "options:\n" 
 			+ "-label label : such as BIOE, BIOES\n"
 			+ "-encoding encoding : set encoding form\n" 
