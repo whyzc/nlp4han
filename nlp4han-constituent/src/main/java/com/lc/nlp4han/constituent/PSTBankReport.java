@@ -15,6 +15,12 @@ public class PSTBankReport
 	private int numOfHighestTree;// 库中句法树的最大高度
 	private int numOfLowestTree;// 库中句法树的最小高度
 	private int meanLevelOfTree;// 库中句法树的平均高度
+	private int length0_20;
+	private int length20_40;
+	private int length40_60;
+	private int length60_80;
+	private int length80_100;
+	private int length100;
 
 	public PSTBankReport()
 	{
@@ -33,6 +39,27 @@ public class PSTBankReport
 		this.numOfLowestTree = numOfLowestTree;
 		this.meanLevelOfTree = meanLevelOfTree;
 		this.POSCount=POSCount;
+	}
+    
+	public PSTBankReport(int tokenCount, int wordShapeCount, int sentenceCount, int charCount, int nonTerminalCount,
+			int pOSCount, int numOfHighestTree, int numOfLowestTree, int meanLevelOfTree, int length0_20,
+			int length20_40, int length40_60, int length60_80, int length80_100, int length100)
+	{
+		this.tokenCount = tokenCount;
+		this.wordShapeCount = wordShapeCount;
+		this.sentenceCount = sentenceCount;
+		this.charCount = charCount;
+		this.nonTerminalCount = nonTerminalCount;
+		POSCount = pOSCount;
+		this.numOfHighestTree = numOfHighestTree;
+		this.numOfLowestTree = numOfLowestTree;
+		this.meanLevelOfTree = meanLevelOfTree;
+		this.length0_20 = length0_20;
+		this.length20_40 = length20_40;
+		this.length40_60 = length40_60;
+		this.length60_80 = length60_80;
+		this.length80_100 = length80_100;
+		this.length100 = length100;
 	}
 
 	public int getTokenCount()
@@ -123,13 +150,97 @@ public class PSTBankReport
 	{
 		POSCount = pOSCount;
 	}
+    
+	public int getCharCount()
+	{
+		return charCount;
+	}
 
-	@Override
+	public void setCharCount(int charCount)
+	{
+		this.charCount = charCount;
+	}
+
+	public int getLength0_20()
+	{
+		return length0_20;
+	}
+
+	public void setLength0_20(int length0_20)
+	{
+		this.length0_20 = length0_20;
+	}
+
+	public int getLength20_40()
+	{
+		return length20_40;
+	}
+
+	public void setLength20_40(int length20_40)
+	{
+		this.length20_40 = length20_40;
+	}
+
+	public int getLength40_60()
+	{
+		return length40_60;
+	}
+
+	public void setLength40_60(int length40_60)
+	{
+		this.length40_60 = length40_60;
+	}
+
+	public int getLength60_80()
+	{
+		return length60_80;
+	}
+
+	public void setLength60_80(int length60_80)
+	{
+		this.length60_80 = length60_80;
+	}
+
+	public int getLength80_100()
+	{
+		return length80_100;
+	}
+
+	public void setLength80_100(int length80_100)
+	{
+		this.length80_100 = length80_100;
+	}
+
+	public int getLength100()
+	{
+		return length100;
+	}
+
+	public void setLength100(int length100)
+	{
+		this.length100 = length100;
+	}
+
+/*	@Override
+	public String toString()
+	{
+		return "PSTBankReport [tokenCount=" + tokenCount + ", wordShapeCount=" + wordShapeCount + ", sentenceCount="
+				+ sentenceCount + ", charCount=" + charCount + ", nonTerminalCount=" + nonTerminalCount + ", POSCount="
+				+ POSCount + ", numOfHighestTree=" + numOfHighestTree + ", numOfLowestTree=" + numOfLowestTree
+				+ ", meanLevelOfTree=" + meanLevelOfTree + ", length0_20=" + length0_20 + ", length20_40=" + length20_40
+				+ ", length40_60=" + length40_60 + ", length60_80=" + length60_80 + ", length80_100=" + length80_100
+				+ ", length100=" + length100 + "]";
+	}*/
+
+@Override
 	public String toString()
 	{
 		return "tokenCount=" + tokenCount + "\n" + "wordShapeCount=" + wordShapeCount + "\n" + "sentenceCount="
 				+ sentenceCount + "\n" + "charCount=" + charCount + "\n" + "nonTerminalCount=" + nonTerminalCount + "\n"
 				+ "numOfHighestTree=" + numOfHighestTree + "\n" + "numOfLowestTree=" + numOfLowestTree + "\n"
-				+ "meanLevelOfTree=" + meanLevelOfTree+"\n"+ "POSCount=" + POSCount;
+				+ "meanLevelOfTree=" + meanLevelOfTree+"\n"+ "POSCount=" + POSCount+"\n"+ "length0_20=" + length0_20 + "\n"+ "length20_40=" + length20_40
+				+ "\n"+ "length40_60=" + length40_60 + "\n"+ "length60_80=" + length60_80 +"\n"+ "length80_100=" + length80_100
+				+ "\n"+ "length100=" + length100;
 	}
+	
 }

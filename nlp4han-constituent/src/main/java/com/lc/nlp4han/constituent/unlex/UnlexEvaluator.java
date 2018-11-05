@@ -45,9 +45,9 @@ public class UnlexEvaluator extends Evaluator<ConstituentTree>
 		this.cky = cky;
 	}
 
-	public UnlexEvaluator(PCFG p2nf,double pruneThreshold,boolean secondPrune)
+	public UnlexEvaluator(PCFG p2nf,double pruneThreshold,boolean secondPrune,boolean prior)
 	{
-		this.cky = new ConstituentParserCKYP2NF(p2nf,pruneThreshold,secondPrune);
+		this.cky = new ConstituentParserCKYP2NF(p2nf,pruneThreshold,secondPrune,prior);
 	}
 	
 

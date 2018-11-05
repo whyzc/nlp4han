@@ -19,13 +19,15 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 	private CKYCell[][] table;// 存储在该点的映射表
 	private PCFG pcnf;
 	private double pruneThreshold;// 剪枝阈值
-	private boolean secondPrune;// 是否进行二次剪枝
+	private boolean secondPrune;// 是否进行二次解析
+	private boolean prior;// 进行剪枝时是否添加先验概率
 
-	public ConstituentParserCKYPCNF(PCFG pcnf, double pruneThreshold, boolean secondPrune)
+	public ConstituentParserCKYPCNF(PCFG pcnf, double pruneThreshold, boolean secondPrune, boolean prior)
 	{
 		this.pruneThreshold = pruneThreshold;
 		this.secondPrune = secondPrune;
 		this.pcnf = pcnf;
+		this.prior = prior;
 	}
 
 	/**
@@ -153,17 +155,52 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 	{
 		HashMap<String, CKYPRule> map = table[i][j].getPruleMap();
 		ArrayList<String> deleteList = new ArrayList<String>();
+		HashMap<String, Double> map2 = new HashMap<String, Double>();
+
 		double bestPro = -1.0;
 		for (String str : map.keySet())
 		{
-			if (map.get(str).getProb() > bestPro)
+			double pro = 1;
+			// 添加先验概率
+			if (prior)
+			{
+				PCFGPrior pcp = (PCFGPrior) pcnf;
+				HashMap<String, Double> map1 = pcp.getPriorMap();
+				if (str.contains("@"))
+				{
+					String strs[] = str.split("@");
+					for (String str0 : strs)
+					{
+						if (!map1.keySet().contains(str0))
+						{
+							break;
+						}
+						pro *= map1.get(str0);
+					}
+				}
+				else if (str.contains("&"))
+				{
+					String strs[] = str.split("&");
+					for (String str0 : strs)
+					{
+						if (!map1.keySet().contains(str0))
+						{
+							break;
+						}
+						pro *= map1.get(str0);
+					}
+				}
+			}
+			map2.put(str, pro);
+
+			if (map.get(str).getProb() * pro > bestPro)
 			{
 				bestPro = map.get(str).getProb();
 			}
 		}
 		for (String str : map.keySet())
 		{
-			if (map.get(str).getProb() < bestPro * pruneThreshold)
+			if (map.get(str).getProb() * map2.get(str) < bestPro * pruneThreshold)
 			{
 				deleteList.add(str);
 			}
@@ -478,10 +515,11 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 	public static void main(String[] args) throws IOException
 	{
 		PCFG p2nf = new PCFG(new FileInputStream(new File(args[0])), args[1]);
-         double pruneThreshold=Double.parseDouble(args[2]);
-         boolean secondPrune=Boolean.getBoolean(args[3]);
-         
-		ConstituentParserCKYPCNF parser = new ConstituentParserCKYPCNF(p2nf,pruneThreshold,secondPrune);
+		double pruneThreshold = Double.parseDouble(args[2]);
+		boolean secondPrune = Boolean.getBoolean(args[3]);
+		boolean prior = Boolean.getBoolean(args[4]);
+
+		ConstituentParserCKYPCNF parser = new ConstituentParserCKYPCNF(p2nf, pruneThreshold, secondPrune, prior);
 
 		Scanner input = new Scanner(System.in);
 		String text = "";

@@ -16,9 +16,8 @@ public class RuleTest
 		RewriteRule r1 = new RewriteRule(ruleStr1);	
 		assertEquals(ruleStr1, r1.toString());
 		
-		String ruleStr2 = "A->B c ----  0.123";
+		String ruleStr2 = "A->B c ---- 0.123";
 		RewriteRule r2 = new PRule(ruleStr2);
-		System.out.println(r2.toString());
 		assertEquals(ruleStr2, r2.toString());
 	}
 

@@ -88,7 +88,7 @@ public class PRule extends RewriteRule implements Comparable<PRule>
 	{
 		StringBuilder strb = new StringBuilder();
 		strb.append(super.toString());
-		strb.append(" ---- " + " " + prob);
+		strb.append(" ---- " + prob);
 		return strb.toString();
 	}
 

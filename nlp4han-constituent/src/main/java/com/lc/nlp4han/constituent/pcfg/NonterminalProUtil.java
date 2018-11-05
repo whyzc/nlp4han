@@ -8,6 +8,7 @@ import java.util.HashMap;
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.PlainTextByTreeStream;
 import com.lc.nlp4han.constituent.TreeNode;
+import com.lc.nlp4han.constituent.lex.CTBPreprocessTool;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 
 public class NonterminalProUtil
@@ -26,16 +27,20 @@ public class NonterminalProUtil
 		}
 		ptbt.close();
 		// 括号表达式生成文法
-		HashMap<String, Double> map = brackets2Map(bracketStrList);
+		HashMap<String, Double> map = brackets2Map(bracketStrList, null);
 		return map;
 	}
 
-	private static HashMap<String, Double> brackets2Map(ArrayList<String> bracketStrList)
+	public static HashMap<String, Double> brackets2Map(ArrayList<String> bracketStrList, String type)
 	{
 		HashMap<String, Integer> map = new HashMap<String, Integer>();
 		for (String bracketStr : bracketStrList)
 		{
 			TreeNode rootNode1 = BracketExpUtil.generateTree(bracketStr);
+			if (type.equals("lex"))
+			{
+				CTBPreprocessTool.traverseTreeAddNPB(rootNode1);
+			}
 			traverse(rootNode1, map);
 		}
 		HashMap<String, Double> map1 = computePro(map);

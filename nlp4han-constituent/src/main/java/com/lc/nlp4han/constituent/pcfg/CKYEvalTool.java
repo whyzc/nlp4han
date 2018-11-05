@@ -23,6 +23,7 @@ public class CKYEvalTool
 		String encoding = null;
 		double pruneThreshold=0.0001;
 		boolean secondPrune=false;
+		boolean prior=false;
 		for (int i = 0; i < args.length; i++)
 		{
 			if (args[i].equals("-model"))
@@ -50,14 +51,19 @@ public class CKYEvalTool
 				secondPrune = Boolean.parseBoolean(args[i + 1]);
 				i++;
 			}
+			else if (args[i].equals("-prior"))
+			{
+				prior = Boolean.parseBoolean(args[i + 1]);
+				i++;
+			}
 		}
-		eval(trainFile, goldFile, encoding,pruneThreshold,secondPrune);
+		eval(trainFile, goldFile, encoding,pruneThreshold,secondPrune,prior);
 	}
 
-	public static void eval(String trainFile, String goldFile, String encoding,double pruneThreshold,boolean secondPrune) throws IOException
+	public static void eval(String trainFile, String goldFile, String encoding,double pruneThreshold,boolean secondPrune,boolean prior) throws IOException
 	{
 		PCFG p2nf = new PCFG(new FileInputStream(new File(trainFile)), encoding);
-		CKYParserEvaluator evaluator = new CKYParserEvaluator(p2nf,pruneThreshold,secondPrune);
+		CKYParserEvaluator evaluator = new CKYParserEvaluator(p2nf,pruneThreshold,secondPrune,prior);
 		
 		ConstituentMeasure measure = new ConstituentMeasure();
 		evaluator.setMeasure(measure);

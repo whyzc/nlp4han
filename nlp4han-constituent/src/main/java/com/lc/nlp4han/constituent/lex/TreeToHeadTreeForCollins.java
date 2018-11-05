@@ -28,7 +28,7 @@ public class TreeToHeadTreeForCollins
 		traverseConvert(rootNode, treeNode, 0, headGen,verbs);
 		
 		//添加基本名词短语
-		traverseTreeAddNPB(rootNode.getChild(0));
+		CTBPreprocessTool.traverseTreeAddNPB(rootNode.getChild(0));
 
 		return (HeadTreeNodeForCollins)rootNode.getChild(0);
 	}
@@ -83,21 +83,6 @@ public class TreeToHeadTreeForCollins
 				{
 					node.setVerb(true);
 				}
-			}
-		}
-	}
-	private static void traverseTreeAddNPB(HeadTreeNode node)
-	{
-		CTBPreprocessTool.AddNPBNode(node);
-		if (node.getChildrenNum() == 0)
-		{
-			return;
-		}
-		else
-		{
-			for (HeadTreeNode node1 : node.getChildren())
-			{
-				traverseTreeAddNPB(node1);
 			}
 		}
 	}

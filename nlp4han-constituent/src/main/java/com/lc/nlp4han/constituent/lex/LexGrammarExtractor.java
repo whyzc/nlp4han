@@ -55,7 +55,7 @@ public class LexGrammarExtractor
 				enCoding);
 		AbstractHeadGenerator headGen = new HeadGeneratorCollins(new HeadRuleSetCTB());
 		String bracketStr = ptbt.read();
-		while (bracketStr.length() != 0)
+		while (bracketStr !=null)
 		{
 			TreeNode rootNode = BracketExpUtil.generateTree(bracketStr);
 			HeadTreeNodeForCollins headNode = TreeToHeadTreeForCollins.treeToHeadTree(rootNode, headGen);
@@ -474,7 +474,7 @@ public class LexGrammarExtractor
 	}
 
 	/**
-	 * 由括号表达式列表直接得到PCFG
+	 * 由括号表达式列表直接得到LexPCFG
 	 */
 	public static LexPCFG getLexPCFG(ArrayList<String> bracketStrList) throws IOException
 	{
