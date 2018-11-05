@@ -1,9 +1,11 @@
 package com.lc.nlp4han.constituent.unlex;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.TreeMap;
+import java.util.function.UnaryOperator;
 
 /**
  * 二元规则
@@ -119,6 +121,76 @@ public class BinaryRule extends Rule
 						}
 					}
 				}
+			}
+		}
+	}
+
+	@Override
+	public void merge(Short[][] symbolToMerge, double[][] weights)
+	{
+		if (symbolToMerge[parent] == null && symbolToMerge[leftChild] == null && symbolToMerge[rightChild] == null)
+			return;
+		// 合并rightchild
+		if (symbolToMerge[rightChild] != null)
+		{
+			int nRCToMerge = symbolToMerge[rightChild].length;
+			for (int indexRCToMerge = nRCToMerge - 1; indexRCToMerge >= 0; indexRCToMerge--)
+			{
+				short indexRC = symbolToMerge[rightChild][indexRCToMerge];
+				for (int indexP = 0; indexP < scores.size(); indexP++)
+				{
+					for (int indexLC = 0; indexLC < scores.get(0).size(); indexLC++)
+					{
+						double scoreP2LCRC1 = scores.get(indexP).get(indexLC).get(indexRC);
+						double scoreP2LCRC2 = scores.get(indexP).get(indexLC).get(indexRC + 1);
+						scores.get(indexP).get(indexLC).set(indexRC, scoreP2LCRC1 + scoreP2LCRC2);
+						scores.remove(indexRC + 1);
+					}
+				}
+			}
+		}
+
+		// 合并leftChild
+		if (symbolToMerge[leftChild] != null)
+		{
+			int nLCToMerge = symbolToMerge[leftChild].length;
+			for (int indexLCToMerge = nLCToMerge - 1; indexLCToMerge >= 0; indexLCToMerge--)
+			{
+				int indexLC = symbolToMerge[leftChild][indexLCToMerge];
+				for (int indexP = 0; indexP < scores.size(); indexP++)
+				{
+					LinkedList<Double> scoresP2LC1 = scores.get(indexP).get(indexLC);
+					LinkedList<Double> scoresP2LC2 = scores.get(indexP).get(indexLC + 1);
+					for (int indexRC = 0; indexRC < scoresP2LC1.size(); indexRC++)
+					{
+						scoresP2LC1.set(indexRC, scoresP2LC1.get(indexRC) + scoresP2LC2.get(indexRC));
+					}
+					scores.get(indexP).remove(indexLC + 1);
+				}
+			}
+		}
+
+		// 合并parent
+		if (symbolToMerge[parent] != null)
+		{
+			int nPToMerge = symbolToMerge[parent].length;
+			for (int indexPToMerge = nPToMerge - 1; indexPToMerge >= 0; indexPToMerge--)
+			{
+				int indexP = symbolToMerge[parent][indexPToMerge];
+				LinkedList<LinkedList<Double>> scoresP1 = scores.get(indexP);
+				LinkedList<LinkedList<Double>> scoresP2 = scores.get(indexP + 1);
+				for (int indexLC = 0; indexLC < scoresP1.size(); indexLC++)
+				{
+					LinkedList<Double> scoresP1ToLC = scoresP1.get(indexLC);
+					LinkedList<Double> scoresP2ToLC = scoresP2.get(indexLC);
+					for (int indexRC = 0; indexRC < scoresP1ToLC.size(); indexRC++)
+					{
+						// 合并parent的subSymbol时需要赋予规则概率权重
+						scoresP1ToLC.set(indexRC, scoresP1ToLC.get(indexRC) * weights[parent][indexP]
+								+ scoresP2ToLC.get(indexRC) * weights[parent][indexP + 1]);
+					}
+				}
+				scores.remove(indexP + 1);
 			}
 		}
 	}
