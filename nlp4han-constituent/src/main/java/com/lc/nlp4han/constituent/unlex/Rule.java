@@ -1,6 +1,5 @@
 package com.lc.nlp4han.constituent.unlex;
 
-import java.util.HashMap;
 import java.util.HashSet;
 
 /**
@@ -11,7 +10,7 @@ import java.util.HashSet;
  */
 public abstract class Rule
 {
-	public static NonterminalTable nonterminalTable;
+	// public static NonterminalTable nonterminalTable;
 	protected short parent;
 
 	public void split()
@@ -42,9 +41,9 @@ public abstract class Rule
 		return true;
 	}
 
-	public abstract String[] toStringRules();
+	public abstract String[] toStringRules(NonterminalTable nonterminalTable);
 
-	public abstract String toStringRule(short... labels);
+	public abstract String toStringRule(NonterminalTable nonterminalTable, short... labels);
 
 	public short getParent()
 	{

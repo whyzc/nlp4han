@@ -105,7 +105,7 @@ public class UnaryRule extends Rule
 					double scoreP2C1 = scores.get(indexP).get(indexC);
 					double scoreP2C2 = scores.get(indexP).get(indexC + 1);
 					scores.get(indexP).set(indexC, scoreP2C1 + scoreP2C2);
-					scores.remove(indexC + 1);
+					scores.get(indexP).remove(indexC + 1);
 
 				}
 			}
@@ -210,7 +210,7 @@ public class UnaryRule extends Rule
 	}
 
 	@Override
-	public String[] toStringRules()
+	public String[] toStringRules(NonterminalTable nonterminalTable)
 	{
 		String[] strs = new String[scores.size() * scores.get(0).size()];
 		int count = 0;
@@ -237,7 +237,7 @@ public class UnaryRule extends Rule
 	}
 
 	@Override
-	public String toStringRule(short... labels)
+	public String toStringRule(NonterminalTable nonterminalTable, short... labels)
 	{
 		if (labels.length != 2)
 			throw new Error("参数错误。");
@@ -248,7 +248,7 @@ public class UnaryRule extends Rule
 		return str;
 	}
 
-	public TreeMap<String, Double> getParent_i_ScoceSum()
+	public TreeMap<String, Double> getParent_i_ScoceSum(NonterminalTable nonterminalTable)
 	{
 		TreeMap<String, Double> A_iBRuleSum = new TreeMap<>();
 		for (int i = 0; i < scores.size(); i++)

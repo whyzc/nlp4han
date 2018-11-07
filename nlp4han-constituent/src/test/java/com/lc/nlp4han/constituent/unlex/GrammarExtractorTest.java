@@ -1,6 +1,5 @@
 package com.lc.nlp4han.constituent.unlex;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import org.junit.Test;
@@ -15,7 +14,7 @@ import com.lc.nlp4han.constituent.unlex.GrammarExtractor;
 public class GrammarExtractorTest
 {
 	@Test
-	public Grammar extractor()
+	public void extractor()
 	{
 		GrammarExtractor gExtractor = new GrammarExtractor();
 		Boolean addParentLabel = false;
@@ -23,6 +22,7 @@ public class GrammarExtractorTest
 				"(ROOT(VP (VT give)(NP (PN me))(NP (CD two) (NN books))))",
 				"(ROOT(IP(NP (DT the) (NN boy))(VP (VT saw)(NP (DT the) (NN dog)))))" };
 		ArrayList<AnnotationTreeNode> annotationTrees = new ArrayList<>();
+		TreeBank treeBank = new TreeBank(annotationTrees, new NonterminalTable());
 		for (int i = 0; i < sentences.length; i++)
 		{
 			TreeNode tree = BracketExpUtil.generateTree(sentences[i]);
@@ -30,19 +30,14 @@ public class GrammarExtractorTest
 			if (addParentLabel)
 				tree = TreeUtil.addParentLabel(tree);
 			tree = Binarization.binarizeTree(tree);
-			annotationTrees.add(AnnotationTreeNode.getInstance(tree));
+			annotationTrees.add(AnnotationTreeNode.getInstance(tree, treeBank.getNonterminalTable()));
 		}
-		gExtractor.treeBank = annotationTrees;
-		gExtractor.init(1);
-		try
-		{
-			return gExtractor.getInitialGrammar();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		return null;
+		gExtractor.treeBank = treeBank;
+		gExtractor.initGrammar(1);
 	}
 
+	// public static void main(String[] args)
+	// {
+	// new GrammarExtractorTest().extractor();
+	// }
 }

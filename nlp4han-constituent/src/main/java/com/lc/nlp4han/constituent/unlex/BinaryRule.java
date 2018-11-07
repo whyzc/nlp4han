@@ -1,11 +1,9 @@
 package com.lc.nlp4han.constituent.unlex;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.TreeMap;
-import java.util.function.UnaryOperator;
 
 /**
  * 二元规则
@@ -144,7 +142,7 @@ public class BinaryRule extends Rule
 						double scoreP2LCRC1 = scores.get(indexP).get(indexLC).get(indexRC);
 						double scoreP2LCRC2 = scores.get(indexP).get(indexLC).get(indexRC + 1);
 						scores.get(indexP).get(indexLC).set(indexRC, scoreP2LCRC1 + scoreP2LCRC2);
-						scores.remove(indexRC + 1);
+						scores.get(indexP).get(indexLC).remove(indexRC + 1);
 					}
 				}
 			}
@@ -292,8 +290,7 @@ public class BinaryRule extends Rule
 		bRule.withIn(set);
 	}
 
-	@Override
-	public String[] toStringRules()
+	public String[] toStringRules(NonterminalTable nonterminalTable)
 	{
 		String[] strs = new String[scores.size() * scores.get(0).size() * scores.get(0).get(0).size()];
 		int count = 0;
@@ -327,8 +324,7 @@ public class BinaryRule extends Rule
 		return strs;
 	}
 
-	@Override
-	public String toStringRule(short... labels)
+	public String toStringRule(NonterminalTable nonterminalTable, short... labels)
 	{
 		if (labels.length != 3)
 			throw new Error("参数错误。");
@@ -340,7 +336,7 @@ public class BinaryRule extends Rule
 		return str;
 	}
 
-	public TreeMap<String, Double> getParent_i_ScoceSum()
+	public TreeMap<String, Double> getParent_i_ScoceSum(NonterminalTable nonterminalTable)
 	{
 		TreeMap<String, Double> A_iBCRuleSum = new TreeMap<>();
 
@@ -368,5 +364,6 @@ public class BinaryRule extends Rule
 
 		return A_iBCRuleSum;
 	}
+
 
 }

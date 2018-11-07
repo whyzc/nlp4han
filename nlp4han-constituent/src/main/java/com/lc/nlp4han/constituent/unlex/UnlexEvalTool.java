@@ -25,10 +25,11 @@ public class UnlexEvalTool
 	public static void eval(String trainF, String goldF, String trainEn, String goldEn, int iterations,
 			double pruneThreshold, boolean secondPrune) throws IOException
 	{
-		Grammar g = GrammarExtractorTool.getGrammar(true, Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF, trainEn);
+		Grammar g = GrammarExtractorTool.getGrammar(1, 0.5, 50, true, Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF,
+				trainEn);
 		PCFG p2nf = g.getPCFG();
 
-		UnlexEvaluator evaluator = new UnlexEvaluator(p2nf,pruneThreshold,secondPrune);
+		UnlexEvaluator evaluator = new UnlexEvaluator(p2nf, pruneThreshold, secondPrune);
 
 		ConstituentMeasure measure = new ConstituentMeasure();
 		evaluator.setMeasure(measure);
@@ -75,7 +76,7 @@ public class UnlexEvalTool
 			if (args[i].equals("-em"))
 			{
 				iterations = Integer.parseInt(args[i + 1]);
-				Grammar.iterations = iterations;
+				GrammarTrainer.EMIterations = iterations;
 				i++;
 			}
 			if (args[i].equals("-pruneThreshold"))
@@ -96,7 +97,7 @@ public class UnlexEvalTool
 		}
 		try
 		{
-			eval(trainFilePath, goldFilePath, trainEncoding, goldEncoding, iterations, pruneThreshold, secondPrune);
+			eval(trainFilePath, goldFilePath, trainEncoding, goldEncoding, GrammarTrainer.EMIterations, pruneThreshold, secondPrune);
 		}
 		catch (IOException e)
 		{

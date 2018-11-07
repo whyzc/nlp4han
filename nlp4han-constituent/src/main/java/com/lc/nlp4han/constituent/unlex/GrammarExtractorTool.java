@@ -10,11 +10,22 @@ import java.io.IOException;
  */
 public class GrammarExtractorTool
 {
-	public static Grammar getGrammar(boolean addParentLabel, int rareWordThreshold, String treeBankPath,
-			String encoding) throws IOException
+	public static Grammar getGrammar(int SMCycle, double mergeRate, int EMIterations, boolean addParentLabel,
+			int rareWordThreshold, String treeBankPath, String encoding) throws IOException
 	{
-		GrammarExtractor gExtractor = new GrammarExtractor(addParentLabel, rareWordThreshold, treeBankPath, encoding);
-		return gExtractor.getInitialGrammar();
+		GrammarExtractor gExtractor;
+		if (SMCycle <= 0)
+		{
+			gExtractor = new GrammarExtractor(addParentLabel, rareWordThreshold, treeBankPath, encoding);
+			return gExtractor.getGrammar();
+		}
+
+		else
+		{
+			gExtractor = new GrammarExtractor(SMCycle, mergeRate, EMIterations, addParentLabel, rareWordThreshold,
+					treeBankPath, encoding);
+			return gExtractor.getGrammar(SMCycle, mergeRate, EMIterations);
+		}
 	}
 
 	public static void main(String[] args)
@@ -43,7 +54,7 @@ public class GrammarExtractorTool
 			if (args[i].equals("-em"))
 			{
 				iterations = Integer.parseInt(args[i + 1]);
-				Grammar.iterations = iterations;
+				GrammarTrainer.EMIterations = iterations;
 				i++;
 			}
 		}
@@ -57,9 +68,8 @@ public class GrammarExtractorTool
 		{
 			long start = System.currentTimeMillis();
 			System.out.println("开始提取初始文法");
-			Grammar g = GrammarExtractorTool.getGrammar(false, Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainFilePath,
-					encoding);
-			g.split();
+			Grammar g = GrammarExtractorTool.getGrammar(1, 0.5, iterations, false, Lexicon.DEFAULT_RAREWORD_THRESHOLD,
+					trainFilePath, encoding);
 			GrammarWriter.writerToFile(g, outputFilePath);
 			System.out.println("提取初始文法完毕");
 			long end = System.currentTimeMillis();
