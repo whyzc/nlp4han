@@ -50,7 +50,7 @@ public class UnlexEvalTool
 		String goldEncoding = "utf-8";
 		double pruneThreshold = 0.0001;
 		boolean secondPrune = false;
-		boolean prior =false;
+		boolean prior=false;
 		int iterations = 50;// em算法迭代次数
 		for (int i = 0; i < args.length; i++)
 		{
