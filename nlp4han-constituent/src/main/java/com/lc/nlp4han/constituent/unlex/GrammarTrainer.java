@@ -23,6 +23,8 @@ public class GrammarTrainer
 			System.out.println("分裂完成。");
 			GrammarMerger.mergeGrammar(g, treeBank, mergeRate);
 			EM(g, treeBank, EMIterations);
+			g.sameParentRulesCount = new HashMap<>();
+			treeBank.forgetIOScore();
 			System.out.println("合并完成。");
 		}
 		return g;
@@ -50,8 +52,8 @@ public class GrammarTrainer
 			if (i != iterations - 1)
 			{
 				g.sameParentRulesCount = new HashMap<>();
-				g.forgetRuleCountExpectation();
 			}
+			g.forgetRuleCountExpectation();
 			// System.out.println("第" + (i + 1) + "次EM结束");
 		}
 		System.out.println("EM算法结束。");
@@ -86,51 +88,10 @@ public class GrammarTrainer
 								* scores.get(i).get(j).get(k) * tree.getChildren().get(0).getLabel().getInnerScores()[j]
 								* tree.getChildren().get(1).getLabel().getInnerScores()[k]
 								/ root.getLabel().getInnerScores()[0]);
-						// if (nonterminalTable.stringValue(rule.parent).equals("@PP")
-						// &&
-						// nonterminalTable.stringValue(tree.getChildren().get(0).getLabel().getSymbol())
-						// .equals("PP")
-						// &&
-						// nonterminalTable.stringValue(tree.getChildren().get(1).getLabel().getSymbol())
-						// .equals("CC"))
-						// {
-						// System.err.println(nonterminalTable.stringValue(rule.parent) + i + "->"
-						// +
-						// nonterminalTable.stringValue(tree.getChildren().get(0).getLabel().getSymbol())
-						// + j
-						// + " "
-						// +
-						// nonterminalTable.stringValue(tree.getChildren().get(1).getLabel().getSymbol())
-						// + k
-						// + "的期望：" + count[i][j][k]);
-						// }
-
 					}
 				}
 			}
-
 			g.bRuleBySameHead.get(tree.getLabel().getSymbol()).get(rule).setCountExpectation(count);
-			// if (nonterminalTable.stringValue(rule.parent).equals("@PP")
-			// &&
-			// nonterminalTable.stringValue(tree.getChildren().get(0).getLabel().getSymbol()).equals("PP")
-			// &&
-			// nonterminalTable.stringValue(tree.getChildren().get(1).getLabel().getSymbol()).equals("CC"))
-			// {
-			// for (BinaryRule bRule : bRules)
-			// {
-			// if (bRule.hashCode() == rule.hashCode())
-			// {
-			// System.err.println(bRule ==
-			// bRuleBySameHead.get(tree.getLabel().getSymbol()).get(rule));
-			// for (double[][] arr : bRule.getCountExpectation())
-			// for (double[] arr1 : arr)
-			// for (double thecount : arr1)
-			// {
-			// System.err.println(thecount);
-			// }
-			// }
-			// }
-			// }
 		}
 		else if (tree.getChildren().size() == 1 && tree.getChildren().get(0).getLabel().getWord() == null)
 		{
@@ -147,9 +108,6 @@ public class GrammarTrainer
 			{
 				for (int j = 0; j < tree.getChildren().get(0).getLabel().getNumSubSymbol(); j++)
 				{
-					// countsssss++;
-					// System.out.println("count :" + countsssss +
-					// root.getLabel().getInnerScores()[0]);
 					count[i][j] = count[i][j] + (tree.getLabel().getOuterScores()[i] * scores.get(i).get(j)
 							* tree.getChildren().get(0).getLabel().getInnerScores()[j]
 							/ root.getLabel().getInnerScores()[0]);
@@ -186,19 +144,8 @@ public class GrammarTrainer
 	public static void refreshRuleScore(Grammar g)
 	{
 
-		// int count = 0;
 		for (BinaryRule bRule : g.bRules)
 		{
-			// count++;
-			// System.out.println(count);
-			// for (String str : bRule.toStringRules())
-			// System.out.println(str);
-			// System.out.println(sameParentRulesCount.containsKey(bRule.parent));
-			// if (g.sameParentRulesCount.containsKey(bRule.parent))
-			// {
-			// for (Double score : g.sameParentRulesCount.get(bRule.parent))
-			// System.out.println(score);
-			// }
 
 			int pNumSub = bRule.getCountExpectation().length;
 			int lCNumSub = bRule.getCountExpectation()[0].length;

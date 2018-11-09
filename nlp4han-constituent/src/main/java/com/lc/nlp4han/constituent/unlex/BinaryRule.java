@@ -85,8 +85,9 @@ public class BinaryRule extends Rule
 				{
 					for (short pS = 0; pS < pNumSub_beforeSplit; pS++)
 					{
+						scores.get(pS * parentSplitFactor).get(lcS * lChildSplitFactor);
 						final double oldScore_beforeSplit = scores.get(pS * parentSplitFactor)
-								.get(lcS * lChildSplitFactor).get(lcS * lChildSplitFactor) * 4;
+								.get(lcS * lChildSplitFactor).get(rcS * lChildSplitFactor) * 4;
 						for (short p = 0; p < parentSplitFactor; p++)
 						{
 							double divFactor = lChildSplitFactor * rChildSplitFactor;
@@ -364,6 +365,5 @@ public class BinaryRule extends Rule
 
 		return A_iBCRuleSum;
 	}
-
 
 }

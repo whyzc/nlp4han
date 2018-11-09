@@ -26,7 +26,6 @@ public class GrammarMerger
 		mergeRule(grammar.bRules, mergeSymbols, mergeWeight);
 		mergeRule(grammar.uRules, mergeSymbols, mergeWeight);
 		mergeRule(grammar.lexicon.getPreRules(), mergeSymbols, mergeWeight);
-		grammar.forgetRuleCountExpectation();
 		grammar.nonterminalTable.setNumSubsymbolArr(newNumSubsymbolArr);
 		grammar.sameParentRulesCount = new HashMap<>();
 		mergeWeight = null;
@@ -43,6 +42,7 @@ public class GrammarMerger
 
 	public static void mergeTrees(Grammar g, TreeBank treeBank)
 	{
+
 		for (AnnotationTreeNode tree : treeBank.getTreeBank())
 		{
 			mergeTreeAnnotation(g, tree);
@@ -115,11 +115,11 @@ public class GrammarMerger
 			{
 				symbolToMerge[s.symbol] = new ArrayList<Short>();
 			}
-			// if (s.sentenceScoreGradient < 1)
-			// {
-			// System.out.println("实际合并" + i + "对子符号。");
-			// break;
-			// }
+			if (s.sentenceScoreGradient < 1)
+			{
+				System.out.println("实际合并" + i + "对子符号。");
+				break;
+			}
 			symbolToMerge[s.symbol].add(s.subSymbolIndex);
 
 			if (i == mergeCount - 1)

@@ -11,9 +11,9 @@ import java.util.LinkedList;
  */
 public class TreeBank
 {
-	private NonterminalTable nonterminalTable;
+	public static NonterminalTable nonterminalTable;
 	private ArrayList<AnnotationTreeNode> treeBank;
-	
+
 	public TreeBank(ArrayList<AnnotationTreeNode> treeBank, NonterminalTable nonterminalTable)
 	{
 		this.treeBank = treeBank;
@@ -296,6 +296,14 @@ public class TreeBank
 		for (AnnotationTreeNode childNode : treeNode.getChildren())
 		{
 			calculateOuterScoreHelper(g, treeRoot, childNode);
+		}
+	}
+
+	public void forgetIOScore()
+	{
+		for (AnnotationTreeNode tree : treeBank)
+		{
+			tree.forgetIOScore();
 		}
 	}
 
