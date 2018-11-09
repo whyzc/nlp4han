@@ -80,8 +80,8 @@ public class BracketExpUtil
 	 */
 	public static TreeNode generateTree(String bracketStr)
 	{
-		bracketStr = format(bracketStr);
 		
+		bracketStr = format(bracketStr);
 		return generateProcess(bracketStr);
 	}
 

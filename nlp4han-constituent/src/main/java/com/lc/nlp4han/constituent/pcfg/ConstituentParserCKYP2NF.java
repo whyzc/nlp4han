@@ -15,13 +15,15 @@ public class ConstituentParserCKYP2NF implements ConstituentParser
 	private CKYTreeNode[][] table;// 存储在该点的映射表
 	private PCFG pcnf;
 	private double pruneThreshold;// 剪枝阈值
-	private boolean secondPrune;// 是否进行二次剪枝
+	private boolean secondPrune;// 是否进行二次解析
+	private boolean prior;//是否在解析中
 
-	public ConstituentParserCKYP2NF(PCFG pcnf, double pruneThreshold, boolean secondPrune)
+	public ConstituentParserCKYP2NF(PCFG pcnf, double pruneThreshold, boolean secondPrune,boolean prior)
 	{
 		this.pruneThreshold = pruneThreshold;
 		this.secondPrune = secondPrune;
 		this.pcnf = pcnf;
+		this.prior=prior;
 	}
 
 	/**
@@ -98,7 +100,7 @@ public class ConstituentParserCKYP2NF implements ConstituentParser
 		int i = 0;
 		ConstituentTree[] treeArray = new ConstituentTree[k];
 		ArrayList<String> bracketList = parseCKY(words, poses, k, true);
-		if (secondPrune && bracketList.size() == 0 && words.length <= 70)
+		if (secondPrune && bracketList.size() == 0 && words.length <= 50)
 		{
 			bracketList = parseCKY(words, poses, k, false);
 		}
@@ -140,9 +142,8 @@ public class ConstituentParserCKYP2NF implements ConstituentParser
 				{// 遍历table[i][k]和table[k][j]中的映射表，更新table[i][j]和back[i][j]
 					updateTable(i, k, j, n, numOfResulets);
 				}
-				//System.out.println("完成了 "+i+"和"+j+"点");
 				// 剪枝
-				if (prune&&!(i==0&&j==128))
+				if (prune)
 				{
 					prunEdge(i, j);
 				}
@@ -164,17 +165,52 @@ public class ConstituentParserCKYP2NF implements ConstituentParser
 	{
 		HashMap<String, ArrayList<CKYPRule>> map = table[i][j].getPruleMap();
 		ArrayList<String> deleteList = new ArrayList<String>();
+		HashMap<String, Double> map2 = new HashMap<String, Double>();
+		
 		double bestPro = -1.0;
 		for (String str : map.keySet())
 		{
-			if (map.get(str).get(0).getProb() > bestPro)
+			double pro = 1;
+			// 添加先验概率
+			if (prior)
+			{
+				PCFGPrior pcp = (PCFGPrior) pcnf;
+				HashMap<String, Double> map1 = pcp.getPriorMap();
+				if (str.contains("@"))
+				{
+					String strs[] = str.split("@");
+					for (String str0 : strs)
+					{
+						if (!map1.keySet().contains(str0))
+						{
+							break;
+						}
+						pro *= map1.get(str0);
+					}
+				}
+				else if (str.contains("&"))
+				{
+					String strs[] = str.split("&");
+					for (String str0 : strs)
+					{
+						if (!map1.keySet().contains(str0))
+						{
+							break;
+						}
+						pro *= map1.get(str0);
+					}
+				}
+			}
+			map2.put(str, pro);
+			
+			if (map.get(str).get(0).getProb()*pro> bestPro)
 			{
 				bestPro = map.get(str).get(0).getProb();
 			}
 		}
 		for (String str : map.keySet())
 		{
-			if (map.get(str).get(0).getProb() < bestPro * pruneThreshold)
+			if (map.get(str).get(0).getProb()* map2.get(str) < bestPro * pruneThreshold)
 			{
 				deleteList.add(str);
 			}

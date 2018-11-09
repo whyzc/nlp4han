@@ -23,12 +23,12 @@ public class UnlexEvalTool
 	}
 
 	public static void eval(String trainF, String goldF, String trainEn, String goldEn, int iterations,
-			double pruneThreshold, boolean secondPrune) throws IOException
+			double pruneThreshold, boolean secondPrune,boolean prior) throws IOException
 	{
 		Grammar g = GrammarExtractorTool.getGrammar(true, Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF, trainEn);
 		PCFG p2nf = g.getPCFG();
 
-		UnlexEvaluator evaluator = new UnlexEvaluator(p2nf,pruneThreshold,secondPrune);
+		UnlexEvaluator evaluator = new UnlexEvaluator(p2nf,pruneThreshold,secondPrune,prior);
 
 		ConstituentMeasure measure = new ConstituentMeasure();
 		evaluator.setMeasure(measure);
@@ -49,6 +49,7 @@ public class UnlexEvalTool
 		String goldEncoding = "utf-8";
 		double pruneThreshold = 0.0001;
 		boolean secondPrune = false;
+		boolean prior=false;
 		int iterations = 50;// em算法迭代次数
 		for (int i = 0; i < args.length; i++)
 		{
@@ -88,6 +89,11 @@ public class UnlexEvalTool
 				secondPrune = Boolean.getBoolean(args[i + 1]);
 				i++;
 			}
+			if (args[i].equals("-prior"))
+			{
+				prior = Boolean.getBoolean(args[i + 1]);
+				i++;
+			}
 		}
 		if (trainFilePath == null || goldFilePath == null)
 		{
@@ -96,7 +102,7 @@ public class UnlexEvalTool
 		}
 		try
 		{
-			eval(trainFilePath, goldFilePath, trainEncoding, goldEncoding, iterations, pruneThreshold, secondPrune);
+			eval(trainFilePath, goldFilePath, trainEncoding, goldEncoding, iterations, pruneThreshold, secondPrune,prior);
 		}
 		catch (IOException e)
 		{

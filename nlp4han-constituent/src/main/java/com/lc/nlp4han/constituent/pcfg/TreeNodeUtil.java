@@ -19,6 +19,13 @@ public class TreeNodeUtil
 		return words1;
 	}
 
+	public static int getLengthFromTree(TreeNode tree)
+	{
+		List<String> words = new ArrayList<String>();
+		traverseTree(tree, words, null);
+		return words.size();
+	}
+
 	public static void getWordsAndPOSFromTree(ArrayList<String> words, ArrayList<String> poses, TreeNode tree)
 	{
 		traverseTree(tree, words, poses);
@@ -32,10 +39,10 @@ public class TreeNodeUtil
 			{
 				poses.add(node.getParent().getNodeName());
 			}
-			
+
 			words.add(node.getNodeName());
 		}
-		
+
 		for (TreeNode node1 : node.getChildren())
 		{
 			traverseTree(node1, words, poses);
