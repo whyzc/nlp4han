@@ -305,7 +305,7 @@ public class Edge implements Comparable<Edge>
 	{
 		this.pu = pu;
 	}
-
+    
 	@Override
 	public String toString()
 	{

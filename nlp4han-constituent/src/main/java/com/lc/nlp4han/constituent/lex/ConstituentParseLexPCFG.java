@@ -16,12 +16,14 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	private LexPCFG lexpcfg = null;
 	private double pruneThreshold;
 	private boolean secondPrune;
+	private boolean prior;
 
-	public ConstituentParseLexPCFG(LexPCFG lexpcfg, double pruneThreshold, boolean secondPrune)
+	public ConstituentParseLexPCFG(LexPCFG lexpcfg, double pruneThreshold, boolean secondPrune, boolean prior)
 	{
 		this.lexpcfg = lexpcfg;
 		this.pruneThreshold = pruneThreshold;
 		this.secondPrune = secondPrune;
+		this.prior = prior;
 	}
 
 	/**
@@ -95,7 +97,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 		int i = 0;
 		ConstituentTree[] treeArray = new ConstituentTree[k];
 		ArrayList<String> bracketList = parseLex(words, poses, k, true);
-		if (bracketList == null && secondPrune && words.length <= 70)
+		if (bracketList == null && secondPrune && words.length <= 40)
 		{
 			bracketList = parseLex(words, poses, k, false);
 		}
@@ -131,7 +133,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 				// 剪枝
 				if (prune)
 				{
-					pruneEdge(i, j);
+					pruneEdge(i, j, words.length);
 				}
 			}
 		}
@@ -143,31 +145,51 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 * 
 	 * @param i
 	 * @param j
+	 * @param n
 	 */
-	private void pruneEdge(int i, int j)
+	private void pruneEdge(int i, int j, int n)
 	{
 		double bestPro1 = -1.0;
 		double bestPro2 = -1.0;
+		// 动态得到剪枝比例
+		double pruneThreshold1 = getPruneThreshold(n);
+
 		ArrayList<Edge> deleteList = new ArrayList<Edge>();
 		HashMap<Edge, Double> map = chart[i][j].getEdgeMap();
 		for (Edge edge : map.keySet())
 		{
-			if (edge.isStop() && map.get(edge) > bestPro1)
+			double pro = 1.0;
+			if (prior)
+			{
+				LexPCFGPrior lpp = (LexPCFGPrior) lexpcfg;
+				HashMap<String, Double> map1 = lpp.getPriorMap();
+				pro = map1.get(edge.getLabel());
+			}
+			
+			if (edge.isStop() && map.get(edge) * pro > bestPro1)
 			{
 				bestPro1 = map.get(edge);
 			}
-			else if (!edge.isStop() && map.get(edge) > bestPro2)
+			else if (!edge.isStop() && map.get(edge) * pro > bestPro2)
 			{
 				bestPro2 = map.get(edge);
 			}
 		}
 		for (Edge edge : map.keySet())
 		{
-			if (edge.isStop() && map.get(edge) < pruneThreshold * bestPro1)
+			double pro = 1.0;
+			if (prior)
+			{
+				LexPCFGPrior lpp = (LexPCFGPrior) lexpcfg;
+				HashMap<String, Double> map1 = lpp.getPriorMap();
+				pro = map1.get(edge.getLabel());
+			}
+			
+			if (edge.isStop() && map.get(edge) * pro < pruneThreshold1 * bestPro1)
 			{
 				deleteList.add(edge);
 			}
-			else if (!edge.isStop() && map.get(edge) < pruneThreshold * bestPro2)
+			else if (!edge.isStop() && map.get(edge) * pro < pruneThreshold1 * bestPro2)
 			{
 				deleteList.add(edge);
 			}
@@ -176,6 +198,18 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 		{
 			map.remove(edge);
 		}
+	}
+
+	private double getPruneThreshold(int n)
+	{
+		double pruneThreshold1 = pruneThreshold;
+		int num = n / 20;
+		while (pruneThreshold1 < 0.01 && num >= 1)
+		{
+			pruneThreshold1 *= 10;
+			num--;
+		}
+		return pruneThreshold1;
 	}
 
 	/**

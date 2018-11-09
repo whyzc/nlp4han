@@ -45,6 +45,22 @@ public class LexPCFG
 	{
 
 	}
+    
+	public LexPCFG(String startSymbol, HashSet<String> posSet, HashMap<WordAndPOS, Integer> wordMap,
+			HashMap<String, HashSet<String>> posesOfWord, HashMap<RuleCollins, AmountAndSort> headGenMap,
+			HashMap<RuleCollins, HashSet<String>> parentList, HashMap<RuleCollins, AmountAndSort> sidesGenMap,
+			HashMap<RuleCollins, AmountAndSort> stopGenMap, HashMap<RuleCollins, AmountAndSort> specialGenMap)
+	{
+		this.StartSymbol = startSymbol;
+		this.posSet = posSet;
+		this.wordMap = wordMap;
+		this.posesOfWord = posesOfWord;
+		this.headGenMap = headGenMap;
+		this.parentList = parentList;
+		this.sidesGenMap = sidesGenMap;
+		this.stopGenMap = stopGenMap;
+		this.specialGenMap = specialGenMap;
+	}
 
 	/**
 	 * 从流中读取数据
@@ -252,7 +268,7 @@ public class LexPCFG
 	 * @param specialRule
 	 * @return
 	 */
-	public double getProForSpecialCase(RuleSpecialCase specialRule)
+	private double getProForSpecialCase(RuleSpecialCase specialRule)
 	{
 		return getProOfBackOff(specialRule, specialGenMap, "special");
 	}
@@ -282,16 +298,8 @@ public class LexPCFG
 		if (type.equals("2side"))
 		{
 			RuleSidesGenerate rs = (RuleSidesGenerate) rule;
-			double i = 1;
-			WordAndPOS wop = new WordAndPOS(rs.getSideHeadWord(), rs.getSideHeadPOS());
-			if (wordMap.keySet().contains(wop))
-			{
-				i = wordMap.get(wop);
-			}
-			if (wordMap.containsKey(new WordAndPOS(null, rs.getSideHeadPOS())))
-			{
-				e3 = i / wordMap.get(new WordAndPOS(null, rs.getSideHeadPOS()));
-			}
+			double i = 0.5;
+			e3=getProForWord(rs,i);
 		}
 		else
 		{
@@ -308,7 +316,23 @@ public class LexPCFG
 
 		return w1 * e1 + (1 - w1) * (w2 * e2 + (1 - w2) * e3);
 	}
-
+    /**
+     *   
+     * @return
+     */
+	private double getProForWord(RuleSidesGenerate rs,double count) {
+		double e3=0;
+		WordAndPOS wop = new WordAndPOS(rs.getSideHeadWord(), rs.getSideHeadPOS());
+		if (wordMap.keySet().contains(wop))
+		{
+			count = wordMap.get(wop);
+		}
+		if (wordMap.containsKey(new WordAndPOS(null, rs.getSideHeadPOS())))
+		{
+			e3 = count / wordMap.get(new WordAndPOS(null, rs.getSideHeadPOS()));
+		}
+		return e3;	
+	}
 	/**
 	 * 得到某个回退模型的概率和权重
 	 * 
