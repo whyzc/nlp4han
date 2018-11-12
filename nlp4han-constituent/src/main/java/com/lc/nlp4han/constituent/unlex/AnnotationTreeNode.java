@@ -3,16 +3,14 @@ package com.lc.nlp4han.constituent.unlex;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.TreeNode;
 
 /**
- * @author 王宁
- * 表示节点是Annotation的树
+ * @author 王宁 表示节点是Annotation的树
  */
 public class AnnotationTreeNode extends TreeNode
 {
-	public static NonterminalTable nonterminalTable = new NonterminalTable();
+	// public static NonterminalTable nonterminalTable = new NonterminalTable();
 	private Annotation label;
 
 	private AnnotationTreeNode()
@@ -29,7 +27,7 @@ public class AnnotationTreeNode extends TreeNode
 		return new AnnotationTreeNode();
 	}
 
-	public static AnnotationTreeNode getInstance(TreeNode tree)
+	public static AnnotationTreeNode getInstance(TreeNode tree, NonterminalTable nonterminalTable)
 	{
 
 		if (tree instanceof AnnotationTreeNode)
@@ -70,7 +68,7 @@ public class AnnotationTreeNode extends TreeNode
 		ArrayList<AnnotationTreeNode> tempChildren = new ArrayList<AnnotationTreeNode>(tree.getChildren().size());
 		for (TreeNode child : tree.getChildren())
 		{
-			AnnotationTreeNode newChild = getInstance(child);
+			AnnotationTreeNode newChild = getInstance(child, nonterminalTable);
 			newChild.setParent(annotationTree);
 			tempChildren.add(newChild);
 		}
@@ -110,7 +108,7 @@ public class AnnotationTreeNode extends TreeNode
 	{
 		if (this.isPreterminal())
 		{
-			
+
 			this.label.setSpanFrom((short) count);
 			this.label.setSpanTo((short) (count + 1));
 			return count + 1;
@@ -155,26 +153,7 @@ public class AnnotationTreeNode extends TreeNode
 		return (AnnotationTreeNode) super.getParent();
 	}
 
-	@Override
-	public String getFirstChildName()
-	{
-		if (((AnnotationTreeNode) getChild(0)).label.getWord() != null)
-			return ((AnnotationTreeNode) getChild(0)).label.getWord();
-		else
-			return nonterminalTable.stringValue(((AnnotationTreeNode) getChild(0)).label.getSymbol());
-	}
-
-	@Override
-	public String getLastChildName()
-	{
-		if (getChild(getChildrenNum() - 1).label.getWord() != null)
-			return getChild(getChildrenNum() - 1).label.getWord();
-		else
-			return nonterminalTable.stringValue(getChild(getChildrenNum() - 1).label.getSymbol());
-	}
-
-	@Override
-	public String getNodeName()
+	public String getNodeName(NonterminalTable nonterminalTable)
 	{
 		if (isLeaf())
 			return label.getWord();
@@ -197,24 +176,5 @@ public class AnnotationTreeNode extends TreeNode
 	public void setLabel(Annotation label)
 	{
 		this.label = label;
-	}
-
-	public static void main(String[] args)
-	{
-		AnnotationTreeNode annotationTree;
-		String expression = "(ROOT(IP(IP(VP(VV 异于)(NP(DNP(NP(NN 平日))(DEG 的))(NP(NN 艺术)(NN 创作)))))(PU ，)(NP(DNP(NP(ADJP(JJ 公共))(NP(NN 艺术)))(DEG 的))(NP(NN 创作者)))(VP(PP(P 除了)(NP(NN 艺术)(NN 理念)))(PU ，)(ADVP(AD 还))(VP(VV 需)(VP(VV 具备)(NP(DNP(NP(NN 建筑)(NN 结构)(PU 、)(NN 环境)(NN 景观)(CC 或)(NN 会计))(DEG 的))(ADJP(JJ 实务))(NP(NN 操作)(NN 能力))))))(PU 。)))";
-		expression = expression.trim();
-		if (!expression.equals(""))
-		{
-			TreeNode tempTree = BracketExpUtil.generateTree(expression);
-			tempTree = TreeUtil.removeL2LRule(tempTree);
-			boolean addParentLabel = true;
-			if (addParentLabel)
-				tempTree = TreeUtil.addParentLabel(tempTree);
-			tempTree = Binarization.binarizeTree(tempTree);
-			System.out.println(TreeNode.printTree(tempTree, 0));
-			annotationTree = AnnotationTreeNode.getInstance(tempTree);
-			System.out.println(printTree(annotationTree, 0));
-		}
 	}
 }

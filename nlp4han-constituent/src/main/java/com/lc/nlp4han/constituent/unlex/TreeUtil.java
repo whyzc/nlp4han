@@ -1,8 +1,6 @@
 package com.lc.nlp4han.constituent.unlex;
 
 import java.util.ArrayList;
-import java.util.List;
-
 import com.lc.nlp4han.constituent.TreeNode;
 
 /**

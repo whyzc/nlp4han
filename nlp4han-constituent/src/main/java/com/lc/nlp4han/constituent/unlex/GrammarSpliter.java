@@ -14,16 +14,16 @@ import java.util.Map;
  */
 public class GrammarSpliter
 {
-	public static void splitGrammar(Grammar oldG)
+	public static void splitGrammar(Grammar oldG, TreeBank treeBank)
 	{
 		splitRule(oldG.bRules);
 		splitRule(oldG.uRules);
 		splitRule(oldG.lexicon.getPreRules());
 		// 让PreterminalRule概率归一化
 		normalizedPreTermianlRules(oldG);
-		for (AnnotationTreeNode tree : oldG.treeBank)
+		for (AnnotationTreeNode tree : treeBank.getTreeBank())
 		{
-			splitTreeAnnotation(tree);
+			splitTreeAnnotation(tree, treeBank.getNonterminalTable());
 		}
 		oldG.nonterminalTable.getNumSubsymbolArr().replaceAll(e -> Short.valueOf((short) (e * 2)));
 		oldG.nonterminalTable.getNumSubsymbolArr().set(oldG.nonterminalTable.intValue("ROOT"), (short) 1);
@@ -44,7 +44,8 @@ public class GrammarSpliter
 				if (sameHeadPRuleScoreSum.get(preRule.parent)[i] == null)
 				{
 					BigDecimal tag_iScoreSum = BigDecimal.valueOf(0.0);
-					for (Map.Entry<PreterminalRule, PreterminalRule> entry : g.preRuleBySameHead.get(preRule.parent).entrySet())
+					for (Map.Entry<PreterminalRule, PreterminalRule> entry : g.preRuleBySameHead.get(preRule.parent)
+							.entrySet())
 					{
 						tag_iScoreSum = tag_iScoreSum.add(BigDecimal.valueOf(entry.getValue().getScores().get(i)));
 					}
@@ -67,19 +68,19 @@ public class GrammarSpliter
 		}
 	}
 
-	public static void splitTreeAnnotation(AnnotationTreeNode tree)
+	public static void splitTreeAnnotation(AnnotationTreeNode tree, NonterminalTable nonterminalTable)
 	{
 		if (tree == null)
 			return;
 		if (tree.isLeaf())
 			return;
-		if (!(tree.getLabel().getSymbol() == AnnotationTreeNode.nonterminalTable.intValue("ROOT")))
+		if (!(tree.getLabel().getSymbol() == nonterminalTable.intValue("ROOT")))
 			tree.getLabel().setNumSubSymbol((short) (tree.getLabel().getNumSubSymbol() * 2));
 
 		for (AnnotationTreeNode child : tree.getChildren())
 		{
 			if (!child.isLeaf())
-				splitTreeAnnotation(child);
+				splitTreeAnnotation(child, nonterminalTable);
 		}
 	}
 }

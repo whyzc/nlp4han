@@ -145,7 +145,7 @@ public class PreterminalRule extends Rule
 	}
 
 	@Override
-	public String[] toStringRules()
+	public String[] toStringRules(NonterminalTable nonterminalTable)
 	{
 		String[] strs = new String[scores.size()];
 		for (int i = 0; i < scores.size(); i++)
@@ -162,8 +162,7 @@ public class PreterminalRule extends Rule
 		return strs;
 	}
 
-	@Override
-	public String toStringRule(short... labels)
+	public String toStringRule(NonterminalTable nonterminalTable, short... labels)
 	{
 		if (labels.length != 1)
 			throw new Error("参数错误。");
@@ -173,7 +172,7 @@ public class PreterminalRule extends Rule
 		return str;
 	}
 
-	public TreeMap<String, Double> getParent_i_ScoceSum()
+	public TreeMap<String, Double> getParent_i_ScoceSum(NonterminalTable nonterminalTable)
 	{
 		TreeMap<String, Double> A_iWordRuleSum = new TreeMap<>();
 		for (int i = 0; i < scores.size(); i++)

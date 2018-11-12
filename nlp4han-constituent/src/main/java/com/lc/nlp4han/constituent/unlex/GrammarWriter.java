@@ -23,9 +23,9 @@ public class GrammarWriter
 		TreeMap<String, Double> sameParentRuleScoreSum = new TreeMap<>();
 		for (BinaryRule bRule : grammar.bRules)
 		{
-			String[] ruleStr = bRule.toStringRules();
+			String[] ruleStr = bRule.toStringRules(grammar.nonterminalTable);
 			allBAndURules.addAll(Arrays.asList(ruleStr));
-			for (Map.Entry<String, Double> entry : bRule.getParent_i_ScoceSum().entrySet())
+			for (Map.Entry<String, Double> entry : bRule.getParent_i_ScoceSum(grammar.nonterminalTable).entrySet())
 			{
 				sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(), new BiFunction<Double, Double, Double>()
 				{
@@ -39,19 +39,19 @@ public class GrammarWriter
 		}
 		for (UnaryRule uRule : grammar.uRules)
 		{
-			String[] ruleStr = uRule.toStringRules();
+			String[] ruleStr = uRule.toStringRules(grammar.nonterminalTable);
 			allBAndURules.addAll(Arrays.asList(ruleStr));
 			allURules.addAll(Arrays.asList(ruleStr));
-			for (Map.Entry<String, Double> entry : uRule.getParent_i_ScoceSum().entrySet())
+			for (Map.Entry<String, Double> entry : uRule.getParent_i_ScoceSum(grammar.nonterminalTable).entrySet())
 			{
 				sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(), (score, newScore) -> score + newScore);
 			}
 		}
 		for (PreterminalRule preRule : grammar.lexicon.getPreRules())
 		{
-			String[] ruleStr = preRule.toStringRules();
+			String[] ruleStr = preRule.toStringRules(grammar.nonterminalTable);
 			allPreRules.addAll(Arrays.asList(ruleStr));
-			for (Map.Entry<String, Double> entry : preRule.getParent_i_ScoceSum().entrySet())
+			for (Map.Entry<String, Double> entry : preRule.getParent_i_ScoceSum(grammar.nonterminalTable).entrySet())
 			{
 				sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(), (score, newScore) -> score + newScore);
 			}
