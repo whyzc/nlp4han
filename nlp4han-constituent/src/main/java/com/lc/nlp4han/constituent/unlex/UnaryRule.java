@@ -35,7 +35,6 @@ public class UnaryRule extends Rule
 			int cNumSubSymbol = sameFather.size();
 			for (int j = cNumSubSymbol - 1; j >= 0; j--)
 			{
-
 				sameFather.add(j + 1, sameFather.get(j) / 2);
 				sameFather.set(j, sameFather.get(j + 1));
 			}

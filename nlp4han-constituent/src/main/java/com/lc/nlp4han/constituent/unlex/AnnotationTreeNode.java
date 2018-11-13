@@ -85,15 +85,17 @@ public class AnnotationTreeNode extends TreeNode
 			return false;
 	}
 
-	public AnnotationTreeNode forgetIOScore()
+	public AnnotationTreeNode forgetIOScoreAndScale()
 	{
 		if (this.isLeaf() || this == null)
 			return this;
 		label.setInnerScores(null);
 		label.setOuterScores(null);
+		label.setInnerScale(0);
+		label.setOuterScale(0);
 		for (AnnotationTreeNode child : this.getChildren())
 		{
-			child.forgetIOScore();
+			child.forgetIOScoreAndScale();
 		}
 		return this;
 	}

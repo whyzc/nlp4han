@@ -1,6 +1,5 @@
 package com.lc.nlp4han.constituent.unlex;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,8 +49,7 @@ public class Lexicon
 	{
 		for (int i = 0; i < tagWithRareWord.size(); i++)
 		{
-			scores[i] = BigDecimal.valueOf(rareWordCount.get(i))
-					.divide(BigDecimal.valueOf(allRareWord), 15, BigDecimal.ROUND_HALF_UP).doubleValue();
+			scores[i] = rareWordCount.get(i) / allRareWord;
 		}
 	}
 
@@ -60,12 +58,12 @@ public class Lexicon
 		return dictionary.containsKey(word);
 	}
 
-	public HashMap<String,Integer> getDictionary()
+	public HashMap<String, Integer> getDictionary()
 	{
 		return dictionary;
 	}
 
-	public void setDictionary(HashMap<String,Integer> dictionary)
+	public void setDictionary(HashMap<String, Integer> dictionary)
 	{
 		this.dictionary = dictionary;
 	}

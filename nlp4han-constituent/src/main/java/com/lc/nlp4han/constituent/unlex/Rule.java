@@ -10,7 +10,7 @@ import java.util.HashSet;
  */
 public abstract class Rule
 {
-	// public static NonterminalTable nonterminalTable;
+	public static double rulethres = 1.0e-30;// 小于该值均赋值为0.0
 	protected short parent;
 
 	public void split()

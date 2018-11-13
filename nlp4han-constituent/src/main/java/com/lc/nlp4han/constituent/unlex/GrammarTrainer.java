@@ -12,20 +12,20 @@ import java.util.Map;
 public class GrammarTrainer
 {
 	public static int EMIterations = 50;
-	public static double rulethres = 1.0e-30;
 
 	public static Grammar train(Grammar g, TreeBank treeBank, int SMCycle, double mergeRate, int EMIterations)
 	{
+		System.out.println("SMCycle:" + SMCycle);
 		for (int i = 0; i < SMCycle; i++)
 		{
 			GrammarSpliter.splitGrammar(g, treeBank);
 			EM(g, treeBank, EMIterations);
-			System.out.println("分裂完成。");
+			System.err.println("分裂完成。");
 			GrammarMerger.mergeGrammar(g, treeBank, mergeRate);
 			EM(g, treeBank, EMIterations);
 			g.sameParentRulesCount = new HashMap<>();
-			treeBank.forgetIOScore();
-			System.out.println("合并完成。");
+			treeBank.forgetIOScoreAndScale();
+			System.err.println("合并完成。");
 		}
 		return g;
 	}
@@ -45,7 +45,7 @@ public class GrammarTrainer
 				refreshRuleCountExpectation(g, tree, tree);
 				if (i != iterations - 1)
 				{
-					tree.forgetIOScore();
+					tree.forgetIOScoreAndScale();
 				}
 			}
 			refreshRuleScore(g);
@@ -65,29 +65,33 @@ public class GrammarTrainer
 		if (tree.getChildren().size() == 0 || tree == null)
 			return;
 		Rule rule = null;
+		double scalingFactor;
 		if (tree.getChildren().size() == 2)
 		{
-			rule = new BinaryRule(tree.getLabel().getSymbol(), tree.getChildren().get(0).getLabel().getSymbol(),
-					tree.getChildren().get(1).getLabel().getSymbol());
+
+			AnnotationTreeNode lC = tree.getChildren().get(0);
+			AnnotationTreeNode rC = tree.getChildren().get(1);
+			rule = new BinaryRule(tree.getLabel().getSymbol(), lC.getLabel().getSymbol(), rC.getLabel().getSymbol());
 			LinkedList<LinkedList<LinkedList<Double>>> scores = g.bRuleBySameHead.get(tree.getLabel().getSymbol())
 					.get(rule).getScores();
 			double[][][] count = g.bRuleBySameHead.get(tree.getLabel().getSymbol()).get(rule).getCountExpectation();
 			if (count == null)
 			{
-				count = new double[tree.getLabel().getNumSubSymbol()][tree.getChildren().get(0).getLabel()
-						.getNumSubSymbol()][tree.getChildren().get(1).getLabel().getNumSubSymbol()];
+				count = new double[tree.getLabel().getNumSubSymbol()][lC.getLabel().getNumSubSymbol()][rC.getLabel()
+						.getNumSubSymbol()];
 			}
-
+			scalingFactor = ScalingTools.calcScaleFactor(tree.getLabel().getOuterScale() + lC.getLabel().getInnerScale()
+					+ rC.getLabel().getInnerScale() - root.getLabel().getInnerScale());
 			for (int i = 0; i < tree.getLabel().getNumSubSymbol(); i++)
 			{
 				for (int j = 0; j < tree.getChildren().get(0).getLabel().getNumSubSymbol(); j++)
 				{
 					for (int k = 0; k < tree.getChildren().get(1).getLabel().getNumSubSymbol(); k++)
 					{
-						count[i][j][k] = count[i][j][k] + (tree.getLabel().getOuterScores()[i]
-								* scores.get(i).get(j).get(k) * tree.getChildren().get(0).getLabel().getInnerScores()[j]
-								* tree.getChildren().get(1).getLabel().getInnerScores()[k]
-								/ root.getLabel().getInnerScores()[0]);
+						count[i][j][k] = count[i][j][k]
+								+ (scores.get(i).get(j).get(k) * lC.getLabel().getInnerScores()[j]
+										/ root.getLabel().getInnerScores()[0] * rC.getLabel().getInnerScores()[k]
+										* scalingFactor * tree.getLabel().getOuterScores()[i]);
 					}
 				}
 			}
@@ -95,7 +99,8 @@ public class GrammarTrainer
 		}
 		else if (tree.getChildren().size() == 1 && tree.getChildren().get(0).getLabel().getWord() == null)
 		{
-			rule = new UnaryRule(tree.getLabel().getSymbol(), tree.getChildren().get(0).getLabel().getSymbol());
+			AnnotationTreeNode child = tree.getChildren().get(0);
+			rule = new UnaryRule(tree.getLabel().getSymbol(), child.getLabel().getSymbol());
 			LinkedList<LinkedList<Double>> scores = g.uRuleBySameHead.get(tree.getLabel().getSymbol()).get(rule)
 					.getScores();
 			double[][] count = g.uRuleBySameHead.get(tree.getLabel().getSymbol()).get(rule).getCountExpectation();
@@ -104,13 +109,15 @@ public class GrammarTrainer
 				count = new double[tree.getLabel().getNumSubSymbol()][tree.getChildren().get(0).getLabel()
 						.getNumSubSymbol()];
 			}
+			scalingFactor = ScalingTools.calcScaleFactor(tree.getLabel().getOuterScale()
+					+ child.getLabel().getInnerScale() - root.getLabel().getInnerScale());
 			for (int i = 0; i < tree.getLabel().getNumSubSymbol(); i++)
 			{
 				for (int j = 0; j < tree.getChildren().get(0).getLabel().getNumSubSymbol(); j++)
 				{
-					count[i][j] = count[i][j] + (tree.getLabel().getOuterScores()[i] * scores.get(i).get(j)
-							* tree.getChildren().get(0).getLabel().getInnerScores()[j]
-							/ root.getLabel().getInnerScores()[0]);
+					count[i][j] = count[i][j] + (scores.get(i).get(j) * child.getLabel().getInnerScores()[j]
+							/ root.getLabel().getInnerScores()[0] * scalingFactor
+							* tree.getLabel().getOuterScores()[i]);
 				}
 			}
 			g.uRuleBySameHead.get(tree.getLabel().getSymbol()).get(rule).setCountExpectation(count);
@@ -124,10 +131,15 @@ public class GrammarTrainer
 			{
 				count = new double[tree.getLabel().getNumSubSymbol()];
 			}
+			scalingFactor = ScalingTools
+					.calcScaleFactor(tree.getLabel().getOuterScale() - root.getLabel().getInnerScale());
 			for (int i = 0; i < tree.getLabel().getNumSubSymbol(); i++)
 			{
-				count[i] = count[i]
-						+ (tree.getLabel().getOuterScores()[i] * scores.get(i) / root.getLabel().getInnerScores()[0]);
+				// System.out.println(TreeBank.nonterminalTable.stringValue(tree.getLabel().getSymbol())
+				// + "_" + i + " "
+				// + tree.getLabel().getOuterScores()[i]);
+				count[i] = count[i] + (scores.get(i) / root.getLabel().getInnerScores()[0] * scalingFactor
+						* tree.getLabel().getOuterScores()[i]);
 
 			}
 			g.preRuleBySameHead.get(tree.getLabel().getSymbol()).get(rule).setCountExpectation(count);
@@ -141,9 +153,16 @@ public class GrammarTrainer
 		}
 	}
 
+	/**
+	 * 跟新规则的scores
+	 * 
+	 * @param g
+	 *            语法
+	 */
 	public static void refreshRuleScore(Grammar g)
 	{
-
+		double newScore;
+		double denominator;
 		for (BinaryRule bRule : g.bRules)
 		{
 
@@ -153,7 +172,7 @@ public class GrammarTrainer
 
 			for (int i = 0; i < pNumSub; i++)
 			{
-				double denominator;
+
 				if (g.sameParentRulesCount.containsKey(bRule.parent)
 						&& g.sameParentRulesCount.get(bRule.parent)[i] != null)
 				{
@@ -167,7 +186,13 @@ public class GrammarTrainer
 				{
 					for (int k = 0; k < rCNumSub; k++)
 					{
-						bRule.getScores().get(i).get(j).set(k, bRule.getCountExpectation()[i][j][k] / denominator);
+						newScore = bRule.getCountExpectation()[i][j][k] / denominator;
+						if (newScore < Rule.rulethres)
+						{
+							newScore = 0.0;
+						}
+
+						bRule.getScores().get(i).get(j).set(k, newScore);
 					}
 				}
 			}
@@ -180,7 +205,6 @@ public class GrammarTrainer
 			int cNumSub = uRule.getCountExpectation()[0].length;
 			for (int i = 0; i < pNumSub; i++)
 			{
-				double denominator;
 				if (g.sameParentRulesCount.containsKey(uRule.parent)
 						&& g.sameParentRulesCount.get(uRule.parent)[i] != null)
 				{
@@ -192,8 +216,12 @@ public class GrammarTrainer
 				}
 				for (int j = 0; j < cNumSub; j++)
 				{
-
-					uRule.getScores().get(i).set(j, uRule.getCountExpectation()[i][j] / denominator);
+					newScore = uRule.getCountExpectation()[i][j] / denominator;
+					if (newScore < Rule.rulethres)
+					{
+						newScore = 0.0;
+					}
+					uRule.getScores().get(i).set(j, newScore);
 
 				}
 			}
@@ -205,7 +233,6 @@ public class GrammarTrainer
 			int pNumSub = preRule.getCountExpectation().length;
 			for (int i = 0; i < pNumSub; i++)
 			{
-				double denominator;
 				if (g.sameParentRulesCount.containsKey(preRule.parent)
 						&& g.sameParentRulesCount.get(preRule.parent)[i] != null)
 				{
@@ -215,9 +242,12 @@ public class GrammarTrainer
 				{
 					denominator = calculateSameParentRuleCount(g, preRule.parent, i);
 				}
-
-				preRule.getScores().set(i, preRule.getCountExpectation()[i] / denominator);
-
+				newScore = preRule.getCountExpectation()[i] / denominator;
+				if (newScore < Rule.rulethres)
+				{
+					newScore = 0.0;
+				}
+				preRule.getScores().set(i, newScore);
 			}
 		}
 	}
