@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.Set;
 
@@ -16,9 +15,10 @@ import java.util.Set;
  */
 public class GrammarMerger
 {
-	public static void mergeGrammar(Grammar grammar, TreeBank treeBank, double mergeRate)
+	public static void mergeGrammar(Grammar grammar, TreeBank treeBank, double mergeRate, RuleCounter ruleCounter)
 	{
-		double[][] mergeWeight = computerMergerWeight(grammar);
+		treeBank.calIOScore(grammar);
+		double[][] mergeWeight = computerMergerWeight(grammar, ruleCounter);
 		ArrayList<Short> newNumSubsymbolArr = new ArrayList<>(
 				Arrays.asList(new Short[grammar.nonterminalTable.getNumSubsymbolArr().size()]));
 		Collections.copy(newNumSubsymbolArr, grammar.nonterminalTable.getNumSubsymbolArr());
@@ -27,9 +27,9 @@ public class GrammarMerger
 		mergeRule(grammar.uRules, mergeSymbols, mergeWeight);
 		mergeRule(grammar.lexicon.getPreRules(), mergeSymbols, mergeWeight);
 		grammar.nonterminalTable.setNumSubsymbolArr(newNumSubsymbolArr);
-		grammar.sameParentRulesCount = new HashMap<>();
 		mergeWeight = null;
 		mergeTrees(grammar, treeBank);
+		treeBank.forgetIOScoreAndScale();
 	}
 
 	public static <T extends Rule> void mergeRule(Set<T> rules, Short[][] symbolToMerge, double[][] mergeWeight)
@@ -64,7 +64,7 @@ public class GrammarMerger
 	}
 
 	// TODO:处理期望值为0的
-	public static double[][] computerMergerWeight(Grammar g)
+	public static double[][] computerMergerWeight(Grammar g, RuleCounter ruleCounter)
 	{
 		double[][] mergerWeight = new double[g.nonterminalTable.getNumSymbol()][];
 		// 根节点不分裂、不合并
@@ -73,10 +73,12 @@ public class GrammarMerger
 			mergerWeight[i] = new double[g.nonterminalTable.getNumSubsymbolArr().get(i)];
 			for (short j = 0; j < mergerWeight[i].length; j++)
 			{
-				mergerWeight[i][j] = g.sameParentRulesCount.get(i)[j]
-						/ (g.sameParentRulesCount.get(i)[j] + g.sameParentRulesCount.get(i)[j + 1]);
-				mergerWeight[i][j + 1] = g.sameParentRulesCount.get(i)[j]
-						/ (g.sameParentRulesCount.get(i)[j] + g.sameParentRulesCount.get(i)[j + 1]);
+				mergerWeight[i][j] = ruleCounter.sameParentRulesCounter.get(i)[j]
+						/ (ruleCounter.sameParentRulesCounter.get(i)[j]
+								+ ruleCounter.sameParentRulesCounter.get(i)[j + 1]);
+				mergerWeight[i][j + 1] = ruleCounter.sameParentRulesCounter.get(i)[j]
+						/ (ruleCounter.sameParentRulesCounter.get(i)[j]
+								+ ruleCounter.sameParentRulesCounter.get(i)[j + 1]);
 				j++;
 			}
 		}

@@ -30,7 +30,7 @@ public class GrammarExtractorTool
 		String outputFilePath = null;
 		String encoding = "utf-8";
 		int iterations = 50;// em算法迭代次数
-		int SMCycle = 1;
+		int SMCycle = 3;
 		boolean addParentLabel = false;
 		for (int i = 0; i < args.length; i++)
 		{

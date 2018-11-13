@@ -1,7 +1,6 @@
 package com.lc.nlp4han.constituent.unlex;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import com.lc.nlp4han.constituent.ConstituentMeasure;
@@ -19,7 +18,7 @@ public class ParentLabelAddedCrossValidatorTool
 	private static void usage()
 	{
 		System.out.println(ParentLabelAddedCrossValidatorTool.class.getName()
-				+ " -train <corpusFile>  [-encoding <encoding>] [-folds <nFolds>] " + "[-em <emIterations>]");
+				+ " -train <corpusFile>  [-encoding <encoding>] [-folds <nFolds>] ");
 	}
 
 	public static void main(String[] args)
@@ -27,14 +26,11 @@ public class ParentLabelAddedCrossValidatorTool
 		if (args.length < 1)
 		{
 			usage();
-
 			return;
 		}
 		String corpusFile = null;
 		int folds = 10;
 		String encoding = "UTF-8";
-		int emIterations = 50;
-		boolean addParentLabel = true;
 		double pruneThreshold = 0.0001;
 		boolean secondPrune = false;
 		boolean prior = false;
@@ -53,11 +49,6 @@ public class ParentLabelAddedCrossValidatorTool
 			if (args[i].equals("-folds"))
 			{
 				folds = Integer.parseInt(args[i + 1]);
-				i++;
-			}
-			if (args[i].equals("-em"))
-			{
-				emIterations = Integer.parseInt(args[i + 1]);
 				i++;
 			}
 		}

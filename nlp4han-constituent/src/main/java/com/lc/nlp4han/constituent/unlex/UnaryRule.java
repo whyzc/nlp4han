@@ -14,7 +14,6 @@ public class UnaryRule extends Rule
 {
 	private short child;
 	LinkedList<LinkedList<Double>> scores = new LinkedList<LinkedList<Double>>();// 保存规则例如Ai -> Bj 的概率
-	double[][] countExpectation = null;
 
 	public UnaryRule(short parent, short child)
 	{
@@ -45,9 +44,6 @@ public class UnaryRule extends Rule
 		if (parent != 0)
 			for (int i = pNumSubSymbol - 1; i >= 0; i--)
 			{
-				// scores.get(i).replaceAll(e -> BigDecimal.valueOf(e.doubleValue())
-				// .divide(BigDecimal.valueOf(2.0), 15,
-				// BigDecimal.ROUND_HALF_UP).doubleValue());
 				LinkedList<Double> sameChild = new LinkedList<>(scores.get(i));
 				scores.add(i + 1, sameChild);
 			}
@@ -187,16 +183,6 @@ public class UnaryRule extends Rule
 			return true;
 		else
 			return false;
-	}
-
-	public double[][] getCountExpectation()
-	{
-		return countExpectation;
-	}
-
-	public void setCountExpectation(double[][] countExpectation)
-	{
-		this.countExpectation = countExpectation;
 	}
 
 	@Override

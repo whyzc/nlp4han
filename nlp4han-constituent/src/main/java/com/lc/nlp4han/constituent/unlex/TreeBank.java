@@ -334,6 +334,15 @@ public class TreeBank
 		}
 	}
 
+	public void calIOScore(Grammar g)
+	{
+		for (AnnotationTreeNode tree : treeBank)
+		{
+			TreeBank.calculateInnerScore(g, tree);
+			TreeBank.calculateOuterScore(g, tree);
+		}
+	}
+
 	public void forgetIOScoreAndScale()
 	{
 		for (AnnotationTreeNode tree : treeBank)

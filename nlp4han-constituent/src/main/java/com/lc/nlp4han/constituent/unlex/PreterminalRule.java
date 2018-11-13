@@ -15,7 +15,6 @@ public class PreterminalRule extends Rule
 {
 	String word;
 	LinkedList<Double> scores = new LinkedList<Double>();
-	double[] countExpectation = null;
 
 	public PreterminalRule(short parent, String word)
 	{
@@ -123,16 +122,6 @@ public class PreterminalRule extends Rule
 	public void setScores(LinkedList<Double> scores)
 	{
 		this.scores = scores;
-	}
-
-	public double[] getCountExpectation()
-	{
-		return countExpectation;
-	}
-
-	public void setCountExpectation(double[] countExpectation)
-	{
-		this.countExpectation = countExpectation;
 	}
 
 	@Override
