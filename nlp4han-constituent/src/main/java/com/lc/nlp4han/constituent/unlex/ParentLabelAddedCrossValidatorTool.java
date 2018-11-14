@@ -30,8 +30,8 @@ public class ParentLabelAddedCrossValidatorTool
 		}
 		String corpusFile = null;
 		int folds = 10;
-		String encoding = "UTF-8";
-		double pruneThreshold = 0.0001;
+		String encoding = "utf-8";
+		double pruneThreshold = Double.MIN_VALUE;
 		boolean secondPrune = false;
 		boolean prior = false;
 		for (int i = 0; i < args.length; i++)

@@ -12,9 +12,9 @@ import com.lc.nlp4han.constituent.pcfg.TreeNodeUtil;
 import com.lc.nlp4han.ml.util.Evaluator;
 
 /**
-* @author 王宁
-* 
-*/
+ * @author 王宁
+ * 
+ */
 public class ParentLabelAddedEvaluator extends Evaluator<ConstituentTree>
 {
 	/**
@@ -26,7 +26,7 @@ public class ParentLabelAddedEvaluator extends Evaluator<ConstituentTree>
 	 * 句法树中的短语分析评估
 	 */
 	private ConstituentMeasure measure;
-	
+
 	private long count = 0;
 	private long totalTime = 0;
 
@@ -45,12 +45,10 @@ public class ParentLabelAddedEvaluator extends Evaluator<ConstituentTree>
 		this.cky = cky;
 	}
 
-	public ParentLabelAddedEvaluator(PCFG p2nf,double pruneThreshold,boolean secondPrune,boolean prior)
+	public ParentLabelAddedEvaluator(PCFG p2nf, double pruneThreshold, boolean secondPrune, boolean prior)
 	{
-		this.cky = new ConstituentParserCKYP2NF(p2nf,pruneThreshold,secondPrune,prior);
+		this.cky = new ConstituentParserCKYP2NF(p2nf, pruneThreshold, secondPrune, prior);
 	}
-	
-
 
 	@Override
 	protected ConstituentTree processSample(ConstituentTree sample)
@@ -68,26 +66,28 @@ public class ParentLabelAddedEvaluator extends Evaluator<ConstituentTree>
 			words1[i] = words.get(i);
 			poses1[i] = poses.get(i);
 		}
-		
+
 		long start = System.currentTimeMillis();
-		
+
 		ConstituentTree treePre = cky.parse(words1, poses1);
 		long thisTime = System.currentTimeMillis() - start;
-		totalTime += thisTime;	
+		totalTime += thisTime;
 		count++;
-		
-		System.out.println("句子长度：" + words.size() + " 平均解析时间：" + (totalTime/count) + "ms" + " 本句解析时间：" + thisTime + "ms");
-		
+
+		System.out.println(
+				"句子长度：" + words.size() + " 平均解析时间：" + (totalTime / count) + "ms" + " 本句解析时间：" + thisTime + "ms");
+
 		try
 		{
 			if (treePre == null)
 			{
-				System.out.println("无法解析的句子： "+rootNodeRef.toString());
+				System.out.println("无法解析的句子： " + rootNodeRef.toString());
 				measure.countNodeDecodeTrees(null);
 				measure.update(rootNodeRef, new TreeNode());
 			}
 			else
 			{
+				Binarization.recoverBinaryTree(treePre.getRoot());
 				measure.update(rootNodeRef, TreeUtil.removeParentLabel(treePre.getRoot()));
 			}
 		}
@@ -95,7 +95,7 @@ public class ParentLabelAddedEvaluator extends Evaluator<ConstituentTree>
 		{
 			e.printStackTrace();
 		}
-		
+
 		return treePre;
 	}
 }

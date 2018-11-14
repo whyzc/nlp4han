@@ -11,40 +11,6 @@ import com.lc.nlp4han.constituent.TreeNode;
 public class TreeUtil
 {
 
-//
-//	private static void recoverBinaryTreeHelper(Tree<String> binaryTree, List<Tree<String>> realChildren)
-//	{
-//		if (binaryTree.getChildren().get(0).getLabel().startsWith("@"))
-//		{
-//			recoverBinaryTreeHelper(binaryTree.getChildren().get(0), realChildren);
-//			realChildren.add(binaryTree.getChildren().get(1));
-//		}
-//		else
-//		{
-//			realChildren.add(binaryTree.getChildren().get(0));
-//			realChildren.add(binaryTree.getChildren().get(1));
-//		}
-//	}
-
-//	public static void recoverBinaryTree(Tree<String> binaryTree)
-//	{
-//		if (binaryTree.getChildren().isEmpty()
-//				|| (binaryTree.getChildren().size() == 1 && binaryTree.getChildren().get(0).getChildren().isEmpty()))
-//			return;
-//		if (binaryTree.getChildren().get(0).getLabel().startsWith("@"))
-//		{
-//			List<Tree<String>> tempChildren = new ArrayList<Tree<String>>();
-//			recoverBinaryTreeHelper(binaryTree, tempChildren);
-//			List<Tree<String>> realChildren = new ArrayList<Tree<String>>(tempChildren.size());
-//			realChildren.addAll(tempChildren);
-//			binaryTree.setChildren(realChildren);
-//		}
-//		for (int i = 0; i < binaryTree.getChildren().size(); i++)
-//		{
-//			recoverBinaryTree(binaryTree.getChildren().get(i));
-//		}
-//	}
-
 	/**
 	 * 一棵树除了根节点以外，其他所有的节点均添加父节点的label
 	 * 

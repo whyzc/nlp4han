@@ -14,6 +14,6 @@ public class BinarizationTest
 		String expression = "(ROOT(FRAG(NN 新华社)(NR 上海)(NT 二月)(NT 十日)(NN 电)))";
 		TreeNode tree = BracketExpUtil.generateTree(expression);
 		tree = Binarization.binarizeTree(tree);
-		System.out.println(TreeNode.printTree(tree, 0));
+		Binarization.recoverBinaryTree(tree);
 	}
 }

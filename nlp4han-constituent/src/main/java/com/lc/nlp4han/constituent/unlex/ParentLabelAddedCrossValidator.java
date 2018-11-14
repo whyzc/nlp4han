@@ -42,7 +42,7 @@ public class ParentLabelAddedCrossValidator
 			long start2 = System.currentTimeMillis();
 			ParentLabelAddedEvaluator evaluator = new ParentLabelAddedEvaluator(pcfg, pruneThreshold, secondPrune,
 					prior);
-			evaluator.setMeasure(new ConstituentMeasure());
+			evaluator.setMeasure(measure);
 			ObjectStream<ConstituentTree> sampleStream = new ConstituentTreeStream(
 					trainingSampleStream.getTestSampleStream());
 			evaluator.evaluate(sampleStream);
