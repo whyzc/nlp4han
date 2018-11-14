@@ -30,7 +30,7 @@ public class GrammarExtractorTool
 		String outputFilePath = null;
 		String encoding = "utf-8";
 		int iterations = 50;// em算法迭代次数
-		int SMCycle = 3;
+		int SMCycle = 1;
 		boolean addParentLabel = false;
 		for (int i = 0; i < args.length; i++)
 		{
@@ -77,7 +77,7 @@ public class GrammarExtractorTool
 			System.out.println("开始提取初始文法");
 			Grammar g = GrammarExtractorTool.getGrammar(SMCycle, 0.5, iterations, addParentLabel,
 					Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainFilePath, encoding);
-			GrammarWriter.writerToFile(g, outputFilePath);
+			GrammarWriter.writeToFile(g, outputFilePath);
 			System.out.println("提取初始文法完毕");
 			long end = System.currentTimeMillis();
 			long time = end - start;
