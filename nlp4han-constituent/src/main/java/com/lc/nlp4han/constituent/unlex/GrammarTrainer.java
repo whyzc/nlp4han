@@ -17,11 +17,11 @@ public class GrammarTrainer
 		System.out.println("SMCycle:" + SMCycle);
 		for (int i = 0; i < SMCycle; i++)
 		{
-			// GrammarSpliter.splitGrammar(g, treeBank);
+			GrammarSpliter.splitGrammar(g, treeBank);
 			EM(g, treeBank, EMIterations);
 			System.err.println("分裂完成。");
-			// GrammarMerger.mergeGrammar(g, treeBank, mergeRate, ruleCounter);
-//			EM(g, treeBank, EMIterations);
+			GrammarMerger.mergeGrammar(g, treeBank, mergeRate, ruleCounter);
+			EM(g, treeBank, EMIterations);
 			System.err.println("合并完成。");
 		}
 		return g;

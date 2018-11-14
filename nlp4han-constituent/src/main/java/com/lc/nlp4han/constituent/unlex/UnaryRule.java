@@ -194,6 +194,13 @@ public class UnaryRule extends Rule
 			return false;
 	}
 
+	public String toStringIgnoreSubSymbol(NonterminalTable nonterminalTable)
+	{
+		String parentStr = nonterminalTable.stringValue(parent);
+		String childStr = nonterminalTable.stringValue(child);
+		return parentStr + "->" + childStr;
+	}
+
 	@Override
 	public String[] toStringRules(NonterminalTable nonterminalTable)
 	{

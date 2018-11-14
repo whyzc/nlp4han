@@ -151,6 +151,12 @@ public class PreterminalRule extends Rule
 		return strs;
 	}
 
+	public String toStringIgnoreSubSymbol(NonterminalTable nonterminalTable)
+	{
+		String parentStr = nonterminalTable.stringValue(parent);
+		return parentStr + "->" + word;
+	}
+
 	public String toStringRule(NonterminalTable nonterminalTable, short... labels)
 	{
 		if (labels.length != 1)

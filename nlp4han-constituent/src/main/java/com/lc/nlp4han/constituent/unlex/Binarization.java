@@ -6,8 +6,9 @@ import java.util.List;
 import com.lc.nlp4han.constituent.TreeNode;
 
 /**
- * @author 王宁
- * 将树二叉化
+ * 将树二叉化与反二叉化
+ * 
+ * #author 王宁
  */
 public class Binarization
 {
@@ -26,7 +27,7 @@ public class Binarization
 		if (children.size() >= 3)
 		{
 			// children转化为left、right child
-			TreeNode leftChild = new TreeNode("@" + normalTree.getNodeName());
+			TreeNode leftChild = new TreeNode("#" + normalTree.getNodeName());
 			TreeNode rightChild = children.get(children.size() - 1);
 			leftChild.setParent(normalTree);
 			rightChild.setParent(normalTree);
@@ -35,7 +36,7 @@ public class Binarization
 			tempChildrenOfLC.add(children.get(1));
 			for (int i = 2; i < children.size() - 1; i++)
 			{
-				TreeNode tempTree = new TreeNode("@" + normalTree.getNodeName());
+				TreeNode tempTree = new TreeNode("#" + normalTree.getNodeName());
 				tempTree.addChild(tempChildrenOfLC.toArray(new TreeNode[2]));
 				tempTree.getChild(0).setParent(tempTree);
 				tempTree.getChild(1).setParent(tempTree);
@@ -54,5 +55,41 @@ public class Binarization
 		normalTree.setChildren(children);
 
 		return normalTree;
+	}
+
+	private static void recoverBinaryTreeHelper(TreeNode binaryTree, List<TreeNode> realChildren)
+	{
+		if (binaryTree.getChildren().get(0).getNodeName().startsWith("#"))
+		{
+			recoverBinaryTreeHelper(binaryTree.getChildren().get(0), realChildren);
+			realChildren.add(binaryTree.getChildren().get(1));
+		}
+		else
+		{
+			realChildren.add(binaryTree.getChildren().get(0));
+			realChildren.add(binaryTree.getChildren().get(1));
+		}
+	}
+
+	public static void recoverBinaryTree(TreeNode binaryTree)
+	{
+		if (binaryTree.isLeaf() || (binaryTree.getChildren().size() == 1 && binaryTree.getChildren().get(0).isLeaf()))
+			return;
+		if (binaryTree.getChildren().get(0).getNodeName().startsWith("#"))
+		{
+			List<TreeNode> tempChildren = new ArrayList<TreeNode>();
+			recoverBinaryTreeHelper(binaryTree, tempChildren);
+			List<TreeNode> realChildren = new ArrayList<TreeNode>(tempChildren.size());
+			realChildren.addAll(tempChildren);
+			binaryTree.setChildren(realChildren);
+			for (TreeNode child : realChildren)
+			{
+				child.setParent(binaryTree);
+			}
+		}
+		for (int i = 0; i < binaryTree.getChildren().size(); i++)
+		{
+			recoverBinaryTree(binaryTree.getChildren().get(i));
+		}
 	}
 }

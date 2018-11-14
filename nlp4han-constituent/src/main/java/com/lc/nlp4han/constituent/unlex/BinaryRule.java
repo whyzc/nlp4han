@@ -16,6 +16,7 @@ public class BinaryRule extends Rule
 	private short rightChild;
 	LinkedList<LinkedList<LinkedList<Double>>> scores = new LinkedList<LinkedList<LinkedList<Double>>>();// 保存规则例如A_i ->
 																											// B_j
+
 	public BinaryRule(short parent, short lChild, short rChild)
 	{
 		super.parent = parent;
@@ -310,6 +311,14 @@ public class BinaryRule extends Rule
 			}
 		}
 		return strs;
+	}
+
+	public String toStringIgnoreSubSymbol(NonterminalTable nonterminalTable)
+	{
+		String parentStr = nonterminalTable.stringValue(parent);
+		String lChildStr = nonterminalTable.stringValue(leftChild);
+		String rChildStr = nonterminalTable.stringValue(rightChild);
+		return parentStr + "->" + lChildStr + " " + rChildStr;
 	}
 
 	public String toStringRule(NonterminalTable nonterminalTable, short... labels)
