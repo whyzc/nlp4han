@@ -96,7 +96,7 @@ public class GrammarWriter
 		sameParentRuleScoreWriter.close();
 	}
 
-	public static void writeToFile(Grammar grammar, String filePath) throws IOException
+	public static void writeToFile(Grammar grammar, String filePath, boolean ruleSum) throws IOException
 	{
 		TreeMap<String, Map<String, Rule>> allBAndURules = new TreeMap<>();
 		TreeMap<String, Map<String, PreterminalRule>> allPreRules = new TreeMap<>();
@@ -159,10 +159,6 @@ public class GrammarWriter
 		OutputStreamWriter osw = new OutputStreamWriter(fos, "utf-8");
 		BufferedWriter rulesWriter = new BufferedWriter(osw);
 
-		FileOutputStream fos4 = new FileOutputStream(filePath + ".RuleScoreSum");
-		OutputStreamWriter osw4 = new OutputStreamWriter(fos4, "utf-8");
-		BufferedWriter sameParentRuleScoreWriter = new BufferedWriter(osw4);
-
 		for (Map.Entry<String, Map<String, Rule>> entry : allBAndURules.entrySet())
 		{
 			for (Map.Entry<String, Rule> innerEntry : entry.getValue().entrySet())
@@ -185,11 +181,18 @@ public class GrammarWriter
 			}
 
 		}
-		for (Map.Entry<String, Double> entry : sameParentRuleScoreSum.entrySet())
-		{
-			sameParentRuleScoreWriter.write(entry.getKey() + " " + entry.getValue() + "\r");
-		}
 		rulesWriter.close();
-		sameParentRuleScoreWriter.close();
+		if (ruleSum)
+		{
+			FileOutputStream fos4 = new FileOutputStream(filePath + ".RuleScoreSum");
+			OutputStreamWriter osw4 = new OutputStreamWriter(fos4, "utf-8");
+			BufferedWriter sameParentRuleScoreWriter = new BufferedWriter(osw4);
+			for (Map.Entry<String, Double> entry : sameParentRuleScoreSum.entrySet())
+			{
+				sameParentRuleScoreWriter.write(entry.getKey() + " " + entry.getValue() + "\r");
+			}
+			sameParentRuleScoreWriter.close();
+		}
+
 	}
 }

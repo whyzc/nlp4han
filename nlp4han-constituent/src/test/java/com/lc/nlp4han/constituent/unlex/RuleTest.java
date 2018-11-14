@@ -28,7 +28,7 @@ public class RuleTest
 
 		try
 		{
-			GrammarWriter.writeToFile(g, "C:\\Users\\hp\\Desktop\\berforSplit");
+			GrammarWriter.writeToFile(g, "C:\\Users\\hp\\Desktop\\berforSplit", false);
 		}
 		catch (IOException e)
 		{
@@ -37,7 +37,16 @@ public class RuleTest
 		GrammarSpliter.splitGrammar(g, treeBank);
 		try
 		{
-			GrammarWriter.writeToFile(g, "C:\\Users\\hp\\Desktop\\afterSplit");
+			GrammarWriter.writeToFile(g, "C:\\Users\\hp\\Desktop\\afterSplit", false);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		GrammarTrainer.EM(g, treeBank, 50);
+		try
+		{
+			GrammarWriter.writeToFile(g, "C:\\Users\\hp\\Desktop\\afterEM", false);
 		}
 		catch (IOException e)
 		{

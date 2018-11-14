@@ -77,7 +77,7 @@ public class GrammarExtractorTool
 			System.out.println("开始提取初始文法");
 			Grammar g = GrammarExtractorTool.getGrammar(SMCycle, 0.5, iterations, addParentLabel,
 					Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainFilePath, encoding);
-			GrammarWriter.writeToFile(g, outputFilePath);
+			GrammarWriter.writeToFile(g, outputFilePath, false);
 			System.out.println("提取初始文法完毕");
 			long end = System.currentTimeMillis();
 			long time = end - start;
