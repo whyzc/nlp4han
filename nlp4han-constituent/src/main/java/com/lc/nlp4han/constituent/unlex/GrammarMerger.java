@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.Set;
 
@@ -16,9 +15,10 @@ import java.util.Set;
  */
 public class GrammarMerger
 {
-	public static void mergeGrammar(Grammar grammar, TreeBank treeBank, double mergeRate)
+	public static void mergeGrammar(Grammar grammar, TreeBank treeBank, double mergeRate, RuleCounter ruleCounter)
 	{
-		double[][] mergeWeight = computerMergerWeight(grammar);
+		treeBank.calIOScore(grammar);
+		double[][] mergeWeight = computerMergerWeight(grammar, ruleCounter);
 		ArrayList<Short> newNumSubsymbolArr = new ArrayList<>(
 				Arrays.asList(new Short[grammar.nonterminalTable.getNumSubsymbolArr().size()]));
 		Collections.copy(newNumSubsymbolArr, grammar.nonterminalTable.getNumSubsymbolArr());
@@ -27,9 +27,9 @@ public class GrammarMerger
 		mergeRule(grammar.uRules, mergeSymbols, mergeWeight);
 		mergeRule(grammar.lexicon.getPreRules(), mergeSymbols, mergeWeight);
 		grammar.nonterminalTable.setNumSubsymbolArr(newNumSubsymbolArr);
-		grammar.sameParentRulesCount = new HashMap<>();
 		mergeWeight = null;
 		mergeTrees(grammar, treeBank);
+		treeBank.forgetIOScoreAndScale();
 	}
 
 	public static <T extends Rule> void mergeRule(Set<T> rules, Short[][] symbolToMerge, double[][] mergeWeight)
@@ -54,7 +54,7 @@ public class GrammarMerger
 		if (tree.isLeaf())
 			return;
 		tree.getLabel().setNumSubSymbol(g.nonterminalTable.getNumSubsymbolArr().get(tree.getLabel().getSymbol()));
-		tree.forgetIOScore();
+		tree.forgetIOScoreAndScale();
 		tree.getLabel().setInnerScores(null);
 		tree.getLabel().setOuterScores(null);
 		for (AnnotationTreeNode child : tree.getChildren())
@@ -63,7 +63,8 @@ public class GrammarMerger
 		}
 	}
 
-	public static double[][] computerMergerWeight(Grammar g)
+	// TODO:处理期望值为0的
+	public static double[][] computerMergerWeight(Grammar g, RuleCounter ruleCounter)
 	{
 		double[][] mergerWeight = new double[g.nonterminalTable.getNumSymbol()][];
 		// 根节点不分裂、不合并
@@ -72,10 +73,12 @@ public class GrammarMerger
 			mergerWeight[i] = new double[g.nonterminalTable.getNumSubsymbolArr().get(i)];
 			for (short j = 0; j < mergerWeight[i].length; j++)
 			{
-				mergerWeight[i][j] = g.sameParentRulesCount.get(i)[j]
-						/ (g.sameParentRulesCount.get(i)[j] + g.sameParentRulesCount.get(i)[j + 1]);
-				mergerWeight[i][j + 1] = g.sameParentRulesCount.get(i)[j]
-						/ (g.sameParentRulesCount.get(i)[j] + g.sameParentRulesCount.get(i)[j + 1]);
+				mergerWeight[i][j] = ruleCounter.sameParentRulesCounter.get(i)[j]
+						/ (ruleCounter.sameParentRulesCounter.get(i)[j]
+								+ ruleCounter.sameParentRulesCounter.get(i)[j + 1]);
+				mergerWeight[i][j + 1] = ruleCounter.sameParentRulesCounter.get(i)[j]
+						/ (ruleCounter.sameParentRulesCounter.get(i)[j]
+								+ ruleCounter.sameParentRulesCounter.get(i)[j + 1]);
 				j++;
 			}
 		}
@@ -88,25 +91,25 @@ public class GrammarMerger
 	{
 		ArrayList<Short>[] symbolToMerge = new ArrayList[g.nonterminalTable.getNumSymbol()];
 		PriorityQueue<SentenceLikehood> senScoreGradient = new PriorityQueue<>();
-		// assume a subState without split,root 没有分裂
+		// 假设一个符号没有分裂,已知root 没有分裂
 		for (short i = 1; i < g.nonterminalTable.getNumSymbol(); i++)
 		{
 			for (short j = 0; j < g.nonterminalTable.getNumSubsymbolArr().get(i); j++)
 			{
-				double tallyGradient = 1;
-				System.out.println(
-						"若合并非终结符号" + g.nonterminalTable.stringValue(i) + "的第" + j + "," + (j + 1) + "个子符号后树库似然比：");
+				double tallyLogGradient = 0;
 				for (AnnotationTreeNode tree : treeBank.getTreeBank())
 				{
-					double sentenceScoreGradient = getMergeSymbolHelper(g, tree, i, j, mergeWeight);
-					tallyGradient *= sentenceScoreGradient;
+					double logSenScoreGradient = getMergeSymbolHelper(g, tree, i, j, mergeWeight);
+					tallyLogGradient += logSenScoreGradient;
 				}
-				System.out.println(tallyGradient);
-				senScoreGradient.add(new SentenceLikehood(i, j, tallyGradient));
+				System.out.println("若合并非终结符号" + g.nonterminalTable.stringValue(i) + "的第" + j + "," + (j + 1)
+						+ "个子符号后树库似然比：" + tallyLogGradient);
+				senScoreGradient.add(new SentenceLikehood(i, j, tallyLogGradient));
 				j++;
 			}
 		}
 		int mergeCount = (int) (senScoreGradient.size() * mergeRate);
+		double litterBigger = 0.0;
 		System.out.println("预计合并" + mergeCount + "对子符号。");
 		for (int i = 0; i < mergeCount; i++)
 		{
@@ -115,20 +118,24 @@ public class GrammarMerger
 			{
 				symbolToMerge[s.symbol] = new ArrayList<Short>();
 			}
-			if (s.sentenceScoreGradient < 1)
+			if (s.logAllSenScoreGradient < 0)
 			{
 				System.out.println("实际合并" + i + "对子符号。");
+				System.out.println("合并第" + i + "对子符号后，树库与合并前的似然值之比为：" + litterBigger);
 				break;
 			}
-			symbolToMerge[s.symbol].add(s.subSymbolIndex);
-
 			if (i == mergeCount - 1)
-				System.out.println("合并第" + (i + 1) + "对子符号后，树库与合并前的似然值之比为：" + s.sentenceScoreGradient);
+			{
+				System.out.println("实际合并" + (i + 1) + "对子符号******");
+				System.out.println("合并第" + (i + 1) + "对子符号后，树库与合并前的似然值之比为：" + s.logAllSenScoreGradient);
+			}
+			symbolToMerge[s.symbol].add(s.subSymbolIndex);
+			litterBigger = s.logAllSenScoreGradient;
 		}
 
 		Short[][] mergeSymbols = new Short[symbolToMerge.length][];
 		Short[] subSymbolToMerge;
-		//// assume a subState without split,root 没有分裂
+		// assume a subState without split,root 没有分裂
 		for (int i = 1; i < symbolToMerge.length; i++)
 		{
 			if (symbolToMerge[i] != null)
@@ -159,18 +166,18 @@ public class GrammarMerger
 	public static double getMergeSymbolHelper(Grammar g, AnnotationTreeNode tree, short symbol, short subSymbolIndex,
 			double[][] mergeWeight)
 	{
-		double senScoreGradient = 1.0;
+		double logSenScoreGradient = 0;
 		for (AnnotationTreeNode child : tree.getChildren())
 		{
 			if (!child.isLeaf())
-				senScoreGradient *= getMergeSymbolHelper(g, child, symbol, subSymbolIndex, mergeWeight);
+				logSenScoreGradient += getMergeSymbolHelper(g, child, symbol, subSymbolIndex, mergeWeight);
 		}
 		if (tree.getLabel().getSymbol() == symbol && symbol != 0)
 		{
-			senScoreGradient *= calSenSocreAssumeMergeState_i(tree, subSymbolIndex, mergeWeight)
-					/ TreeBank.calculateSentenceSocre(tree);
+			logSenScoreGradient += calLogSenSocreAssumeMergeState_i(tree, subSymbolIndex, mergeWeight)
+					- TreeBank.calLogSentenceSocre(tree);
 		}
-		return senScoreGradient;
+		return logSenScoreGradient;
 	}
 
 	/**
@@ -178,7 +185,7 @@ public class GrammarMerger
 	 * @param 树中要合并的节点的subStateIndex
 	 * @return 树的似然值
 	 */
-	public static double calSenSocreAssumeMergeState_i(AnnotationTreeNode node, int subStateIndex,
+	public static double calLogSenSocreAssumeMergeState_i(AnnotationTreeNode node, int subStateIndex,
 			double[][] mergeWeight)
 	{
 
@@ -202,6 +209,10 @@ public class GrammarMerger
 			{
 				double iWeight = mergeWeight[node.getLabel().getSymbol()][i];
 				double brotherWeight = mergeWeight[node.getLabel().getSymbol()][i + 1];
+				if (iWeight == Double.NaN || brotherWeight == Double.NaN)
+				{
+					System.err.println(" count Of SubSymbol_Si and SubSymbol_Si+1 underFlow.");
+				}
 				sentenceScore += (iWeight * innerScore[i] + brotherWeight * innerScore[i + 1])
 						* (outerScores[i] + outerScores[i + 1]);
 				i++;
@@ -211,18 +222,20 @@ public class GrammarMerger
 				sentenceScore += innerScore[i] * outerScores[i];
 			}
 		}
-		return sentenceScore;
+		double logSenScore = Math.log(sentenceScore)
+				+ 100 * (node.getLabel().getInnerScale() + node.getLabel().getOuterScale());
+		return logSenScore;
 	}
 
 	static class SentenceLikehood implements Comparable<SentenceLikehood>
 	{
 		short symbol;
 		short subSymbolIndex;
-		double sentenceScoreGradient;
+		double logAllSenScoreGradient;
 
-		SentenceLikehood(short symbol, short subSymbolIndex, double sentenceScoreGradient)
+		SentenceLikehood(short symbol, short subSymbolIndex, double logAllSenScoreGradient)
 		{
-			this.sentenceScoreGradient = sentenceScoreGradient;
+			this.logAllSenScoreGradient = logAllSenScoreGradient;
 			this.symbol = symbol;
 			this.subSymbolIndex = subSymbolIndex;
 		}
@@ -230,9 +243,9 @@ public class GrammarMerger
 		@Override
 		public int compareTo(SentenceLikehood o)
 		{
-			if (this.sentenceScoreGradient > o.sentenceScoreGradient)
+			if (this.logAllSenScoreGradient > o.logAllSenScoreGradient)
 				return -1;
-			else if (this.sentenceScoreGradient < o.sentenceScoreGradient)
+			else if (this.logAllSenScoreGradient < o.logAllSenScoreGradient)
 				return 1;
 			else
 				return 0;

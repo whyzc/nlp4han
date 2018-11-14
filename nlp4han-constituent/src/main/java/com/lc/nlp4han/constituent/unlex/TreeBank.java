@@ -1,8 +1,15 @@
 package com.lc.nlp4han.constituent.unlex;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+
+import com.lc.nlp4han.constituent.BracketExpUtil;
+import com.lc.nlp4han.constituent.PlainTextByTreeStream;
+import com.lc.nlp4han.constituent.TreeNode;
+import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 
 /**
  * 表示树库
@@ -11,13 +18,48 @@ import java.util.LinkedList;
  */
 public class TreeBank
 {
-	public static NonterminalTable nonterminalTable;
+	public NonterminalTable nonterminalTable;
 	private ArrayList<AnnotationTreeNode> treeBank;
 
-	public TreeBank(ArrayList<AnnotationTreeNode> treeBank, NonterminalTable nonterminalTable)
+	public TreeBank(String treeBankPath, boolean addParentLabel, String encoding) throws IOException
 	{
-		this.treeBank = treeBank;
-		this.nonterminalTable = nonterminalTable;
+		this.treeBank = new ArrayList<AnnotationTreeNode>();
+		this.nonterminalTable = new NonterminalTable();
+		init(treeBankPath, addParentLabel, encoding);
+	}
+
+	public TreeBank()
+	{
+		this.treeBank = new ArrayList<AnnotationTreeNode>();
+		this.nonterminalTable = new NonterminalTable();
+	}
+
+	public void init(String treeBankPath, boolean addParentLabel, String encoding) throws IOException
+	{
+		PlainTextByTreeStream stream = new PlainTextByTreeStream(new FileInputStreamFactory(new File(treeBankPath)),
+				encoding);
+		String expression = stream.read();
+		while (expression != "" && expression != null)// 用来得到树库对应的所有结构树Tree<String>
+		{
+			expression = expression.trim();
+			if (!expression.equals(""))
+			{
+				this.addTree(expression, addParentLabel);
+			}
+			expression = stream.read();
+		}
+		stream.close();
+	}
+
+	public void addTree(String expression, boolean addParentLabel)
+	{
+		TreeNode tree = BracketExpUtil.generateTree(expression);
+		tree = TreeUtil.removeL2LRule(tree);
+		if (addParentLabel)
+			tree = TreeUtil.addParentLabel(tree);
+		tree = Binarization.binarizeTree(tree);
+		AnnotationTreeNode annotatedTree = AnnotationTreeNode.getInstance(tree, this.nonterminalTable);
+		treeBank.add(annotatedTree);
 	}
 
 	/**
@@ -26,7 +68,7 @@ public class TreeBank
 	 * @param node
 	 * @return
 	 */
-	public static double calculateSentenceSocre(AnnotationTreeNode node)
+	public static double calLogSentenceSocre(AnnotationTreeNode node)
 	{
 		if (node.getLabel().getInnerScores() == null || node.getLabel().getOuterScores() == null)
 			throw new Error("没有计算树上节点的内外向概率。");
@@ -39,11 +81,13 @@ public class TreeBank
 		{
 			sentenceScore += innerScore[i] * outerScores[i];
 		}
-		return sentenceScore;
+		double logSenScore = Math.log(sentenceScore)
+				+ 100 * (node.getLabel().getInnerScale() + node.getLabel().getOuterScale());
+		return logSenScore;
 	}
 
 	/**
-	 * 计算树上所有节点的所有隐藏节点的内向概率
+	 * 计算树上所有节点的所有隐藏节点的内向概率及缩放比例
 	 * 
 	 * @param g
 	 *            语法
@@ -70,15 +114,10 @@ public class TreeBank
 				int length = tree.getLabel().getNumSubSymbol();
 
 				PreterminalRule realRule = g.preRuleBySameHead.get(tree.getLabel().getSymbol()).get(tempPreRule);
-				tree.getLabel().setInnerScores(realRule.getScores().toArray(new Double[length]));
-				// for (int i = 0; i < tree.getLabel().getInnerScores().length; i++)
-				// {
-				// System.out.println(nonterminalTable.stringValue(tree.getLabel().getSymbol())
-				// + "["
-				// + tree.getLabel().getSpanFrom() + "," + tree.getLabel().getSpanTo() + "]" +
-				// "innerScore_"
-				// + i + ":" + tree.getLabel().getInnerScores()[i]);
-				// }
+				Double[] newScores = realRule.getScores().toArray(new Double[length]);
+				// 预终结符号的内向概率不用缩放，最小为e^-30
+				tree.getLabel().setInnerScores(newScores);
+				tree.getLabel().setInnerScale(0);
 
 			}
 			else
@@ -98,7 +137,7 @@ public class TreeBank
 					LinkedList<LinkedList<Double>> uRuleScores = g.uRuleBySameHead.get(tree.getLabel().getSymbol())
 							.get(tempUnaryRule).getScores();
 					Double[] innerScores = new Double[tree.getLabel().getNumSubSymbol()];
-					tree.getLabel().setInnerScores(innerScores);
+					int childInnerScale = tree.getChildren().get(0).getLabel().getInnerScale();
 					for (int i = 0; i < innerScores.length; i++)
 					{
 						double innerScores_Ai = 0.0;
@@ -109,12 +148,10 @@ public class TreeBank
 							innerScores_Ai = innerScores_Ai + (A_i2B_j * B_jInnerScore);
 						}
 						innerScores[i] = innerScores_Ai;
-						// System.out.println(nonterminalTable.stringValue(tree.getLabel().getSymbol())
-						// + "["
-						// + tree.getLabel().getSpanFrom() + "," + tree.getLabel().getSpanTo() + "]"
-						// + "innerScore_" + i + ":" + tree.getLabel().getInnerScores()[i]);
 					}
-					// tree.getLabel().setInnerScores(innerScores);
+					int newScale = ScalingTools.scaleArray(childInnerScale, innerScores);
+					tree.getLabel().setInnerScores(innerScores);
+					tree.getLabel().setInnerScale(newScale);
 				}
 				else
 				{
@@ -130,7 +167,8 @@ public class TreeBank
 					LinkedList<LinkedList<LinkedList<Double>>> bRuleScores = g.bRuleBySameHead
 							.get(tree.getLabel().getSymbol()).get(tempBRule).getScores();
 					Double[] innerScores = new Double[tree.getLabel().getNumSubSymbol()];
-					tree.getLabel().setInnerScores(innerScores);
+					int leftChildInnerScale = tree.getChildren().get(0).getLabel().getInnerScale();
+					int rightChildInnerScale = tree.getChildren().get(1).getLabel().getInnerScale();
 					for (int i = 0; i < innerScores.length; i++)
 					{
 						double innerScores_Ai = 0.0;
@@ -146,12 +184,10 @@ public class TreeBank
 							}
 						}
 						innerScores[i] = innerScores_Ai;
-						// System.out.println(nonterminalTable.stringValue(tree.getLabel().getSymbol())
-						// + "["
-						// + tree.getLabel().getSpanFrom() + "," + tree.getLabel().getSpanTo() + "]"
-						// + "innerScore_" + i + ":" + tree.getLabel().getInnerScores()[i]);
 					}
-					// tree.getLabel().setInnerScores(innerScores);
+					int newScale = ScalingTools.scaleArray(leftChildInnerScale + rightChildInnerScale, innerScores);
+					tree.getLabel().setInnerScores(innerScores);
+					tree.getLabel().setInnerScale(newScale);
 				}
 				else
 				{
@@ -162,7 +198,6 @@ public class TreeBank
 				throw new Error("Error tree: more than two children.");
 			}
 		}
-
 	}
 
 	/**
@@ -190,6 +225,7 @@ public class TreeBank
 			Double[] array = new Double[treeNode.getLabel().getNumSubSymbol()];
 			Arrays.fill(array, 1.0);
 			treeNode.getLabel().setOuterScores(array);
+			treeNode.getLabel().setOuterScale(0);
 		}
 		else
 		{
@@ -204,6 +240,7 @@ public class TreeBank
 					LinkedList<LinkedList<Double>> uRuleScores = g.uRuleBySameHead.get(parent.getLabel().getSymbol())
 							.get(tempUnaryRule).getScores();
 					Double[] outerScores = new Double[treeNode.getLabel().getNumSubSymbol()];
+					int parentOuterScale = parent.getLabel().getOuterScale();
 					for (int j = 0; j < outerScores.length; j++)
 					{
 						double outerScores_Bj = 0.0;
@@ -214,13 +251,10 @@ public class TreeBank
 							outerScores_Bj = outerScores_Bj + (A_i2B_j * A_iOuterScore);
 						}
 						outerScores[j] = outerScores_Bj;
-						// System.out.println(nonterminalTable.stringValue(treeNode.getLabel().getSymbol())
-						// + "["
-						// + treeNode.getLabel().getSpanFrom() + "," + treeNode.getLabel().getSpanTo() +
-						// "]"
-						// + "outerScore_" + j + ":" + outerScores_Bj);
 					}
+					int newScale = ScalingTools.scaleArray(parentOuterScale, outerScores);
 					treeNode.getLabel().setOuterScores(outerScores);
+					treeNode.getLabel().setOuterScale(newScale);
 				}
 				else
 				{
@@ -232,15 +266,19 @@ public class TreeBank
 				// 获取兄弟节点的内向概率
 				Double[] siblingNode_InScore;
 				final BinaryRule tempBRule;
+				int siblingInnerScale;
+				int parentOuterScale = parent.getLabel().getOuterScale();
 				if (parent.getChildren().get(0) == treeNode)
 				{
 					siblingNode_InScore = parent.getChildren().get(1).getLabel().getInnerScores();
+					siblingInnerScale = parent.getChildren().get(1).getLabel().getInnerScale();
 					tempBRule = new BinaryRule(parent.getLabel().getSymbol(), treeNode.getLabel().getSymbol(),
 							parent.getChildren().get(1).getLabel().getSymbol());
 				}
 				else
 				{
 					siblingNode_InScore = parent.getChildren().get(0).getLabel().getInnerScores();
+					siblingInnerScale = parent.getChildren().get(0).getLabel().getInnerScale();
 					tempBRule = new BinaryRule(parent.getLabel().getSymbol(),
 							parent.getChildren().get(0).getLabel().getSymbol(), treeNode.getLabel().getSymbol());
 				}
@@ -274,14 +312,11 @@ public class TreeBank
 
 							}
 						}
-						// System.out.println(nonterminalTable.stringValue(treeNode.getLabel().getSymbol())
-						// + "["
-						// + treeNode.getLabel().getSpanFrom() + "," + treeNode.getLabel().getSpanTo() +
-						// "]"
-						// + "outerScore_" + i + ":" + outerScoreB_i);
 						outerScores[i] = outerScoreB_i;
 					}
+					int newScale = ScalingTools.scaleArray(parentOuterScale + siblingInnerScale, outerScores);
 					treeNode.getLabel().setOuterScores(outerScores);
+					treeNode.getLabel().setOuterScale(newScale);
 				}
 				else
 				{
@@ -299,11 +334,20 @@ public class TreeBank
 		}
 	}
 
-	public void forgetIOScore()
+	public void calIOScore(Grammar g)
 	{
 		for (AnnotationTreeNode tree : treeBank)
 		{
-			tree.forgetIOScore();
+			TreeBank.calculateInnerScore(g, tree);
+			TreeBank.calculateOuterScore(g, tree);
+		}
+	}
+
+	public void forgetIOScoreAndScale()
+	{
+		for (AnnotationTreeNode tree : treeBank)
+		{
+			tree.forgetIOScoreAndScale();
 		}
 	}
 

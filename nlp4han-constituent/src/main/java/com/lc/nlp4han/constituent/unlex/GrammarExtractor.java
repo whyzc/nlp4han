@@ -1,8 +1,6 @@
 package com.lc.nlp4han.constituent.unlex;
 
-import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,11 +8,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import com.lc.nlp4han.constituent.BracketExpUtil;
-import com.lc.nlp4han.constituent.PlainTextByTreeStream;
-import com.lc.nlp4han.constituent.TreeNode;
-import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 
 /**
  * 得到语法
@@ -24,7 +17,6 @@ import com.lc.nlp4han.ml.util.FileInputStreamFactory;
  */
 public class GrammarExtractor
 {
-	// 统计树库过程中得到
 	public TreeBank treeBank;
 	public HashSet<String> dictionary;
 
@@ -34,36 +26,25 @@ public class GrammarExtractor
 	public HashMap<BinaryRule, Integer>[] bRuleBySameHeadCount;// 数组下标表示nonterminal对应的整数
 	public HashMap<UnaryRule, Integer>[] uRuleBySameHeadCount;// 数组下标表示nonterminal对应的整数
 	public int[] numOfSameHeadRule;
-	public int rareWordThreshold;
 
-	public GrammarExtractor(boolean addParentLabel, int rareWordThreshold, String treeBankPath, String encoding)
+	public GrammarExtractor(String treeBankPath, boolean addParentLabel, String encoding)
 	{
-		treeBank = new TreeBank(new ArrayList<AnnotationTreeNode>(), new NonterminalTable());
 		try
 		{
-			initTreeBank(addParentLabel, treeBankPath, encoding);
+			treeBank = new TreeBank(treeBankPath, addParentLabel, encoding);
 		}
-		catch (IOException e)
+		catch (IOException e1)
 		{
-			e.printStackTrace();
+			e1.printStackTrace();
 		}
-		initGrammar(rareWordThreshold);
+		initGrammarExtractor();
+
 	}
 
-	public GrammarExtractor(int SMCycle, double mergeRate, int EMIterations, boolean addParentLabel,
-			int rareWordThreshold, String treeBankPath, String encoding)
+	public GrammarExtractor(TreeBank treeBank)
 	{
-		treeBank = new TreeBank(new ArrayList<AnnotationTreeNode>(), new NonterminalTable());
-		try
-		{
-			initTreeBank(addParentLabel, treeBankPath, encoding);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		initGrammar(rareWordThreshold);
-
+		this.treeBank = treeBank;
+		initGrammarExtractor();
 	}
 
 	public GrammarExtractor()
@@ -74,7 +55,7 @@ public class GrammarExtractor
 	 * 
 	 * @return 初始语法
 	 */
-	public Grammar getGrammar()
+	public Grammar getGrammar(int rareWordThreshold)
 	{
 		tally();
 		HashSet<BinaryRule> bRules;
@@ -127,46 +108,17 @@ public class GrammarExtractor
 		return intialG;
 	}
 
-	public Grammar getGrammar(int SMCycle, double mergeRate, int EMIterations)
+	public Grammar getGrammar(int SMCycle, double mergeRate, int EMIterations, int rareWordThreshold)
 	{
-		Grammar g = getGrammar();
+		Grammar g = getGrammar(rareWordThreshold);
 		if (SMCycle != 0)
 			GrammarTrainer.train(g, treeBank, SMCycle, mergeRate, EMIterations);
 		return g;
 	}
 
-	public void initTreeBank(boolean addParentLabel, String treeBankPath, String encoding) throws IOException
-	{
-		ArrayList<AnnotationTreeNode> annotationTrees = new ArrayList<AnnotationTreeNode>();
-		PlainTextByTreeStream stream = new PlainTextByTreeStream(new FileInputStreamFactory(new File(treeBankPath)),
-				encoding);
-		String expression = stream.read();
-		while (expression != "" && expression != null)// 用来得到树库对应的所有结构树Tree<String>
-		{
-			expression = expression.trim();
-			if (!expression.equals(""))
-			{
-				TreeNode tree = BracketExpUtil.generateTree(expression);
-				tree = TreeUtil.removeL2LRule(tree);
-				if (addParentLabel)
-					tree = TreeUtil.addParentLabel(tree);
-
-				tree = Binarization.binarizeTree(tree);
-				annotationTrees.add(AnnotationTreeNode.getInstance(tree, this.treeBank.getNonterminalTable()));
-			}
-			expression = stream.read();
-		}
-		stream.close();
-		this.treeBank.setTreeBank(annotationTrees);
-
-	}
-
 	@SuppressWarnings("unchecked")
-	public void initGrammar(int rareWordThreshold)
+	public void initGrammarExtractor()
 	{
-		// this.nonterminalTable = AnnotationTreeNode.nonterminalTable;
-		// Rule.nonterminalTable = AnnotationTreeNode.nonterminalTable;
-		this.rareWordThreshold = rareWordThreshold;
 		dictionary = new HashSet<String>();
 		preterminal = treeBank.getNonterminalTable().getIntValueOfPreterminalArr();
 		preRuleBySameHeadCount = new HashMap[preterminal.size()];
@@ -273,9 +225,9 @@ public class GrammarExtractor
 		{
 			for (Map.Entry<BinaryRule, Integer> entry : map.entrySet())
 			{
-				BigDecimal b1 = BigDecimal.valueOf(entry.getValue());
-				BigDecimal b2 = BigDecimal.valueOf(numOfSameHeadRule[entry.getKey().parent]);
-				double score = b1.divide(b2, 15, BigDecimal.ROUND_HALF_UP).doubleValue();
+				double b1 = entry.getValue();
+				double b2 = numOfSameHeadRule[entry.getKey().parent];
+				double score = b1 / b2;
 				entry.getKey().scores.add(new LinkedList<LinkedList<Double>>());
 				entry.getKey().scores.get(0).add(new LinkedList<Double>());
 				entry.getKey().scores.get(0).get(0).add(score);
@@ -286,9 +238,9 @@ public class GrammarExtractor
 			if (map.size() != 0)
 				for (Map.Entry<PreterminalRule, Integer> entry : map.entrySet())
 				{
-					BigDecimal b1 = BigDecimal.valueOf(entry.getValue());
-					BigDecimal b2 = BigDecimal.valueOf(numOfSameHeadRule[entry.getKey().parent]);
-					double score = b1.divide(b2, 15, BigDecimal.ROUND_HALF_UP).doubleValue();
+					double b1 = entry.getValue();
+					double b2 = numOfSameHeadRule[entry.getKey().parent];
+					double score = b1 / b2;
 					entry.getKey().scores.add(score);
 				}
 		}
@@ -296,9 +248,9 @@ public class GrammarExtractor
 		{
 			for (Map.Entry<UnaryRule, Integer> entry : map.entrySet())
 			{
-				BigDecimal b1 = BigDecimal.valueOf(entry.getValue());
-				BigDecimal b2 = BigDecimal.valueOf(numOfSameHeadRule[entry.getKey().parent]);
-				double score = b1.divide(b2, 15, BigDecimal.ROUND_HALF_UP).doubleValue();
+				double b1 = entry.getValue();
+				double b2 = numOfSameHeadRule[entry.getKey().parent];
+				double score = b1 / b2;
 				entry.getKey().scores.add(new LinkedList<Double>());
 				entry.getKey().scores.get(0).add(score);
 			}

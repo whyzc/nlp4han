@@ -17,7 +17,6 @@ public class TreeUtilTest
 		String expression = "(Root(frag(frag(NN 自然)(NN 语言))))";
 		TreeNode tree = BracketExpUtil.generateTree(expression);
 		TreeUtil.removeL2LRule(tree);
-		System.out.println("\n" + TreeNode.printTree(tree, 0));
 	}
 
 	@Test
@@ -26,7 +25,6 @@ public class TreeUtilTest
 		String expression = "(ROOT(IP(NP (PN i))(VP (VV like)(NP (DT the) (NN book)))))";
 		TreeNode tree = BracketExpUtil.generateTree(expression);
 		TreeUtil.addParentLabel(tree);
-		System.out.println("\n" + TreeNode.printTree(tree, 0));
 	}
 
 	@Test
@@ -36,6 +34,5 @@ public class TreeUtilTest
 		TreeNode tree = BracketExpUtil.generateTree(expression);
 		TreeUtil.addParentLabel(tree);
 		TreeUtil.removeParentLabel(tree);
-		System.out.println("\n" + TreeNode.printTree(tree, 0));
 	}
 }

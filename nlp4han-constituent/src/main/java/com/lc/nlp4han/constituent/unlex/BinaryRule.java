@@ -16,9 +16,6 @@ public class BinaryRule extends Rule
 	private short rightChild;
 	LinkedList<LinkedList<LinkedList<Double>>> scores = new LinkedList<LinkedList<LinkedList<Double>>>();// 保存规则例如A_i ->
 																											// B_j
-																											// C_k的概率
-	double[][][] countExpectation = null;
-
 	public BinaryRule(short parent, short lChild, short rChild)
 	{
 		super.parent = parent;
@@ -263,16 +260,6 @@ public class BinaryRule extends Rule
 	public void setScores(LinkedList<LinkedList<LinkedList<Double>>> scores)
 	{
 		this.scores = scores;
-	}
-
-	public double[][][] getCountExpectation()
-	{
-		return countExpectation;
-	}
-
-	public void setCountExpectation(double[][][] countExpectation)
-	{
-		this.countExpectation = countExpectation;
 	}
 
 	@Override

@@ -31,8 +31,6 @@ public class Grammar
 	protected HashMap<Short, HashMap<UnaryRule, UnaryRule>> uRuleBySameHead;
 
 	protected NonterminalTable nonterminalTable;
-	// 使用规则数量的期望的比作为新的规则概率
-	protected HashMap<Short, Double[]> sameParentRulesCount = new HashMap<>();// <parent,[ParentSubIndex,denominator]>
 	public double mergeWeight[][];
 	public static Random random = new Random(0);
 
@@ -53,21 +51,21 @@ public class Grammar
 		grammarExam();
 	}
 
-	public void forgetRuleCountExpectation()
-	{
-		for (UnaryRule uRule : uRules)
-		{
-			uRule.setCountExpectation(null);
-		}
-		for (BinaryRule bRule : bRules)
-		{
-			bRule.setCountExpectation(null);
-		}
-		for (PreterminalRule preRule : lexicon.getPreRules())
-		{
-			preRule.setCountExpectation(null);
-		}
-	}
+//	public void forgetRuleCountExpectation()
+//	{
+//		for (UnaryRule uRule : uRules)
+//		{
+//			uRule.setCountExpectation(null);
+//		}
+//		for (BinaryRule bRule : bRules)
+//		{
+//			bRule.setCountExpectation(null);
+//		}
+//		for (PreterminalRule preRule : lexicon.getPreRules())
+//		{
+//			preRule.setCountExpectation(null);
+//		}
+//	}
 
 	/**
 	 * 返回CFG，其中规则包含一元规则、二元规则

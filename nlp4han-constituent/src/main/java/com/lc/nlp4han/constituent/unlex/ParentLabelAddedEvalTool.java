@@ -14,22 +14,22 @@ import com.lc.nlp4han.ml.util.ObjectStream;
 /**
  * @author 王宁
  */
-public class UnlexEvalTool
+public class ParentLabelAddedEvalTool
 {
 	private static void usage()
 	{
-		System.out.println(UnlexEvalTool.class.getName() + "\n"
+		System.out.println(ParentLabelAddedEvalTool.class.getName() + "\n"
 				+ "-train <trainFile> -gold <goldFile> [-trainEncoding <trainEncoding>] [-goldEncoding <trainEncoding>] [-em <emIterations>]");
 	}
 
 	public static void eval(String trainF, String goldF, String trainEn, String goldEn, int iterations,
-			double pruneThreshold, boolean secondPrune,boolean prior) throws IOException
+			double pruneThreshold, boolean secondPrune, boolean prior) throws IOException
 	{
-		Grammar g = GrammarExtractorTool.getGrammar(1, 0.5, 50, true, Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF,
-				trainEn);
+		long start = System.currentTimeMillis();
+		Grammar g = new GrammarExtractor(trainF, true, trainEn).getGrammar(1);
 		PCFG p2nf = g.getPCFG();
-
-		UnlexEvaluator evaluator = new UnlexEvaluator(p2nf,pruneThreshold,secondPrune,prior);
+		long end = System.currentTimeMillis();
+		ParentLabelAddedEvaluator evaluator = new ParentLabelAddedEvaluator(p2nf, pruneThreshold, secondPrune, prior);
 
 		ConstituentMeasure measure = new ConstituentMeasure();
 		evaluator.setMeasure(measure);
@@ -39,6 +39,7 @@ public class UnlexEvalTool
 		evaluator.evaluate(sampleStream);
 
 		ConstituentMeasure measureRes = evaluator.getMeasure();
+		System.out.println(end - start);
 		System.out.println(measureRes);
 	}
 
@@ -50,7 +51,7 @@ public class UnlexEvalTool
 		String goldEncoding = "utf-8";
 		double pruneThreshold = 0.0001;
 		boolean secondPrune = false;
-		boolean prior=false;
+		boolean prior = false;
 		int iterations = 50;// em算法迭代次数
 		for (int i = 0; i < args.length; i++)
 		{
@@ -103,7 +104,8 @@ public class UnlexEvalTool
 		}
 		try
 		{
-			eval(trainFilePath, goldFilePath, trainEncoding, goldEncoding, iterations, pruneThreshold, secondPrune,prior);
+			eval(trainFilePath, goldFilePath, trainEncoding, goldEncoding, iterations, pruneThreshold, secondPrune,
+					prior);
 		}
 		catch (IOException e)
 		{
