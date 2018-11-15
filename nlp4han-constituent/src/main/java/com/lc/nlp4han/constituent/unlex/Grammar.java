@@ -2,7 +2,11 @@ package com.lc.nlp4han.constituent.unlex;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Random;
+import java.util.TreeMap;
+import java.util.function.BiFunction;
+
 import com.lc.nlp4han.constituent.pcfg.PCFG;
 import com.lc.nlp4han.constituent.pcfg.PRule;
 
@@ -51,21 +55,21 @@ public class Grammar
 		grammarExam();
 	}
 
-//	public void forgetRuleCountExpectation()
-//	{
-//		for (UnaryRule uRule : uRules)
-//		{
-//			uRule.setCountExpectation(null);
-//		}
-//		for (BinaryRule bRule : bRules)
-//		{
-//			bRule.setCountExpectation(null);
-//		}
-//		for (PreterminalRule preRule : lexicon.getPreRules())
-//		{
-//			preRule.setCountExpectation(null);
-//		}
-//	}
+	// public void forgetRuleCountExpectation()
+	// {
+	// for (UnaryRule uRule : uRules)
+	// {
+	// uRule.setCountExpectation(null);
+	// }
+	// for (BinaryRule bRule : bRules)
+	// {
+	// bRule.setCountExpectation(null);
+	// }
+	// for (PreterminalRule preRule : lexicon.getPreRules())
+	// {
+	// preRule.setCountExpectation(null);
+	// }
+	// }
 
 	/**
 	 * 返回CFG，其中规则包含一元规则、二元规则
@@ -152,6 +156,57 @@ public class Grammar
 			}
 			preRuleBySameChildren.get(lexicon.getDictionary().get(preRule.getWord())).put(preRule, preRule);
 		}
+	}
+
+	public TreeMap<String, Double> calculateSameParentRuleScoreSum()
+	{
+		TreeMap<String, Double> sameParentRuleScoreSum = new TreeMap<>();
+		for (short symbol : this.nonterminalTable.getInt_strMap().keySet())
+		{
+			if (this.bRuleBySameHead.containsKey(symbol))
+			{
+				for (BinaryRule bRule : this.bRuleBySameHead.get(symbol).keySet())
+				{
+					for (Map.Entry<String, Double> entry : bRule.getParent_i_ScoceSum(this.nonterminalTable).entrySet())
+					{
+						sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(),
+								new BiFunction<Double, Double, Double>()
+								{
+									@Override
+									public Double apply(Double t, Double u)
+									{
+										return t + u;
+									}
+								});
+					}
+				}
+			}
+			if (this.uRuleBySameHead.containsKey(symbol))
+			{
+				for (UnaryRule uRule : this.uRuleBySameHead.get(symbol).keySet())
+				{
+					for (Map.Entry<String, Double> entry : uRule.getParent_i_ScoceSum(this.nonterminalTable).entrySet())
+					{
+						sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(),
+								(score, newScore) -> score + newScore);
+					}
+				}
+			}
+
+			if (this.preRuleBySameHead.containsKey(symbol))
+			{
+				for (PreterminalRule preRule : this.preRuleBySameHead.get(symbol).keySet())
+				{
+					for (Map.Entry<String, Double> entry : preRule.getParent_i_ScoceSum(this.nonterminalTable)
+							.entrySet())
+					{
+						sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(),
+								(score, newScore) -> score + newScore);
+					}
+				}
+			}
+		}
+		return sameParentRuleScoreSum;
 	}
 
 	public void grammarExam()

@@ -13,8 +13,8 @@ import java.util.TreeMap;
  */
 public class PreterminalRule extends Rule
 {
-	String word;
-	LinkedList<Double> scores = new LinkedList<Double>();
+	private String word;
+	private LinkedList<Double> scores = new LinkedList<Double>();
 
 	public PreterminalRule(short parent, String word)
 	{

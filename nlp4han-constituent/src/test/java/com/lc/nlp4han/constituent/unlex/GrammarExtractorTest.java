@@ -1,14 +1,8 @@
 package com.lc.nlp4han.constituent.unlex;
 
-import java.util.ArrayList;
 
 import org.junit.Test;
 
-import com.lc.nlp4han.constituent.BracketExpUtil;
-import com.lc.nlp4han.constituent.TreeNode;
-import com.lc.nlp4han.constituent.unlex.AnnotationTreeNode;
-import com.lc.nlp4han.constituent.unlex.Binarization;
-import com.lc.nlp4han.constituent.unlex.TreeUtil;
 import com.lc.nlp4han.constituent.unlex.GrammarExtractor;
 
 public class GrammarExtractorTest
@@ -28,6 +22,5 @@ public class GrammarExtractorTest
 		}
 		GrammarExtractor gExtractor = new GrammarExtractor(treeBank);
 		Grammar g = gExtractor.getGrammar(1);
-		System.out.println();
 	}
 }

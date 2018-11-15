@@ -71,10 +71,10 @@ public class Binarization
 		}
 	}
 
-	public static void recoverBinaryTree(TreeNode binaryTree)
+	public static TreeNode recoverBinaryTree(TreeNode binaryTree)
 	{
 		if (binaryTree.isLeaf() || (binaryTree.getChildren().size() == 1 && binaryTree.getChildren().get(0).isLeaf()))
-			return;
+			return binaryTree;
 		if (binaryTree.getChildren().get(0).getNodeName().startsWith("#"))
 		{
 			List<TreeNode> tempChildren = new ArrayList<TreeNode>();
@@ -91,5 +91,6 @@ public class Binarization
 		{
 			recoverBinaryTree(binaryTree.getChildren().get(i));
 		}
+		return binaryTree;
 	}
 }
