@@ -14,7 +14,7 @@ public class BinaryRule extends Rule
 {
 	private short leftChild;
 	private short rightChild;
-	LinkedList<LinkedList<LinkedList<Double>>> scores = new LinkedList<LinkedList<LinkedList<Double>>>();// 保存规则例如A_i ->
+	private LinkedList<LinkedList<LinkedList<Double>>> scores = new LinkedList<LinkedList<LinkedList<Double>>>();// 保存规则例如A_i ->
 																											// B_j
 
 	public BinaryRule(short parent, short lChild, short rChild)

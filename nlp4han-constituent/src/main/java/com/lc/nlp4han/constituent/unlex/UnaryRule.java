@@ -13,7 +13,7 @@ import java.util.TreeMap;
 public class UnaryRule extends Rule
 {
 	private short child;
-	LinkedList<LinkedList<Double>> scores = new LinkedList<LinkedList<Double>>();// 保存规则例如Ai -> Bj 的概率
+	private LinkedList<LinkedList<Double>> scores = new LinkedList<LinkedList<Double>>();// 保存规则例如Ai -> Bj 的概率
 
 	public UnaryRule(short parent, short child)
 	{

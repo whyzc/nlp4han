@@ -37,9 +37,9 @@ public class GrammarSpliter
 		{
 			if (!sameHeadPRuleScoreSum.containsKey(preRule.getParent()))
 			{
-				sameHeadPRuleScoreSum.put(preRule.parent, new Double[preRule.scores.size()]);
+				sameHeadPRuleScoreSum.put(preRule.parent, new Double[preRule.getScores().size()]);
 			}
-			for (int i = 0; i < preRule.scores.size(); i++)
+			for (int i = 0; i < preRule.getScores().size(); i++)
 			{
 				if (sameHeadPRuleScoreSum.get(preRule.parent)[i] == null)
 				{
