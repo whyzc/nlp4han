@@ -50,6 +50,20 @@ public class TreeUtil
 		return tree;
 	}
 
+	public static TreeNode removeLatentLabel(TreeNode tree)
+	{
+		if (tree == null || tree.isLeaf())
+		{
+			return tree;
+		}
+		for (TreeNode child : tree.getChildren())
+		{
+			removeLatentLabel(child);
+		}
+		tree.setNewName(tree.getNodeName().split("_")[0]);
+		return tree;
+	}
+
 	/**
 	 * 
 	 * @param tree

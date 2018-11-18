@@ -23,15 +23,18 @@ public class RuleCounter
 		sameParentRulesCounter = new HashMap<>();
 	}
 
-	public void calRuleExpectation(Grammar g, TreeBank treeBank)
+	public double calRuleExpectationAndTreeBankLSS(Grammar g, TreeBank treeBank)
 	{
+		double lss = 0;
 		for (AnnotationTreeNode tree : treeBank.getTreeBank())
 		{
 			TreeBank.calculateInnerScore(g, tree);
 			TreeBank.calculateOuterScore(g, tree);
 			refreshRuleCountExpectation(g, tree, tree);
+			lss += TreeBank.calLogSentenceSocre(tree);
 			tree.forgetIOScoreAndScale();
 		}
+		return lss;
 	}
 
 	public void refreshRuleCountExpectation(Grammar g, AnnotationTreeNode root, AnnotationTreeNode tree)

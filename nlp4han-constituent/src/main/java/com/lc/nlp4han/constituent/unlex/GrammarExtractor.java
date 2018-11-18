@@ -26,8 +26,9 @@ public class GrammarExtractor
 	public HashMap<BinaryRule, Integer>[] bRuleBySameHeadCount;// 数组下标表示nonterminal对应的整数
 	public HashMap<UnaryRule, Integer>[] uRuleBySameHeadCount;// 数组下标表示nonterminal对应的整数
 	public int[] numOfSameHeadRule;
+	public int rareWordThreshold;
 
-	public GrammarExtractor(String treeBankPath, boolean addParentLabel, String encoding)
+	public GrammarExtractor(String treeBankPath, boolean addParentLabel, String encoding, int rareWordThreshold)
 	{
 		try
 		{
@@ -37,14 +38,14 @@ public class GrammarExtractor
 		{
 			e1.printStackTrace();
 		}
-		initGrammarExtractor();
+		initGrammarExtractor(rareWordThreshold);
 
 	}
 
-	public GrammarExtractor(TreeBank treeBank)
+	public GrammarExtractor(TreeBank treeBank, int rareWordThreshold)
 	{
 		this.treeBank = treeBank;
-		initGrammarExtractor();
+		initGrammarExtractor(rareWordThreshold);
 	}
 
 	public GrammarExtractor()
@@ -55,7 +56,7 @@ public class GrammarExtractor
 	 * 
 	 * @return 初始语法
 	 */
-	public Grammar getGrammar(int rareWordThreshold)
+	public Grammar getGrammar()
 	{
 		tally();
 		HashSet<BinaryRule> bRules;
@@ -108,17 +109,18 @@ public class GrammarExtractor
 		return intialG;
 	}
 
-	public Grammar getGrammar(int SMCycle, double mergeRate, int EMIterations, int rareWordThreshold)
+	public Grammar getGrammar(int SMCycle, double mergeRate, int EMIterations)
 	{
-		Grammar g = getGrammar(rareWordThreshold);
+		Grammar g = getGrammar();
 		if (SMCycle != 0)
 			GrammarTrainer.train(g, treeBank, SMCycle, mergeRate, EMIterations);
 		return g;
 	}
 
 	@SuppressWarnings("unchecked")
-	public void initGrammarExtractor()
+	public void initGrammarExtractor(int rareWordThreshold)
 	{
+		this.rareWordThreshold = rareWordThreshold;
 		dictionary = new HashSet<String>();
 		preterminal = treeBank.getNonterminalTable().getIntValueOfPreterminalArr();
 		preRuleBySameHeadCount = new HashMap[preterminal.size()];

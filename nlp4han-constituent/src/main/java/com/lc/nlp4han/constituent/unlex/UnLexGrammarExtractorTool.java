@@ -8,19 +8,19 @@ import java.io.IOException;
  * @author 王宁
  * 
  */
-public class GrammarExtractorTool
+public class UnLexGrammarExtractorTool
 {
-	public static Grammar getGrammar(int SMCycle, double mergeRate, int EMIterations, boolean addParentLabel,
-			int rareWordThreshold, String treeBankPath, String encoding) throws IOException
+	public static Grammar getGrammar(int SMCycle, double mergeRate, int EMIterations, int rareWordThreshold,
+			String treeBankPath, String encoding) throws IOException
 	{
-		GrammarExtractor gExtractor = new GrammarExtractor(treeBankPath, addParentLabel, encoding);
-		if (SMCycle <= 0)
+		GrammarExtractor gExtractor = new GrammarExtractor(treeBankPath, false, encoding, rareWordThreshold);
+		if (SMCycle < 0)
 		{
-			return gExtractor.getGrammar(rareWordThreshold);
+			throw new Error("SMCycle不能小于0");
 		}
 		else
 		{
-			return gExtractor.getGrammar(SMCycle, mergeRate, EMIterations, rareWordThreshold);
+			return gExtractor.getGrammar(SMCycle, mergeRate, EMIterations);
 		}
 	}
 
@@ -31,7 +31,6 @@ public class GrammarExtractorTool
 		String encoding = "utf-8";
 		int iterations = 50;// em算法迭代次数
 		int SMCycle = 1;
-		boolean addParentLabel = false;
 		for (int i = 0; i < args.length; i++)
 		{
 			if (args[i].equals("-train"))
@@ -54,11 +53,6 @@ public class GrammarExtractorTool
 				encoding = args[i + 1];
 				i++;
 			}
-			if (args[i].equals("-plabel"))
-			{
-				addParentLabel = Boolean.parseBoolean(args[i + 1]);
-				i++;
-			}
 			if (args[i].equals("-em"))
 			{
 				iterations = Integer.parseInt(args[i + 1]);
@@ -75,9 +69,9 @@ public class GrammarExtractorTool
 		{
 			long start = System.currentTimeMillis();
 			System.out.println("开始提取初始文法");
-			Grammar g = GrammarExtractorTool.getGrammar(SMCycle, 0.5, iterations, addParentLabel,
+			Grammar g = UnLexGrammarExtractorTool.getGrammar(SMCycle, 0.5, iterations,
 					Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainFilePath, encoding);
-			GrammarWriter.writeToFile(g, outputFilePath, false);
+			GrammarWriter.writeToFile(g, outputFilePath, true);
 			System.out.println("提取初始文法完毕");
 			long end = System.currentTimeMillis();
 			long time = end - start;
@@ -91,7 +85,7 @@ public class GrammarExtractorTool
 
 	private static void usage()
 	{
-		System.out.println(GrammarExtractorTool.class.getName() + "\n"
-				+ " -train <trainFile> -out <outFile> [-sm <SMCycle>] [-encoing <encoding>] [-em <emIterations>] [-plabel <addParentLabel>]");
+		System.out.println(UnLexGrammarExtractorTool.class.getName() + "\n"
+				+ " -train <trainFile> -out <outFile> [-sm <SMCycle>] [-encoing <encoding>] [-em <emIterations>] ");
 	}
 }

@@ -20,8 +20,8 @@ public class RuleTest
 		{
 			treeBank.addTree(sentences[i], addParentLabel);
 		}
-		GrammarExtractor gExtractor = new GrammarExtractor(treeBank);
-		Grammar grammar = gExtractor.getGrammar(1);
+		GrammarExtractor gExtractor = new GrammarExtractor(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
+		Grammar grammar = gExtractor.getGrammar();
 		TreeMap<String, Double> sameParentRuleScoreSum;
 
 		try
@@ -63,7 +63,7 @@ public class RuleTest
 				System.out.println(entry.getKey() + " " + entry.getValue());
 			}
 			GrammarWriter.writeToFile(grammar, "C:\\Users\\hp\\Desktop\\afterEM", false);
-			
+
 		}
 		catch (IOException e)
 		{
