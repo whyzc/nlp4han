@@ -45,7 +45,8 @@ public class PreterminalRule extends Rule
 
 				for (short p = 0; p < parentSplitFactor; p++)
 				{
-					double randomValue = (random.nextDouble() + 0.25) * 0.8;
+					// double randomValue = (random.nextDouble() + 0.25) * 0.8;
+					double randomValue = (random.nextDouble() - 0.5);
 					double randomComponent = oldScore_beforeSplit * randomness / 100.0 * randomValue;
 					short newPS = (short) (parentSplitFactor * pS + p);
 					scores.set(newPS, oldScore_beforeSplit + randomComponent);
@@ -145,7 +146,7 @@ public class PreterminalRule extends Rule
 			else
 				parentStr = nonterminalTable.stringValue(parent) + "_" + i;
 			String childStr = word;
-			String str = parentStr + "->" + childStr + " " + scores.get(i);
+			String str = parentStr + " -> " + childStr + " " + scores.get(i);
 			strs[i] = str;
 		}
 		return strs;
@@ -154,7 +155,7 @@ public class PreterminalRule extends Rule
 	public String toStringIgnoreSubSymbol(NonterminalTable nonterminalTable)
 	{
 		String parentStr = nonterminalTable.stringValue(parent);
-		return parentStr + "->" + word;
+		return parentStr + " -> " + word;
 	}
 
 	public String toStringRule(NonterminalTable nonterminalTable, short... labels)

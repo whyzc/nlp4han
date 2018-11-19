@@ -14,8 +14,9 @@ public class BinaryRule extends Rule
 {
 	private short leftChild;
 	private short rightChild;
-	private LinkedList<LinkedList<LinkedList<Double>>> scores = new LinkedList<LinkedList<LinkedList<Double>>>();// 保存规则例如A_i ->
-																											// B_j
+	private LinkedList<LinkedList<LinkedList<Double>>> scores = new LinkedList<LinkedList<LinkedList<Double>>>();// 保存规则例如A_i
+																													// ->
+	// B_j
 
 	public BinaryRule(short parent, short lChild, short rChild)
 	{
@@ -89,7 +90,8 @@ public class BinaryRule extends Rule
 						for (short p = 0; p < parentSplitFactor; p++)
 						{
 							double divFactor = lChildSplitFactor * rChildSplitFactor;
-							double randomValue = (random.nextDouble() + 0.25) * 0.8;
+							// double randomValue = (random.nextDouble() + 0.25) * 0.8;
+							double randomValue = (random.nextDouble() - 0.5);
 							double randomComponentLC = oldScore_beforeSplit / divFactor * randomness / 100
 									* randomValue;
 							for (short lc = 0; lc < lChildSplitFactor; lc++)
@@ -98,7 +100,8 @@ public class BinaryRule extends Rule
 								{
 									randomComponentLC = randomComponentLC * -1;
 								}
-								double randomValue2 = (random.nextDouble() + 0.25) * 0.8;
+								// double randomValue2 = (random.nextDouble() + 0.25) * 0.8;
+								double randomValue2 = (random.nextDouble() - 0.5);
 								double randomComponentRC = oldScore_beforeSplit / divFactor * randomness / 100
 										* randomValue2;
 								for (short rc = 0; rc < rChildSplitFactor; rc++)
@@ -304,7 +307,7 @@ public class BinaryRule extends Rule
 						rChildStr = nonterminalTable.stringValue(rightChild);
 					else
 						rChildStr = nonterminalTable.stringValue(rightChild) + "_" + k;
-					String str = parentStr + "->" + lChildStr + " " + rChildStr + " " + scores.get(i).get(j).get(k);
+					String str = parentStr + " -> " + lChildStr + " " + rChildStr + " " + scores.get(i).get(j).get(k);
 					strs[count] = str;
 					count++;
 				}
@@ -318,7 +321,7 @@ public class BinaryRule extends Rule
 		String parentStr = nonterminalTable.stringValue(parent);
 		String lChildStr = nonterminalTable.stringValue(leftChild);
 		String rChildStr = nonterminalTable.stringValue(rightChild);
-		return parentStr + "->" + lChildStr + " " + rChildStr;
+		return parentStr + " -> " + lChildStr + " " + rChildStr;
 	}
 
 	public String toStringRule(NonterminalTable nonterminalTable, short... labels)

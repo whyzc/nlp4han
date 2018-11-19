@@ -14,7 +14,7 @@ import com.lc.nlp4han.ml.util.ObjectStream;
 /**
  * @author 王宁
  */
-public class ParentLabelAddedEvalTool
+public class UnlexEvalTool
 {
 	private static void usage()
 	{
@@ -26,10 +26,10 @@ public class ParentLabelAddedEvalTool
 			double pruneThreshold, boolean secondPrune, boolean prior) throws IOException
 	{
 		long start = System.currentTimeMillis();
-		Grammar g = PLabelAddedGrammarExtractorTool.getGrammar(Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF, trainEn);
+		Grammar g = UnLexGrammarExtractorTool.getGrammar(1, 0.5, 50, 2, trainF, trainEn);
 		PCFG p2nf = g.getPCFG();
-		long end = System.currentTimeMillis();
-		ParentLabelAddedEvaluator evaluator = new ParentLabelAddedEvaluator(p2nf, pruneThreshold, secondPrune, prior);
+
+		UnlexEvaluator evaluator = new UnlexEvaluator(p2nf, g.nonterminalTable, pruneThreshold, secondPrune, prior);
 
 		ConstituentMeasure measure = new ConstituentMeasure();
 		evaluator.setMeasure(measure);
@@ -37,9 +37,9 @@ public class ParentLabelAddedEvalTool
 				goldEn);
 		ObjectStream<ConstituentTree> sampleStream = new ConstituentTreeStream(treeStream);
 		evaluator.evaluate(sampleStream);
-
 		ConstituentMeasure measureRes = evaluator.getMeasure();
-		System.out.println(end - start);
+		long end = System.currentTimeMillis();
+		System.out.println((end - start) + "ms");
 		System.out.println(measureRes);
 	}
 

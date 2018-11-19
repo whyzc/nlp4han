@@ -1,6 +1,5 @@
 package com.lc.nlp4han.constituent.unlex;
 
-
 import org.junit.Test;
 
 import com.lc.nlp4han.constituent.unlex.GrammarExtractor;
@@ -20,7 +19,7 @@ public class GrammarExtractorTest
 		{
 			treeBank.addTree(sentences[i], addParentLabel);
 		}
-		GrammarExtractor gExtractor = new GrammarExtractor(treeBank);
-		Grammar g = gExtractor.getGrammar(1);
+		GrammarExtractor gExtractor = new GrammarExtractor(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
+		Grammar g = gExtractor.getGrammar();
 	}
 }

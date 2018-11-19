@@ -63,7 +63,8 @@ public class UnaryRule extends Rule
 					for (short p = 0; p < parentSplitFactor; p++)
 					{
 						double divFactor = childSplitFactor;
-						double randomValue = (random.nextDouble() + 0.25) * 0.8;
+						// double randomValue = (random.nextDouble() + 0.25) * 0.8;
+						double randomValue = (random.nextDouble() - 0.5);
 						double randomComponent = oldScore_beforeSplit / divFactor * randomness / 100.0 * randomValue;
 						for (short c = 0; c < childSplitFactor; c++)
 						{
@@ -198,7 +199,7 @@ public class UnaryRule extends Rule
 	{
 		String parentStr = nonterminalTable.stringValue(parent);
 		String childStr = nonterminalTable.stringValue(child);
-		return parentStr + "->" + childStr;
+		return parentStr + " -> " + childStr;
 	}
 
 	@Override
@@ -220,7 +221,7 @@ public class UnaryRule extends Rule
 					childStr = nonterminalTable.stringValue(child);
 				else
 					childStr = nonterminalTable.stringValue(child) + "_" + j;
-				String str = parentStr + "->" + childStr + " " + scores.get(i).get(j);
+				String str = parentStr + " -> " + childStr + " " + scores.get(i).get(j);
 				strs[count] = str;
 				count++;
 			}

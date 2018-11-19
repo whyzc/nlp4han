@@ -55,21 +55,9 @@ public class Grammar
 		grammarExam();
 	}
 
-	// public void forgetRuleCountExpectation()
-	// {
-	// for (UnaryRule uRule : uRules)
-	// {
-	// uRule.setCountExpectation(null);
-	// }
-	// for (BinaryRule bRule : bRules)
-	// {
-	// bRule.setCountExpectation(null);
-	// }
-	// for (PreterminalRule preRule : lexicon.getPreRules())
-	// {
-	// preRule.setCountExpectation(null);
-	// }
-	// }
+	public Grammar()
+	{
+	}
 
 	/**
 	 * 返回CFG，其中规则包含一元规则、二元规则
@@ -81,22 +69,43 @@ public class Grammar
 		PCFG pcfg = new PCFG();
 		for (UnaryRule uRule : uRules)
 		{
-			PRule pRule = new PRule(uRule.getScores().get(0).get(0), nonterminalTable.stringValue(uRule.parent),
-					nonterminalTable.stringValue(uRule.getChild()));
-			pcfg.add(pRule);
+			for (String aRule : uRule.toStringRules(nonterminalTable))
+			{
+				String[] arr = aRule.split(" ");
+				double score = Double.parseDouble(arr[arr.length - 1]);
+				if (score != 0)
+				{
+					PRule pRule = new PRule(Double.parseDouble(arr[arr.length - 1]), arr[0], arr[2]);
+					pcfg.add(pRule);
+				}
+			}
 		}
 		for (BinaryRule bRule : bRules)
 		{
-			PRule pRule = new PRule(bRule.getScores().get(0).get(0).get(0), nonterminalTable.stringValue(bRule.parent),
-					nonterminalTable.stringValue(bRule.getLeftChild()),
-					nonterminalTable.stringValue(bRule.getRightChild()));
-			pcfg.add(pRule);
+			for (String aRule : bRule.toStringRules(nonterminalTable))
+			{
+				String[] arr = aRule.split(" ");
+				double score = Double.parseDouble(arr[arr.length - 1]);
+				if (score != 0)
+				{
+					PRule pRule = new PRule(score, arr[0], arr[2], arr[3]);
+					pcfg.add(pRule);
+				}
+			}
+
 		}
 		for (PreterminalRule preRule : lexicon.getPreRules())
 		{
-			PRule pRule = new PRule(preRule.getScores().get(0), nonterminalTable.stringValue(preRule.getParent()),
-					preRule.getWord());
-			pcfg.add(pRule);
+			for (String aRule : preRule.toStringRules(nonterminalTable))
+			{
+				String[] arr = aRule.split(" ");
+				double score = Double.parseDouble(arr[arr.length - 1]);
+				if (score != 0)
+				{
+					PRule pRule = new PRule(score, arr[0], arr[2]);
+					pcfg.add(pRule);
+				}
+			}
 		}
 		pcfg.setStartSymbol("ROOT");
 		return pcfg;
