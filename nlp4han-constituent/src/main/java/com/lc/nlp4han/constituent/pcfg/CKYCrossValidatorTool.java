@@ -41,7 +41,7 @@ public class CKYCrossValidatorTool
 		if(prior) {
 			@SuppressWarnings("unchecked")
 			ArrayList<String> bracketListClone=(ArrayList<String>) bracketList.clone();
-			HashMap<String,Double> map=NonterminalProUtil.brackets2Map(bracketListClone,null);
+			HashMap<String,Double> map=NonterminalProUtil.brackets2Map(bracketListClone,"pcfg");
 			pcnf=new PCFGPrior(pcnf,map);
 		}
 		return new ConstituentParserCKYP2NF(pcnf, pruneThreshold, secondPrune,prior);
