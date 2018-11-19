@@ -133,11 +133,142 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 				// 剪枝
 				if (prune)
 				{
-					pruneEdge(i, j, words.length);
+				    pruneEdge(i, j, words.length);
 				}
 			}
 		}
 		return BracketListToTree.bracketexpressionGet(chart, words.length, k);
+	}
+
+	/**
+	 * 全局剪枝，但是因为因为需要词到词性标注的概率，也就是在输入只包含分词的情况下才能进行全局剪枝
+	 * @param n
+	 * @param span
+	 */
+	@SuppressWarnings("unused")
+	private void globalPruneEdge(int n, int span)
+	{
+		LexPCFGPrior pcp = (LexPCFGPrior) lexpcfg;
+		HashMap<String, Double> map1 = pcp.getPriorMap();
+		
+		ArrayList<Edge> deleteList = new ArrayList<Edge>();
+		
+		double[] f = new double[n+1];
+		double[] b = new double[n+1];
+
+		double[] f1 = new double[n+1];
+		double[] b1 = new double[n+1];
+
+		f[0] = 1.0;
+		f[1]=1.0;
+		f1[0] = 1.0;
+		f1[1]=1.0;
+		for (int start = 0; start <=n-2; start++)
+		{
+			for (int j = start+2; j-start<=span&&j<=n; j++)
+			{
+				HashMap<Edge, Double> map = chart[start][j].getEdgeMap();
+				if (map == null)
+				{
+					break;
+				}
+			
+				for (Edge edge : map.keySet())
+				{
+					double left, score;
+					if (edge.isStop())
+					{
+						left = f[start];
+						score = left * map.get(edge) * map1.get(edge.getLabel());
+						if (score > f[j])
+						{
+							f[j] = score;
+						}
+					}
+					else
+					{
+						left = f1[start];
+						score = left * map.get(edge) * map1.get(edge.getLabel());
+						if (score > f1[j])
+						{
+							f1[j] = score;
+						}
+					}
+
+				}
+			}
+		}
+
+		b[n] = 1;
+		b[n-1]=1.0;
+		b1[n] = 1;
+		b1[n-1]=1.0;
+		for (int start = n - 2; start > 0; start--)
+		{
+			for (int j = start + 2; j-start<=span&&j<=n; j++)
+			{
+				HashMap<Edge, Double> map = chart[start][j].getEdgeMap();
+				if (map == null)
+				{
+					break;
+				}
+				for (Edge edge : map.keySet())
+				{
+					double right, score;
+					if (edge.isStop())
+					{
+						right = b[j];
+						score = right * map.get(edge) * map1.get(edge.getLabel());
+						if (score > b[start])
+						{
+							b1[start] = score;
+						}
+					}
+					else
+					{
+						right = b1[j];
+						score = right * map.get(edge) * map1.get(edge.getLabel());
+						if (score > b1[j])
+						{
+							b1[j] = score;
+						}
+					}
+				}
+			}
+		}
+		double bestPro;
+		for (int i = 0; i <= n - span; i++)
+		{
+			for(int j=i+2;j-i<=span;j++) {
+				for (Edge edge : chart[i][j].getEdgeMap().keySet())
+				{
+					double left, right;
+					if (edge.isStop())
+					{
+						left = f[i];
+						right = b[j];
+						bestPro = f[n];
+					}
+					else
+					{
+						left = f1[i];
+						right = b1[j];
+						bestPro = f1[n];
+					}
+					double total = left * edge.getPro() * map1.get(edge.getLabel()) * right;
+					if (total < bestPro * pruneThreshold)
+					{
+						deleteList.add(edge);
+					}
+				}
+			}
+		}
+		for (Edge edge : deleteList)
+		{
+			int i = edge.getStart();
+			int j = edge.getEnd();
+			chart[i][j].getEdgeMap().remove(edge);
+		}
 	}
 
 	/**
@@ -165,7 +296,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 				HashMap<String, Double> map1 = lpp.getPriorMap();
 				pro = map1.get(edge.getLabel());
 			}
-			
+
 			if (edge.isStop() && map.get(edge) * pro > bestPro1)
 			{
 				bestPro1 = map.get(edge);
@@ -184,7 +315,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 				HashMap<String, Double> map1 = lpp.getPriorMap();
 				pro = map1.get(edge.getLabel());
 			}
-			
+
 			if (edge.isStop() && map.get(edge) * pro < pruneThreshold1 * bestPro1)
 			{
 				deleteList.add(edge);

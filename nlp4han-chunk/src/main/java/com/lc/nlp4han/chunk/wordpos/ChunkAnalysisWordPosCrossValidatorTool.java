@@ -44,7 +44,7 @@ public class ChunkAnalysisWordPosCrossValidatorTool
 		int iters = 100;
 		int folds = 10;
 		// Maxent, Perceptron, MaxentQn, NaiveBayes
-		String type = "Maxent";
+		String type = "MAXENT";
 		String scheme = "BIEO";
 		File corpusFile = null;
 		String encoding = "UTF-8";
