@@ -135,16 +135,16 @@ public class PreterminalRule extends Rule
 	}
 
 	@Override
-	public String[] toStringRules(NonterminalTable nonterminalTable)
+	public String[] toStringRules(Grammar g)
 	{
 		String[] strs = new String[scores.size()];
 		for (int i = 0; i < scores.size(); i++)
 		{
 			String parentStr;
-			if (nonterminalTable.getNumSubsymbolArr().get(parent) == 1)
-				parentStr = nonterminalTable.stringValue(parent);
+			if (g.getNumSubSymbol(parent) == 1)
+				parentStr = g.symbolStrValue(parent);
 			else
-				parentStr = nonterminalTable.stringValue(parent) + "_" + i;
+				parentStr = g.symbolStrValue(parent) + "_" + i;
 			String childStr = word;
 			String str = parentStr + " -> " + childStr + " " + scores.get(i);
 			strs[i] = str;
@@ -152,9 +152,9 @@ public class PreterminalRule extends Rule
 		return strs;
 	}
 
-	public String toStringIgnoreSubSymbol(NonterminalTable nonterminalTable)
+	public String toStringIgnoreSubSymbol(Grammar g)
 	{
-		String parentStr = nonterminalTable.stringValue(parent);
+		String parentStr = g.symbolStrValue(parent);
 		return parentStr + " -> " + word;
 	}
 
@@ -168,19 +168,19 @@ public class PreterminalRule extends Rule
 		return str;
 	}
 
-	public TreeMap<String, Double> getParent_i_ScoceSum(NonterminalTable nonterminalTable)
+	public TreeMap<String, Double> getParent_i_ScoceSum(Grammar g)
 	{
 		TreeMap<String, Double> A_iWordRuleSum = new TreeMap<>();
 		for (int i = 0; i < scores.size(); i++)
 		{
 			String parentStr;
-			if (scores.size() == 1)
+			if (g.getNumSubSymbol(parent) == 1)
 			{
-				parentStr = nonterminalTable.stringValue(parent);
+				parentStr = g.symbolStrValue(parent);
 			}
 			else
 			{
-				parentStr = nonterminalTable.stringValue(parent) + "_" + i;
+				parentStr = g.symbolStrValue(parent) + "_" + i;
 			}
 			A_iWordRuleSum.put(parentStr, scores.get(i));
 		}

@@ -14,19 +14,15 @@ public class GrammarTrainer
 
 	public static Grammar train(Grammar g, TreeBank treeBank, int SMCycle, double mergeRate, int EMIterations)
 	{
-		if (g.nonterminalTable == null)
-		{
-			g.nonterminalTable = treeBank.nonterminalTable;
-		}
 		System.out.println("SMCycle:" + SMCycle);
 		for (int i = 0; i < SMCycle; i++)
 		{
 			GrammarSpliter.splitGrammar(g, treeBank);
 			EM(g, treeBank, EMIterations);
 			System.err.println("分裂完成。");
-			// GrammarMerger.mergeGrammar(g, treeBank, mergeRate, ruleCounter);
-			// EM(g, treeBank, EMIterations);
-			// System.err.println("合并完成。");
+			GrammarMerger.mergeGrammar(g, treeBank, mergeRate, ruleCounter);
+			EM(g, treeBank, EMIterations);
+			System.err.println("合并完成。");
 		}
 		return g;
 	}
@@ -67,9 +63,9 @@ public class GrammarTrainer
 		for (BinaryRule bRule : g.bRules)
 		{
 
-			int pNumSub = g.nonterminalTable.getNumSubsymbolArr().get(bRule.getParent());
-			int lCNumSub = g.nonterminalTable.getNumSubsymbolArr().get(bRule.getLeftChild());
-			int rCNumSub = g.nonterminalTable.getNumSubsymbolArr().get(bRule.getRightChild());
+			int pNumSub = g.getNumSubSymbol(bRule.getParent());
+			int lCNumSub = g.getNumSubSymbol(bRule.getLeftChild());
+			int rCNumSub = g.getNumSubSymbol(bRule.getRightChild());
 
 			for (int i = 0; i < pNumSub; i++)
 			{
@@ -102,8 +98,8 @@ public class GrammarTrainer
 
 		for (UnaryRule uRule : g.uRules)
 		{
-			int pNumSub = g.nonterminalTable.getNumSubsymbolArr().get(uRule.getParent());
-			int cNumSub = g.nonterminalTable.getNumSubsymbolArr().get(uRule.getChild());
+			int pNumSub = g.getNumSubSymbol(uRule.getParent());
+			int cNumSub = g.getNumSubSymbol(uRule.getChild());
 			for (int i = 0; i < pNumSub; i++)
 			{
 				if (ruleCounter.sameParentRulesCounter.containsKey(uRule.parent)
@@ -129,7 +125,7 @@ public class GrammarTrainer
 
 		for (PreterminalRule preRule : g.lexicon.getPreRules())
 		{
-			int pNumSub = g.nonterminalTable.getNumSubsymbolArr().get(preRule.parent);
+			int pNumSub = g.getNumSubSymbol(preRule.parent);
 			for (int i = 0; i < pNumSub; i++)
 			{
 				if (ruleCounter.sameParentRulesCounter.containsKey(preRule.parent)
@@ -194,7 +190,7 @@ public class GrammarTrainer
 			}
 			else
 			{
-				Double[] countArr = new Double[g.nonterminalTable.getNumSubsymbolArr().get(parent)];
+				Double[] countArr = new Double[g.getNumSubSymbol((short) parent)];
 				countArr[pSubSymbolIndex] = ruleCount;
 				ruleCounter.sameParentRulesCounter.put((short) parent, countArr);
 			}

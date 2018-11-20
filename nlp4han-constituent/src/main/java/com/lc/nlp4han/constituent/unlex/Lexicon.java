@@ -16,23 +16,31 @@ public class Lexicon
 	private HashSet<PreterminalRule> preRules;
 	private HashMap<String, Integer> dictionary;
 
-	private ArrayList<Short> tagWithRareWord;
-	private ArrayList<Integer> rareWordCount;// rareWordCount[i]表示tagOfRareWord[i]对应的tag包含的rareword的个数
-	private int allRareWord;
-
-	private double[] scores;// 一个未知词是某tag的概率
+	// private ArrayList<Short> tagWithRareWord;
+	// private ArrayList<Integer> rareWordCount;// rareWordCount[i]表示tagOfRareWord[i]对应的tag包含的rareword的个数
+	// private int allRareWord;
+	// private double[] scores;// 一个未知词是某tag的概率
 
 	public Lexicon(HashSet<PreterminalRule> preRules, HashSet<String> dictionary, ArrayList<Short> tagWithRareWord,
 			ArrayList<Integer> rareWordCount, int allRareWord)
 	{
 		this.preRules = preRules;
-		this.tagWithRareWord = tagWithRareWord;
-		this.rareWordCount = rareWordCount;
-		this.allRareWord = allRareWord;
-		this.scores = new double[tagWithRareWord.size()];
+		// this.tagWithRareWord = tagWithRareWord;
+		// this.rareWordCount = rareWordCount;
+		// this.allRareWord = allRareWord;
+		// this.scores = new double[tagWithRareWord.size()];
 		this.dictionary = new HashMap<>();
 		init(dictionary);
-		calculateScore();
+	}
+
+	public Lexicon(ArrayList<Short> tagWithRareWord, ArrayList<Integer> rareWordCount, int allRareWord)
+	{
+		this.preRules = new HashSet<PreterminalRule>();
+		// this.tagWithRareWord = tagWithRareWord;
+		// this.rareWordCount = rareWordCount;
+		// this.allRareWord = allRareWord;
+		// this.scores = new double[tagWithRareWord.size()];
+		this.dictionary = new HashMap<>();
 	}
 
 	public void init(HashSet<String> dictionary)
@@ -45,12 +53,19 @@ public class Lexicon
 		}
 	}
 
-	public void calculateScore()
+	// public void calculateScore()
+	// {
+	// for (int i = 0; i < tagWithRareWord.size(); i++)
+	// {
+	// scores[i] = rareWordCount.get(i) / allRareWord;
+	// }
+	// }
+
+	public void add(PreterminalRule preRule)
 	{
-		for (int i = 0; i < tagWithRareWord.size(); i++)
-		{
-			scores[i] = rareWordCount.get(i) / allRareWord;
-		}
+		preRules.add(preRule);
+		if (!dictionary.containsKey(preRule.getWord()))
+			dictionary.put(preRule.getWord(), dictionary.size());
 	}
 
 	public boolean hasRecorded(String word)
@@ -68,16 +83,6 @@ public class Lexicon
 		this.dictionary = dictionary;
 	}
 
-	public double[] getScores()
-	{
-		return scores;
-	}
-
-	public void setScores(double[] scores)
-	{
-		this.scores = scores;
-	}
-
 	public HashSet<PreterminalRule> getPreRules()
 	{
 		return preRules;
@@ -87,35 +92,4 @@ public class Lexicon
 	{
 		this.preRules = preRules;
 	}
-
-	public ArrayList<Short> getTagWithRareWord()
-	{
-		return tagWithRareWord;
-	}
-
-	public void setTagWithRareWord(ArrayList<Short> tagWithRareWord)
-	{
-		this.tagWithRareWord = tagWithRareWord;
-	}
-
-	public ArrayList<Integer> getRareWordCount()
-	{
-		return rareWordCount;
-	}
-
-	public void setRareWordCount(ArrayList<Integer> rareWordCount)
-	{
-		this.rareWordCount = rareWordCount;
-	}
-
-	public int getAllRareWord()
-	{
-		return allRareWord;
-	}
-
-	public void setAllRareWord(int allRareWord)
-	{
-		this.allRareWord = allRareWord;
-	}
-
 }

@@ -195,15 +195,15 @@ public class UnaryRule extends Rule
 			return false;
 	}
 
-	public String toStringIgnoreSubSymbol(NonterminalTable nonterminalTable)
+	public String toStringIgnoreSubSymbol(Grammar g)
 	{
-		String parentStr = nonterminalTable.stringValue(parent);
-		String childStr = nonterminalTable.stringValue(child);
+		String parentStr = g.symbolStrValue(parent);
+		String childStr = g.symbolStrValue(child);
 		return parentStr + " -> " + childStr;
 	}
 
 	@Override
-	public String[] toStringRules(NonterminalTable nonterminalTable)
+	public String[] toStringRules(Grammar g)
 	{
 		String[] strs = new String[scores.size() * scores.get(0).size()];
 		int count = 0;
@@ -213,14 +213,14 @@ public class UnaryRule extends Rule
 			{
 				String parentStr;
 				String childStr;
-				if (nonterminalTable.getNumSubsymbolArr().get(parent) == 1)
-					parentStr = nonterminalTable.stringValue(parent);
+				if (g.getNumSubSymbol(parent) == 1)
+					parentStr = g.symbolStrValue(parent);
 				else
-					parentStr = nonterminalTable.stringValue(parent) + "_" + i;
-				if (nonterminalTable.getNumSubsymbolArr().get(child) == 1)
-					childStr = nonterminalTable.stringValue(child);
+					parentStr = g.symbolStrValue(parent) + "_" + i;
+				if (g.getNumSubSymbol(child) == 1)
+					childStr = g.symbolStrValue(child);
 				else
-					childStr = nonterminalTable.stringValue(child) + "_" + j;
+					childStr = g.symbolStrValue(child) + "_" + j;
 				String str = parentStr + " -> " + childStr + " " + scores.get(i).get(j);
 				strs[count] = str;
 				count++;
@@ -241,7 +241,7 @@ public class UnaryRule extends Rule
 		return str;
 	}
 
-	public TreeMap<String, Double> getParent_i_ScoceSum(NonterminalTable nonterminalTable)
+	public TreeMap<String, Double> getParent_i_ScoceSum(Grammar g)
 	{
 		TreeMap<String, Double> A_iBRuleSum = new TreeMap<>();
 		for (int i = 0; i < scores.size(); i++)
@@ -249,11 +249,11 @@ public class UnaryRule extends Rule
 			String parentStr;
 			if (scores.size() == 1)
 			{
-				parentStr = nonterminalTable.stringValue(parent);
+				parentStr = g.symbolStrValue(parent);
 			}
 			else
 			{
-				parentStr = nonterminalTable.stringValue(parent) + "_" + i;
+				parentStr = g.symbolStrValue(parent) + "_" + i;
 			}
 			double A_iScore = 0.0;
 			for (int j = 0; j < scores.get(0).size(); j++)

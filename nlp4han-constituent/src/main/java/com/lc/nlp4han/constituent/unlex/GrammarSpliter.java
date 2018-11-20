@@ -25,8 +25,8 @@ public class GrammarSpliter
 		{
 			splitTreeAnnotation(tree, treeBank.getNonterminalTable());
 		}
-		oldG.nonterminalTable.getNumSubsymbolArr().replaceAll(e -> Short.valueOf((short) (e * 2)));
-		oldG.nonterminalTable.getNumSubsymbolArr().set(oldG.nonterminalTable.intValue("ROOT"), (short) 1);
+		oldG.getNumSubsymbolArr().replaceAll(e -> Short.valueOf((short) (e * 2)));
+		oldG.getNumSubsymbolArr().set(oldG.symbolIntValue(oldG.getStartSymbol()), (short) 1);
 	}
 
 	public static void normalizedPreTermianlRules(Grammar g)

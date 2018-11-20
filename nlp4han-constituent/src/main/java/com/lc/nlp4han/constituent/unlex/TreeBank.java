@@ -109,7 +109,7 @@ public class TreeBank
 		{
 			final PreterminalRule tempPreRule = new PreterminalRule(tree.getLabel().getSymbol(),
 					tree.getChildren().get(0).getLabel().getWord());
-			if (g.lexicon.getPreRules().contains(tempPreRule))
+			if (g.getLexicon().getPreRules().contains(tempPreRule))
 			{
 				int length = tree.getLabel().getNumSubSymbol();
 

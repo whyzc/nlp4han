@@ -20,13 +20,13 @@ public class GrammarMerger
 		treeBank.calIOScore(grammar);
 		double[][] mergeWeight = computerMergerWeight(grammar, ruleCounter);
 		ArrayList<Short> newNumSubsymbolArr = new ArrayList<>(
-				Arrays.asList(new Short[grammar.nonterminalTable.getNumSubsymbolArr().size()]));
-		Collections.copy(newNumSubsymbolArr, grammar.nonterminalTable.getNumSubsymbolArr());
+				Arrays.asList(new Short[grammar.getNumSubsymbolArr().size()]));
+		Collections.copy(newNumSubsymbolArr, grammar.getNumSubsymbolArr());
 		Short[][] mergeSymbols = getMergeSymbol(grammar, treeBank, mergeRate, newNumSubsymbolArr, mergeWeight);
 		mergeRule(grammar.bRules, mergeSymbols, mergeWeight);
 		mergeRule(grammar.uRules, mergeSymbols, mergeWeight);
 		mergeRule(grammar.lexicon.getPreRules(), mergeSymbols, mergeWeight);
-		grammar.nonterminalTable.setNumSubsymbolArr(newNumSubsymbolArr);
+		grammar.setNumSubsymbolArr(newNumSubsymbolArr);
 		mergeWeight = null;
 		mergeTrees(grammar, treeBank);
 		treeBank.forgetIOScoreAndScale();
@@ -53,7 +53,7 @@ public class GrammarMerger
 	{
 		if (tree.isLeaf())
 			return;
-		tree.getLabel().setNumSubSymbol(g.nonterminalTable.getNumSubsymbolArr().get(tree.getLabel().getSymbol()));
+		tree.getLabel().setNumSubSymbol(g.getNumSubSymbol(tree.getLabel().getSymbol()));
 		tree.forgetIOScoreAndScale();
 		tree.getLabel().setInnerScores(null);
 		tree.getLabel().setOuterScores(null);
@@ -66,11 +66,11 @@ public class GrammarMerger
 	// TODO:处理期望值为0的
 	public static double[][] computerMergerWeight(Grammar g, RuleCounter ruleCounter)
 	{
-		double[][] mergerWeight = new double[g.nonterminalTable.getNumSymbol()][];
+		double[][] mergerWeight = new double[g.getNumSymbol()][];
 		// 根节点不分裂、不合并
 		for (short i = 1; i < mergerWeight.length; i++)
 		{
-			mergerWeight[i] = new double[g.nonterminalTable.getNumSubsymbolArr().get(i)];
+			mergerWeight[i] = new double[g.getNumSubsymbolArr().get(i)];
 			for (short j = 0; j < mergerWeight[i].length; j++)
 			{
 				mergerWeight[i][j] = ruleCounter.sameParentRulesCounter.get(i)[j]
@@ -89,12 +89,12 @@ public class GrammarMerger
 	public static Short[][] getMergeSymbol(Grammar g, TreeBank treeBank, double mergeRate,
 			ArrayList<Short> newNumSubsymbolArr, double[][] mergeWeight)
 	{
-		ArrayList<Short>[] symbolToMerge = new ArrayList[g.nonterminalTable.getNumSymbol()];
+		ArrayList<Short>[] symbolToMerge = new ArrayList[g.getNumSymbol()];
 		PriorityQueue<SentenceLikehood> senScoreGradient = new PriorityQueue<>();
 		// 假设一个符号没有分裂,已知root 没有分裂
-		for (short i = 1; i < g.nonterminalTable.getNumSymbol(); i++)
+		for (short i = 1; i < g.getNumSymbol(); i++)
 		{
-			for (short j = 0; j < g.nonterminalTable.getNumSubsymbolArr().get(i); j++)
+			for (short j = 0; j < g.getNumSubSymbol(i); j++)
 			{
 				double tallyLogGradient = 0;
 				for (AnnotationTreeNode tree : treeBank.getTreeBank())
@@ -102,8 +102,8 @@ public class GrammarMerger
 					double logSenScoreGradient = getMergeSymbolHelper(g, tree, i, j, mergeWeight);
 					tallyLogGradient += logSenScoreGradient;
 				}
-				System.out.println("若合并非终结符号" + g.nonterminalTable.stringValue(i) + "的第" + j + "," + (j + 1)
-						+ "个子符号后树库似然比：" + tallyLogGradient);
+				System.out.println(
+						"若合并非终结符号" + g.symbolStrValue(i) + "的第" + j + "," + (j + 1) + "个子符号后树库似然比：" + tallyLogGradient);
 				senScoreGradient.add(new SentenceLikehood(i, j, tallyLogGradient));
 				j++;
 			}
@@ -156,8 +156,7 @@ public class GrammarMerger
 
 				subSymbolToMerge = symbolToMerge[i].toArray(new Short[symbolToMerge[i].size()]);
 				mergeSymbols[i] = subSymbolToMerge;
-				newNumSubsymbolArr.set(i,
-						(short) (g.nonterminalTable.getNumSubsymbolArr().get(i) - subSymbolToMerge.length));
+				newNumSubsymbolArr.set(i, (short) (g.getNumSubSymbol((short) i) - subSymbolToMerge.length));
 			}
 		}
 		return mergeSymbols;

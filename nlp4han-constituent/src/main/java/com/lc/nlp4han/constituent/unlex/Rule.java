@@ -1,5 +1,7 @@
 package com.lc.nlp4han.constituent.unlex;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.HashSet;
 
 /**
@@ -13,11 +15,17 @@ public abstract class Rule
 	public static double rulethres = 1.0e-30;// 小于该值均赋值为0.0
 	protected short parent;
 
-	public void split()
-	{
-	}
+	public abstract void split();
 
 	public abstract void merge(Short[][] symbolToMerge, double[][] weights);
+
+	public void write(BufferedWriter writer, Grammar g) throws IOException
+	{
+		for (String rule : toStringRules(g))
+		{
+			writer.write(rule + "\r");
+		}
+	}
 
 	public int hashCode()
 	{
@@ -41,7 +49,7 @@ public abstract class Rule
 		return true;
 	}
 
-	public abstract String[] toStringRules(NonterminalTable nonterminalTable);
+	public abstract String[] toStringRules(Grammar g);
 
 	public abstract String toStringRule(NonterminalTable nonterminalTable, short... labels);
 
