@@ -23,21 +23,20 @@ public class Grammar
 	public static Random random = new Random(0);
 	private String StartSymbol = "ROOT";
 
-	protected HashSet<BinaryRule> bRules;
-	protected HashSet<UnaryRule> uRules;
-	protected Lexicon lexicon;// 包含preRules
+	private HashSet<BinaryRule> bRules;
+	private HashSet<UnaryRule> uRules;
+	private Lexicon lexicon;// 包含preRules
 
 	// 添加相同孩子为key的map
-	protected HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>> preRuleBySameChildren; // 外层map<word在字典中的索引,内map>
-	protected HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>> bRuleBySameChildren;
-	protected HashMap<Short, HashMap<UnaryRule, UnaryRule>> uRuleBySameChildren;
+	private HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>> preRuleBySameChildren; // 外层map<word在字典中的索引,内map>
+	private HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>> bRuleBySameChildren;
+	private HashMap<Short, HashMap<UnaryRule, UnaryRule>> uRuleBySameChildren;
 	// 相同父节点的规则放在一个map中
-	protected HashMap<Short, HashMap<PreterminalRule, PreterminalRule>> preRuleBySameHead; // 内map<ruleHashcode/rule>
-	protected HashMap<Short, HashMap<BinaryRule, BinaryRule>> bRuleBySameHead;
-	protected HashMap<Short, HashMap<UnaryRule, UnaryRule>> uRuleBySameHead;
+	private HashMap<Short, HashMap<PreterminalRule, PreterminalRule>> preRuleBySameHead; // 内map<ruleHashcode/rule>
+	private HashMap<Short, HashMap<BinaryRule, BinaryRule>> bRuleBySameHead;
+	private HashMap<Short, HashMap<UnaryRule, UnaryRule>> uRuleBySameHead;
 
 	private NonterminalTable nonterminalTable;
-	protected double mergeWeight[][];
 
 	public Grammar(HashSet<BinaryRule> bRules, HashSet<UnaryRule> uRules, Lexicon lexicon,
 			NonterminalTable nonterminalTable)
@@ -539,4 +538,61 @@ public class Grammar
 	{
 		nonterminalTable.setNumSubsymbolArr(newNumSubsymbolArr);
 	}
+
+	public void setbRules(HashSet<BinaryRule> bRules)
+	{
+		this.bRules = bRules;
+	}
+
+	public void setuRules(HashSet<UnaryRule> uRules)
+	{
+		this.uRules = uRules;
+	}
+
+	public void setLexicon(Lexicon lexicon)
+	{
+		this.lexicon = lexicon;
+	}
+
+	public static Random getRandom()
+	{
+		return random;
+	}
+
+	public HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>> getPreRuleBySameChildren()
+	{
+		return preRuleBySameChildren;
+	}
+
+	public HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>> getbRuleBySameChildren()
+	{
+		return bRuleBySameChildren;
+	}
+
+	public HashMap<Short, HashMap<UnaryRule, UnaryRule>> getuRuleBySameChildren()
+	{
+		return uRuleBySameChildren;
+	}
+
+	public HashMap<Short, HashMap<PreterminalRule, PreterminalRule>> getPreRuleBySameHead()
+	{
+		return preRuleBySameHead;
+	}
+
+	public HashMap<Short, HashMap<BinaryRule, BinaryRule>> getbRuleBySameHead()
+	{
+		return bRuleBySameHead;
+	}
+
+	public HashMap<Short, HashMap<UnaryRule, UnaryRule>> getuRuleBySameHead()
+	{
+		return uRuleBySameHead;
+	}
+
+	public NonterminalTable getNonterminalTable()
+	{
+		return nonterminalTable;
+	}
+	
+	
 }

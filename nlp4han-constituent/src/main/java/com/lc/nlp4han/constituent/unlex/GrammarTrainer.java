@@ -60,7 +60,7 @@ public class GrammarTrainer
 	{
 		double newScore;
 		double denominator;
-		for (BinaryRule bRule : g.bRules)
+		for (BinaryRule bRule : g.getbRules())
 		{
 
 			int pNumSub = g.getNumSubSymbol(bRule.getParent());
@@ -96,7 +96,7 @@ public class GrammarTrainer
 
 		}
 
-		for (UnaryRule uRule : g.uRules)
+		for (UnaryRule uRule : g.getuRules())
 		{
 			int pNumSub = g.getNumSubSymbol(uRule.getParent());
 			int cNumSub = g.getNumSubSymbol(uRule.getChild());
@@ -123,7 +123,7 @@ public class GrammarTrainer
 			}
 		}
 
-		for (PreterminalRule preRule : g.lexicon.getPreRules())
+		for (PreterminalRule preRule : g.getLexicon().getPreRules())
 		{
 			int pNumSub = g.getNumSubSymbol(preRule.parent);
 			for (int i = 0; i < pNumSub; i++)
@@ -156,8 +156,8 @@ public class GrammarTrainer
 				|| ruleCounter.sameParentRulesCounter.get((short) parent)[pSubSymbolIndex] == null)
 		{
 			double ruleCount = 0.0;
-			if (g.bRuleBySameHead.containsKey((short) parent))
-				for (Map.Entry<BinaryRule, BinaryRule> entry : g.bRuleBySameHead.get((short) parent).entrySet())
+			if (g.getbRuleBySameHead().containsKey((short) parent))
+				for (Map.Entry<BinaryRule, BinaryRule> entry : g.getbRuleBySameHead().get((short) parent).entrySet())
 				{
 					double[][][] count = ruleCounter.bRuleCounter.get(entry.getValue());
 					for (int i = 0; i < count[pSubSymbolIndex].length; i++)
@@ -168,8 +168,8 @@ public class GrammarTrainer
 						}
 					}
 				}
-			if (g.uRuleBySameHead.containsKey((short) parent))
-				for (Map.Entry<UnaryRule, UnaryRule> entry : g.uRuleBySameHead.get((short) parent).entrySet())
+			if (g.getuRuleBySameHead().containsKey((short) parent))
+				for (Map.Entry<UnaryRule, UnaryRule> entry : g.getuRuleBySameHead().get((short) parent).entrySet())
 				{
 					double[][] count = ruleCounter.uRuleCounter.get(entry.getValue());
 					for (int i = 0; i < count[pSubSymbolIndex].length; i++)
@@ -177,8 +177,8 @@ public class GrammarTrainer
 						ruleCount = ruleCount + count[pSubSymbolIndex][i];
 					}
 				}
-			if (g.preRuleBySameHead.containsKey((short) parent))
-				for (Map.Entry<PreterminalRule, PreterminalRule> entry : g.preRuleBySameHead.get((short) parent)
+			if (g.getPreRuleBySameHead().containsKey((short) parent))
+				for (Map.Entry<PreterminalRule, PreterminalRule> entry : g.getPreRuleBySameHead().get((short) parent)
 						.entrySet())
 				{
 					double[] count = ruleCounter.preRuleCounter.get(entry.getValue());

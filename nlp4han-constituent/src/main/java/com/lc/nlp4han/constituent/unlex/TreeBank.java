@@ -113,7 +113,7 @@ public class TreeBank
 			{
 				int length = tree.getLabel().getNumSubSymbol();
 
-				PreterminalRule realRule = g.preRuleBySameHead.get(tree.getLabel().getSymbol()).get(tempPreRule);
+				PreterminalRule realRule = g.getPreRuleBySameHead().get(tree.getLabel().getSymbol()).get(tempPreRule);
 				Double[] newScores = realRule.getScores().toArray(new Double[length]);
 				// 预终结符号的内向概率不用缩放，最小为e^-30
 				tree.getLabel().setInnerScores(newScores);
@@ -132,9 +132,9 @@ public class TreeBank
 			case 1:
 				final UnaryRule tempUnaryRule = new UnaryRule(tree.getLabel().getSymbol(),
 						tree.getChildren().get(0).getLabel().getSymbol());
-				if (g.uRules.contains(tempUnaryRule))
+				if (g.getuRules().contains(tempUnaryRule))
 				{
-					LinkedList<LinkedList<Double>> uRuleScores = g.uRuleBySameHead.get(tree.getLabel().getSymbol())
+					LinkedList<LinkedList<Double>> uRuleScores = g.getuRuleBySameHead().get(tree.getLabel().getSymbol())
 							.get(tempUnaryRule).getScores();
 					Double[] innerScores = new Double[tree.getLabel().getNumSubSymbol()];
 					int childInnerScale = tree.getChildren().get(0).getLabel().getInnerScale();
@@ -162,9 +162,9 @@ public class TreeBank
 				final BinaryRule tempBRule = new BinaryRule(tree.getLabel().getSymbol(),
 						tree.getChildren().get(0).getLabel().getSymbol(),
 						tree.getChildren().get(1).getLabel().getSymbol());
-				if (g.bRules.contains(tempBRule))
+				if (g.getbRules().contains(tempBRule))
 				{
-					LinkedList<LinkedList<LinkedList<Double>>> bRuleScores = g.bRuleBySameHead
+					LinkedList<LinkedList<LinkedList<Double>>> bRuleScores = g.getbRuleBySameHead()
 							.get(tree.getLabel().getSymbol()).get(tempBRule).getScores();
 					Double[] innerScores = new Double[tree.getLabel().getNumSubSymbol()];
 					int leftChildInnerScale = tree.getChildren().get(0).getLabel().getInnerScale();
@@ -235,10 +235,10 @@ public class TreeBank
 			case 1:
 				final UnaryRule tempUnaryRule = new UnaryRule(parent.getLabel().getSymbol(),
 						treeNode.getLabel().getSymbol());
-				if (g.uRules.contains(tempUnaryRule))
+				if (g.getuRules().contains(tempUnaryRule))
 				{
-					LinkedList<LinkedList<Double>> uRuleScores = g.uRuleBySameHead.get(parent.getLabel().getSymbol())
-							.get(tempUnaryRule).getScores();
+					LinkedList<LinkedList<Double>> uRuleScores = g.getuRuleBySameHead()
+							.get(parent.getLabel().getSymbol()).get(tempUnaryRule).getScores();
 					Double[] outerScores = new Double[treeNode.getLabel().getNumSubSymbol()];
 					int parentOuterScale = parent.getLabel().getOuterScale();
 					for (int j = 0; j < outerScores.length; j++)
@@ -283,9 +283,9 @@ public class TreeBank
 							parent.getChildren().get(0).getLabel().getSymbol(), treeNode.getLabel().getSymbol());
 				}
 
-				if (g.bRules.contains(tempBRule))
+				if (g.getbRules().contains(tempBRule))
 				{
-					LinkedList<LinkedList<LinkedList<Double>>> bRuleScores = g.bRuleBySameHead
+					LinkedList<LinkedList<LinkedList<Double>>> bRuleScores = g.getbRuleBySameHead()
 							.get(parent.getLabel().getSymbol()).get(tempBRule).getScores();
 					Double[] outerScores = new Double[treeNode.getLabel().getNumSubSymbol()];
 					for (int i = 0; i < outerScores.length; i++)

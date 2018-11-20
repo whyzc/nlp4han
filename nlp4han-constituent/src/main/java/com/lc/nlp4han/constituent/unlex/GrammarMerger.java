@@ -23,9 +23,9 @@ public class GrammarMerger
 				Arrays.asList(new Short[grammar.getNumSubsymbolArr().size()]));
 		Collections.copy(newNumSubsymbolArr, grammar.getNumSubsymbolArr());
 		Short[][] mergeSymbols = getMergeSymbol(grammar, treeBank, mergeRate, newNumSubsymbolArr, mergeWeight);
-		mergeRule(grammar.bRules, mergeSymbols, mergeWeight);
-		mergeRule(grammar.uRules, mergeSymbols, mergeWeight);
-		mergeRule(grammar.lexicon.getPreRules(), mergeSymbols, mergeWeight);
+		mergeRule(grammar.getbRules(), mergeSymbols, mergeWeight);
+		mergeRule(grammar.getuRules(), mergeSymbols, mergeWeight);
+		mergeRule(grammar.getLexicon().getPreRules(), mergeSymbols, mergeWeight);
 		grammar.setNumSubsymbolArr(newNumSubsymbolArr);
 		mergeWeight = null;
 		mergeTrees(grammar, treeBank);

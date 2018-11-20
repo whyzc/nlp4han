@@ -14,7 +14,7 @@ import com.lc.nlp4han.ml.util.ObjectStream;
  * 
  * @author 王宁
  */
-public class ParentLabelAddedCrossValidator
+public class CrossValidatorParentLabelAdded
 {
 
 	public void evaluate(ObjectStream<String> sentenceStream, int nFolds, ConstituentMeasure measure,
@@ -40,7 +40,7 @@ public class ParentLabelAddedCrossValidator
 			PCFG pcfg = g.getPCFG();
 			System.out.println("训练学习时间：" + (System.currentTimeMillis() - start) + "ms");
 			long start2 = System.currentTimeMillis();
-			ParentLabelAddedEvaluator evaluator = new ParentLabelAddedEvaluator(pcfg, pruneThreshold, secondPrune,
+			EvaluatorParentLabelAdded evaluator = new EvaluatorParentLabelAdded(pcfg, pruneThreshold, secondPrune,
 					prior);
 			evaluator.setMeasure(measure);
 			ObjectStream<ConstituentTree> sampleStream = new ConstituentTreeStream(

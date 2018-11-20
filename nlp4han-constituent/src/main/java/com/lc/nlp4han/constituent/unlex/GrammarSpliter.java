@@ -16,9 +16,9 @@ public class GrammarSpliter
 {
 	public static void splitGrammar(Grammar oldG, TreeBank treeBank)
 	{
-		splitRule(oldG.bRules);
-		splitRule(oldG.uRules);
-		splitRule(oldG.lexicon.getPreRules());
+		splitRule(oldG.getbRules());
+		splitRule(oldG.getuRules());
+		splitRule(oldG.getLexicon().getPreRules());
 		// 让PreterminalRule概率归一化
 		normalizedPreTermianlRules(oldG);
 		for (AnnotationTreeNode tree : treeBank.getTreeBank())
@@ -33,7 +33,7 @@ public class GrammarSpliter
 	{
 
 		HashMap<Short, Double[]> sameHeadPRuleScoreSum = new HashMap<Short, Double[]>();
-		for (PreterminalRule preRule : g.lexicon.getPreRules())
+		for (PreterminalRule preRule : g.getLexicon().getPreRules())
 		{
 			if (!sameHeadPRuleScoreSum.containsKey(preRule.getParent()))
 			{
@@ -44,7 +44,7 @@ public class GrammarSpliter
 				if (sameHeadPRuleScoreSum.get(preRule.parent)[i] == null)
 				{
 					BigDecimal tag_iScoreSum = BigDecimal.valueOf(0.0);
-					for (Map.Entry<PreterminalRule, PreterminalRule> entry : g.preRuleBySameHead.get(preRule.parent)
+					for (Map.Entry<PreterminalRule, PreterminalRule> entry : g.getPreRuleBySameHead().get(preRule.parent)
 							.entrySet())
 					{
 						tag_iScoreSum = tag_iScoreSum.add(BigDecimal.valueOf(entry.getValue().getScores().get(i)));

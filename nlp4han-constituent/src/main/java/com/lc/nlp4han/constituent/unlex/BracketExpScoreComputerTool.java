@@ -8,9 +8,20 @@ package com.lc.nlp4han.constituent.unlex;
 public class BracketExpScoreComputerTool
 {
 
+	/**
+	 * @param g
+	 *            UnlexGrammar
+	 * @param sentence
+	 * @return
+	 */
+	public static double comperter(Grammar g, String sentence)
+	{
+
+		return 0;
+	}
+
 	public static void main(String[] args)
 	{
-		// TODO Auto-generated method stub
 
 	}
 

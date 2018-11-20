@@ -8,7 +8,7 @@ import java.io.IOException;
  * @author 王宁
  * 
  */
-public class UnLexGrammarExtractorTool
+public class GrammarExtractorToolLatentAnnotation
 {
 	public static Grammar getGrammar(int SMCycle, double mergeRate, int EMIterations, int rareWordThreshold,
 			String treeBankPath, String encoding) throws IOException
@@ -69,7 +69,7 @@ public class UnLexGrammarExtractorTool
 		{
 			long start = System.currentTimeMillis();
 			System.out.println("开始提取初始文法");
-			Grammar g = UnLexGrammarExtractorTool.getGrammar(SMCycle, 0.5, iterations,
+			Grammar g = GrammarExtractorToolLatentAnnotation.getGrammar(SMCycle, 0.5, iterations,
 					Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainFilePath, encoding);
 			GrammarWriter.writeToFile(g, outputFilePath, true);
 			System.out.println("提取初始文法完毕");
@@ -85,7 +85,7 @@ public class UnLexGrammarExtractorTool
 
 	private static void usage()
 	{
-		System.out.println(UnLexGrammarExtractorTool.class.getName() + "\n"
+		System.out.println(GrammarExtractorToolLatentAnnotation.class.getName() + "\n"
 				+ " -train <trainFile> -out <outFile> [-sm <SMCycle>] [-encoing <encoding>] [-em <emIterations>] ");
 	}
 }

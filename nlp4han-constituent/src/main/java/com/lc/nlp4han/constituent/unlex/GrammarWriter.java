@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
 /**
  * @author 王宁 将grammar写到文本中
  */
@@ -22,9 +23,9 @@ public class GrammarWriter
 		for (Short symbol : grammar.allNonterminalIntValArr())
 		{
 			Map<String, Rule> bAndURules = new TreeMap<>();
-			if (grammar.bRuleBySameHead.containsKey(symbol))
+			if (grammar.getbRuleBySameHead().containsKey(symbol))
 			{
-				for (BinaryRule bRule : grammar.bRuleBySameHead.get(symbol).keySet())
+				for (BinaryRule bRule : grammar.getbRuleBySameHead().get(symbol).keySet())
 				{
 					bAndURules.put(bRule.toStringIgnoreSubSymbol(grammar), bRule);
 					for (Map.Entry<String, Double> entry : bRule.getParent_i_ScoceSum(grammar).entrySet())
@@ -34,9 +35,9 @@ public class GrammarWriter
 					}
 				}
 			}
-			if (grammar.uRuleBySameHead.containsKey(symbol))
+			if (grammar.getuRuleBySameHead().containsKey(symbol))
 			{
-				for (UnaryRule uRule : grammar.uRuleBySameHead.get(symbol).keySet())
+				for (UnaryRule uRule : grammar.getuRuleBySameHead().get(symbol).keySet())
 				{
 					bAndURules.put(uRule.toStringIgnoreSubSymbol(grammar), uRule);
 					for (Map.Entry<String, Double> entry : uRule.getParent_i_ScoceSum(grammar).entrySet())
@@ -49,9 +50,9 @@ public class GrammarWriter
 			allBAndURules.put(grammar.symbolStrValue(symbol), bAndURules);
 
 			Map<String, PreterminalRule> preRules = new TreeMap<>();
-			if (grammar.preRuleBySameHead.containsKey(symbol))
+			if (grammar.getPreRuleBySameHead().containsKey(symbol))
 			{
-				for (PreterminalRule preRule : grammar.preRuleBySameHead.get(symbol).keySet())
+				for (PreterminalRule preRule : grammar.getPreRuleBySameHead().get(symbol).keySet())
 				{
 					preRules.put(preRule.toStringIgnoreSubSymbol(grammar), preRule);
 					for (Map.Entry<String, Double> entry : preRule.getParent_i_ScoceSum(grammar).entrySet())
@@ -102,7 +103,7 @@ public class GrammarWriter
 		TreeSet<String> allPreRules = new TreeSet<String>();
 		TreeSet<String> allURules = new TreeSet<>();
 		TreeMap<String, Double> sameParentRuleScoreSum = new TreeMap<>();
-		for (BinaryRule bRule : grammar.bRules)
+		for (BinaryRule bRule : grammar.getbRules())
 		{
 			String[] ruleStr = bRule.toStringRules(grammar);
 			allBAndURules.addAll(Arrays.asList(ruleStr));
@@ -111,7 +112,7 @@ public class GrammarWriter
 				sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(), (score, newScore) -> score + newScore);
 			}
 		}
-		for (UnaryRule uRule : grammar.uRules)
+		for (UnaryRule uRule : grammar.getuRules())
 		{
 			String[] ruleStr = uRule.toStringRules(grammar);
 			allBAndURules.addAll(Arrays.asList(ruleStr));
@@ -121,7 +122,7 @@ public class GrammarWriter
 				sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(), (score, newScore) -> score + newScore);
 			}
 		}
-		for (PreterminalRule preRule : grammar.lexicon.getPreRules())
+		for (PreterminalRule preRule : grammar.getLexicon().getPreRules())
 		{
 			String[] ruleStr = preRule.toStringRules(grammar);
 			allPreRules.addAll(Arrays.asList(ruleStr));

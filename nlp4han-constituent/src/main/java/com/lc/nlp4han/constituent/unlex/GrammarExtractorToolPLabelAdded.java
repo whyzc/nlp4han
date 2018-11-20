@@ -7,7 +7,7 @@ import java.io.IOException;
  * 
  * @author 王宁
  */
-public class PLabelAddedGrammarExtractorTool
+public class GrammarExtractorToolPLabelAdded
 {
 	public static Grammar getGrammar(int rareWordThreshold, String trainFilePath, String encoding)
 	{
@@ -47,7 +47,7 @@ public class PLabelAddedGrammarExtractorTool
 		{
 			long start = System.currentTimeMillis();
 			System.out.println("开始提取初始文法");
-			Grammar g = PLabelAddedGrammarExtractorTool.getGrammar(Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainFilePath,
+			Grammar g = GrammarExtractorToolPLabelAdded.getGrammar(Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainFilePath,
 					encoding);
 			GrammarWriter.writeToFile(g, outputFilePath, true);
 			System.out.println("提取初始文法完毕");
@@ -63,7 +63,7 @@ public class PLabelAddedGrammarExtractorTool
 
 	private static void usage()
 	{
-		System.out.println(UnLexGrammarExtractorTool.class.getName() + "\n"
+		System.out.println(GrammarExtractorToolLatentAnnotation.class.getName() + "\n"
 				+ " -train <trainFile> -out <outFile>  [-encoing <encoding>]  ");
 	}
 

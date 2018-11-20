@@ -14,11 +14,11 @@ import com.lc.nlp4han.ml.util.ObjectStream;
 /**
  * @author 王宁
  */
-public class ParentLabelAddedEvalTool
+public class EvalToolParentLabelAdded
 {
 	private static void usage()
 	{
-		System.out.println(ParentLabelAddedEvalTool.class.getName() + "\n"
+		System.out.println(EvalToolParentLabelAdded.class.getName() + "\n"
 				+ "-train <trainFile> -gold <goldFile> [-trainEncoding <trainEncoding>] [-goldEncoding <trainEncoding>] [-em <emIterations>]");
 	}
 
@@ -26,10 +26,10 @@ public class ParentLabelAddedEvalTool
 			double pruneThreshold, boolean secondPrune, boolean prior) throws IOException
 	{
 		long start = System.currentTimeMillis();
-		Grammar g = PLabelAddedGrammarExtractorTool.getGrammar(Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF, trainEn);
+		Grammar g = GrammarExtractorToolPLabelAdded.getGrammar(Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF, trainEn);
 		PCFG p2nf = g.getPCFG();
 		long end = System.currentTimeMillis();
-		ParentLabelAddedEvaluator evaluator = new ParentLabelAddedEvaluator(p2nf, pruneThreshold, secondPrune, prior);
+		EvaluatorParentLabelAdded evaluator = new EvaluatorParentLabelAdded(p2nf, pruneThreshold, secondPrune, prior);
 
 		ConstituentMeasure measure = new ConstituentMeasure();
 		evaluator.setMeasure(measure);
