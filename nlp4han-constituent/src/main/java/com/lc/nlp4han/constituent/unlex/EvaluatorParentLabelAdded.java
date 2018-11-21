@@ -15,7 +15,7 @@ import com.lc.nlp4han.ml.util.Evaluator;
  * @author 王宁
  * 
  */
-public class ParentLabelAddedEvaluator extends Evaluator<ConstituentTree>
+public class EvaluatorParentLabelAdded extends Evaluator<ConstituentTree>
 {
 	/**
 	 * 句法分析模型得到一颗句法树
@@ -40,12 +40,12 @@ public class ParentLabelAddedEvaluator extends Evaluator<ConstituentTree>
 		this.measure = measure;
 	}
 
-	public ParentLabelAddedEvaluator(ConstituentParser cky)
+	public EvaluatorParentLabelAdded(ConstituentParser cky)
 	{
 		this.cky = cky;
 	}
 
-	public ParentLabelAddedEvaluator(PCFG p2nf, double pruneThreshold, boolean secondPrune, boolean prior)
+	public EvaluatorParentLabelAdded(PCFG p2nf, double pruneThreshold, boolean secondPrune, boolean prior)
 	{
 		this.cky = new ConstituentParserCKYP2NF(p2nf, pruneThreshold, secondPrune, prior);
 	}

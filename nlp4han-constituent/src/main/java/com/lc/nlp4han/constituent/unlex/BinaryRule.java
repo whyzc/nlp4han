@@ -282,7 +282,7 @@ public class BinaryRule extends Rule
 		bRule.withIn(set);
 	}
 
-	public String[] toStringRules(NonterminalTable nonterminalTable)
+	public String[] toStringRules(Grammar g)
 	{
 		String[] strs = new String[scores.size() * scores.get(0).size() * scores.get(0).get(0).size()];
 		int count = 0;
@@ -295,18 +295,18 @@ public class BinaryRule extends Rule
 					String parentStr;
 					String lChildStr;
 					String rChildStr;
-					if (nonterminalTable.getNumSubsymbolArr().get(parent) == 1)
-						parentStr = nonterminalTable.stringValue(parent);
+					if (g.getNumSubSymbol(parent) == 1)
+						parentStr = g.symbolStrValue(parent);
 					else
-						parentStr = nonterminalTable.stringValue(parent) + "_" + i;
-					if (nonterminalTable.getNumSubsymbolArr().get(leftChild) == 1)
-						lChildStr = nonterminalTable.stringValue(leftChild);
+						parentStr = g.symbolStrValue(parent) + "_" + i;
+					if (g.getNumSubSymbol(leftChild) == 1)
+						lChildStr = g.symbolStrValue(leftChild);
 					else
-						lChildStr = nonterminalTable.stringValue(leftChild) + "_" + j;
-					if (nonterminalTable.getNumSubsymbolArr().get(rightChild) == 1)
-						rChildStr = nonterminalTable.stringValue(rightChild);
+						lChildStr = g.symbolStrValue(leftChild) + "_" + j;
+					if (g.getNumSubSymbol(rightChild) == 1)
+						rChildStr = g.symbolStrValue(rightChild);
 					else
-						rChildStr = nonterminalTable.stringValue(rightChild) + "_" + k;
+						rChildStr = g.symbolStrValue(rightChild) + "_" + k;
 					String str = parentStr + " -> " + lChildStr + " " + rChildStr + " " + scores.get(i).get(j).get(k);
 					strs[count] = str;
 					count++;
@@ -316,11 +316,11 @@ public class BinaryRule extends Rule
 		return strs;
 	}
 
-	public String toStringIgnoreSubSymbol(NonterminalTable nonterminalTable)
+	public String toStringIgnoreSubSymbol(Grammar g)
 	{
-		String parentStr = nonterminalTable.stringValue(parent);
-		String lChildStr = nonterminalTable.stringValue(leftChild);
-		String rChildStr = nonterminalTable.stringValue(rightChild);
+		String parentStr = g.symbolStrValue(parent);
+		String lChildStr = g.symbolStrValue(leftChild);
+		String rChildStr = g.symbolStrValue(rightChild);
 		return parentStr + " -> " + lChildStr + " " + rChildStr;
 	}
 
@@ -336,7 +336,7 @@ public class BinaryRule extends Rule
 		return str;
 	}
 
-	public TreeMap<String, Double> getParent_i_ScoceSum(NonterminalTable nonterminalTable)
+	public TreeMap<String, Double> getParent_i_ScoceSum(Grammar g)
 	{
 		TreeMap<String, Double> A_iBCRuleSum = new TreeMap<>();
 
@@ -345,11 +345,11 @@ public class BinaryRule extends Rule
 			String parentStr;
 			if (scores.size() == 1)
 			{
-				parentStr = nonterminalTable.stringValue(parent);
+				parentStr = g.symbolStrValue(parent);
 			}
 			else
 			{
-				parentStr = nonterminalTable.stringValue(parent) + "_" + i;
+				parentStr = g.symbolStrValue(parent) + "_" + i;
 			}
 			double A_iScore = 0.0;
 			for (int j = 0; j < scores.get(0).size(); j++)

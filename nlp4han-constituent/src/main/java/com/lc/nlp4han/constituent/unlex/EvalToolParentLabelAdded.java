@@ -14,11 +14,11 @@ import com.lc.nlp4han.ml.util.ObjectStream;
 /**
  * @author 王宁
  */
-public class UnlexEvalTool
+public class EvalToolParentLabelAdded
 {
 	private static void usage()
 	{
-		System.out.println(ParentLabelAddedEvalTool.class.getName() + "\n"
+		System.out.println(EvalToolParentLabelAdded.class.getName() + "\n"
 				+ "-train <trainFile> -gold <goldFile> [-trainEncoding <trainEncoding>] [-goldEncoding <trainEncoding>] [-em <emIterations>]");
 	}
 
@@ -26,10 +26,10 @@ public class UnlexEvalTool
 			double pruneThreshold, boolean secondPrune, boolean prior) throws IOException
 	{
 		long start = System.currentTimeMillis();
-		Grammar g = UnLexGrammarExtractorTool.getGrammar(1, 0.5, 50, 2, trainF, trainEn);
+		Grammar g = GrammarExtractorToolPLabelAdded.getGrammar(Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF, trainEn);
 		PCFG p2nf = g.getPCFG();
-
-		UnlexEvaluator evaluator = new UnlexEvaluator(p2nf, g.nonterminalTable, pruneThreshold, secondPrune, prior);
+		long end = System.currentTimeMillis();
+		EvaluatorParentLabelAdded evaluator = new EvaluatorParentLabelAdded(p2nf, pruneThreshold, secondPrune, prior);
 
 		ConstituentMeasure measure = new ConstituentMeasure();
 		evaluator.setMeasure(measure);
@@ -37,9 +37,9 @@ public class UnlexEvalTool
 				goldEn);
 		ObjectStream<ConstituentTree> sampleStream = new ConstituentTreeStream(treeStream);
 		evaluator.evaluate(sampleStream);
+
 		ConstituentMeasure measureRes = evaluator.getMeasure();
-		long end = System.currentTimeMillis();
-		System.out.println((end - start) + "ms");
+		System.out.println(end - start);
 		System.out.println(measureRes);
 	}
 

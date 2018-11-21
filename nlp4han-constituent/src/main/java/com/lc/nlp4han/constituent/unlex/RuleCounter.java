@@ -50,7 +50,7 @@ public class RuleCounter
 			AnnotationTreeNode rC = tree.getChildren().get(1);
 			BinaryRule rule = new BinaryRule(tree.getLabel().getSymbol(), lC.getLabel().getSymbol(),
 					rC.getLabel().getSymbol());
-			rule = g.bRuleBySameHead.get(tree.getLabel().getSymbol()).get(rule);
+			rule = g.getbRuleBySameHead().get(tree.getLabel().getSymbol()).get(rule);
 			LinkedList<LinkedList<LinkedList<Double>>> scores = rule.getScores();
 			double[][][] count;
 			if (!bRuleCounter.containsKey(rule))
@@ -83,7 +83,7 @@ public class RuleCounter
 		{
 			AnnotationTreeNode child = tree.getChildren().get(0);
 			UnaryRule rule = new UnaryRule(tree.getLabel().getSymbol(), child.getLabel().getSymbol());
-			rule = g.uRuleBySameHead.get(tree.getLabel().getSymbol()).get(rule);
+			rule = g.getuRuleBySameHead().get(tree.getLabel().getSymbol()).get(rule);
 			LinkedList<LinkedList<Double>> scores = rule.getScores();
 			double[][] count;
 			if (!uRuleCounter.containsKey(rule))
@@ -112,7 +112,7 @@ public class RuleCounter
 		{
 			PreterminalRule rule = new PreterminalRule(tree.getLabel().getSymbol(),
 					tree.getChildren().get(0).getLabel().getWord());
-			rule = g.preRuleBySameHead.get(rule.getParent()).get(rule);
+			rule = g.getPreRuleBySameHead().get(rule.getParent()).get(rule);
 			LinkedList<Double> scores = rule.getScores();
 			double[] count;
 			if (!preRuleCounter.containsKey(rule))

@@ -13,11 +13,11 @@ import com.lc.nlp4han.ml.util.ObjectStream;
  * 
  * @author 王宁
  */
-public class ParentLabelAddedCrossValidatorTool
+public class CrossValidatorToolParentLabelAdded
 {
 	private static void usage()
 	{
-		System.out.println(ParentLabelAddedCrossValidatorTool.class.getName()
+		System.out.println(CrossValidatorToolParentLabelAdded.class.getName()
 				+ " -train <corpusFile>  [-encoding <encoding>] [-folds <nFolds>] ");
 	}
 
@@ -58,7 +58,7 @@ public class ParentLabelAddedCrossValidatorTool
 					new FileInputStreamFactory(new File(corpusFile)), encoding);
 
 			ConstituentMeasure measure = new ConstituentMeasure();
-			ParentLabelAddedCrossValidator crossValidator = new ParentLabelAddedCrossValidator();
+			CrossValidatorParentLabelAdded crossValidator = new CrossValidatorParentLabelAdded();
 			crossValidator.evaluate(sentenceStream, folds, measure, pruneThreshold, secondPrune, prior);
 		}
 		catch (IOException e)
