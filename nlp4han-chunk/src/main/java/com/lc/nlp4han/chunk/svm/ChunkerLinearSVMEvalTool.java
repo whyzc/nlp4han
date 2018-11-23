@@ -12,7 +12,7 @@ import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosParserBIEO;
 import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosParserBIEOS;
 import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosParserBIO;
 
-public class ChunkAnalysisLinearSVMEvalTool
+public class ChunkerLinearSVMEvalTool
 {
 	private static final String USAGE = "Usage: ChunkAnalysisLinearSVMEvalTool [options] -model model_file -transform transformation_information_file -goal predicting_set_file\n"
 			+ "options:\n" 
@@ -87,7 +87,7 @@ public class ChunkAnalysisLinearSVMEvalTool
 
 		AbstractChunkSampleParser parse;
 		AbstractChunkAnalysisMeasure measure;
-		ChunkAnalysisLinearSVMME tagger = new ChunkAnalysisLinearSVMME();
+		ChunkerLinearSVM tagger = new ChunkerLinearSVM();
 
 		if (scheme.equals("BIEOS"))
 		{
@@ -106,10 +106,10 @@ public class ChunkAnalysisLinearSVMEvalTool
 		}
 
 		if (errorFile != null)
-			ChunkAnalysisSVMEvalTool.eval(modelpath, goldFile, transformationFile, encoding, new File(errorFile),
+			ChunkerSVMEvalTool.eval(modelpath, goldFile, transformationFile, encoding, new File(errorFile),
 					tagger, parse, measure, scheme);
 		else
-			ChunkAnalysisSVMEvalTool.eval(modelpath, goldFile, transformationFile, encoding, null, tagger, parse,
+			ChunkerSVMEvalTool.eval(modelpath, goldFile, transformationFile, encoding, null, tagger, parse,
 					measure, scheme);
 
 	}

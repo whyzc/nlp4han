@@ -21,7 +21,7 @@ import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 import com.lc.nlp4han.ml.util.PlainTextByLineStream;
 
-public class ChunkAnalysisSVMEvalTool
+public class ChunkerSVMEvalTool
 {
 	private static final String USAGE = "Usage: ChunkAnalysisSVMEvalTool [options] -goal predicting_set_file\n"
 			+ "options:\n" 
@@ -32,7 +32,7 @@ public class ChunkAnalysisSVMEvalTool
 			+ "-error error_messages_file : output error messages\n";
 
 	public static void eval(String modelFile, String goldFile, String path, String encoding, File errorFile,
-			SVMME tagger, AbstractChunkSampleParser parse, AbstractChunkAnalysisMeasure measure, String label) throws IOException
+			ChunkerSVM tagger, AbstractChunkSampleParser parse, AbstractChunkAnalysisMeasure measure, String label) throws IOException
 	{
 		long start = System.currentTimeMillis();
 
@@ -41,15 +41,15 @@ public class ChunkAnalysisSVMEvalTool
 		tagger.setLabel(label);
 		tagger.setSVMStandardInput(path);
 		tagger.setModel(modelFile);
-		ChunkAnalysisSVMEvaluator evaluator = null;
+		ChunkerSVMEvaluator evaluator = null;
 
 		if (errorFile != null)
 		{
 			ChunkAnalysisEvaluateMonitor errorMonitor = new ChunkAnalysisErrorPrinter(new FileOutputStream(errorFile));
-			evaluator = new ChunkAnalysisSVMEvaluator(tagger, measure, errorMonitor);
+			evaluator = new ChunkerSVMEvaluator(tagger, measure, errorMonitor);
 		}
 		else
-			evaluator = new ChunkAnalysisSVMEvaluator(tagger);
+			evaluator = new ChunkerSVMEvaluator(tagger);
 
 		evaluator.setMeasure(measure);
 

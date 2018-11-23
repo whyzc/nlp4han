@@ -11,7 +11,7 @@ import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosSampleStream;
 import com.lc.nlp4han.ml.util.CrossValidationPartitioner;
 import com.lc.nlp4han.ml.util.ObjectStream;
 
-public class ChunkAnalysisSVMCrossValidation
+public class ChunkerSVMCrossValidation
 {
 
 	/**
@@ -29,7 +29,7 @@ public class ChunkAnalysisSVMCrossValidation
 	 * @param monitor
 	 *            监听器
 	 */
-	public ChunkAnalysisSVMCrossValidation(String[] args)
+	public ChunkerSVMCrossValidation(String[] args)
 	{
 		this.args = args;
 	}
@@ -49,7 +49,7 @@ public class ChunkAnalysisSVMCrossValidation
 	 * @throws InvalidInputDataException 
 	 */
 	public void evaluate(ObjectStream<AbstractChunkAnalysisSample> sampleStream, int nFolds,
-			SVMME me, ChunkAnalysisContextGenerator contextGenerator, AbstractChunkAnalysisMeasure measure, Properties properties)
+			ChunkerSVM me, ChunkAnalysisContextGenerator contextGenerator, AbstractChunkAnalysisMeasure measure, Properties properties)
 			throws IOException, InvalidInputDataException
 	{
 		CrossValidationPartitioner<AbstractChunkAnalysisSample> partitioner = new CrossValidationPartitioner<AbstractChunkAnalysisSample>(
@@ -78,7 +78,7 @@ public class ChunkAnalysisSVMCrossValidation
 			me.setModel(modelPath);
 			System.out.println("训练时间： " + (System.currentTimeMillis() - start));
 
-			ChunkAnalysisSVMEvaluator evaluator = new ChunkAnalysisSVMEvaluator(me, measure);
+			ChunkerSVMEvaluator evaluator = new ChunkerSVMEvaluator(me, measure);
 
 			evaluator.setMeasure(measure);
 

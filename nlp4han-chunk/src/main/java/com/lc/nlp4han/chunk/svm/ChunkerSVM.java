@@ -19,26 +19,26 @@ import com.lc.nlp4han.ml.util.ObjectStream;
  * @author 杨智超
  *
  */
-public abstract class SVMME implements Chunker
+public abstract class ChunkerSVM implements Chunker
 {
 	private SVMStandardInput ssi = null;
 	private ChunkAnalysisContextGenerator contextgenerator;
 	private Object model;
 	private String label;
 
-	public SVMME()
+	public ChunkerSVM()
 	{
 
 	}
 
-	public SVMME(ChunkAnalysisContextGenerator contextgenerator, String label)
+	public ChunkerSVM(ChunkAnalysisContextGenerator contextgenerator, String label)
 	{
 		super();
 		this.contextgenerator = contextgenerator;
 		this.label = label;
 	}
 
-	public SVMME(ChunkAnalysisContextGenerator contextgenerator, String filePath, String encoding, String label)
+	public ChunkerSVM(ChunkAnalysisContextGenerator contextgenerator, String filePath, String encoding, String label)
 	{
 		this(contextgenerator, label);
 		try

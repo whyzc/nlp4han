@@ -8,7 +8,7 @@ import java.util.Map;
 
 import com.lc.nlp4han.chunk.svm.liblinear.InvalidInputDataException;
 
-public class ChunkAnalysisSVMTrainerTool
+public class ChunkerSVMTrainerTool
 {
 	private static final String USAGE = "Usage: ChunkAnalysisSVMTrainerTool [options] -data training_set_file\n"
 			+ "options:\n" 

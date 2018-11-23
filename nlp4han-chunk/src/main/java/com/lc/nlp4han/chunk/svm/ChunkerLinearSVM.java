@@ -10,7 +10,7 @@ import com.lc.nlp4han.chunk.svm.liblinear.Model;
 import com.lc.nlp4han.chunk.svm.liblinear.PredictLinear;
 import com.lc.nlp4han.chunk.svm.liblinear.Train;
 
-public class ChunkAnalysisLinearSVMME extends SVMME
+public class ChunkerLinearSVM extends ChunkerSVM
 {
 	Model model = null;
 	

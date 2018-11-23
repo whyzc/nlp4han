@@ -8,13 +8,13 @@ import com.lc.nlp4han.chunk.ChunkAnalysisEvaluateMonitor;
 import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosSample;
 import com.lc.nlp4han.ml.util.Evaluator;
 
-public class ChunkAnalysisSVMEvaluator extends Evaluator<AbstractChunkAnalysisSample>
+public class ChunkerSVMEvaluator extends Evaluator<AbstractChunkAnalysisSample>
 {
-	private SVMME chunkTagger;
+	private ChunkerSVM chunkTagger;
 
 	private AbstractChunkAnalysisMeasure measure;
 
-	public ChunkAnalysisSVMEvaluator(SVMME chunkTagger, AbstractChunkAnalysisMeasure measure,
+	public ChunkerSVMEvaluator(ChunkerSVM chunkTagger, AbstractChunkAnalysisMeasure measure,
 			ChunkAnalysisEvaluateMonitor... evaluateMonitors)
 	{
 		super(evaluateMonitors);
@@ -22,12 +22,12 @@ public class ChunkAnalysisSVMEvaluator extends Evaluator<AbstractChunkAnalysisSa
 		this.measure = measure;
 	}
 
-	public ChunkAnalysisSVMEvaluator(SVMME chunkTagger)
+	public ChunkerSVMEvaluator(ChunkerSVM chunkTagger)
 	{
 		this.chunkTagger = chunkTagger;
 	}
 
-	public void setChunkTagger(SVMME chunkTagger)
+	public void setChunkTagger(ChunkerSVM chunkTagger)
 	{
 		this.chunkTagger = chunkTagger;
 	}

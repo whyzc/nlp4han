@@ -5,7 +5,7 @@ import com.lc.nlp4han.chunk.Chunk;
 import com.lc.nlp4han.chunk.svm.libsvm.svm;
 import com.lc.nlp4han.chunk.svm.libsvm.svm_model;
 
-public class ChunkAnalysisSVMME extends SVMME
+public class ChunkAnalysisSVMME extends ChunkerSVM
 {
 	private svm_model model = null;
 	

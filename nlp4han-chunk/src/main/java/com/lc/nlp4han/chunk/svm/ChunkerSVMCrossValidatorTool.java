@@ -23,7 +23,7 @@ import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 import com.lc.nlp4han.ml.util.PlainTextByLineStream;
 
-public class ChunkAnalysisSVMCrossValidatorTool
+public class ChunkerSVMCrossValidatorTool
 {
 	private static final String USAGE = "Usage: ChunkAnalysisSVMCrossValidatorTool [options] -data training_set_file\n"
 			+ "options:\n" + "-encoding encoding : set encoding\n" 
@@ -221,7 +221,7 @@ public class ChunkAnalysisSVMCrossValidatorTool
 				scheme);
 		Properties p = SVMStandardInput.getDefaultConf();
 		ChunkAnalysisContextGenerator contextGen = new ChunkerWordPosContextGeneratorConf(p);
-		ChunkAnalysisSVMCrossValidation crossValidator = new ChunkAnalysisSVMCrossValidation(trainArgs);
+		ChunkerSVMCrossValidation crossValidator = new ChunkerSVMCrossValidation(trainArgs);
 		ChunkAnalysisSVMME me = new ChunkAnalysisSVMME();
 		crossValidator.evaluate(sampleStream, folds, me, contextGen, measure, p);
 
