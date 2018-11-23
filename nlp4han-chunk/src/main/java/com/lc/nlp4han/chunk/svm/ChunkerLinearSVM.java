@@ -3,7 +3,6 @@ package com.lc.nlp4han.chunk.svm;
 import java.io.File;
 import java.io.IOException;
 
-import com.lc.nlp4han.chunk.Chunk;
 import com.lc.nlp4han.chunk.svm.liblinear.InvalidInputDataException;
 import com.lc.nlp4han.chunk.svm.liblinear.Linear;
 import com.lc.nlp4han.chunk.svm.liblinear.Model;
@@ -35,12 +34,6 @@ public class ChunkerLinearSVM extends ChunkerSVM
 		}
 	}
 
-	@Override
-	public Chunk[][] parse(String sentence, int k)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public void setModel(String modelPath)

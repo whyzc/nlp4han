@@ -1,4 +1,4 @@
-package com.lc.nlp4han.chunk.svm;
+package com.lc.nlp4han.chunk;
 
 import java.io.BufferedReader;
 import java.io.File;

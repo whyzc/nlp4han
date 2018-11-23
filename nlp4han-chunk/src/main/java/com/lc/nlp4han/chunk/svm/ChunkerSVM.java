@@ -133,6 +133,12 @@ public abstract class ChunkerSVM implements Chunker
 
 		return sample.toChunk();
 	}
+	
+	@Override
+	public Chunk[][] parse(String sentence, int k)
+	{
+		return new Chunk[][] {parse(sentence)};
+	}
 
 	/**
 	 * 返回给定词组和词性的组块类型

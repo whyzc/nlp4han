@@ -222,7 +222,7 @@ public class ChunkerSVMCrossValidatorTool
 		Properties p = SVMStandardInput.getDefaultConf();
 		ChunkAnalysisContextGenerator contextGen = new ChunkerWordPosContextGeneratorConf(p);
 		ChunkerSVMCrossValidation crossValidator = new ChunkerSVMCrossValidation(trainArgs);
-		ChunkAnalysisSVMME me = new ChunkAnalysisSVMME();
+		ChunkerLibSVM me = new ChunkerLibSVM();
 		crossValidator.evaluate(sampleStream, folds, me, contextGen, measure, p);
 
 		sampleStream.close();

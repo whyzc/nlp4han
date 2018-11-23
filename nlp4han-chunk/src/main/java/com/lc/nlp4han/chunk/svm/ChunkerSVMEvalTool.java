@@ -131,7 +131,7 @@ public class ChunkerSVMEvalTool
 
 		AbstractChunkSampleParser parse;
 		AbstractChunkAnalysisMeasure measure;
-		ChunkAnalysisSVMME tagger = new ChunkAnalysisSVMME();
+		ChunkerLibSVM tagger = new ChunkerLibSVM();
 
 		if (scheme.equals("BIEOS"))
 		{

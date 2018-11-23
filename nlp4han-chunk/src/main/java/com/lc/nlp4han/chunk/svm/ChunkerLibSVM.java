@@ -5,7 +5,7 @@ import com.lc.nlp4han.chunk.Chunk;
 import com.lc.nlp4han.chunk.svm.libsvm.svm;
 import com.lc.nlp4han.chunk.svm.libsvm.svm_model;
 
-public class ChunkAnalysisSVMME extends ChunkerSVM
+public class ChunkerLibSVM extends ChunkerSVM
 {
 	private svm_model model = null;
 	
@@ -27,13 +27,6 @@ public class ChunkAnalysisSVMME extends ChunkerSVM
 		{
 			e.printStackTrace();
 		}
-	}
-
-	@Override
-	public Chunk[][] parse(String sentence, int k)
-	{
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
