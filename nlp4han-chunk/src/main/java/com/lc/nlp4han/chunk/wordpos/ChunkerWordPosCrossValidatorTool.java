@@ -10,9 +10,9 @@ import com.lc.nlp4han.chunk.ChunkAnalysisContextGenerator;
 import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIEO;
 import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIEOS;
 import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIO;
-import com.lc.nlp4han.chunk.word.ChunkAnalysisSequenceValidatorBIEO;
-import com.lc.nlp4han.chunk.word.ChunkAnalysisSequenceValidatorBIEOS;
-import com.lc.nlp4han.chunk.word.ChunkAnalysisSequenceValidatorBIO;
+import com.lc.nlp4han.chunk.word.ChunkerSequenceValidatorBIEO;
+import com.lc.nlp4han.chunk.word.ChunkerSequenceValidatorBIEOS;
+import com.lc.nlp4han.chunk.word.ChunkerSequenceValidatorBIO;
 import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 import com.lc.nlp4han.ml.util.PlainTextByLineStream;
@@ -22,12 +22,12 @@ import com.lc.nlp4han.ml.util.TrainingParameters;
 /**
  * 交叉验证工具类
  */
-public class ChunkAnalysisWordPosCrossValidatorTool
+public class ChunkerWordPosCrossValidatorTool
 {
 
 	private static void usage()
 	{
-		System.out.println(ChunkAnalysisWordPosCrossValidatorTool.class.getName()
+		System.out.println(ChunkerWordPosCrossValidatorTool.class.getName()
 				+ " -data <corpusFile> -type <type> -label <label> -encoding <encoding> [-folds <nFolds>] [-cutoff <num>] [-iters <num>]");
 	}
 
@@ -100,26 +100,26 @@ public class ChunkAnalysisWordPosCrossValidatorTool
 
 		if (scheme.equals("BIEOS"))
 		{
-			parse = new ChunkAnalysisWordPosParserBIEOS();
+			parse = new ChunkerWordPosParserBIEOS();
 			measure = new ChunkAnalysisMeasureBIEOS();
-			sequenceValidator = new ChunkAnalysisSequenceValidatorBIEOS();
+			sequenceValidator = new ChunkerSequenceValidatorBIEOS();
 		}
 		else if (scheme.equals("BIEO"))
 		{
-			parse = new ChunkAnalysisWordPosParserBIEO();
+			parse = new ChunkerWordPosParserBIEO();
 			measure = new ChunkAnalysisMeasureBIEO();
-			sequenceValidator = new ChunkAnalysisSequenceValidatorBIEO();
+			sequenceValidator = new ChunkerSequenceValidatorBIEO();
 		}
 		else
 		{
-			parse = new ChunkAnalysisWordPosParserBIO();
+			parse = new ChunkerWordPosParserBIO();
 			measure = new ChunkAnalysisMeasureBIO();
-			sequenceValidator = new ChunkAnalysisSequenceValidatorBIO();
+			sequenceValidator = new ChunkerSequenceValidatorBIO();
 		}
 
-		ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisWordPosContextGeneratorConf();
-		ChunkAnalysisWordPosCrossValidation crossValidator = new ChunkAnalysisWordPosCrossValidation(params);
-		ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisWordPosSampleStream(lineStream, parse,
+		ChunkAnalysisContextGenerator contextGen = new ChunkerWordPosContextGeneratorConf();
+		ChunkerWordPosCrossValidation crossValidator = new ChunkerWordPosCrossValidation(params);
+		ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkerWordPosSampleStream(lineStream, parse,
 				scheme);
 
 		crossValidator.evaluate(sampleStream, folds, contextGen, measure, sequenceValidator);

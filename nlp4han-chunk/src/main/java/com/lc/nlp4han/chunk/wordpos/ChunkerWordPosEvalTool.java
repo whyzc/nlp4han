@@ -15,9 +15,9 @@ import com.lc.nlp4han.chunk.ChunkAnalysisEvaluateMonitor;
 import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIEO;
 import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIEOS;
 import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIO;
-import com.lc.nlp4han.chunk.word.ChunkAnalysisSequenceValidatorBIEO;
-import com.lc.nlp4han.chunk.word.ChunkAnalysisSequenceValidatorBIEOS;
-import com.lc.nlp4han.chunk.word.ChunkAnalysisSequenceValidatorBIO;
+import com.lc.nlp4han.chunk.word.ChunkerSequenceValidatorBIEO;
+import com.lc.nlp4han.chunk.word.ChunkerSequenceValidatorBIEOS;
+import com.lc.nlp4han.chunk.word.ChunkerSequenceValidatorBIO;
 import com.lc.nlp4han.ml.util.ModelWrapper;
 import com.lc.nlp4han.ml.util.ObjectStream;
 import com.lc.nlp4han.ml.util.SequenceValidator;
@@ -28,7 +28,7 @@ import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
 /**
  * 模型评估工具类
  */
-public class ChunkAnalysisWordPosEvalTool
+public class ChunkerWordPosEvalTool
 {
 
 	/**
@@ -53,23 +53,23 @@ public class ChunkAnalysisWordPosEvalTool
 		InputStream modelIn = new FileInputStream(modelFile);
 		ModelWrapper model = new ModelWrapper(modelIn);
 
-		ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisWordPosContextGeneratorConf();
-		ChunkAnalysisWordPosME tagger = new ChunkAnalysisWordPosME(model, sequenceValidator, contextGen, label);
-		ChunkAnalysisWordPosEvaluator evaluator = null;
+		ChunkAnalysisContextGenerator contextGen = new ChunkerWordPosContextGeneratorConf();
+		ChunkerWordPosME tagger = new ChunkerWordPosME(model, sequenceValidator, contextGen, label);
+		ChunkerWordPosEvaluator evaluator = null;
 
 		if (errorFile != null)
 		{
 			ChunkAnalysisEvaluateMonitor errorMonitor = new ChunkAnalysisErrorPrinter(new FileOutputStream(errorFile));
-			evaluator = new ChunkAnalysisWordPosEvaluator(tagger, measure, errorMonitor);
+			evaluator = new ChunkerWordPosEvaluator(tagger, measure, errorMonitor);
 		}
 		else
-			evaluator = new ChunkAnalysisWordPosEvaluator(tagger);
+			evaluator = new ChunkerWordPosEvaluator(tagger);
 
 		evaluator.setMeasure(measure);
 
 		ObjectStream<String> goldStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(goldFile),
 				encoding);
-		ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkAnalysisWordPosSampleStream(goldStream, parse,
+		ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkerWordPosSampleStream(goldStream, parse,
 				label);
 
 		start = System.currentTimeMillis();
@@ -81,7 +81,7 @@ public class ChunkAnalysisWordPosEvalTool
 
 	private static void usage()
 	{
-		System.out.println(ChunkAnalysisWordPosEvalTool.class.getName()
+		System.out.println(ChunkerWordPosEvalTool.class.getName()
 				+ " -model <modelFile> -type <type> -method <method> -label <label> -gold <goldFile> -encoding <encoding> [-error <errorFile>]");
 	}
 
@@ -159,20 +159,20 @@ public class ChunkAnalysisWordPosEvalTool
 
 		if (scheme.equals("BIEOS"))
 		{
-			sequenceValidator = new ChunkAnalysisSequenceValidatorBIEOS();
-			parse = new ChunkAnalysisWordPosParserBIEOS();
+			sequenceValidator = new ChunkerSequenceValidatorBIEOS();
+			parse = new ChunkerWordPosParserBIEOS();
 			measure = new ChunkAnalysisMeasureBIEOS();
 		}
 		else if (scheme.equals("BIEO"))
 		{
-			sequenceValidator = new ChunkAnalysisSequenceValidatorBIEO();
-			parse = new ChunkAnalysisWordPosParserBIEO();
+			sequenceValidator = new ChunkerSequenceValidatorBIEO();
+			parse = new ChunkerWordPosParserBIEO();
 			measure = new ChunkAnalysisMeasureBIEO();
 		}
 		else
 		{
-			sequenceValidator = new ChunkAnalysisSequenceValidatorBIO();
-			parse = new ChunkAnalysisWordPosParserBIO();
+			sequenceValidator = new ChunkerSequenceValidatorBIO();
+			parse = new ChunkerWordPosParserBIO();
 			measure = new ChunkAnalysisMeasureBIO();
 		}
 

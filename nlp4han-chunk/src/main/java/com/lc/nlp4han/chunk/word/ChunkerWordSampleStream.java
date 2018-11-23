@@ -14,10 +14,10 @@ import com.lc.nlp4han.ml.util.ObjectStream;
 /**
  * 基于词的组块分析样本流
  */
-public class ChunkAnalysisWordSampleStream extends FilterObjectStream<String, AbstractChunkAnalysisSample>
+public class ChunkerWordSampleStream extends FilterObjectStream<String, AbstractChunkAnalysisSample>
 {
 
-	private static Logger logger = Logger.getLogger(ChunkAnalysisWordSampleStream.class.getName());
+	private static Logger logger = Logger.getLogger(ChunkerWordSampleStream.class.getName());
 
 	private AbstractChunkSampleParser parse;
 	private String scheme;
@@ -30,7 +30,7 @@ public class ChunkAnalysisWordSampleStream extends FilterObjectStream<String, Ab
 	 * @throws FileNotFoundException
 	 * @throws UnsupportedEncodingException
 	 */
-	public ChunkAnalysisWordSampleStream(ObjectStream<String> samples, AbstractChunkSampleParser parse, String label)
+	public ChunkerWordSampleStream(ObjectStream<String> samples, AbstractChunkSampleParser parse, String label)
 			throws FileNotFoundException, UnsupportedEncodingException
 	{
 		super(samples);
@@ -67,13 +67,13 @@ public class ChunkAnalysisWordSampleStream extends FilterObjectStream<String, Ab
 					if (logger.isLoggable(Level.WARNING))
 						logger.warning("解析样本时出错, 忽略句子: " + sentence);
 
-					sample = new ChunkAnalysisWordSample(new String[] {}, new String[] {});
+					sample = new ChunkerWordSample(new String[] {}, new String[] {});
 				}
 
 				return sample;
 			}
 			else
-				return new ChunkAnalysisWordSample(new String[] {}, new String[] {});
+				return new ChunkerWordSample(new String[] {}, new String[] {});
 		}
 		else
 			return null;

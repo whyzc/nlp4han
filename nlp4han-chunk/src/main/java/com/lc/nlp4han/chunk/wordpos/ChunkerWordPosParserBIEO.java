@@ -7,14 +7,15 @@ import com.lc.nlp4han.chunk.AbstractChunkSampleParser;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 
 /**
- * 基于词和词性组块分析的BIO样本解析（组块最小长度为2）
+ * 基于词和词性组块分析的BIEO样本解析（组块最小长度为2）
  */
-public class ChunkAnalysisWordPosParserBIO extends AbstractChunkSampleParser
+public class ChunkerWordPosParserBIEO extends AbstractChunkSampleParser
 {
 
 	private final String ChunkBegin = "_B";
 	private final String InChunk = "_I";
 	private final String OutChunk = "O";
+	private final String ChunkEnd = "_E";
 
 	private List<String> chunkTags;
 	private List<String> words;
@@ -23,9 +24,9 @@ public class ChunkAnalysisWordPosParserBIO extends AbstractChunkSampleParser
 	/**
 	 * 构造方法
 	 */
-	public ChunkAnalysisWordPosParserBIO()
+	public ChunkerWordPosParserBIEO()
 	{
-		this.scheme = "BIO";
+		this.scheme = "BIEO";
 	}
 
 	public AbstractChunkAnalysisSample parse(String sentence)
@@ -39,6 +40,7 @@ public class ChunkAnalysisWordPosParserBIO extends AbstractChunkSampleParser
 		String[] wordTag = null; // 词与词性标注
 		String chunk = null; // 组块的标签
 		String[] content = sentence.split("\\s+");
+
 		for (String string : content)
 		{
 			if (isInChunk)
@@ -55,7 +57,7 @@ public class ChunkAnalysisWordPosParserBIO extends AbstractChunkSampleParser
 			}
 			else
 			{// 当前词不在组块中
-				if (wordTagsInChunk != null && chunk != null)
+				if (wordTagsInChunk.size() != 0 && chunk != null)
 				{// 上一个组块中的词未处理，先处理上一个组块中的词
 					processChunk(wordTagsInChunk, chunk);
 
@@ -75,15 +77,14 @@ public class ChunkAnalysisWordPosParserBIO extends AbstractChunkSampleParser
 					poses.add(wordTag[1]);
 					chunkTags.add(OutChunk);
 				}
-
 			}
 		}
 
 		// 句子结尾是组块，进行解析
-		if (wordTagsInChunk != null && chunk != null)
+		if (wordTagsInChunk.size() != 0 && chunk != null)
 			processChunk(wordTagsInChunk, chunk);
 
-		ChunkAnalysisWordPosSample sample = new ChunkAnalysisWordPosSample(words, poses, chunkTags);
+		ChunkerWordPosSample sample = new ChunkerWordPosSample(words, poses, chunkTags);
 		sample.setTagScheme(scheme);
 
 		return sample;
@@ -109,6 +110,8 @@ public class ChunkAnalysisWordPosParserBIO extends AbstractChunkSampleParser
 
 			if (i == 0)
 				chunkTags.add(chunk + ChunkBegin);
+			else if (i == wordTagsInChunk.size() - 1)
+				chunkTags.add(chunk + ChunkEnd);
 			else
 				chunkTags.add(chunk + InChunk);
 		}

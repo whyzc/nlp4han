@@ -1,4 +1,4 @@
-package com.lc.nlp4han.chunk.wordpos;
+package com.lc.nlp4han.chunk.word;
 
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisMeasure;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
@@ -6,15 +6,15 @@ import com.lc.nlp4han.chunk.ChunkAnalysisEvaluateMonitor;
 import com.lc.nlp4han.ml.util.Evaluator;
 
 /**
- * 基于词和词性的组块分析评价器
+ * 基于词的组块分析评价器
  */
-public class ChunkAnalysisWordPosEvaluator extends Evaluator<AbstractChunkAnalysisSample>
+public class ChunkerWordEvaluator extends Evaluator<AbstractChunkAnalysisSample>
 {
 
 	/**
 	 * 组块分析模型
 	 */
-	private ChunkAnalysisWordPosME chunkTagger;
+	private ChunkerWordME chunkTagger;
 
 	/**
 	 * 组块分析评估
@@ -27,7 +27,7 @@ public class ChunkAnalysisWordPosEvaluator extends Evaluator<AbstractChunkAnalys
 	 * @param tagger
 	 *            训练得到的模型
 	 */
-	public ChunkAnalysisWordPosEvaluator(ChunkAnalysisWordPosME chunkTagger)
+	public ChunkerWordEvaluator(ChunkerWordME chunkTagger)
 	{
 		this.chunkTagger = chunkTagger;
 	}
@@ -40,7 +40,7 @@ public class ChunkAnalysisWordPosEvaluator extends Evaluator<AbstractChunkAnalys
 	 * @param evaluateMonitors
 	 *            评估的监控管理器
 	 */
-	public ChunkAnalysisWordPosEvaluator(ChunkAnalysisWordPosME chunkTagger, AbstractChunkAnalysisMeasure measure,
+	public ChunkerWordEvaluator(ChunkerWordME chunkTagger, AbstractChunkAnalysisMeasure measure,
 			ChunkAnalysisEvaluateMonitor... evaluateMonitors)
 	{
 		super(evaluateMonitors);
@@ -72,24 +72,16 @@ public class ChunkAnalysisWordPosEvaluator extends Evaluator<AbstractChunkAnalys
 	@Override
 	protected AbstractChunkAnalysisSample processSample(AbstractChunkAnalysisSample sample)
 	{
-		ChunkAnalysisWordPosSample wordAndPOSSample = (ChunkAnalysisWordPosSample) sample;
+		String[] wordsRef = sample.getTokens();
+		String[] chunkTagsRef = sample.getTags();
 
-		String[] wordsRef = wordAndPOSSample.getTokens();
-		String[] chunkTagsRef = wordAndPOSSample.getTags();
-
-		Object[] objectPosesRef = wordAndPOSSample.getAditionalContext();
-		String[] posesRef = new String[objectPosesRef.length];
-		for (int i = 0; i < posesRef.length; i++)
-			posesRef[i] = (String) objectPosesRef[i];
-
-		String[] chunkTagsPre = chunkTagger.tag(wordsRef, posesRef);
+		String[] chunkTagsPre = chunkTagger.tag(wordsRef);
 
 		// 将结果进行解析，用于评估
-		ChunkAnalysisWordPosSample prediction = new ChunkAnalysisWordPosSample(wordsRef, posesRef, chunkTagsPre);
+		AbstractChunkAnalysisSample prediction = new ChunkerWordSample(wordsRef, chunkTagsPre);
 		prediction.setTagScheme(sample.getTagScheme());
-
 		measure.update(wordsRef, chunkTagsRef, chunkTagsPre);
-		// measure.add(wordAndPOSSample, prediction);
+		// measure.add(sample, prediction);
 		return prediction;
 	}
 }

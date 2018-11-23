@@ -18,12 +18,12 @@ import com.lc.nlp4han.ml.util.TrainingParameters;
 /**
  * 模型训练工具类
  */
-public class ChunkAnalysisWordTrainerTool
+public class ChunkerWordTrainerTool
 {
 
 	private static void usage()
 	{
-		System.out.println(ChunkAnalysisWordTrainerTool.class.getName()
+		System.out.println(ChunkerWordTrainerTool.class.getName()
 				+ " -data <corpusFile> -type <type> -label <label> -model <modelFile> -encoding <encoding> "
 				+ " [-cutoff <num>] [-iters <num>]");
 	}
@@ -97,16 +97,16 @@ public class ChunkAnalysisWordTrainerTool
 		AbstractChunkSampleParser parse = null;
 
 		if (scheme.equals("BIEOS"))
-			parse = new ChunkAnalysisWordSampleParserBIEOS();
+			parse = new ChunkerWordSampleParserBIEOS();
 		else if (scheme.equals("BIEO"))
-			parse = new ChunkAnalysisWordSampleParserBIEO();
+			parse = new ChunkerWordSampleParserBIEO();
 		else
-			parse = new ChunkAnalysisWordSampleParserBIO();
+			parse = new ChunkerWordSampleParserBIO();
 
-		ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisWordSampleStream(lineStream, parse,
+		ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkerWordSampleStream(lineStream, parse,
 				scheme);
-		ChunkAnalysisWordME me = new ChunkAnalysisWordME();
-		ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisWordContextGeneratorConf();
+		ChunkerWordME me = new ChunkerWordME();
+		ChunkAnalysisContextGenerator contextGen = new ChunkerWordContextGeneratorConf();
 		ModelWrapper model = me.train(sampleStream, params, contextGen);
 		model.serialize(modelOut);
 		

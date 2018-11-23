@@ -9,7 +9,7 @@ import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 /**
  * 基于词组块分析的BIEO样本解析（组块最小长度为2）
  */
-public class ChunkAnalysisWordSampleParserBIEO extends AbstractChunkSampleParser
+public class ChunkerWordSampleParserBIEO extends AbstractChunkSampleParser
 {
 
 	private final String ChunkBegin = "_B";
@@ -23,7 +23,7 @@ public class ChunkAnalysisWordSampleParserBIEO extends AbstractChunkSampleParser
 	/**
 	 * 构造方法
 	 */
-	public ChunkAnalysisWordSampleParserBIEO()
+	public ChunkerWordSampleParserBIEO()
 	{
 		this.scheme = "BIEO";
 	}
@@ -81,7 +81,7 @@ public class ChunkAnalysisWordSampleParserBIEO extends AbstractChunkSampleParser
 		if (wordTagsInChunk.size() != 0 && chunk != null)
 			processChunk(wordTagsInChunk, chunk);
 
-		ChunkAnalysisWordSample sample = new ChunkAnalysisWordSample(words, chunkTags);
+		ChunkerWordSample sample = new ChunkerWordSample(words, chunkTags);
 		sample.setTagScheme(scheme);
 
 		return sample;

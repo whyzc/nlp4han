@@ -7,7 +7,7 @@ import com.lc.nlp4han.chunk.AbstractChunkAnalysisMeasure;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.chunk.ChunkAnalysisContextGenerator;
 import com.lc.nlp4han.chunk.svm.liblinear.InvalidInputDataException;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosSampleStream;
+import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosSampleStream;
 import com.lc.nlp4han.ml.util.CrossValidationPartitioner;
 import com.lc.nlp4han.ml.util.ObjectStream;
 
@@ -64,7 +64,7 @@ public class ChunkAnalysisSVMCrossValidation
 		{
 			System.out.println("Run" + run + "...");
 
-			String label = ((ChunkAnalysisWordPosSampleStream) sampleStream).getScheme();
+			String label = ((ChunkerWordPosSampleStream) sampleStream).getScheme();
 			CrossValidationPartitioner.TrainingSampleStream<AbstractChunkAnalysisSample> trainingSampleStream = partitioner
 					.next();
 			HashSet<String> dict = getDict(trainingSampleStream);

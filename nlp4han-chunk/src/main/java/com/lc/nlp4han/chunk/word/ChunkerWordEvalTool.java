@@ -25,7 +25,7 @@ import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
 /**
  * 模型评估工具类
  */
-public class ChunkAnalysisWordEvalTool
+public class ChunkerWordEvalTool
 {
 
 	/**
@@ -51,23 +51,23 @@ public class ChunkAnalysisWordEvalTool
 		ModelWrapper model = new ModelWrapper(modelIn);
 
 		System.out.println("评价模型...");
-		ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisWordContextGeneratorConf();
-		ChunkAnalysisWordME tagger = new ChunkAnalysisWordME(model, sequenceValidator, contextGen, label);
-		ChunkAnalysisWordEvaluator evaluator = null;
+		ChunkAnalysisContextGenerator contextGen = new ChunkerWordContextGeneratorConf();
+		ChunkerWordME tagger = new ChunkerWordME(model, sequenceValidator, contextGen, label);
+		ChunkerWordEvaluator evaluator = null;
 
 		if (errorFile != null)
 		{
 			ChunkAnalysisEvaluateMonitor errorMonitor = new ChunkAnalysisErrorPrinter(new FileOutputStream(errorFile));
-			evaluator = new ChunkAnalysisWordEvaluator(tagger, measure, errorMonitor);
+			evaluator = new ChunkerWordEvaluator(tagger, measure, errorMonitor);
 		}
 		else
-			evaluator = new ChunkAnalysisWordEvaluator(tagger);
+			evaluator = new ChunkerWordEvaluator(tagger);
 
 		evaluator.setMeasure(measure);
 
 		ObjectStream<String> goldStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(goldFile),
 				encoding);
-		ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkAnalysisWordSampleStream(goldStream, parse,
+		ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkerWordSampleStream(goldStream, parse,
 				label);
 
 		start = System.currentTimeMillis();
@@ -79,7 +79,7 @@ public class ChunkAnalysisWordEvalTool
 
 	private static void usage()
 	{
-		System.out.println(ChunkAnalysisWordEvalTool.class.getName()
+		System.out.println(ChunkerWordEvalTool.class.getName()
 				+ " -model <modelFile> -type <type> -label <label> -gold <goldFile> -encoding <encoding> [-error <errorFile>]");
 	}
 
@@ -157,20 +157,20 @@ public class ChunkAnalysisWordEvalTool
 
 		if (scheme.equals("BIEOS"))
 		{
-			sequenceValidator = new ChunkAnalysisSequenceValidatorBIEOS();
-			parse = new ChunkAnalysisWordSampleParserBIEOS();
+			sequenceValidator = new ChunkerSequenceValidatorBIEOS();
+			parse = new ChunkerWordSampleParserBIEOS();
 			measure = new ChunkAnalysisMeasureBIEOS();
 		}
 		else if (scheme.equals("BIEO"))
 		{
-			sequenceValidator = new ChunkAnalysisSequenceValidatorBIEO();
-			parse = new ChunkAnalysisWordSampleParserBIEO();
+			sequenceValidator = new ChunkerSequenceValidatorBIEO();
+			parse = new ChunkerWordSampleParserBIEO();
 			measure = new ChunkAnalysisMeasureBIEO();
 		}
 		else
 		{
-			sequenceValidator = new ChunkAnalysisSequenceValidatorBIO();
-			parse = new ChunkAnalysisWordSampleParserBIO();
+			sequenceValidator = new ChunkerSequenceValidatorBIO();
+			parse = new ChunkerWordSampleParserBIO();
 			measure = new ChunkAnalysisMeasureBIO();
 		}
 

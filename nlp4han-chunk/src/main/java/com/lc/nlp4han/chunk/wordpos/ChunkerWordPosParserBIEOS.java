@@ -1,4 +1,4 @@
-package com.lc.nlp4han.chunk.word;
+package com.lc.nlp4han.chunk.wordpos;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,9 +7,9 @@ import com.lc.nlp4han.chunk.AbstractChunkSampleParser;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 
 /**
- * 基于词组块分析的BIEO样本解析（组块最小长度为1）
+ * 基于词和词性组块分析的BIEOS样本解析（组块最小长度为1）
  */
-public class ChunkAnalysisWordSampleParserBIEOS extends AbstractChunkSampleParser
+public class ChunkerWordPosParserBIEOS extends AbstractChunkSampleParser
 {
 
 	private final String ChunkBegin = "_B";
@@ -20,11 +20,12 @@ public class ChunkAnalysisWordSampleParserBIEOS extends AbstractChunkSampleParse
 
 	private List<String> chunkTags;
 	private List<String> words;
+	private List<String> poses;
 
 	/**
 	 * 构造方法
 	 */
-	public ChunkAnalysisWordSampleParserBIEOS()
+	public ChunkerWordPosParserBIEOS()
 	{
 		this.scheme = "BIEOS";
 	}
@@ -33,6 +34,7 @@ public class ChunkAnalysisWordSampleParserBIEOS extends AbstractChunkSampleParse
 	{
 		chunkTags = new ArrayList<>();
 		words = new ArrayList<>();
+		poses = new ArrayList<>();
 
 		boolean isInChunk = false; // 当前词是否在组块中
 		List<String> wordTagsInChunk = new ArrayList<>(); // 临时存储在组块中的词与词性
@@ -71,6 +73,7 @@ public class ChunkAnalysisWordSampleParserBIEOS extends AbstractChunkSampleParse
 					if (string.contains("]"))
 					{// 只有一个词的组块
 						words.add(string.split("]")[0].split("/")[0]);
+						poses.add(string.split("]")[0].split("/")[1]);
 						chunkTags.add(string.split("]")[1] + SingleChunk);
 					}
 					else
@@ -83,6 +86,7 @@ public class ChunkAnalysisWordSampleParserBIEOS extends AbstractChunkSampleParse
 				{
 					wordTag = string.split("/");
 					words.add(wordTag[0]);
+					poses.add(wordTag[1]);
 					chunkTags.add(OutChunk);
 				}
 			}
@@ -92,7 +96,7 @@ public class ChunkAnalysisWordSampleParserBIEOS extends AbstractChunkSampleParse
 		if (wordTagsInChunk.size() != 0 && chunk != null)
 			processChunk(wordTagsInChunk, chunk);
 
-		ChunkAnalysisWordSample sample = new ChunkAnalysisWordSample(words, chunkTags);
+		ChunkerWordPosSample sample = new ChunkerWordPosSample(words, poses, chunkTags);
 		sample.setTagScheme(scheme);
 
 		return sample;
@@ -114,6 +118,7 @@ public class ChunkAnalysisWordSampleParserBIEOS extends AbstractChunkSampleParse
 		{
 			String[] wordTag = wordTagsInChunk.get(i).split("/");
 			words.add(wordTag[0]);
+			poses.add(wordTag[1]);
 
 			if (i == 0)
 				chunkTags.add(chunk + ChunkBegin);

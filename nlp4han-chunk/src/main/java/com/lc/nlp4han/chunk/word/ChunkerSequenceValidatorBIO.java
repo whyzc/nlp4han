@@ -3,12 +3,12 @@ package com.lc.nlp4han.chunk.word;
 import com.lc.nlp4han.ml.util.SequenceValidator;
 
 /**
- * BIEO序列验证类, 验证当前组块标记是否合法（组块最小长度为2）
+ * BIO序列验证类, 验证当前组块标记是否合法（组块最小长度为2）
  */
-public class ChunkAnalysisSequenceValidatorBIEO implements SequenceValidator<String>
+public class ChunkerSequenceValidatorBIO implements SequenceValidator<String>
 {
 
-	public ChunkAnalysisSequenceValidatorBIEO()
+	public ChunkerSequenceValidatorBIO()
 	{
 
 	}
@@ -28,10 +28,10 @@ public class ChunkAnalysisSequenceValidatorBIEO implements SequenceValidator<Str
 				String chunkTag = chunkTags[index - 1];
 				if (out.equals("O"))
 				{
-					if (chunkTag.equals("O") || chunkTag.split("_")[1].equals("E"))
+					if (chunkTag.equals("O") || chunkTag.split("_")[1].equals("I"))
 						return true;
 				}
-				else if (out.split("_")[1].equals("E"))
+				else if (out.split("_")[1].equals("I"))
 				{
 					if (chunkTag.equals("O"))
 						return false;
@@ -45,7 +45,7 @@ public class ChunkAnalysisSequenceValidatorBIEO implements SequenceValidator<Str
 				String chunkTag = chunkTags[index - 1];
 				if (out.equals("O") || out.split("_")[1].equals("B"))
 				{
-					if (chunkTag.equals("O") || chunkTag.split("_")[1].equals("E"))
+					if (chunkTag.equals("O") || chunkTag.split("_")[1].equals("I"))
 						return true;
 				}
 				else

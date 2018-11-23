@@ -12,11 +12,11 @@ import com.lc.nlp4han.chunk.ChunkAnalysisEvaluateMonitor;
 import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIEO;
 import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIEOS;
 import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIO;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosContextGeneratorConf;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosParserBIEO;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosParserBIEOS;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosParserBIO;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosSampleStream;
+import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosContextGeneratorConf;
+import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosParserBIEO;
+import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosParserBIEOS;
+import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosParserBIO;
+import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosSampleStream;
 import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 import com.lc.nlp4han.ml.util.PlainTextByLineStream;
@@ -36,7 +36,7 @@ public class ChunkAnalysisSVMEvalTool
 	{
 		long start = System.currentTimeMillis();
 
-		ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisWordPosContextGeneratorConf();
+		ChunkAnalysisContextGenerator contextGen = new ChunkerWordPosContextGeneratorConf();
 		tagger.setContextgenerator(contextGen);
 		tagger.setLabel(label);
 		tagger.setSVMStandardInput(path);
@@ -55,7 +55,7 @@ public class ChunkAnalysisSVMEvalTool
 
 		ObjectStream<String> goldStream = new PlainTextByLineStream(
 				new MarkableFileInputStreamFactory(new File(goldFile)), encoding);
-		ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkAnalysisWordPosSampleStream(goldStream, parse,
+		ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkerWordPosSampleStream(goldStream, parse,
 				label);
 
 		start = System.currentTimeMillis();
@@ -135,17 +135,17 @@ public class ChunkAnalysisSVMEvalTool
 
 		if (scheme.equals("BIEOS"))
 		{
-			parse = new ChunkAnalysisWordPosParserBIEOS();
+			parse = new ChunkerWordPosParserBIEOS();
 			measure = new ChunkAnalysisMeasureBIEOS();
 		}
 		else if (scheme.equals("BIEO"))
 		{
-			parse = new ChunkAnalysisWordPosParserBIEO();
+			parse = new ChunkerWordPosParserBIEO();
 			measure = new ChunkAnalysisMeasureBIEO();
 		}
 		else
 		{
-			parse = new ChunkAnalysisWordPosParserBIO();
+			parse = new ChunkerWordPosParserBIO();
 			measure = new ChunkAnalysisMeasureBIO();
 		}
 

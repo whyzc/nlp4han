@@ -1,4 +1,4 @@
-package com.lc.nlp4han.chunk.word;
+package com.lc.nlp4han.chunk.wordpos;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -13,9 +13,9 @@ import com.lc.nlp4han.ml.util.SequenceValidator;
 import com.lc.nlp4han.ml.util.TrainingParameters;
 
 /**
- * 基于词的组块分析交叉验证
+ * 基于词和词性的组块分析交叉验证
  */
-public class ChunkAnalysisWordCrossValidation
+public class ChunkerWordPosCrossValidation
 {
 
 	/**
@@ -33,7 +33,7 @@ public class ChunkAnalysisWordCrossValidation
 	 * @param monitor
 	 *            监听器
 	 */
-	public ChunkAnalysisWordCrossValidation(TrainingParameters params)
+	public ChunkerWordPosCrossValidation(TrainingParameters params)
 	{
 		this.params = params;
 	}
@@ -46,15 +46,15 @@ public class ChunkAnalysisWordCrossValidation
 	 * @param nFolds
 	 *            折数
 	 * @param contextGenerator
-	 *            上下文
+	 *            上下文生成器
+	 * @param measure
+	 *            组块分析评价器
 	 * @throws IOException
 	 */
 	public void evaluate(ObjectStream<AbstractChunkAnalysisSample> sampleStream, int nFolds,
 			ChunkAnalysisContextGenerator contextGenerator, AbstractChunkAnalysisMeasure measure,
 			SequenceValidator<String> sequenceValidator) throws IOException
 	{
-
-		String scheme = ((ChunkAnalysisWordSampleStream) sampleStream).getScheme();
 		CrossValidationPartitioner<AbstractChunkAnalysisSample> partitioner = new CrossValidationPartitioner<AbstractChunkAnalysisSample>(
 				sampleStream, nFolds);
 
@@ -63,21 +63,21 @@ public class ChunkAnalysisWordCrossValidation
 		while (partitioner.hasNext())
 		{
 			System.out.println("Run" + run + "...");
-
+			String label = ((ChunkerWordPosSampleStream) sampleStream).getScheme();
 			CrossValidationPartitioner.TrainingSampleStream<AbstractChunkAnalysisSample> trainingSampleStream = partitioner
 					.next();
 			HashSet<String> dict = getDict(trainingSampleStream);
 			trainingSampleStream.reset();
 			measure.setDictionary(dict);
 
-			ChunkAnalysisWordME me = new ChunkAnalysisWordME();
-			
+			ChunkerWordPosME me = new ChunkerWordPosME();
 			long start = System.currentTimeMillis();
 			ModelWrapper model = me.train(trainingSampleStream, params, contextGenerator);
 			System.out.println("训练时间： " + (System.currentTimeMillis()-start));
 			
-			ChunkAnalysisWordEvaluator evaluator = new ChunkAnalysisWordEvaluator(
-					new ChunkAnalysisWordME(model, sequenceValidator, contextGenerator, scheme), measure);
+			ChunkerWordPosEvaluator evaluator = new ChunkerWordPosEvaluator(
+					new ChunkerWordPosME(model, sequenceValidator, contextGenerator, label), measure);
+
 			evaluator.setMeasure(measure);
 
 			start = System.currentTimeMillis();
@@ -87,7 +87,6 @@ public class ChunkAnalysisWordCrossValidation
 			System.out.println(measure);
 			run++;
 		}
-
 	}
 
 	/**

@@ -13,7 +13,7 @@ import com.lc.nlp4han.ml.util.ObjectStream;
 /**
  * 基于词和词性的事件生成类
  */
-public class ChunkAnalysisWordPosSampleEvent extends AbstractEventStream<AbstractChunkAnalysisSample>
+public class ChunkerWordPosSampleEvent extends AbstractEventStream<AbstractChunkAnalysisSample>
 {
 
 	/**
@@ -29,7 +29,7 @@ public class ChunkAnalysisWordPosSampleEvent extends AbstractEventStream<Abstrac
 	 * @param contextgenerator
 	 *            上下文生成器
 	 */
-	public ChunkAnalysisWordPosSampleEvent(ObjectStream<AbstractChunkAnalysisSample> sampleStream,
+	public ChunkerWordPosSampleEvent(ObjectStream<AbstractChunkAnalysisSample> sampleStream,
 			ChunkAnalysisContextGenerator contextgenerator)
 	{
 		super(sampleStream);
@@ -39,7 +39,7 @@ public class ChunkAnalysisWordPosSampleEvent extends AbstractEventStream<Abstrac
 	@Override
 	protected Iterator<Event> createEvents(AbstractChunkAnalysisSample sample)
 	{
-		ChunkAnalysisWordPosSample wordAndPOSSample = (ChunkAnalysisWordPosSample) sample;
+		ChunkerWordPosSample wordAndPOSSample = (ChunkerWordPosSample) sample;
 		String[] words = wordAndPOSSample.getTokens();
 		Object[] poses = wordAndPOSSample.getAditionalContext();
 		String[] chunkTags = wordAndPOSSample.getTags();

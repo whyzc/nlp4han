@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisMeasure;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.chunk.ChunkAnalysisEvaluateMonitor;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosSample;
+import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosSample;
 import com.lc.nlp4han.ml.util.Evaluator;
 
 public class ChunkAnalysisSVMEvaluator extends Evaluator<AbstractChunkAnalysisSample>
@@ -41,7 +41,7 @@ public class ChunkAnalysisSVMEvaluator extends Evaluator<AbstractChunkAnalysisSa
 	protected AbstractChunkAnalysisSample processSample(AbstractChunkAnalysisSample sample)
 	{
 
-		ChunkAnalysisWordPosSample wordAndPOSSample = (ChunkAnalysisWordPosSample) sample;
+		ChunkerWordPosSample wordAndPOSSample = (ChunkerWordPosSample) sample;
 
 		String[] wordsRef = wordAndPOSSample.getTokens();
 		String[] chunkTagsRef = wordAndPOSSample.getTags();
@@ -62,7 +62,7 @@ public class ChunkAnalysisSVMEvaluator extends Evaluator<AbstractChunkAnalysisSa
 		}
 
 		// 将结果进行解析，用于评估
-		ChunkAnalysisWordPosSample prediction = new ChunkAnalysisWordPosSample(wordsRef, posesRef, chunkTagsPre);
+		ChunkerWordPosSample prediction = new ChunkerWordPosSample(wordsRef, posesRef, chunkTagsPre);
 		prediction.setTagScheme(sample.getTagScheme());
 
 		measure.update(wordsRef, chunkTagsRef, chunkTagsPre);

@@ -11,7 +11,7 @@ import com.lc.nlp4han.chunk.ChunkAnalysisContextGenerator;
 /**
  * 基于词和词性的组块分析模型特征生成类
  */
-public class ChunkAnalysisWordPosContextGeneratorConf implements ChunkAnalysisContextGenerator
+public class ChunkerWordPosContextGeneratorConf implements ChunkAnalysisContextGenerator
 {
 
 	// 原子特征模版
@@ -118,10 +118,10 @@ public class ChunkAnalysisWordPosContextGeneratorConf implements ChunkAnalysisCo
 	 * 
 	 * @throws IOException
 	 */
-	public ChunkAnalysisWordPosContextGeneratorConf() throws IOException
+	public ChunkerWordPosContextGeneratorConf() throws IOException
 	{
 		Properties featureConf = new Properties();
-		InputStream featureStream = ChunkAnalysisWordPosContextGeneratorConf.class.getClassLoader()
+		InputStream featureStream = ChunkerWordPosContextGeneratorConf.class.getClassLoader()
 				.getResourceAsStream("com/lc/nlp4han/chunk/feature.properties");
 		featureConf.load(featureStream);
 
@@ -134,7 +134,7 @@ public class ChunkAnalysisWordPosContextGeneratorConf implements ChunkAnalysisCo
 	 * @param properties
 	 *            配置文件
 	 */
-	public ChunkAnalysisWordPosContextGeneratorConf(Properties properties)
+	public ChunkerWordPosContextGeneratorConf(Properties properties)
 	{
 		init(properties);
 	}

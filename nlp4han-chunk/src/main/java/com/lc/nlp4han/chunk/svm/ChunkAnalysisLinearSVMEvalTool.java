@@ -8,9 +8,9 @@ import com.lc.nlp4han.chunk.AbstractChunkSampleParser;
 import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIEO;
 import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIEOS;
 import com.lc.nlp4han.chunk.ChunkAnalysisMeasureBIO;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosParserBIEO;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosParserBIEOS;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosParserBIO;
+import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosParserBIEO;
+import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosParserBIEOS;
+import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosParserBIO;
 
 public class ChunkAnalysisLinearSVMEvalTool
 {
@@ -91,17 +91,17 @@ public class ChunkAnalysisLinearSVMEvalTool
 
 		if (scheme.equals("BIEOS"))
 		{
-			parse = new ChunkAnalysisWordPosParserBIEOS();
+			parse = new ChunkerWordPosParserBIEOS();
 			measure = new ChunkAnalysisMeasureBIEOS();
 		}
 		else if (scheme.equals("BIEO"))
 		{
-			parse = new ChunkAnalysisWordPosParserBIEO();
+			parse = new ChunkerWordPosParserBIEO();
 			measure = new ChunkAnalysisMeasureBIEO();
 		}
 		else
 		{
-			parse = new ChunkAnalysisWordPosParserBIO();
+			parse = new ChunkerWordPosParserBIO();
 			measure = new ChunkAnalysisMeasureBIO();
 		}
 

@@ -9,8 +9,8 @@ import com.lc.nlp4han.chunk.Chunk;
 import com.lc.nlp4han.chunk.ChunkAnalysisContextGenerator;
 import com.lc.nlp4han.chunk.Chunker;
 import com.lc.nlp4han.chunk.svm.liblinear.InvalidInputDataException;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosSample;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosSampleEvent;
+import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosSample;
+import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosSampleEvent;
 import com.lc.nlp4han.ml.model.Event;
 import com.lc.nlp4han.ml.util.ObjectStream;
 
@@ -127,7 +127,7 @@ public abstract class SVMME implements Chunker
 			e.printStackTrace();
 		}
 
-		AbstractChunkAnalysisSample sample = new ChunkAnalysisWordPosSample(words.toArray(new String[words.size()]),
+		AbstractChunkAnalysisSample sample = new ChunkerWordPosSample(words.toArray(new String[words.size()]),
 				poses.toArray(new String[poses.size()]), chunkTypes);
 		sample.setTagScheme(label);
 
@@ -219,7 +219,7 @@ public abstract class SVMME implements Chunker
 	private void generateTrainDatum(ObjectStream<AbstractChunkAnalysisSample> sampleStream, String[] arg,
 			ChunkAnalysisContextGenerator contextGen) throws RuntimeException, IOException
 	{
-		ObjectStream<Event> es = new ChunkAnalysisWordPosSampleEvent(sampleStream, contextGen);
+		ObjectStream<Event> es = new ChunkerWordPosSampleEvent(sampleStream, contextGen);
 		init(es);
 		es.reset();
 		String[] input = SVMStandardInput.standardInput(es, ssi);

@@ -1,4 +1,4 @@
-package com.lc.nlp4han.chunk.word;
+package com.lc.nlp4han.chunk.wordpos;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -25,9 +25,9 @@ import com.lc.nlp4han.ml.util.TrainerFactory.TrainerType;
 import com.lc.nlp4han.ml.util.TrainingParameters;
 
 /**
- * 基于词的组块分析模型训练类
+ * 基于词和词性的组块分析模型训练类
  */
-public class ChunkAnalysisWordME implements Chunker
+public class ChunkerWordPosME implements Chunker
 {
 
 	public static final int DEFAULT_BEAM_SIZE = 33;
@@ -36,26 +36,18 @@ public class ChunkAnalysisWordME implements Chunker
 	private Sequence bestSequence;
 	private SequenceClassificationModel<String> model;
 	private SequenceValidator<String> sequenceValidator;
-	private String scheme;
+	private String label;
 
-	public ChunkAnalysisWordME()
+	public ChunkerWordPosME()
 	{
 
 	}
 
-	/**
-	 * 构造方法
-	 * 
-	 * @param model
-	 *            组块分析模型
-	 * @param contextGen
-	 *            上下文生成器
-	 */
-	public ChunkAnalysisWordME(ModelWrapper model, SequenceValidator<String> sequenceValidator,
+	public ChunkerWordPosME(ModelWrapper model, SequenceValidator<String> sequenceValidator,
 			ChunkAnalysisContextGenerator contextGen, String label)
 	{
 		this.sequenceValidator = sequenceValidator;
-		this.scheme = label;
+		this.label = label;
 		init(model, contextGen);
 	}
 
@@ -69,7 +61,7 @@ public class ChunkAnalysisWordME implements Chunker
 	 */
 	private void init(ModelWrapper model, ChunkAnalysisContextGenerator contextGen)
 	{
-		int beamSize = ChunkAnalysisWordME.DEFAULT_BEAM_SIZE;
+		int beamSize = ChunkerWordPosME.DEFAULT_BEAM_SIZE;
 
 		contextGenerator = contextGen;
 		size = beamSize;
@@ -96,7 +88,7 @@ public class ChunkAnalysisWordME implements Chunker
 			ChunkAnalysisContextGenerator contextGen) throws IOException
 	{
 		String beamSizeString = params.getSettings().get(BeamSearch.BEAM_SIZE_PARAMETER);
-		int beamSize = ChunkAnalysisWordME.DEFAULT_BEAM_SIZE;
+		int beamSize = ChunkerWordPosME.DEFAULT_BEAM_SIZE;
 		if (beamSizeString != null)
 		{
 			beamSize = Integer.parseInt(beamSizeString);
@@ -109,7 +101,7 @@ public class ChunkAnalysisWordME implements Chunker
 		if (TrainerType.EVENT_MODEL_TRAINER.equals(trainerType))
 		{
 			// sampleStream为PhraseAnalysisSampleStream对象
-			ObjectStream<Event> es = new ChunkAnalysisWordSampleEvent(sampleStream, contextGen);
+			ObjectStream<Event> es = new ChunkerWordPosSampleEvent(sampleStream, contextGen);
 			EventTrainer trainer = TrainerFactory.getEventTrainer(params.getSettings(), manifestInfoEntries);
 			maxentModel = trainer.train(es);
 		}
@@ -125,68 +117,46 @@ public class ChunkAnalysisWordME implements Chunker
 	}
 
 	/**
-	 * 得到最好的numTaggings个标记序列
-	 * 
-	 * @param numTaggings
-	 *            个数
-	 * @param words
-	 *            一个个词语
-	 * @return 分词加词性标注的序列
-	 */
-	public String[][] tag(int numTaggings, String[] words)
-	{
-		Sequence[] bestSequences = model.bestSequences(numTaggings, words, null, contextGenerator, sequenceValidator);
-		String[][] tags = new String[bestSequences.length][];
-		List<String> temp = new ArrayList<>();
-
-		for (int si = 0; si < tags.length; si++)
-		{
-			temp = bestSequences[si].getOutcomes();
-			tags[si] = temp.toArray(new String[temp.size()]);
-		}
-
-		return tags;
-	}
-
-	/**
-	 * 返回词组的组块标注结果
+	 * 返回给定词组和词性的组块类型
 	 * 
 	 * @param words
-	 *            词组
-	 * @return 词组的组块标注结果
-	 */
-	public String[] tag(String[] words)
-	{
-		return tag(words, null);
-	}
-
-	/**
-	 * 返回词组的组块标注结果
-	 * 
-	 * @param words
-	 *            词组
+	 *            待确定组块类型的词组
+	 * @param poses
+	 *            词组对应的词性数组
 	 * @param additionaContext
 	 *            其他上下文信息
-	 * @return 词组的组块标注结果
+	 * @return 组块类型
 	 */
-	public String[] tag(String[] words, Object[] additionaContext)
+	public String[] tag(String[] words, String[] poses)
 	{
-		bestSequence = model.bestSequence(words, additionaContext, contextGenerator, sequenceValidator);
-		List<String> temp = bestSequence.getOutcomes();
+		bestSequence = model.bestSequence(words, poses, contextGenerator, sequenceValidator);
+		List<String> chunks = bestSequence.getOutcomes();
 
-		return temp.toArray(new String[temp.size()]);
+		return chunks.toArray(new String[chunks.size()]);
 	}
 
 	/**
-	 * 根据给定词组，返回最优的K个标注序列
+	 * 得到最优的num个组块标注结果
 	 * 
+	 * @param k
+	 *            返回的标注结果个数
 	 * @param words
-	 *            待标注的词组
-	 * @return 最优的K个标注序列
+	 *            待确定组块类型的词组
+	 * @param pos
+	 *            词组对应的词性数组
+	 * @return 最优的k个组块标注结果
 	 */
-	public Sequence[] getTopKSequences(String[] words)
+	public String[][] tag(int k, String[] words, String[] pos)
 	{
-		return getTopKSequences(words, null);
+		Sequence[] bestSequences = model.bestSequences(k, words, pos, contextGenerator, sequenceValidator);
+		String[][] tagsandposes = new String[bestSequences.length][];
+		for (int si = 0; si < tagsandposes.length; si++)
+		{
+			List<String> t = bestSequences[si].getOutcomes();
+			tagsandposes[si] = t.toArray(new String[t.size()]);
+
+		}
+		return tagsandposes;
 	}
 
 	/**
@@ -194,22 +164,33 @@ public class ChunkAnalysisWordME implements Chunker
 	 * 
 	 * @param words
 	 *            待标注的词组
-	 * @param additionaContext
+	 * @param poses
+	 *            与词组对应的词性数组
 	 * @return 最优的K个标注序列
 	 */
-	public Sequence[] getTopKSequences(String[] words, Object[] additionaContext)
+	public Sequence[] getTopKSequences(String[] characters, String[] pos)
 	{
-		return model.bestSequences(size, words, additionaContext, contextGenerator, sequenceValidator);
+		return model.bestSequences(size, characters, pos, contextGenerator, sequenceValidator);
 	}
 
 	@Override
 	public Chunk[] parse(String sentence)
 	{
-		String[] words = sentence.split("//s+");
-		String[] chunkTypes = tag(words);
+		String[] wordTags = sentence.split("//s+");
+		List<String> words = new ArrayList<>();
+		List<String> poses = new ArrayList<>();
 
-		AbstractChunkAnalysisSample sample = new ChunkAnalysisWordSample(words, chunkTypes);
-		sample.setTagScheme(scheme);
+		for (String wordTag : wordTags)
+		{
+			words.add(wordTag.split("/")[0]);
+			poses.add(wordTag.split("/")[1]);
+		}
+
+		String[] chunkTypes = tag(words.toArray(new String[words.size()]), poses.toArray(new String[poses.size()]));
+
+		AbstractChunkAnalysisSample sample = new ChunkerWordPosSample(words.toArray(new String[words.size()]),
+				poses.toArray(new String[poses.size()]), chunkTypes);
+		sample.setTagScheme(label);
 
 		return sample.toChunk();
 	}
@@ -217,16 +198,26 @@ public class ChunkAnalysisWordME implements Chunker
 	@Override
 	public Chunk[][] parse(String sentence, int k)
 	{
-		String[] words = sentence.split("//s+");
+		String[] wordTags = sentence.split("//s+");
+		List<String> words = new ArrayList<>();
+		List<String> poses = new ArrayList<>();
 
-		String[][] chunkTypes = tag(k, words);
+		for (String wordTag : wordTags)
+		{
+			words.add(wordTag.split("/")[0]);
+			poses.add(wordTag.split("/")[1]);
+		}
+
+		String[][] chunkTypes = tag(k, words.toArray(new String[words.size()]),
+				poses.toArray(new String[poses.size()]));
 		Chunk[][] chunks = new Chunk[chunkTypes.length][];
 		for (int i = 0; i < chunkTypes.length; i++)
 		{
 			String[] chunkSequences = chunkTypes[i];
 
-			AbstractChunkAnalysisSample sample = new ChunkAnalysisWordSample(words, chunkSequences);
-			sample.setTagScheme(scheme);
+			AbstractChunkAnalysisSample sample = new ChunkerWordPosSample(words.toArray(new String[words.size()]),
+					poses.toArray(new String[poses.size()]), chunkSequences);
+			sample.setTagScheme(label);
 			chunks[i] = sample.toChunk();
 		}
 

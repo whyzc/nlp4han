@@ -13,7 +13,7 @@ import com.lc.nlp4han.ml.util.ObjectStream;
 /**
  * 基于词的事件生成类
  */
-public class ChunkAnalysisWordSampleEvent extends AbstractEventStream<AbstractChunkAnalysisSample>
+public class ChunkerWordSampleEvent extends AbstractEventStream<AbstractChunkAnalysisSample>
 {
 
 	/**
@@ -29,7 +29,7 @@ public class ChunkAnalysisWordSampleEvent extends AbstractEventStream<AbstractCh
 	 * @param contextgenerator
 	 *            上下文生成器
 	 */
-	public ChunkAnalysisWordSampleEvent(ObjectStream<AbstractChunkAnalysisSample> sampleStream,
+	public ChunkerWordSampleEvent(ObjectStream<AbstractChunkAnalysisSample> sampleStream,
 			ChunkAnalysisContextGenerator contextgenerator)
 	{
 		super(sampleStream);

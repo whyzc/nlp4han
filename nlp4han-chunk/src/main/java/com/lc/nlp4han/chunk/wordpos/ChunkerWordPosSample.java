@@ -1,4 +1,4 @@
-package com.lc.nlp4han.chunk.word;
+package com.lc.nlp4han.chunk.wordpos;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,9 +7,9 @@ import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.chunk.Chunk;
 
 /**
- * 基于词的组块分析样本类
+ * 基于词和词性的组块分析样本类
  */
-public class ChunkAnalysisWordSample extends AbstractChunkAnalysisSample
+public class ChunkerWordPosSample extends AbstractChunkAnalysisSample
 {
 
 	/**
@@ -17,12 +17,14 @@ public class ChunkAnalysisWordSample extends AbstractChunkAnalysisSample
 	 * 
 	 * @param words
 	 *            词语数组
-	 * @param tags
+	 * @param poses
+	 *            词语对应的词性数组
+	 * @param chunkTags
 	 *            词语组块标记数组
 	 */
-	public ChunkAnalysisWordSample(String[] words, String[] tags)
+	public ChunkerWordPosSample(String[] words, String[] poses, String[] chunkTags)
 	{
-		super(words, tags, null);
+		super(words, chunkTags, poses);
 	}
 
 	/**
@@ -30,15 +32,16 @@ public class ChunkAnalysisWordSample extends AbstractChunkAnalysisSample
 	 * 
 	 * @param words
 	 *            词语序列
-	 * @param tags
+	 * @param poses
+	 *            词语对应的词性序列
+	 * @param chunkTags
 	 *            词语组块标记序列
 	 */
-	public ChunkAnalysisWordSample(List<String> words, List<String> tags)
+	public ChunkerWordPosSample(List<String> words, List<String> poses, List<String> chunkTags)
 	{
-		super(words, tags, null);
+		super(words, chunkTags, poses.toArray(new String[poses.size()]));
 	}
 
-	@Override
 	public Chunk[] toChunk()
 	{
 		if (scheme.equals("BIEOS"))
@@ -61,7 +64,7 @@ public class ChunkAnalysisWordSample extends AbstractChunkAnalysisSample
 			if (tags.get(i).equals("O") || tags.get(i).split("_")[1].equals("B"))
 			{
 				if (isChunk)
-					chunks.add(new Chunk(type, join(tokens, start, i), start, i - 1));
+					chunks.add(new Chunk(type, join(tokens, additionalContext, start, i), start, i - 1));
 
 				isChunk = false;
 				if (!tags.get(i).equals("O"))
@@ -74,16 +77,16 @@ public class ChunkAnalysisWordSample extends AbstractChunkAnalysisSample
 			else if (tags.get(i).split("_")[1].equals("S"))
 			{
 				if (isChunk)
-					chunks.add(new Chunk(type, join(tokens, start, i), start, i - 1));
+					chunks.add(new Chunk(type, join(tokens, additionalContext, start, i), start, i - 1));
 
 				type = tags.get(i).split("_")[0];
-				chunks.add(new Chunk(type, tokens.get(i), i, i - 1));
+				chunks.add(new Chunk(type, tokens.get(i) + "/" + additionalContext[i], i, i - 1));
 				isChunk = false;
 			}
 		}
 
 		if (isChunk)
-			chunks.add(new Chunk(type, join(tokens, start, tags.size()), start, tags.size() - 1));
+			chunks.add(new Chunk(type, join(tokens, additionalContext, start, tags.size()), start, tags.size() - 1));
 
 		return chunks.toArray(new Chunk[chunks.size()]);
 	}
@@ -100,7 +103,7 @@ public class ChunkAnalysisWordSample extends AbstractChunkAnalysisSample
 			if (tags.get(i).equals("O") || tags.get(i).split("_")[1].equals("B"))
 			{
 				if (isChunk)
-					chunks.add(new Chunk(type, join(tokens, start, i), start, i - 1));
+					chunks.add(new Chunk(type, join(tokens, additionalContext, start, i), start, i - 1));
 
 				isChunk = false;
 				if (!tags.get(i).equals("O"))
@@ -113,7 +116,7 @@ public class ChunkAnalysisWordSample extends AbstractChunkAnalysisSample
 		}
 
 		if (isChunk)
-			chunks.add(new Chunk(type, join(tokens, start, tags.size()), start, tags.size() - 1));
+			chunks.add(new Chunk(type, join(tokens, additionalContext, start, tags.size()), start, tags.size() - 1));
 
 		return chunks.toArray(new Chunk[chunks.size()]);
 	}
@@ -130,7 +133,7 @@ public class ChunkAnalysisWordSample extends AbstractChunkAnalysisSample
 			if (tags.get(i).equals("O") || tags.get(i).split("_")[1].equals("B"))
 			{
 				if (isChunk)
-					chunks.add(new Chunk(type, join(tokens, start, i), start, i - 1));
+					chunks.add(new Chunk(type, join(tokens, additionalContext, start, i), start, i - 1));
 
 				isChunk = false;
 				if (!tags.get(i).equals("O"))
@@ -143,7 +146,7 @@ public class ChunkAnalysisWordSample extends AbstractChunkAnalysisSample
 		}
 
 		if (isChunk)
-			chunks.add(new Chunk(type, join(tokens, start, tags.size()), start, tags.size() - 1));
+			chunks.add(new Chunk(type, join(tokens, additionalContext, start, tags.size()), start, tags.size() - 1));
 
 		return chunks.toArray(new Chunk[chunks.size()]);
 	}
@@ -161,11 +164,11 @@ public class ChunkAnalysisWordSample extends AbstractChunkAnalysisSample
 	 *            拼接的结束位置
 	 * @return 拼接后的字符串
 	 */
-	private List<String> join(List<String> words, int start, int end)
+	private List<String> join(List<String> words, Object[] poses, int start, int end)
 	{
 		List<String> string = new ArrayList<>();
 		for (int i = start; i < end; i++)
-			string.add(words.get(i));
+			string.add(words.get(i) + "/" + poses[i]);
 
 		return string;
 	}
@@ -185,7 +188,7 @@ public class ChunkAnalysisWordSample extends AbstractChunkAnalysisSample
 					string += chunks[j++] + "  ";
 			}
 			else
-				string += tokens.get(i) + "  ";
+				string += tokens.get(i) + "/" + additionalContext[i] + "  ";
 		}
 
 		return string.trim();

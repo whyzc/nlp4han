@@ -5,10 +5,10 @@ import com.lc.nlp4han.ml.util.SequenceValidator;
 /**
  * BIEOS序列验证类, 验证当前组块标记是否合法（组块最小长度为1）
  */
-public class ChunkAnalysisSequenceValidatorBIEOS implements SequenceValidator<String>
+public class ChunkerSequenceValidatorBIEOS implements SequenceValidator<String>
 {
 
-	public ChunkAnalysisSequenceValidatorBIEOS()
+	public ChunkerSequenceValidatorBIEOS()
 	{
 
 	}
