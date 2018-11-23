@@ -16,6 +16,7 @@ import org.nlp4han.coref.hobbs.MentionAttribute.Gender;
 import org.nlp4han.coref.hobbs.MentionAttribute.Number;
 
 import com.lc.nlp4han.constituent.TreeNode;
+import com.lc.nlp4han.constituent.TreeNodeUtil;
 
 /**
  * 源于字典的属性生成器

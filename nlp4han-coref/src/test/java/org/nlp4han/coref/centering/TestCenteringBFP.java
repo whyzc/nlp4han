@@ -15,10 +15,10 @@ import org.nlp4han.coref.hobbs.EvaluationHobbs;
 import org.nlp4han.coref.hobbs.Hobbs;
 import org.nlp4han.coref.hobbs.NodeNameFilter;
 import org.nlp4han.coref.hobbs.PNFilter;
-import org.nlp4han.coref.hobbs.TreeNodeUtil;
 
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.TreeNode;
+import com.lc.nlp4han.constituent.TreeNodeUtil;
 
 public class TestCenteringBFP
 {

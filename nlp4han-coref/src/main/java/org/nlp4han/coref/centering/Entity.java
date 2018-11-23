@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.nlp4han.coref.hobbs.NPHeadRuleSetPTB;
-import org.nlp4han.coref.hobbs.TreeNodeUtil;
 
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.TreeNode;
+import com.lc.nlp4han.constituent.TreeNodeUtil;
 
 public class Entity implements Comparable<Entity>
 {
@@ -326,7 +326,7 @@ public class Entity implements Comparable<Entity>
 	/**
 	 * 根据ruleStr规则，找出tree中与之结构相同的结点
 	 */
-	private static List<TreeNode> parseOneRule(TreeNode tree, String ruleStr)
+	public static List<TreeNode> parseOneRule(TreeNode tree, String ruleStr)
 	{
 		if (tree == null || ruleStr == null)
 			throw new RuntimeException("输入错误");
