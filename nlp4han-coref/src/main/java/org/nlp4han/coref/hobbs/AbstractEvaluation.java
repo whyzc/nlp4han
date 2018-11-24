@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import com.lc.nlp4han.constituent.TreeNode;
+import com.lc.nlp4han.constituent.TreeNodeUtil;
 
 public abstract class AbstractEvaluation
 {
