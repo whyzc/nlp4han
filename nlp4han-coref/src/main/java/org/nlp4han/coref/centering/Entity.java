@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.nlp4han.coref.hobbs.NPHeadRuleSetPTB;
-import org.nlp4han.coref.hobbs.TreeNodeUtil;
 
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.TreeNode;
+import com.lc.nlp4han.constituent.TreeNodeUtil;
 
 public class Entity implements Comparable<Entity>
 {

@@ -8,7 +8,9 @@ import java.util.List;
 import org.junit.Test;
 
 import com.lc.nlp4han.constituent.BracketExpUtil;
+import com.lc.nlp4han.constituent.Path;
 import com.lc.nlp4han.constituent.TreeNode;
+import com.lc.nlp4han.constituent.TreeNodeUtil;
 
 public class TestTreeNodeUtil
 {
