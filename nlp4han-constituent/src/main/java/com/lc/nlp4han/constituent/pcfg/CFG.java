@@ -110,16 +110,7 @@ public class CFG
 		str = buffer.readLine();
 		while (str != null)
 		{
-			str = str.trim();
-//			if (!type.contains("P"))
-//			{
-//				add(new RewriteRule(str));
-//			}
-//			else
-//			{
-//				add(new PRule(str));
-//			}
-			
+			str = str.trim();		
 			add(readRule(str));
 
 			str = buffer.readLine();
@@ -152,7 +143,6 @@ public class CFG
 			ArrayList<String> list = rule.getRhs();
 			if (list.size() >= 3)
 			{
-//				System.out.println("rhs数量大于2" + rule);
 				isCNF = false;
 				break;
 			}
@@ -163,7 +153,6 @@ public class CFG
 				{
 					if (!nonTerminalSet.contains(string))
 					{
-//						System.out.println("rhs包含终结符和非终结符" + rule);
 						isCNF = false;
 						break;
 					}
@@ -174,7 +163,6 @@ public class CFG
 			{
 				if (nonTerminalSet.contains(list.get(0)))
 				{
-//					System.out.println("rhs只有一个终结符" + rule);
 					isCNF = false;
 					break;
 				}
@@ -222,6 +210,31 @@ public class CFG
 	public void setTerminalSet(Set<String> terminalSet)
 	{
 		this.terminalSet = terminalSet;
+	}
+
+	public HashMap<String, HashSet<RewriteRule>> getLHS2Rules()
+	{
+		return LHS2Rules;
+	}
+
+	public void setLHS2Rules(HashMap<String, HashSet<RewriteRule>> lHS2Rules)
+	{
+		LHS2Rules = lHS2Rules;
+	}
+
+	public HashMap<ArrayList<String>, HashSet<RewriteRule>> getRHS2Rules()
+	{
+		return RHS2Rules;
+	}
+
+	public void setRHS2Rules(HashMap<ArrayList<String>, HashSet<RewriteRule>> rHS2Rules)
+	{
+		RHS2Rules = rHS2Rules;
+	}
+
+	public void setRuleSet(Set<RewriteRule> ruleSet)
+	{
+		this.ruleSet = ruleSet;
 	}
 
 	/**

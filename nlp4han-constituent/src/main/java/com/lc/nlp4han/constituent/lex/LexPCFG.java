@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * 中心词驱动的上下无关文法，也就是Collins Model1
+ * 中心词驱动的上下无关文法（Collins Model1）
  * 
  * @author qyl
  *
@@ -44,6 +44,22 @@ public class LexPCFG
 	public LexPCFG()
 	{
 
+	}
+    
+	public LexPCFG(String startSymbol, HashSet<String> posSet, HashMap<WordAndPOS, Integer> wordMap,
+			HashMap<String, HashSet<String>> posesOfWord, HashMap<RuleCollins, AmountAndSort> headGenMap,
+			HashMap<RuleCollins, HashSet<String>> parentList, HashMap<RuleCollins, AmountAndSort> sidesGenMap,
+			HashMap<RuleCollins, AmountAndSort> stopGenMap, HashMap<RuleCollins, AmountAndSort> specialGenMap)
+	{
+		this.StartSymbol = startSymbol;
+		this.posSet = posSet;
+		this.wordMap = wordMap;
+		this.posesOfWord = posesOfWord;
+		this.headGenMap = headGenMap;
+		this.parentList = parentList;
+		this.sidesGenMap = sidesGenMap;
+		this.stopGenMap = stopGenMap;
+		this.specialGenMap = specialGenMap;
 	}
 
 	/**
@@ -186,9 +202,13 @@ public class LexPCFG
 		{
 			return getProForGenerateSides((RuleSidesGenerate) rule);
 		}
-		else
+		else if (type.equals("stop"))
 		{
 			return getProForGenerateStop((RuleStopGenerate) rule);
+		}
+		else
+		{
+			return getProForSpecialCase((RuleSpecialCase) rule);
 		}
 	}
 
@@ -242,6 +262,18 @@ public class LexPCFG
 	}
 
 	/**
+	 * 得到并列结构（CC）或者含有顿号结构的概率
+	 * 即P(CC,word|P,leftLabel,rightLabel,leftWord,righrWord)的概率
+	 * 
+	 * @param specialRule
+	 * @return
+	 */
+	private double getProForSpecialCase(RuleSpecialCase specialRule)
+	{
+		return getProOfBackOff(specialRule, specialGenMap, "special");
+	}
+
+	/**
 	 * 通过回退模型得到概率
 	 * 
 	 * @param rule
@@ -251,8 +283,8 @@ public class LexPCFG
 	private double getProOfBackOff(RuleCollins rule, HashMap<RuleCollins, AmountAndSort> map, String type)
 	{
 		double e1, e2, e3, w1, w2;
-		e3=0;
-		
+		e3 = 0;
+
 		double[] pw1 = getProAndWeight(rule, map, type);
 		e1 = pw1[1];
 		w1 = pw1[0];
@@ -263,17 +295,11 @@ public class LexPCFG
 		w2 = pw2[0];
 
 		rule.setHeadPOS(null);
-		if(type.equals("2side")) {
-			RuleSidesGenerate rs=(RuleSidesGenerate)rule;
-			double i = 1;
-			WordAndPOS wop = new WordAndPOS(rs.getSideHeadWord(),rs.getSideHeadPOS());
-			if (wordMap.keySet().contains(wop))
-			{
-				i = wordMap.get(wop);
-			}
-			if(wordMap.containsKey(new WordAndPOS(null, rs.getSideHeadPOS()))) {
-				e3= i / wordMap.get(new WordAndPOS(null, rs.getSideHeadPOS()));
-			}
+		if (type.equals("2side"))
+		{
+			RuleSidesGenerate rs = (RuleSidesGenerate) rule;
+			double i = 0.5;
+			e3=getProForWord(rs,i);
 		}
 		else
 		{
@@ -290,7 +316,23 @@ public class LexPCFG
 
 		return w1 * e1 + (1 - w1) * (w2 * e2 + (1 - w2) * e3);
 	}
-
+    /**
+     *   
+     * @return
+     */
+	private double getProForWord(RuleSidesGenerate rs,double count) {
+		double e3=0;
+		WordAndPOS wop = new WordAndPOS(rs.getSideHeadWord(), rs.getSideHeadPOS());
+		if (wordMap.keySet().contains(wop))
+		{
+			count = wordMap.get(wop);
+		}
+		if (wordMap.containsKey(new WordAndPOS(null, rs.getSideHeadPOS())))
+		{
+			e3 = count / wordMap.get(new WordAndPOS(null, rs.getSideHeadPOS()));
+		}
+		return e3;	
+	}
 	/**
 	 * 得到某个回退模型的概率和权重
 	 * 
@@ -345,9 +387,6 @@ public class LexPCFG
 				{
 					y += map.get(rsg3).getAmount();
 				}
-
-/*				RuleStopGenerate rsg4 = new RuleStopGenerate(rsg3.getHeadLabel(), rsg3.getParentLabel(),
-						rsg3.getHeadPOS(), rsg3.getHeadWord(), rsg3.getDirection(), false, rsg3.getDistance());*/
 				rsg3.setStop(false);
 				if (map.containsKey(rsg3))
 				{
@@ -355,11 +394,18 @@ public class LexPCFG
 				}
 				u = 2;
 				break;
+			case "special":
+				RuleSpecialCase rsg4 = (RuleSpecialCase) rhcg;
+				rsg4 = new RuleSpecialCase(rsg4.getParentLabel(), null, null, rsg4.getLeftLabel(), rsg4.getRightLabel(),
+						rsg4.getLheadWord(), rsg4.getRheadWord(), rsg4.getLheadPOS(), rsg4.getRheadPOS());
+				y = map.get(rsg4).getAmount();
+				u = map.get(rsg4).getSort();
+				break;
 			default:
 				y = 0;
 				u = 0;
 			}
-			
+			// 若果分母为零，则回退模型的权重值位零
 			if (y == 0)
 			{
 				pw[0] = 0;
@@ -371,41 +417,6 @@ public class LexPCFG
 			pw[1] = 1.0 * x / y;
 		}
 		return pw;
-	}
-
-	/**
-	 * 得到生成NPB(基本名词短语)两侧的概率 即Pl/Pr(L(lpos,lword)|P,preModifer,preM(pos,word))
-	 * 
-	 * @param sidesRule
-	 * @return
-	 */
-	public double getProForGenerateNPBSides(RuleSidesGenerate srOfNPB)
-	{
-		return 1.0;
-	}
-
-	/**
-	 * 得到并列结构（CC）或者含有顿号结构的概率
-	 * 即P(CC,word|P,leftLabel,rightLabel,leftWord,righrWord)的概率
-	 * 
-	 * @param specialRule
-	 * @return
-	 */
-	public double getProForSpecialCase(RuleSpecialCase specialRule)
-	{
-		return 1.0;
-	}
-
-	/**
-	 * 得到用于平滑运算的λ值
-	 * 
-	 * @param f
-	 * @param u
-	 * @return
-	 */
-	public double getProByPOS(int f, int u)
-	{
-		return 1.0;
 	}
 
 	public String getStartSymbol()

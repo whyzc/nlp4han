@@ -2,7 +2,10 @@ package com.lc.nlp4han.constituent;
 
 
 /**
- * 由普通树转换为带有头结点的树，由于是树之间的转换故英文左右括号的检查可以省略
+ * 由普通树转换为带有头结点的树
+ * 
+ * 由于是树之间的转换故英文左右括号的检查可以省略
+ * 
  * @author qyl
  *
  */
@@ -14,8 +17,14 @@ public class TreeToHeadTree
 		HeadTreeNode rootNode = new HeadTreeNode("tempRoot");
 
 		traverseConvert(rootNode, treeNode, 0, headGen);
+		
+		HeadTreeNode realTree = rootNode.getChild(0);
+		
+		realTree.setParent(null);
+		
+		return realTree;
 
-		return rootNode.getChild(0);
+//		return rootNode.getChild(0);
 	}
 
 	/**

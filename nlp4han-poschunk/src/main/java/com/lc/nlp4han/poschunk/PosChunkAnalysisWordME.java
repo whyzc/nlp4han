@@ -11,7 +11,7 @@ import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.chunk.Chunk;
 import com.lc.nlp4han.chunk.ChunkAnalysisContextGenerator;
 import com.lc.nlp4han.chunk.Chunker;
-import com.lc.nlp4han.chunk.word.ChunkAnalysisWordSampleEvent;
+import com.lc.nlp4han.chunk.word.ChunkerWordSampleEvent;
 import com.lc.nlp4han.ml.model.ClassificationModel;
 import com.lc.nlp4han.ml.model.Event;
 import com.lc.nlp4han.ml.model.SequenceClassificationModel;
@@ -110,7 +110,7 @@ public class PosChunkAnalysisWordME implements Chunker
 		if (TrainerType.EVENT_MODEL_TRAINER.equals(trainerType))
 		{
 			// sampleStream为PhraseAnalysisSampleStream对象
-			ObjectStream<Event> es = new ChunkAnalysisWordSampleEvent(sampleStream, contextGen);
+			ObjectStream<Event> es = new ChunkerWordSampleEvent(sampleStream, contextGen);
 			EventTrainer trainer = TrainerFactory.getEventTrainer(params.getSettings(), manifestInfoEntries);
 			maxentModel = trainer.train(es);
 		}

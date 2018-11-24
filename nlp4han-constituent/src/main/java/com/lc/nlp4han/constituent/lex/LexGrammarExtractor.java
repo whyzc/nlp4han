@@ -17,6 +17,9 @@ import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 
 public class LexGrammarExtractor
 {
+	//是否手机并列结构和标点符号信息
+	boolean coorAndPcInfor=false;
+	
 	private LexPCFG lexpcfg;
 	private HashSet<String> posSet;
 	// 词性标注和词，以及数目
@@ -29,7 +32,7 @@ public class LexGrammarExtractor
 	// 用于生成Stop的相关统计数据
 	private HashMap<RuleCollins, AmountAndSort> stopGenMap = null;
 
-	// 暂时不用
+	// 不用，初步实验表明在中文树库中并没有丝毫效果
 	// 用于生成并列结构连词（如CC或者逗号和冒号,为简略，我将生成修饰符pos和生成修饰符word都放入此规则
 	private HashMap<RuleCollins, AmountAndSort> specialGenMap = null;
 
@@ -52,7 +55,7 @@ public class LexGrammarExtractor
 				enCoding);
 		AbstractHeadGenerator headGen = new HeadGeneratorCollins(new HeadRuleSetCTB());
 		String bracketStr = ptbt.read();
-		while (bracketStr.length() != 0)
+		while (bracketStr !=null)
 		{
 			TreeNode rootNode = BracketExpUtil.generateTree(bracketStr);
 			HeadTreeNodeForCollins headNode = TreeToHeadTreeForCollins.treeToHeadTree(rootNode, headGen);
@@ -155,7 +158,8 @@ public class LexGrammarExtractor
 
 		// 在解析中需要用此得到候选的父节点，以免遍历不需要的非终结符
 		RuleHeadChildGenerate rhcg = new RuleHeadChildGenerate(headLabel, null, headpos, null);
-		//RuleHeadChildGenerate rhcg = new RuleHeadChildGenerate(headLabel, null, null, null);
+		// RuleHeadChildGenerate rhcg = new RuleHeadChildGenerate(headLabel, null, null,
+		// null);
 		if (!parentList.containsKey(rhcg))
 		{
 			HashSet<String> labelSet = new HashSet<String>();
@@ -180,7 +184,7 @@ public class LexGrammarExtractor
 		String headPOS = node.getHeadPos();// 中心词词性标记
 		String headWord = node.getHeadWord();// 中心词
 		String headLabel = node.getChildName(headIndex);// 中心孩子的标记
-
+		
 		// 单独取左侧生成规则
 		for (int i = headIndex - 1; i >= 0; i--)
 		{
@@ -208,17 +212,18 @@ public class LexGrammarExtractor
 		String headPOS = node.getHeadPos();
 		Distance leftDistance = getDistance(node, 1, headIndex, -1);// 左侧距离
 		Distance rightDistance = getDistance(node, 2, headIndex, node.getChildrenNum());// 右侧距离
-		
-		if(parentLabel.equals("NPB")) {
-			headWord=node.getFirstChildHeadWord();
-			headPOS=node.getFirstChildHeadWordPos();
-			headLabel=node.getFirstChildName();
-			getOneSideStopGRule(true, parentLabel, headLabel, headPOS, headWord,new Distance(), 1);// 左侧 Stop符号
-			headWord=node.getLastChildHeadWord();
-			headPOS=node.getLastChildHeadPos();
-			headLabel=node.getLastChildName();
+
+		if (parentLabel.equals("NPB"))
+		{
+			headWord = node.getFirstChildHeadWord();
+			headPOS = node.getFirstChildHeadWordPos();
+			headLabel = node.getFirstChildName();
+			getOneSideStopGRule(true, parentLabel, headLabel, headPOS, headWord, new Distance(), 1);// 左侧 Stop符号
+			headWord = node.getLastChildHeadWord();
+			headPOS = node.getLastChildHeadPos();
+			headLabel = node.getLastChildName();
 			getOneSideStopGRule(true, parentLabel, headLabel, headPOS, headWord, new Distance(), 2);// 右侧Stop符号
-			return ;
+			return;
 		}
 
 		getOneSideStopGRule(true, parentLabel, headLabel, headPOS, headWord, leftDistance, 1);// 左侧 Stop符号
@@ -230,7 +235,7 @@ public class LexGrammarExtractor
 	 * 
 	 * @param direction
 	 * @param i
-	 *            子节点的序列值
+	 *            孩子的索引值
 	 * @param parentLabel
 	 * @param headLabel
 	 * @param headPOS
@@ -247,7 +252,7 @@ public class LexGrammarExtractor
 		int pu = 0;// 标点符号，由于只保留了顿号所以我们可以把它当做并列结构，并列结构,0为不设值，1和2为有或者没有
 		Distance distance = getDistance(node, direction, headIndex, i);
 
-		// 若为基本名词短语，则headChild变为前一个修饰符,暂不处理
+		// 基本名词短语单独处理
 		if (node.getNodeName().equals("NPB"))
 		{
 			// NPB不需要距离度量，故将其设置为固定值（此处为false）
@@ -260,35 +265,46 @@ public class LexGrammarExtractor
 				headWord = node.getChildHeadWord(i - 1);
 			}
 			else if (i < headIndex)
-			{ //
-				// 修饰符在headChild左侧
+			{ // 修饰符在headChild左侧
 				headLabel = node.getChildName(i + 1);
 				headPOS = node.getChildHeadPos(i + 1);
 				headWord = node.getChildHeadWord(i + 1);
 			}
 		}
-
 		// 在此处虽然不生成Stop但仍要统计其数据，在计算概率时使用
 		getOneSideStopGRule(false, parentLabel, headLabel, headPOS, headWord, distance, direction);
 
+		//并列结构处理
+		if(coorAndPcInfor) {
+			if ((i >= 1 && node.getChildName(i).equals("CC")) && node.getNodeName().equals(node.getChildName(i - 1))
+					&& node.getNodeName().equals(node.getChildName(i + 1)))
+			{
+				getOneSideGROfCoor(direction, i, parentLabel, headLabel, headPOS, headWord, headIndex, node);
+				return;
+			}
+			else if (i >= 2 && node.getChildName(i - 1).equals("CC"))
+			{
+				coor = 1;
+			}
+		}
 		// 生成两侧Label和pos的回退模型
 		// 回退模型1
 		RuleSidesGenerate rsg0 = new RuleSidesGenerate(headLabel, parentLabel, headPOS, headWord, direction, sideLabel,
 				sideHeadPOS, null, coor, pu, distance);
 		RuleSidesGenerate rsg1 = new RuleSidesGenerate(headLabel, parentLabel, headPOS, headWord, direction, null, null,
-				null, 0, 0, distance);
+				null, coor, pu, distance);
 		addGenerateRule(rsg0, rsg1, sidesGeneratorMap);
 		// 回退模型二
 		RuleSidesGenerate rsg2 = new RuleSidesGenerate(headLabel, parentLabel, headPOS, null, direction, sideLabel,
 				sideHeadPOS, null, coor, pu, distance);
 		RuleSidesGenerate rsg3 = new RuleSidesGenerate(headLabel, parentLabel, headPOS, null, direction, null, null,
-				null, 0, 0, distance);
+				null, coor, pu, distance);
 		addGenerateRule(rsg2, rsg3, sidesGeneratorMap);
 		// 回退模型三
 		RuleSidesGenerate rsg4 = new RuleSidesGenerate(headLabel, parentLabel, null, null, direction, sideLabel,
 				sideHeadPOS, null, coor, pu, distance);
 		RuleSidesGenerate rsg5 = new RuleSidesGenerate(headLabel, parentLabel, null, null, direction, null, null, null,
-				0, 0, distance);
+				coor, pu, distance);
 		addGenerateRule(rsg4, rsg5, sidesGeneratorMap);
 
 		// 生成两侧word的回退模型
@@ -305,11 +321,57 @@ public class LexGrammarExtractor
 				sideHeadPOS, null, coor, pu, distance);
 		addGenerateRule(rsgword2, rsgword3, sidesGeneratorMap);
 		// 回退模型3
-		RuleSidesGenerate rsgword4 = new RuleSidesGenerate(sideHeadPOS, sideHeadWord);
-		RuleSidesGenerate rsgword5 = new RuleSidesGenerate(sideHeadPOS, null);
-		addGenerateRule(rsgword4, rsgword5, sidesGeneratorMap);
+		// 此刻的概率计算我使用词汇和pos信息直接计算
 	}
+   /**
+    * 并列结构规则的提取
+    * @param direction
+    * @param i
+    * @param parentLabel
+    * @param headLabel
+    * @param headPOS
+    * @param headWord
+    * @param headIndex
+    * @param node
+    */
+	private void getOneSideGROfCoor(int direction, int i, String parentLabel, String headLabel, String headPOS,
+			String headWord, int headIndex, HeadTreeNodeForCollins node)
+	{
+		// 若为并列结构，也单独处理
+		String cPOS = node.getChildName(i);
+		String cWord = node.getChild(i).getChildName(0);
+		HeadTreeNodeForCollins lnode = (HeadTreeNodeForCollins) node.getChild(i - 1);
+		HeadTreeNodeForCollins rnode = (HeadTreeNodeForCollins) node.getChild(i + 1);
 
+		// 回退模型1
+		RuleSpecialCase rsg0 = new RuleSpecialCase(node.getNodeName(), cPOS, cWord, lnode.getNodeName(),
+				rnode.getNodeName(), lnode.getHeadWord(), rnode.getHeadWord(), lnode.getHeadPos(), rnode.getHeadPos());
+		RuleSpecialCase rsg1 = new RuleSpecialCase(node.getNodeName(), null, null, lnode.getNodeName(),
+				rnode.getNodeName(), lnode.getHeadWord(), rnode.getHeadWord(), lnode.getHeadPos(), rnode.getHeadPos());
+		addGenerateRule(rsg0, rsg1, specialGenMap);
+		// 回退模型2
+		RuleSpecialCase rsg2 = new RuleSpecialCase(node.getNodeName(), cPOS, cWord, lnode.getNodeName(),
+				rnode.getNodeName(), null, null, lnode.getHeadPos(), rnode.getHeadPos());
+		RuleSpecialCase rsg3 = new RuleSpecialCase(node.getNodeName(), null, null, lnode.getNodeName(),
+				rnode.getNodeName(), null, null, lnode.getHeadPos(), rnode.getHeadPos());
+		addGenerateRule(rsg2, rsg3, specialGenMap);
+		// 回退模型3
+		RuleSpecialCase rsg4 = new RuleSpecialCase(node.getNodeName(), cPOS, cWord, lnode.getNodeName(),
+				rnode.getNodeName(), null, null, null, null);
+		RuleSpecialCase rsg5 = new RuleSpecialCase(node.getNodeName(), null, null, lnode.getNodeName(),
+				rnode.getNodeName(), null, null, null, null);
+		addGenerateRule(rsg4, rsg5, specialGenMap);
+	}
+    /**
+     * 生成规则两侧stop的信息收集
+     * @param stop
+     * @param parentLabel
+     * @param headLabel
+     * @param headPOS
+     * @param headWord
+     * @param distance
+     * @param direction
+     */
 	private void getOneSideStopGRule(boolean stop, String parentLabel, String headLabel, String headPOS,
 			String headWord, Distance distance, int direction)
 	{
@@ -412,7 +474,7 @@ public class LexGrammarExtractor
 	}
 
 	/**
-	 * 由括号表达式列表直接得到PCFG
+	 * 由括号表达式列表直接得到LexPCFG
 	 */
 	public static LexPCFG getLexPCFG(ArrayList<String> bracketStrList) throws IOException
 	{
@@ -420,13 +482,16 @@ public class LexGrammarExtractor
 
 		return grammar;
 	}
-
+   /**
+    * 括号表达式生成文法
+    * @param bracketStrList
+    * @return
+    */
 	private LexPCFG brackets2Grammar(ArrayList<String> bracketStrList)
 	{
 		AbstractHeadGenerator headGen = new HeadGeneratorCollins(new HeadRuleSetCTB());
 		for (String bracketStr : bracketStrList)
 		{
-			// System.out.println("括号表达式 ： "+bracketStr.toString());
 			TreeNode rootNode = BracketExpUtil.generateTree(bracketStr);
 			HeadTreeNodeForCollins headNode = TreeToHeadTreeForCollins.treeToHeadTree(rootNode, headGen);
 			if (lexpcfg.getStartSymbol() == null)

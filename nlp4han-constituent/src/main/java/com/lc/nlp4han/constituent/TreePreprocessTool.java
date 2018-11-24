@@ -36,7 +36,7 @@ public class TreePreprocessTool
 				encoding);
 		BufferedWriter bw = new BufferedWriter(new FileWriter(new File(topath)));
 		String tree = "";
-		while ((tree = lineStream.read()) != "")
+		while ((tree = lineStream.read()) != null)
 		{
 			TreeNode node = BracketExpUtil.generateTreeNoTopBracket(tree);
 
@@ -53,7 +53,7 @@ public class TreePreprocessTool
 				newTreeStr = node.toStringNoNone();
 			}
 
-			TreeNode newTree = BracketExpUtil.generateTreeNoTopBracket("(" + newTreeStr + ")");
+	        TreeNode newTree = BracketExpUtil.generateTreeNoTopBracket("(" + newTreeStr + ")");
 			bw.write("(" + TreeNode.printTree(newTree, 1) + ")");
 			bw.newLine();
 		}

@@ -22,12 +22,12 @@ import java.util.Map.Entry;
 import com.lc.nlp4han.chunk.AbstractChunkAnalysisSample;
 import com.lc.nlp4han.chunk.AbstractChunkSampleParser;
 import com.lc.nlp4han.chunk.ChunkAnalysisContextGenerator;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosContextGeneratorConf;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosParserBIEO;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosParserBIEOS;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosParserBIO;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosSampleEvent;
-import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosSampleStream;
+import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosContextGeneratorConf;
+import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosParserBIEO;
+import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosParserBIEOS;
+import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosParserBIO;
+import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosSampleEvent;
+import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosSampleStream;
 import com.lc.nlp4han.ml.model.Event;
 import com.lc.nlp4han.ml.util.MarkableFileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
@@ -140,7 +140,7 @@ public class SVMStandardInput
 	public static Properties getDefaultConf() throws IOException
 	{
 		Properties featureConf = new Properties();
-		InputStream featureStream = ChunkAnalysisWordPosContextGeneratorConf.class.getClassLoader()
+		InputStream featureStream = ChunkerWordPosContextGeneratorConf.class.getClassLoader()
 				.getResourceAsStream("com/lc/nlp4han/chunk/svm/feature.properties");
 		featureConf.load(featureStream);
 		return featureConf;
@@ -243,16 +243,16 @@ public class SVMStandardInput
 		AbstractChunkSampleParser parse = null;
 
 		if (scheme.equals("BIEOS"))
-			parse = new ChunkAnalysisWordPosParserBIEOS();
+			parse = new ChunkerWordPosParserBIEOS();
 		else if (scheme.equals("BIEO"))
-			parse = new ChunkAnalysisWordPosParserBIEO();
+			parse = new ChunkerWordPosParserBIEO();
 		else
-			parse = new ChunkAnalysisWordPosParserBIO();
+			parse = new ChunkerWordPosParserBIO();
 
-		ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisWordPosSampleStream(lineStream, parse,
+		ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkerWordPosSampleStream(lineStream, parse,
 				scheme);
-		ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisWordPosContextGeneratorConf(properties);
-		ObjectStream<Event> es = new ChunkAnalysisWordPosSampleEvent(sampleStream, contextGen);
+		ChunkAnalysisContextGenerator contextGen = new ChunkerWordPosContextGeneratorConf(properties);
+		ObjectStream<Event> es = new ChunkerWordPosSampleEvent(sampleStream, contextGen);
 		return es;
 	}
 
