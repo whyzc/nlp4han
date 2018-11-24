@@ -9,14 +9,17 @@ import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
+/**
+ * 预测类，此类不属于非原框架
+ * @author 杨智超
+ */
 public class PredictLinear extends Predict
 {
 	private static final Pattern COLON = Pattern.compile(":");
 	
+	
 	/**
-	 * <p>
-	 * <b>Note: The streams are NOT closed</b>
-	 * </p>
+	 * 根据model，对一条样本进行预测
 	 */
 	public static double doPredict(String line, Model model)
 	{
