@@ -14,6 +14,11 @@ import com.lc.nlp4han.chunk.wordpos.ChunkAnalysisWordPosSampleEvent;
 import com.lc.nlp4han.ml.model.Event;
 import com.lc.nlp4han.ml.util.ObjectStream;
 
+/**
+ * 基于词和词性的组块分析模型训练类，用于SVM框架
+ * @author 杨智超
+ *
+ */
 public abstract class SVMME implements Chunker
 {
 	private SVMStandardInput ssi = null;
@@ -129,6 +134,15 @@ public abstract class SVMME implements Chunker
 		return sample.toChunk();
 	}
 
+	/**
+	 * 返回给定词组和词性的组块类型
+	 * 
+	 * @param words
+	 *            待确定组块类型的词组
+	 * @param poses
+	 *            词组对应的词性数组
+	 * @return 组块类型
+	 */
 	public String[] tag(String[] words, String[] poses) throws IOException
 	{
 		String[] chunkTags = new String[words.length];
@@ -158,6 +172,15 @@ public abstract class SVMME implements Chunker
 		return result;
 	}
 
+	/**
+	 * 调用model，预测结果
+	 * @param line 
+	 *            line为libsvm的标准输入格式，形如 2 4:5 7:3 8:2....
+	 * @param model
+	 *            模型
+	 * @return	分类结果，数字类型
+	 * @throws IOException
+	 */
 	public abstract double predictOneLine(String line, Object model) throws IOException;
 
 	/**
@@ -175,6 +198,17 @@ public abstract class SVMME implements Chunker
 		return Integer.valueOf(str.trim().split("\\.")[0]);
 	}
 
+	/**
+	 * 训练模型
+	 * @param sampleStream 
+	 *            文件流
+	 * @param arg 
+	 *            训练参数
+	 * @param contextGen 
+	 *            特征生成器
+	 * @throws IOException
+	 * @throws InvalidInputDataException
+	 */
 	public void train(ObjectStream<AbstractChunkAnalysisSample> sampleStream, String[] arg,
 			ChunkAnalysisContextGenerator contextGen) throws IOException, InvalidInputDataException
 	{
