@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
+import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.ConstituentMeasure;
 import com.lc.nlp4han.constituent.TreeNode;
@@ -136,7 +137,7 @@ public class ParserMEEvaluator extends Evaluator<ConstituentTreeSample>
 				else
 				{
 					samplePre = HeadTreeToSample.headTreeToSample(treePre, headGen);
-					measure.update(treeRef, treePre);
+					measure.update(treeRef, BracketExpUtil.generateTree(treePre.toStringNoNone()));
 				}
 				
 				count++;

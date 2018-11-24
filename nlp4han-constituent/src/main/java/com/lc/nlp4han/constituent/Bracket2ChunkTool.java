@@ -83,7 +83,7 @@ public class Bracket2ChunkTool
 		PlainTextByTreeStream lineStream = new PlainTextByTreeStream(new FileInputStreamFactory(new File(fileIn)),
 				encoding);
 		String bracketStr = "";
-		while ((bracketStr = lineStream.read()) != "")
+		while ((bracketStr = lineStream.read()) != null)
 		{
 			TreeNode tree = BracketExpUtil.generateTreeNoTopBracket(bracketStr);
 			BaseChunkSearcher.search(tree, targetChunks);

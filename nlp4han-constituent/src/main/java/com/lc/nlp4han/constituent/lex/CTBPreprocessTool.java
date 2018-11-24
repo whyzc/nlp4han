@@ -1,6 +1,5 @@
 package com.lc.nlp4han.constituent.lex;
 
-import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.TreeNode;
 
 public class CTBPreprocessTool
@@ -28,7 +27,22 @@ public class CTBPreprocessTool
 	 * 该节点为NP，并且以该节点为根的结构树中不存在NP
 	 * @param node
 	 */
-	public static void AddNPBNode(HeadTreeNode node)
+	public static void traverseTreeAddNPB(TreeNode node)
+	{
+		AddNPBNode(node);
+		if (node.getChildrenNum() == 0)
+		{
+			return;
+		}
+		else
+		{
+			for (TreeNode node1 : node.getChildren())
+			{
+				traverseTreeAddNPB(node1);
+			}
+		}
+	}
+	private static void AddNPBNode(TreeNode node)
 	{
 		if (IsNPB(node))
 		{
@@ -43,6 +57,11 @@ public class CTBPreprocessTool
 		}
 		else
 		{
+			//如果是类似NP->NN->中国，则不标记为NPB
+			if(node.getChildrenNum()==1&&node.getChild(0).getChildrenNum()==0) {
+				return false;
+			}
+			
 			for(TreeNode child:node.getChildren()) {
 				if(!traverseNode(child)) {
 					return false;

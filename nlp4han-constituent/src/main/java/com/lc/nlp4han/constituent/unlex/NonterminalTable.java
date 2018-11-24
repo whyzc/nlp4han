@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 /**
  * 记录二叉化后得到的树中的标记（非终结符）和与之对应整数
+ * 
  * @author 王宁
  * 
  */
@@ -12,7 +13,7 @@ public class NonterminalTable
 {
 	private HashMap<String, Short> str_intMap;// "ROOT" - 0
 	private HashMap<Short, String> int_strMap;
-	private short numInitialSymbol;//二叉化后得到的所有非终结符个数
+	private short numInitialSymbol;// 二叉化后得到的所有非终结符个数
 	private ArrayList<Short> intValueOfPreterminalArr;
 	private ArrayList<Short> numSubsymbolArr;
 
@@ -66,9 +67,13 @@ public class NonterminalTable
 		return str_intMap.get(symbol);
 	}
 
-	public String stringValue(short intValue)
+	/**
+	 * @param symbol
+	 * @return 该符号对应的String
+	 */
+	public String stringValue(short symbol)
 	{
-		return int_strMap.get(intValue);
+		return int_strMap.get(symbol);
 	}
 
 	/**
@@ -114,14 +119,18 @@ public class NonterminalTable
 		this.numSubsymbolArr = numSubsymbolArr;
 	}
 
-	public short getNumInitialSymbol()
-	{
-		return numInitialSymbol;
-	}
-
 	public void setNumInitialSymbol(short numInitialSymbol)
 	{
 		this.numInitialSymbol = numInitialSymbol;
 	}
 
+	public HashMap<String, Short> getStr_intMap()
+	{
+		return str_intMap;
+	}
+
+	public HashMap<Short, String> getInt_strMap()
+	{
+		return int_strMap;
+	}
 }

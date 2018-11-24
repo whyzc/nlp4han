@@ -40,15 +40,6 @@ public class RuleSidesGenerate extends  RuleHeadChildGenerate
 		this.distance = distance;
 	}
     
-	public RuleSidesGenerate( String sideHeadPOS, String sideHeadWord)
-	{
-		super(null, null, null, null);
-		this.sideHeadPOS = sideHeadPOS;
-		this.sideHeadWord = sideHeadWord;
-	}
-	
-	
-    
 	public int getDirection()
 	{
 		return direction;

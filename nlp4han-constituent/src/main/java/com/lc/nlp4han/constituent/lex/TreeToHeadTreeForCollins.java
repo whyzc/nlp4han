@@ -4,7 +4,11 @@ import java.util.HashSet;
 import com.lc.nlp4han.constituent.AbstractHeadGenerator;
 import com.lc.nlp4han.constituent.HeadTreeNode;
 import com.lc.nlp4han.constituent.TreeNode;
-
+/**
+ * 将树改写为适合柯林斯模型1的头结点树
+ * @author qyl
+ *
+ */
 public class TreeToHeadTreeForCollins
 {
 	public static HeadTreeNodeForCollins treeToHeadTree(TreeNode treeNode, AbstractHeadGenerator headGen)
@@ -23,8 +27,8 @@ public class TreeToHeadTreeForCollins
 		//转换过程
 		traverseConvert(rootNode, treeNode, 0, headGen,verbs);
 		
-		//添加基本名词短语，此刻暂时不处理
-		traverseTreeAddNPB(rootNode.getChild(0));
+		//添加基本名词短语
+		CTBPreprocessTool.traverseTreeAddNPB(rootNode.getChild(0));
 
 		return (HeadTreeNodeForCollins)rootNode.getChild(0);
 	}
@@ -79,21 +83,6 @@ public class TreeToHeadTreeForCollins
 				{
 					node.setVerb(true);
 				}
-			}
-		}
-	}
-	private static void traverseTreeAddNPB(HeadTreeNode node)
-	{
-		CTBPreprocessTool.AddNPBNode(node);
-		if (node.getChildrenNum() == 0)
-		{
-			return;
-		}
-		else
-		{
-			for (HeadTreeNode node1 : node.getChildren())
-			{
-				traverseTreeAddNPB(node1);
 			}
 		}
 	}

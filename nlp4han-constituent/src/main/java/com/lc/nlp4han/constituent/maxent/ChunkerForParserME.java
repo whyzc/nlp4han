@@ -197,31 +197,35 @@ public class ChunkerForParserME implements ChunkerForParser<HeadTreeNode>
 	 * @return
 	 */
 	public List<List<HeadTreeNode>> tagKChunk(int k, List<List<HeadTreeNode>> posTree, Object[] ac)
-	{
-		List<List<HeadTreeNode>> chunkTree = new ArrayList<List<HeadTreeNode>>();
-
-		List<List<HeadTreeNode>> combineChunkTree = new ArrayList<List<HeadTreeNode>>();
+	{	
 		ChunkSequence[] sequences = this.model.bestSequencesForChunk(k, posTree, ac,
 				contextGenerator, sequenceValidator);
+		
+		List<List<HeadTreeNode>> chunkTrees = new ArrayList<List<HeadTreeNode>>();
 		for (int i = 0; i < sequences.length; i++)
 		{
 			int label = sequences[i].getLabel();
 			List<HeadTreeNode> tree = new ArrayList<>();
 			List<HeadTreeNode> tempTree = posTree.get(label);
 			List<String> outcomes = sequences[i].getOutcomes();
+			
 			for (int j = 0; j < outcomes.size(); j++)
 			{
 				HeadTreeNode outNode = new HeadTreeNode(outcomes.get(j));
 				outNode.addChild(tempTree.get(j));
 				tree.add(outNode);
 			}
-			chunkTree.add(tree);
+			
+			chunkTrees.add(tree);
 		}
-		for (int i = 0; i < chunkTree.size(); i++)
+		
+		List<List<HeadTreeNode>> combineChunkTree = new ArrayList<List<HeadTreeNode>>();
+		for (int i = 0; i < chunkTrees.size(); i++)
 		{
-			List<HeadTreeNode> node = ChunkTreeCombineUtil.combineToHeadTree(chunkTree.get(i), headGenerator);
+			List<HeadTreeNode> node = ChunkTreeCombineUtil.combineToChunkTrees(chunkTrees.get(i), headGenerator);
 			combineChunkTree.add(node);
 		}
+		
 		return combineChunkTree;
 	}
 
@@ -311,7 +315,7 @@ public class ChunkerForParserME implements ChunkerForParser<HeadTreeNode>
 	{
 		List<List<HeadTreeNode>> allposTree = new ArrayList<>();
 		allposTree.add(posTree);
-		return ChunkTreeCombineUtil.combineToHeadTree(tagChunk(allposTree, null), headGenerator);
+		return ChunkTreeCombineUtil.combineToChunkTrees(tagChunk(allposTree, null), headGenerator);
 	}
 
 	/**

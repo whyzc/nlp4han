@@ -11,12 +11,19 @@ import com.lc.nlp4han.constituent.TreeNode;
 
 public class ConstituentParseLexPCFG implements ConstituentParser
 {
+	private boolean coorAndPc = false;// 判断是否处理并列结构及标点符号
 	private LexNode[][] chart = null;
 	private LexPCFG lexpcfg = null;
+	private double pruneThreshold;
+	private boolean secondPrune;
+	private boolean prior;
 
-	public ConstituentParseLexPCFG(LexPCFG lexpcfg)
+	public ConstituentParseLexPCFG(LexPCFG lexpcfg, double pruneThreshold, boolean secondPrune, boolean prior)
 	{
 		this.lexpcfg = lexpcfg;
+		this.pruneThreshold = pruneThreshold;
+		this.secondPrune = secondPrune;
+		this.prior = prior;
 	}
 
 	/**
@@ -87,9 +94,13 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 */
 	private ConstituentTree[] getParseResult(String[] words, String[] poses, int k)
 	{
-		ConstituentTree[] treeArray = new ConstituentTree[k];
-		ArrayList<String> bracketList = parseLex(words, poses, k);
 		int i = 0;
+		ConstituentTree[] treeArray = new ConstituentTree[k];
+		ArrayList<String> bracketList = parseLex(words, poses, k, true);
+		if (bracketList == null && secondPrune && words.length <= 40)
+		{
+			bracketList = parseLex(words, poses, k, false);
+		}
 		for (String bracketString : bracketList)
 		{
 			TreeNode rootNode = BracketExpUtil.generateTree(bracketString);
@@ -106,7 +117,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 * @param k
 	 * @return
 	 */
-	private ArrayList<String> parseLex(String[] words, String[] poses, int k)
+	private ArrayList<String> parseLex(String[] words, String[] poses, int k, boolean prune)
 	{
 		// 初始化
 		initializeChart(words, poses);
@@ -119,21 +130,217 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 			{
 				int j = i + span;
 				fillEdgeOfChart(i, j);
+				// 剪枝
+				if (prune)
+				{
+				    pruneEdge(i, j, words.length);
+				}
 			}
 		}
-		// 调试时查看具体的分析过程
-		/*
-		 * for (int i = 0; i < words.length; i++) { for (int j = 1; j <= words.length;
-		 * j++) { if (j >= i + 1) { if(chart[i][j].getEdgeMap().keySet().size()==0) {
-		 * System.out.println("x=" + i + " y" + j+" 处没有边"); } System.out.println("x=" +
-		 * i + " y" + j); for (Edge edge : chart[i][j].getEdgeMap().keySet()) {
-		 * System.out.println(edge.toString()); } } } }
-		 */
-		/*
-		 * for (Edge edge : chart[0][24].getEdgeMap().keySet()) {
-		 * System.out.println("0-24: "+edge.toString()); }
-		 */
-		return new BracketexpressionGet(chart, words.length, k).bracketexpressionGet();
+		return BracketListToTree.bracketexpressionGet(chart, words.length, k);
+	}
+
+	/**
+	 * 全局剪枝，但是因为因为需要词到词性标注的概率，也就是在输入只包含分词的情况下才能进行全局剪枝
+	 * @param n
+	 * @param span
+	 */
+	@SuppressWarnings("unused")
+	private void globalPruneEdge(int n, int span)
+	{
+		LexPCFGPrior pcp = (LexPCFGPrior) lexpcfg;
+		HashMap<String, Double> map1 = pcp.getPriorMap();
+		
+		ArrayList<Edge> deleteList = new ArrayList<Edge>();
+		
+		double[] f = new double[n+1];
+		double[] b = new double[n+1];
+
+		double[] f1 = new double[n+1];
+		double[] b1 = new double[n+1];
+
+		f[0] = 1.0;
+		f[1]=1.0;
+		f1[0] = 1.0;
+		f1[1]=1.0;
+		for (int start = 0; start <=n-2; start++)
+		{
+			for (int j = start+2; j-start<=span&&j<=n; j++)
+			{
+				HashMap<Edge, Double> map = chart[start][j].getEdgeMap();
+				if (map == null)
+				{
+					break;
+				}
+			
+				for (Edge edge : map.keySet())
+				{
+					double left, score;
+					if (edge.isStop())
+					{
+						left = f[start];
+						score = left * map.get(edge) * map1.get(edge.getLabel());
+						if (score > f[j])
+						{
+							f[j] = score;
+						}
+					}
+					else
+					{
+						left = f1[start];
+						score = left * map.get(edge) * map1.get(edge.getLabel());
+						if (score > f1[j])
+						{
+							f1[j] = score;
+						}
+					}
+
+				}
+			}
+		}
+
+		b[n] = 1;
+		b[n-1]=1.0;
+		b1[n] = 1;
+		b1[n-1]=1.0;
+		for (int start = n - 2; start > 0; start--)
+		{
+			for (int j = start + 2; j-start<=span&&j<=n; j++)
+			{
+				HashMap<Edge, Double> map = chart[start][j].getEdgeMap();
+				if (map == null)
+				{
+					break;
+				}
+				for (Edge edge : map.keySet())
+				{
+					double right, score;
+					if (edge.isStop())
+					{
+						right = b[j];
+						score = right * map.get(edge) * map1.get(edge.getLabel());
+						if (score > b[start])
+						{
+							b1[start] = score;
+						}
+					}
+					else
+					{
+						right = b1[j];
+						score = right * map.get(edge) * map1.get(edge.getLabel());
+						if (score > b1[j])
+						{
+							b1[j] = score;
+						}
+					}
+				}
+			}
+		}
+		double bestPro;
+		for (int i = 0; i <= n - span; i++)
+		{
+			for(int j=i+2;j-i<=span;j++) {
+				for (Edge edge : chart[i][j].getEdgeMap().keySet())
+				{
+					double left, right;
+					if (edge.isStop())
+					{
+						left = f[i];
+						right = b[j];
+						bestPro = f[n];
+					}
+					else
+					{
+						left = f1[i];
+						right = b1[j];
+						bestPro = f1[n];
+					}
+					double total = left * edge.getPro() * map1.get(edge.getLabel()) * right;
+					if (total < bestPro * pruneThreshold)
+					{
+						deleteList.add(edge);
+					}
+				}
+			}
+		}
+		for (Edge edge : deleteList)
+		{
+			int i = edge.getStart();
+			int j = edge.getEnd();
+			chart[i][j].getEdgeMap().remove(edge);
+		}
+	}
+
+	/**
+	 * 剪枝
+	 * 
+	 * @param i
+	 * @param j
+	 * @param n
+	 */
+	private void pruneEdge(int i, int j, int n)
+	{
+		double bestPro1 = -1.0;
+		double bestPro2 = -1.0;
+		// 动态得到剪枝比例
+		double pruneThreshold1 = getPruneThreshold(n);
+
+		ArrayList<Edge> deleteList = new ArrayList<Edge>();
+		HashMap<Edge, Double> map = chart[i][j].getEdgeMap();
+		for (Edge edge : map.keySet())
+		{
+			double pro = 1.0;
+			if (prior)
+			{
+				LexPCFGPrior lpp = (LexPCFGPrior) lexpcfg;
+				HashMap<String, Double> map1 = lpp.getPriorMap();
+				pro = map1.get(edge.getLabel());
+			}
+
+			if (edge.isStop() && map.get(edge) * pro > bestPro1)
+			{
+				bestPro1 = map.get(edge);
+			}
+			else if (!edge.isStop() && map.get(edge) * pro > bestPro2)
+			{
+				bestPro2 = map.get(edge);
+			}
+		}
+		for (Edge edge : map.keySet())
+		{
+			double pro = 1.0;
+			if (prior)
+			{
+				LexPCFGPrior lpp = (LexPCFGPrior) lexpcfg;
+				HashMap<String, Double> map1 = lpp.getPriorMap();
+				pro = map1.get(edge.getLabel());
+			}
+
+			if (edge.isStop() && map.get(edge) * pro < pruneThreshold1 * bestPro1)
+			{
+				deleteList.add(edge);
+			}
+			else if (!edge.isStop() && map.get(edge) * pro < pruneThreshold1 * bestPro2)
+			{
+				deleteList.add(edge);
+			}
+		}
+		for (Edge edge : deleteList)
+		{
+			map.remove(edge);
+		}
+	}
+
+	private double getPruneThreshold(int n)
+	{
+		double pruneThreshold1 = pruneThreshold;
+		int num = n / 20;
+		while (pruneThreshold1 < 0.01 && num >= 1)
+		{
+			pruneThreshold1 *= 10;
+			num--;
+		}
+		return pruneThreshold1;
 	}
 
 	/**
@@ -215,7 +422,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	{
 		for (Edge edge : tempEdgeList)
 		{
-            addEdge(edge,edge.getStart(),edge.getEnd(),null);
+			addEdge(edge, edge.getStart(), edge.getEnd(), null);
 		}
 		tempEdgeList.clear();
 	}
@@ -289,6 +496,11 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 */
 	private void addStop(Edge edge, ArrayList<Edge> tempEdgeList)
 	{
+		// 若此边包含没有合并的并列结构或者顿号，则不添加stop
+		if (edge.getCoor() == 1 || edge.getPu() == 1)
+		{
+			return;
+		}
 		// 分别初始化两侧的stop规则
 		RuleStopGenerate rsg1 = new RuleStopGenerate(edge.getHeadLabel(), edge.getLabel(), edge.getHeadPOS(),
 				edge.getHeadWord(), 1, true, edge.getLc());
@@ -368,70 +580,74 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 */
 	private void mergeEdge(Edge e1, Edge e2, int direction, ArrayList<Edge> tempEdgeList)
 	{
-		// 动词集合
-		String[] verbArray = { "VA", "VC", "VE", "VV", "BA", "LB" };
-		HashSet<String> verbs = new HashSet<String>();
-		for (String verb : verbArray)
-		{
-			verbs.add(verb);
-		}
-
+		Edge edge;
 		Distance lc, rc;
+		RuleSidesGenerate rsg;
 		ArrayList<Edge> children = new ArrayList<Edge>();
 
-		RuleSidesGenerate rsg;
-		Edge edge;
+		// 动词集合
+		HashSet<String> verbs = getVerbs();
 
 		double pro = e1.getPro() * e2.getPro();
 
-		if (direction == 2)// 若添加head右侧的孩子
+		// 若添加的是head右侧的孩子
+		if (direction == 2)
 		{
-			// 此刻的距离
-			lc = e1.getLc();
-			boolean rcVerb = (e1.getRc().isCrossVerb() || e2.getLc().isCrossVerb() || e2.getRc().isCrossVerb()
-					|| verbs.contains(e2.getHeadPOS()));
-			rc = new Distance(false, rcVerb);
 			// 为新的边添加孩子
 			children.addAll(e1.getChildren());
 			children.add(e2);
 
-			// 获得概率
-			rsg = new RuleSidesGenerate(e1.getHeadLabel(), e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(), direction,
-					e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(), 0, 0, e1.getRc());
+			lc = e1.getLc();// 此刻的距离
+			// 是否包含动词
+			boolean rcVerb = (e1.getRc().isCrossVerb() || e2.getLc().isCrossVerb() || e2.getRc().isCrossVerb()
+					|| verbs.contains(e2.getHeadPOS()));
+			rc = new Distance(false, rcVerb);
 
-			// 若为NPB,则其概率计算方式不变，但是生成规则中的headChild变为前一个孩子
+			// 获得概率
 			if (e1.getLabel().equals("NPB"))
 			{
-				Edge lastChild = e1.getLastChild();
-				rsg = new RuleSidesGenerate(lastChild.getLabel(), e1.getLabel(), lastChild.getHeadPOS(),
-						lastChild.getHeadWord(), direction, e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(), 0, 0,
-						new Distance());
+				rsg = disposeNPB(e1, e2, 2);
+			}
+			else
+			{
+				rsg = new RuleSidesGenerate(e1.getHeadLabel(), e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(),
+						direction, e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(), 0, 0, e1.getRc());
 			}
 			pro = pro * lexpcfg.getGeneratePro(rsg, "sides");
 
+			// 并列结构处理
+			if (coorAndPc)
+			{
+				pro = disposeCoorAndPC(e1, e2, direction, rsg, pro);
+			}
+
 			edge = new Edge(e1.getLabel(), e1.getHeadLabel(), e1.getHeadWord(), e1.getHeadPOS(), e1.getStart(),
 					e2.getEnd(), lc, rc, false, pro, children);
+
+			// 并列结构处理
+			if (coorAndPc)
+			{
+				edge = disposeCoorAndPCEdge(e1, e2, edge, children);
+			}
 		}
 		else
 		{
+			// 为新的边添加孩子
+			children.addAll(e2.getChildren());
+			children.add(e1);
 			rc = e2.getRc();
 			boolean lcVerb = (e1.getLc().isCrossVerb() || e1.getRc().isCrossVerb() || e2.getLc().isCrossVerb()
 					|| verbs.contains(e1.getHeadPOS()));
 			lc = new Distance(false, lcVerb);
 
-			children.add(e1);
-			children.addAll(e2.getChildren());
-
-			rsg = new RuleSidesGenerate(e2.getHeadLabel(), e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(), direction,
-					e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(), 0, 0, e2.getLc());
-
-			// 若为NPB,则其概率计算方式不变，但是生成规则中的headChild变为前一个孩子
 			if (e2.getLabel().equals("NPB"))
 			{
-				Edge firstChild = e2.getFirstChild();
-				rsg = new RuleSidesGenerate(firstChild.getLabel(), e2.getLabel(), firstChild.getHeadPOS(),
-						firstChild.getHeadWord(), direction, e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(), 0, 0,
-						new Distance());
+				rsg = disposeNPB(e1, e2, 1);
+			}
+			else
+			{
+				rsg = new RuleSidesGenerate(e2.getHeadLabel(), e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(),
+						direction, e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(), 0, 0, e2.getLc());
 			}
 			pro = pro * lexpcfg.getGeneratePro(rsg, "sides");
 
@@ -444,5 +660,99 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 			return;
 		}
 		addEdge(edge, edge.getStart(), edge.getEnd(), tempEdgeList);
+	}
+
+	/**
+	 * 得到动词列表
+	 * 
+	 * @return
+	 */
+	private HashSet<String> getVerbs()
+	{
+		String[] verbArray = { "VA", "VC", "VE", "VV", "BA", "LB" };
+		HashSet<String> verbs = new HashSet<String>();
+		for (String verb : verbArray)
+		{
+			verbs.add(verb);
+		}
+		return verbs;
+	}
+
+	/**
+	 * 合并时，若父节点为NPB,则其概率计算方式不变，但是生成规则中的headChild变为将要添加的孩子的前一个孩子
+	 * 
+	 * @param e1
+	 * @param e2
+	 * @param direction
+	 * @param rsg
+	 * @return
+	 */
+	private RuleSidesGenerate disposeNPB(Edge e1, Edge e2, int direction)
+	{
+		RuleSidesGenerate rsg;
+		if (direction == 2)
+		{
+			Edge lastChild = e1.getLastChild();
+			rsg = new RuleSidesGenerate(lastChild.getLabel(), e1.getLabel(), lastChild.getHeadPOS(),
+					lastChild.getHeadWord(), direction, e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(), 0, 0,
+					new Distance());
+		}
+		else
+		{
+			Edge firstChild = e2.getFirstChild();
+			rsg = new RuleSidesGenerate(firstChild.getLabel(), e2.getLabel(), firstChild.getHeadPOS(),
+					firstChild.getHeadWord(), direction, e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(), 0, 0,
+					new Distance());
+		}
+		return rsg;
+	}
+
+	/**
+	 * 处理并列结构及标点符号（暂时只处理并列结构）
+	 * 
+	 * @param e1
+	 * @param e2
+	 * @param direction
+	 * @param rsg
+	 * @param pro
+	 * @return
+	 */
+	private double disposeCoorAndPC(Edge e1, Edge e2, int direction, RuleSidesGenerate rsg, double pro)
+	{
+		if (e1.getChildNum() >= 2 && !e1.getLabel().equals("NPB") && e1.getLastChild().getLabel().equals("CC")
+				&& e1.getLabel().equals(e1.getChildLabel(e1.getChildNum() - 2)) && e1.getLabel().equals(e2.getLabel()))
+		{
+			Edge lastChild = e1.getLastChild();
+			rsg = new RuleSidesGenerate(lastChild.getLabel(), e1.getLabel(), lastChild.getHeadPOS(),
+					lastChild.getHeadWord(), direction, e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(), 1, 0,
+					e1.getRc());
+			RuleSpecialCase sg = new RuleSpecialCase(e1.getLabel(), lastChild.getHeadPOS(), lastChild.getHeadWord(),
+					e1.getChildLabel(e1.getChildNum() - 2), e2.getLabel(),
+					e1.getChild(e1.getChildNum() - 2).getHeadWord(), e2.getHeadWord(),
+					e1.getChild(e1.getChildNum() - 2).getHeadPOS(), e2.getHeadPOS());
+			pro = pro * lexpcfg.getGeneratePro(rsg, "sides") * lexpcfg.getGeneratePro(sg, "special");
+		}
+		return pro;
+	}
+
+	/**
+	 * 若此刻添加的是CC或者标点符号、，则概率不变，只是将edge中的coor值改为1
+	 * 
+	 * @param e1
+	 * @param e2
+	 * @param edge
+	 * @param children
+	 * @return
+	 */
+	private Edge disposeCoorAndPCEdge(Edge e1, Edge e2, Edge edge, ArrayList<Edge> children)
+	{
+		if (e2.getLabel().equals("CC") && !e1.getLabel().equals("NPB")
+				&& e1.getLabel().equals(e1.getLastChild().getLabel()))
+		{
+			edge = new Edge(e1.getLabel(), e1.getHeadLabel(), e1.getHeadWord(), e1.getHeadPOS(), e1.getStart(),
+					e2.getEnd(), e1.getLc(), new Distance(false, e1.getRc().isCrossVerb()), 1, 0, false, e1.getPro(),
+					children);
+		}
+		return edge;
 	}
 }
