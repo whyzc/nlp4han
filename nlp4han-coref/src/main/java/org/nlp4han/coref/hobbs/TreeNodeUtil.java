@@ -1,6 +1,9 @@
-package com.lc.nlp4han.constituent;
+package org.nlp4han.coref.hobbs;
 
 import java.util.*;
+
+import com.lc.nlp4han.constituent.HeadRule;
+import com.lc.nlp4han.constituent.TreeNode;
 
 /**
  * @author 杨智超

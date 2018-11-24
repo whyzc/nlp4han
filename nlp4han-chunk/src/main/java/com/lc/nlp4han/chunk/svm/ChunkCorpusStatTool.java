@@ -206,10 +206,12 @@ public class ChunkCorpusStatTool
 	{
 		if (type == 0)
 		{ // 形如"w/p"
-			int index = str.lastIndexOf("/");
-			String[] wordAndPOS = new String[2];
-			wordAndPOS[0] = str.substring(0, index);
-			wordAndPOS[1] = str.substring(index+1);
+
+			String[] wordAndPOS = str.split("/");
+			if (wordAndPOS.length != 2)
+			{
+				System.out.println("1" + str);
+			}
 
 			wordNum++;
 			words.add(wordAndPOS[0]);
@@ -222,19 +224,11 @@ public class ChunkCorpusStatTool
 		}
 		else if (type == 2)
 		{ // 形如"w/p]t"
-			int j = str.lastIndexOf("]");
-			String[] strs = new String[2];
-			strs[0] = str.substring(0, j);
-			strs[1] = str.substring(j+1);
-			
+			String[] strs = str.split("]");
 			if (strs.length > 1)
 			{
 				String chunkStr = strs[1];
-				
-				int index = strs[0].lastIndexOf("/");
-				String[] wordAndPOS = new String[2];
-				wordAndPOS[0] = strs[0].substring(0, index);
-				wordAndPOS[1] = strs[0].substring(index+1);
+				String[] wordAndPOS = strs[0].split("/");
 
 				wordNum++;
 				words.add(wordAndPOS[0]);

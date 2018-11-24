@@ -3,7 +3,6 @@ package org.nlp4han.coref.hobbs;
 import java.util.List;
 
 import com.lc.nlp4han.constituent.TreeNode;
-import com.lc.nlp4han.constituent.TreeNodeUtil;
 
 /**
  * 用于过滤中心词为代词的NP候选词

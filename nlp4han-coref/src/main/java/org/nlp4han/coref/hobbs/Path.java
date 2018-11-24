@@ -1,7 +1,9 @@
-package com.lc.nlp4han.constituent;
+package org.nlp4han.coref.hobbs;
 
 import java.util.LinkedList;
 import java.util.List;
+
+import com.lc.nlp4han.constituent.TreeNode;
 
 /**
  * 路径类

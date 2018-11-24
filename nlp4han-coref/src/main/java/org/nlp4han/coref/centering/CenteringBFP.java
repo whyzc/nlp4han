@@ -14,9 +14,9 @@ import org.nlp4han.coref.hobbs.AttributeGeneratorByDic;
 import org.nlp4han.coref.hobbs.CandidateFilter;
 import org.nlp4han.coref.hobbs.NodeNameFilter;
 import org.nlp4han.coref.hobbs.PNFilter;
+import org.nlp4han.coref.hobbs.TreeNodeUtil;
 
 import com.lc.nlp4han.constituent.TreeNode;
-import com.lc.nlp4han.constituent.TreeNodeUtil;
 
 /**
  * 中心理论的BFP算法
