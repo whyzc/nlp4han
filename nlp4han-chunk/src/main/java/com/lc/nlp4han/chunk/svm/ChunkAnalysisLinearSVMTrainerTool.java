@@ -66,7 +66,7 @@ public class ChunkAnalysisLinearSVMTrainerTool
 		for (int n : numberOfClassification)
 			total += n;
 		System.out.println("样本总数：" + total);
-		System.out.println("特征总数：" + ssi.getFeatures().size());
+		System.out.println("特种总数：" + ssi.getFeatures().size());
 
 		String[] trainArgs = as.get("train");
 
