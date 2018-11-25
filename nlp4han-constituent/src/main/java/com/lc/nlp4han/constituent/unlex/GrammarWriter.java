@@ -133,19 +133,19 @@ public class GrammarWriter
 		}
 
 		FileOutputStream fos = new FileOutputStream(filePath + ".BandURule");
-		OutputStreamWriter osw = new OutputStreamWriter(fos, "gbk");
+		OutputStreamWriter osw = new OutputStreamWriter(fos, "utf-8");
 		BufferedWriter bAndURuleWriter = new BufferedWriter(osw);
 
 		FileOutputStream fos2 = new FileOutputStream(filePath + ".PreRule");
-		OutputStreamWriter osw2 = new OutputStreamWriter(fos2, "gbk");
+		OutputStreamWriter osw2 = new OutputStreamWriter(fos2, "utf-8");
 		BufferedWriter preRuleWriter = new BufferedWriter(osw2);
 
 		FileOutputStream fos3 = new FileOutputStream(filePath + ".URule");
-		OutputStreamWriter osw3 = new OutputStreamWriter(fos3, "gbk");
+		OutputStreamWriter osw3 = new OutputStreamWriter(fos3, "utf-8");
 		BufferedWriter uRuleWriter = new BufferedWriter(osw3);
 
 		FileOutputStream fos4 = new FileOutputStream(filePath + ".RuleScoreSum");
-		OutputStreamWriter osw4 = new OutputStreamWriter(fos4, "gbk");
+		OutputStreamWriter osw4 = new OutputStreamWriter(fos4, "utf-8");
 		BufferedWriter sameParentRuleScoreWriter = new BufferedWriter(osw4);
 
 		for (String bAndURuleStr : allBAndURules)

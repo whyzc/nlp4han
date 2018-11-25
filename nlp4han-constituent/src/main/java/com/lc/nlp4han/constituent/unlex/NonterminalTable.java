@@ -45,6 +45,12 @@ public class NonterminalTable
 		intValueOfPreterminalArr.add(preterminalSymbol);
 	}
 
+	public boolean hasPreterminalSymbol(short preterminalSymbol)
+	{
+		return intValueOfPreterminalArr.contains(preterminalSymbol);
+	}
+
+	
 	/**
 	 * 
 	 * @param symbol

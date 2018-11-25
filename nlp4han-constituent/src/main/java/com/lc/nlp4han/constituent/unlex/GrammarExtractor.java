@@ -19,14 +19,13 @@ public class GrammarExtractor
 {
 	public TreeBank treeBank;
 	public HashSet<String> dictionary;
-
 	public List<Short> preterminal;// 词性标注对应的整数
-
 	public HashMap<PreterminalRule, Integer>[] preRuleBySameHeadCount;// 长度与preterminal相同
 	public HashMap<BinaryRule, Integer>[] bRuleBySameHeadCount;// 数组下标表示nonterminal对应的整数
 	public HashMap<UnaryRule, Integer>[] uRuleBySameHeadCount;// 数组下标表示nonterminal对应的整数
 	public int[] numOfSameHeadRule;
 	public int rareWordThreshold;
+	public HashMap<String, Double> wordCount;
 
 	public GrammarExtractor(String treeBankPath, boolean addParentLabel, String encoding, int rareWordThreshold)
 	{
@@ -68,6 +67,7 @@ public class GrammarExtractor
 
 		ArrayList<Short> tagWithRareWord = new ArrayList<Short>();
 		ArrayList<Integer> rareWordCount = new ArrayList<Integer>();
+		ArrayList<String> rareWord = new ArrayList<String>();
 		int allRareWord = 0;
 
 		for (HashMap<BinaryRule, Integer> map : this.bRuleBySameHeadCount)
@@ -101,11 +101,22 @@ public class GrammarExtractor
 		{
 			allURule.putAll(map);
 		}
+		for (Map.Entry<String, Double> entry : wordCount.entrySet())
+		{
+			if (entry.getValue() <= rareWordThreshold)
+				rareWord.add(entry.getKey());
+		}
 		bRules = new HashSet<BinaryRule>(allBRule.keySet());
 		uRules = new HashSet<UnaryRule>(allURule.keySet());
 		preRules = new HashSet<PreterminalRule>(allPreRule.keySet());
-		Lexicon lexicon = new Lexicon(preRules, this.dictionary, tagWithRareWord, rareWordCount, allRareWord);
+		Lexicon lexicon = new Lexicon(preRules, this.dictionary, tagWithRareWord, rareWordCount, rareWord, allRareWord);
 		Grammar intialG = new Grammar(bRules, uRules, lexicon, treeBank.getNonterminalTable());
+		double[][] subTag2UNKScores = new double[intialG.getNumSymbol()][1];
+		for (double[] arr : subTag2UNKScores)
+		{
+			arr[0] = 1;
+		}
+		intialG.setSubTag2UNKScores(subTag2UNKScores);
 		return intialG;
 	}
 
@@ -139,6 +150,7 @@ public class GrammarExtractor
 			uRuleBySameHeadCount[i] = new HashMap<UnaryRule, Integer>();
 		}
 		numOfSameHeadRule = new int[this.treeBank.getNonterminalTable().getNumSymbol()];
+		wordCount = new HashMap<>();
 	}
 
 	private void tally()
@@ -205,6 +217,15 @@ public class GrammarExtractor
 							int count = preRuleBySameHeadCount[preterminal.indexOf(parent)].get(preRule) + 1;
 							preRuleBySameHeadCount[preterminal.indexOf(parent)].remove(preRule);
 							preRuleBySameHeadCount[preterminal.indexOf(parent)].put(preRule, count);
+						}
+
+						if (wordCount.containsKey(child))
+						{
+							wordCount.put(child, wordCount.get(child) + 1);
+						}
+						else
+						{
+							wordCount.put(child, 1.0);
 						}
 					}
 				}

@@ -2,6 +2,7 @@ package com.lc.nlp4han.constituent.unlex;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * 记录规则的期望次数
@@ -14,6 +15,7 @@ public class RuleCounter
 	protected HashMap<UnaryRule, double[][]> uRuleCounter;
 	protected HashMap<PreterminalRule, double[]> preRuleCounter;
 	protected HashMap<Short, Double[]> sameParentRulesCounter;// <parent,[ParentSubIndex,sum]>
+	protected HashMap<Short, double[]> sameTagToUNKCounter;// 记录tag_i-->UNK 的期望
 
 	public RuleCounter()
 	{
@@ -21,20 +23,76 @@ public class RuleCounter
 		uRuleCounter = new HashMap<>();
 		preRuleCounter = new HashMap<>();
 		sameParentRulesCounter = new HashMap<>();
+		sameTagToUNKCounter = new HashMap<Short, double[]>();
 	}
 
-	public double calRuleExpectationAndTreeBankLSS(Grammar g, TreeBank treeBank)
+	public void calRuleExpectation(Grammar g, TreeBank treeBank)
 	{
-		double lss = 0;
 		for (AnnotationTreeNode tree : treeBank.getTreeBank())
 		{
-			TreeBank.calculateInnerScore(g, tree);
-			TreeBank.calculateOuterScore(g, tree);
 			refreshRuleCountExpectation(g, tree, tree);
-			lss += TreeBank.calLogSentenceSocre(tree);
-			tree.forgetIOScoreAndScale();
 		}
-		return lss;
+		calSameParentRulesExpectation(g);
+	}
+
+	public void calSameParentRulesExpectation(Grammar g)
+	{
+		for (short pSymbol = 0; pSymbol < g.getNumSymbol(); pSymbol++)
+		{
+			Double[] count = new Double[g.getNumSubSymbol((short) pSymbol)];
+			for (int i = 0; i < count.length; i++)
+			{
+				count[i] = 0.0;
+			}
+			if (g.getbRuleBySameHead().containsKey(pSymbol))
+			{
+				for (Map.Entry<BinaryRule, BinaryRule> entry : g.getbRuleBySameHead().get(pSymbol).entrySet())
+				{
+					double[][][] ruleCount = bRuleCounter.get(entry.getValue());
+					for (int pSubSymbol = 0; pSubSymbol < count.length; pSubSymbol++)
+					{
+						double tempCount = 0.0;
+						for (double[] countArr : ruleCount[pSubSymbol])
+						{
+							for (double subRuleCount : countArr)
+							{
+								tempCount += subRuleCount;
+							}
+						}
+						count[pSubSymbol] += tempCount;
+					}
+				}
+			}
+			if (g.getuRuleBySameHead().containsKey(pSymbol))
+			{
+				for (Map.Entry<UnaryRule, UnaryRule> entry : g.getuRuleBySameHead().get(pSymbol).entrySet())
+				{
+					double[][] ruleCount = uRuleCounter.get(entry.getValue());
+					for (int pSubSymbol = 0; pSubSymbol < count.length; pSubSymbol++)
+					{
+						double tempCount = 0.0;
+						for (double subRuleCount : ruleCount[pSubSymbol])
+						{
+							tempCount += subRuleCount;
+						}
+						count[pSubSymbol] += tempCount;
+					}
+				}
+			}
+			if (g.getPreRuleBySameHead().containsKey(pSymbol))
+			{
+				for (Map.Entry<PreterminalRule, PreterminalRule> entry : g.getPreRuleBySameHead().get(pSymbol)
+						.entrySet())
+				{
+					double[] ruleCount = preRuleCounter.get(entry.getValue());
+					for (int pSubSymbol = 0; pSubSymbol < count.length; pSubSymbol++)
+					{
+						count[pSubSymbol] += ruleCount[pSubSymbol];
+					}
+				}
+			}
+			sameParentRulesCounter.put(pSymbol, count);
+		}
 	}
 
 	public void refreshRuleCountExpectation(Grammar g, AnnotationTreeNode root, AnnotationTreeNode tree)
@@ -55,8 +113,8 @@ public class RuleCounter
 			double[][][] count;
 			if (!bRuleCounter.containsKey(rule))
 			{
-				count = new double[tree.getLabel().getNumSubSymbol()][lC.getLabel().getNumSubSymbol()][rC.getLabel()
-						.getNumSubSymbol()];
+				count = new double[g.getNumSubSymbol(tree.getLabel().getSymbol())][g
+						.getNumSubSymbol(lC.getLabel().getSymbol())][g.getNumSubSymbol(rC.getLabel().getSymbol())];
 				bRuleCounter.put(rule, count);
 			}
 			else
@@ -65,11 +123,11 @@ public class RuleCounter
 			}
 			scalingFactor = ScalingTools.calcScaleFactor(tree.getLabel().getOuterScale() + lC.getLabel().getInnerScale()
 					+ rC.getLabel().getInnerScale() - root.getLabel().getInnerScale());
-			for (int i = 0; i < tree.getLabel().getNumSubSymbol(); i++)
+			for (int i = 0; i < g.getNumSubSymbol(tree.getLabel().getSymbol()); i++)
 			{
-				for (int j = 0; j < tree.getChildren().get(0).getLabel().getNumSubSymbol(); j++)
+				for (int j = 0; j < g.getNumSubSymbol(tree.getChildren().get(0).getLabel().getSymbol()); j++)
 				{
-					for (int k = 0; k < tree.getChildren().get(1).getLabel().getNumSubSymbol(); k++)
+					for (int k = 0; k < g.getNumSubSymbol(tree.getChildren().get(1).getLabel().getSymbol()); k++)
 					{
 						count[i][j][k] = count[i][j][k]
 								+ (scores.get(i).get(j).get(k) * lC.getLabel().getInnerScores()[j]
@@ -88,8 +146,8 @@ public class RuleCounter
 			double[][] count;
 			if (!uRuleCounter.containsKey(rule))
 			{
-				count = new double[tree.getLabel().getNumSubSymbol()][tree.getChildren().get(0).getLabel()
-						.getNumSubSymbol()];
+				count = new double[g.getNumSubSymbol(tree.getLabel().getSymbol())][g.getNumSubSymbol(tree.getChildren().get(0).getLabel()
+						.getSymbol())];
 				uRuleCounter.put(rule, count);
 			}
 			else
@@ -98,9 +156,9 @@ public class RuleCounter
 			}
 			scalingFactor = ScalingTools.calcScaleFactor(tree.getLabel().getOuterScale()
 					+ child.getLabel().getInnerScale() - root.getLabel().getInnerScale());
-			for (int i = 0; i < tree.getLabel().getNumSubSymbol(); i++)
+			for (int i = 0; i < g.getNumSubSymbol(tree.getLabel().getSymbol()); i++)
 			{
-				for (int j = 0; j < tree.getChildren().get(0).getLabel().getNumSubSymbol(); j++)
+				for (int j = 0; j < g.getNumSubSymbol(tree.getChildren().get(0).getLabel().getSymbol()); j++)
 				{
 					count[i][j] = count[i][j] + (scores.get(i).get(j) * child.getLabel().getInnerScores()[j]
 							/ root.getLabel().getInnerScores()[0] * scalingFactor
@@ -117,7 +175,7 @@ public class RuleCounter
 			double[] count;
 			if (!preRuleCounter.containsKey(rule))
 			{
-				count = new double[tree.getLabel().getNumSubSymbol()];
+				count = new double[g.getNumSubSymbol(tree.getLabel().getSymbol())];
 				preRuleCounter.put(rule, count);
 			}
 			else
@@ -126,10 +184,21 @@ public class RuleCounter
 			}
 			scalingFactor = ScalingTools
 					.calcScaleFactor(tree.getLabel().getOuterScale() - root.getLabel().getInnerScale());
-			for (int i = 0; i < tree.getLabel().getNumSubSymbol(); i++)
+			double tempCount = 0.0;
+			for (int i = 0; i <g.getNumSubSymbol(tree.getLabel().getSymbol()) ; i++)
 			{
-				count[i] = count[i] + (scores.get(i) / root.getLabel().getInnerScores()[0] * scalingFactor
-						* tree.getLabel().getOuterScores()[i]);
+				tempCount = scores.get(i) / root.getLabel().getInnerScores()[0] * scalingFactor
+						* tree.getLabel().getOuterScores()[i];
+				count[i] = count[i] + tempCount;
+				if (g.isRareWord(rule.getWord()))
+				{
+					if (!sameTagToUNKCounter.containsKey(rule.getParent()))
+					{
+						sameTagToUNKCounter.put(rule.getParent(), new double[g.getNumSubSymbol(tree.getLabel().getSymbol())]);
+					}
+					sameTagToUNKCounter.get(rule.getParent())[i] = sameTagToUNKCounter.get(rule.getParent())[i]
+							+ tempCount;
+				}
 			}
 		}
 		else if (tree.getChildren().size() > 2)

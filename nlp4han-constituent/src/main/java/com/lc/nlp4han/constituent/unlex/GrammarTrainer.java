@@ -14,6 +14,9 @@ public class GrammarTrainer
 
 	public static Grammar train(Grammar g, TreeBank treeBank, int SMCycle, double mergeRate, int EMIterations)
 	{
+		treeBank.calIOScore(g);
+		double totalLSS = treeBank.calLogTreeBankSentenceSocre();
+		System.out.println("训练前树库似然值：" + totalLSS);
 		System.out.println("SMCycle:" + SMCycle);
 		for (int i = 0; i < SMCycle; i++)
 		{
@@ -21,9 +24,11 @@ public class GrammarTrainer
 			EM(g, treeBank, EMIterations);
 			System.err.println("分裂完成。");
 			GrammarMerger.mergeGrammar(g, treeBank, mergeRate, ruleCounter);
-			EM(g, treeBank, EMIterations);
+			EM(g, treeBank, EMIterations / 2);
 			System.err.println("合并完成。");
 		}
+		double[][] subTag2UNKScores = calTag2UNKScores(g);
+		g.setSubTag2UNKScores(subTag2UNKScores);
 		return g;
 	}
 
@@ -32,22 +37,31 @@ public class GrammarTrainer
 	 */
 	public static void EM(Grammar g, TreeBank treeBank, int iterations)
 	{
-		double lss = 0;
-		for (int i = 0; i < iterations; i++)
+		if (iterations > 0)
 		{
-
-			ruleCounter = new RuleCounter();
-			lss = calRuleExpectationAndTreeBankLSS(g, treeBank);
-			System.out.println("在本次EM前树库的Log似然值：" + lss);
-			recalculateRuleScore(g);
-
+			double totalLSS = 0;
+			treeBank.calIOScore(g);
+			totalLSS = treeBank.calLogTreeBankSentenceSocre();
+			System.out.println("EM算法开始前树库的log似然值：" + totalLSS);
+			for (int i = 0; i < iterations; i++)
+			{
+				calRuleExpectation(g, treeBank);
+				recalculateRuleScore(g);
+				treeBank.calIOScore(g);
+				totalLSS = treeBank.calLogTreeBankSentenceSocre();
+				System.out.println("在本次EM迭代后树库的Log似然值：" + totalLSS);
+			}
+			calRuleExpectation(g, treeBank);
+			System.out.println("EM算法结束。");
+			System.out.println("EM算法结束后树库的log似然值：" + totalLSS);
 		}
-		System.out.println("EM算法结束。");
+
 	}
 
-	public static double calRuleExpectationAndTreeBankLSS(Grammar g, TreeBank treeBank)
+	public static void calRuleExpectation(Grammar g, TreeBank treeBank)
 	{
-		return ruleCounter.calRuleExpectationAndTreeBankLSS(g, treeBank);
+		ruleCounter = new RuleCounter();
+		ruleCounter.calRuleExpectation(g, treeBank);
 	}
 
 	/**
@@ -200,5 +214,32 @@ public class GrammarTrainer
 		{
 			return ruleCounter.sameParentRulesCounter.get((short) parent)[pSubSymbolIndex];
 		}
+	}
+
+	public static double[][] calTag2UNKScores(Grammar g)
+	{
+		double[][] subTag2UNKScores = new double[g.getNumSymbol()][];
+		for (int tag = 0; tag < g.getNumSymbol(); tag++)
+		{
+			if (!g.hasPreterminalSymbol((short) tag))
+				continue;
+			subTag2UNKScores[tag] = new double[g.getNumSubSymbol((short) tag)];
+			for (int subT = 0; subT < subTag2UNKScores[tag].length; subT++)
+			{
+				if (ruleCounter.sameTagToUNKCounter.containsKey((short) tag))
+				{
+					double subTagCount = ruleCounter.sameParentRulesCounter.get((short) tag)[subT];
+					double subTagUNKCount = ruleCounter.sameTagToUNKCounter.get((short) tag)[subT];
+					subTag2UNKScores[tag][subT] = subTagUNKCount / subTagCount;
+					System.out.println(g.symbolStrValue((short) tag) + "_" + subT + " " + subTagUNKCount / subTagCount);
+				}
+				else
+				{
+					subTag2UNKScores[tag][subT] = 1;
+					System.out.println(g.symbolStrValue((short) tag) + " 没有出现过UNK.");
+				}
+			}
+		}
+		return subTag2UNKScores;
 	}
 }

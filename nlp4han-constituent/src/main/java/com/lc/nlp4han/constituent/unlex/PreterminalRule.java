@@ -22,6 +22,21 @@ public class PreterminalRule extends Rule
 		this.word = word;
 	}
 
+	public PreterminalRule(short parent, short nSubP, String word)
+	{
+		super.parent = parent;
+		this.word = word;
+		for (int i = 0; i < nSubP; i++)
+		{
+			scores.add(0.0);
+		}
+	}
+
+	public void setSubRuleScore(short indexSubP, double score)
+	{
+		scores.set(indexSubP, score);
+	}
+
 	@Override
 	public void split()
 	{

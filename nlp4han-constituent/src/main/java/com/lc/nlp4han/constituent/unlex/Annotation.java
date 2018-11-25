@@ -47,11 +47,11 @@ public class Annotation
 		this.symbol = symbol;
 	}
 
-	public short getNumSubSymbol()
-	{
-		return numSubSymbol;
-	}
-
+//	public short getNumSubSymbol()
+//	{
+//		return numSubSymbol;
+//	}
+//
 	public void setNumSubSymbol(short numSubSymbol)
 	{
 		this.numSubSymbol = numSubSymbol;

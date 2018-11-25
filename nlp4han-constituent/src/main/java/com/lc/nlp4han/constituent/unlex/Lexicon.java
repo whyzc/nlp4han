@@ -12,17 +12,21 @@ import java.util.HashSet;
  */
 public class Lexicon
 {
-	public static int DEFAULT_RAREWORD_THRESHOLD = 1;
+	public static int DEFAULT_RAREWORD_THRESHOLD = 10;
 	private HashSet<PreterminalRule> preRules;
 	private HashMap<String, Integer> dictionary;
+	private ArrayList<String> rareWord;
+	// for parse
+	private double[][] subTag2UNKScores;// subTag2UNKScores[tag][subTag]表示已知某未知词的词性标注是tag，tag_i-->UNK的概率
 
 	// private ArrayList<Short> tagWithRareWord;
-	// private ArrayList<Integer> rareWordCount;// rareWordCount[i]表示tagOfRareWord[i]对应的tag包含的rareword的个数
+	// private ArrayList<Integer> rareWordCount;//
+	// rareWordCount[i]表示tagOfRareWord[i]对应的tag包含的rareword的个数
 	// private int allRareWord;
 	// private double[] scores;// 一个未知词是某tag的概率
 
 	public Lexicon(HashSet<PreterminalRule> preRules, HashSet<String> dictionary, ArrayList<Short> tagWithRareWord,
-			ArrayList<Integer> rareWordCount, int allRareWord)
+			ArrayList<Integer> rareWordCount, ArrayList<String> rareWord, int allRareWord)
 	{
 		this.preRules = preRules;
 		// this.tagWithRareWord = tagWithRareWord;
@@ -30,6 +34,7 @@ public class Lexicon
 		// this.allRareWord = allRareWord;
 		// this.scores = new double[tagWithRareWord.size()];
 		this.dictionary = new HashMap<>();
+		this.rareWord = rareWord;
 		init(dictionary);
 	}
 
@@ -92,4 +97,25 @@ public class Lexicon
 	{
 		this.preRules = preRules;
 	}
+
+	public ArrayList<String> getRareWord()
+	{
+		return rareWord;
+	}
+
+	public void setRareWord(ArrayList<String> rareWord)
+	{
+		this.rareWord = rareWord;
+	}
+
+	public double[][] getSubTag2UNKScores()
+	{
+		return subTag2UNKScores;
+	}
+
+	public void setSubTag2UNKScores(double[][] subTag2UNKScores)
+	{
+		this.subTag2UNKScores = subTag2UNKScores;
+	}
+
 }
