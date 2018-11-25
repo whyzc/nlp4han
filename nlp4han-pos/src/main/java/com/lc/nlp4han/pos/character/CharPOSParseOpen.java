@@ -6,6 +6,8 @@ import java.util.ArrayList;
 /**
  * 解析OpenNLP词性标注语料
  * 
+ * 词和词性间用_分割
+ * 
  * @author 刘小峰
  *
  */
