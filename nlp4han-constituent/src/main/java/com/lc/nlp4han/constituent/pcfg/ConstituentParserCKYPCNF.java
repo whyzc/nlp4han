@@ -515,9 +515,10 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 	public static void main(String[] args) throws IOException
 	{
 		PCFG p2nf = new PCFG(new FileInputStream(new File(args[0])), args[1]);
-		double pruneThreshold = Double.parseDouble(args[2]);
-		boolean secondPrune = Boolean.getBoolean(args[3]);
-		boolean prior = Boolean.getBoolean(args[4]);
+		
+		double pruneThreshold = 0.0001;//Double.parseDouble(args[2]);
+		boolean secondPrune = false;//Boolean.getBoolean(args[3]);
+		boolean prior = false;//Boolean.getBoolean(args[4]);
 
 		ConstituentParserCKYPCNF parser = new ConstituentParserCKYPCNF(p2nf, pruneThreshold, secondPrune, prior);
 
