@@ -15,8 +15,10 @@ import com.lc.nlp4han.segment.WordSegmenter;
  */
 public class WordSegFactory
 {
-    public final static byte MODEL_PKU = 0;
-    public final static byte MODEL_MSR = 1;
+//    public final static byte MODEL_PKU = 0;
+//    public final static byte MODEL_MSR = 1;
+//    public final static byte MODEL_CTB = 2;
+	private static WordSegmenter segmenter = null;
     
     private WordSegFactory(){}
     
@@ -28,20 +30,23 @@ public class WordSegFactory
      * @throws InvalidFormatException
      * @throws IOException
      */
-    public static WordSegmenter getWordSegmenter(byte modelType) throws InvalidFormatException, IOException
+    public static WordSegmenter getWordSegmenter() throws InvalidFormatException, IOException
     {
-        String modelName = "com/lc/nlp4han/segment/ws-pku-utf8.model";
-        if(modelType == MODEL_MSR)
-            modelName = "com/lc/nlp4han/segment/ws-msr-utf8.model";
-        else if(modelType == MODEL_PKU)
-            modelName = "com/lc/nlp4han/segment/ws-pku-utf8.model";
-        else
-            return null;
+    	if(segmenter != null)
+    		return segmenter;
+    	
+        String modelName = "com/lc/nlp4han/segment/ctb8-seg.model";
+//        if(modelType == MODEL_MSR)
+//            modelName = "com/lc/nlp4han/segment/ws-msr-utf8.model";
+//        else if(modelType == MODEL_PKU)
+//            modelName = "com/lc/nlp4han/segment/ws-pku-utf8.model";
+//        else
+//            return null;
         
         InputStream modelIn = WordSegFactory.class.getClassLoader().getResourceAsStream(modelName);
         ModelWrapper model = new ModelWrapper(modelIn);
         
-        WordSegmenterME segmenter = new WordSegmenterME(model, new WordSegContextGeneratorConf());
+        segmenter = new WordSegmenterME(model, new WordSegContextGeneratorConf());
         
         return segmenter;
     }
@@ -50,7 +55,7 @@ public class WordSegFactory
     {
         String text  = "这个句子分词难不难？";
         
-        WordSegmenter segmenter = WordSegFactory.getWordSegmenter(MODEL_MSR);
+        WordSegmenter segmenter = WordSegFactory.getWordSegmenter();
         String[] words = segmenter.segment(text);
         for(String w : words)
             System.out.println(w);

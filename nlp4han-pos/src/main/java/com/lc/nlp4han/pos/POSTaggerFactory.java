@@ -26,7 +26,7 @@ public class POSTaggerFactory
 		if (posTagger != null)
 			return posTagger;
 
-		String modelName = "com/lc/nlp4han/pos/pos-pku-char-gb.model";
+		String modelName = "com/lc/nlp4han/pos/ctb8-pos-char.model";
 
 		InputStream modelIn = POSTaggerFactory.class.getClassLoader().getResourceAsStream(modelName);
 		ModelWrapper model = new ModelWrapper(modelIn);
