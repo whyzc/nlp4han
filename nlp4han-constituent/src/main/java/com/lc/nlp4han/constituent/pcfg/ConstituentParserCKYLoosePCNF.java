@@ -14,7 +14,13 @@ import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
 
-public class ConstituentParserCKYP2NF implements ConstituentParser
+/**
+ * 基于宽松PCNF的CKY句法解析器
+ * 
+ * 宽松PCNF运行A->B形式设规则
+ *
+ */
+public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 {
 	private CKYTreeNode[][] table;// 存储在该点的映射表
 	private PCFG pcnf;
@@ -22,7 +28,7 @@ public class ConstituentParserCKYP2NF implements ConstituentParser
 	private boolean secondPrune;// 是否进行二次解析
 	private boolean prior;//是否在解析中
 
-	public ConstituentParserCKYP2NF(PCFG pcnf, double pruneThreshold, boolean secondPrune,boolean prior)
+	public ConstituentParserCKYLoosePCNF(PCFG pcnf, double pruneThreshold, boolean secondPrune,boolean prior)
 	{
 		this.pruneThreshold = pruneThreshold;
 		this.secondPrune = secondPrune;
@@ -559,7 +565,7 @@ public class ConstituentParserCKYP2NF implements ConstituentParser
 		boolean secondPrune = false;//Boolean.getBoolean(args[3]);
 		boolean prior = false;//Boolean.getBoolean(args[4]);
 
-		ConstituentParserCKYP2NF parser = new ConstituentParserCKYP2NF(p2nf, pruneThreshold, secondPrune, prior);
+		ConstituentParserCKYLoosePCNF parser = new ConstituentParserCKYLoosePCNF(p2nf, pruneThreshold, secondPrune, prior);
 
 		Scanner input = new Scanner(System.in);
 		String text = "";

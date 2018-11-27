@@ -42,7 +42,7 @@ public class CKYParserEvaluator extends Evaluator<ConstituentTree>
 
 	public CKYParserEvaluator(PCFG p2nf, double pruneThreshold, boolean secondPrune,boolean prior)
 	{
-		this.cky = new ConstituentParserCKYP2NF(p2nf, pruneThreshold, secondPrune,prior);
+		this.cky = new ConstituentParserCKYLoosePCNF(p2nf, pruneThreshold, secondPrune,prior);
 	}
 
 	public CKYParserEvaluator(LexPCFG lexpcfg, double pruneThreshold, boolean secondPrune,boolean prior)

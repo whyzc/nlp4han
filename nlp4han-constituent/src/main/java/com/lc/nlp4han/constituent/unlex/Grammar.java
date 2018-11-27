@@ -459,6 +459,31 @@ public class Grammar
 		return preRule;
 	}
 
+	public void printRules()
+	{
+		for (BinaryRule rule : this.getbRules())
+		{
+			for (String str : rule.toStringRules(this))
+			{
+				System.out.println(str);
+			}
+		}
+		for (UnaryRule rule : this.getuRules())
+		{
+			for (String str : rule.toStringRules(this))
+			{
+				System.out.println(str);
+			}
+		}
+		for (PreterminalRule rule : this.getLexicon().getPreRules())
+		{
+			for (String str : rule.toStringRules(this))
+			{
+				System.out.println(str);
+			}
+		}
+	}
+
 	public short getNumSubSymbol(short symbol)
 	{
 		return nonterminalTable.getNumSubsymbolArr().get(symbol);
@@ -593,6 +618,29 @@ public class Grammar
 	{
 		return nonterminalTable;
 	}
-	
-	
+
+	public void setSubTag2UNKScores(double[][] subTag2UNKScores)
+	{
+		lexicon.setSubTag2UNKScores(subTag2UNKScores);
+	}
+
+	public double getSubtag2UNKScores(short tag, short subT)
+	{
+		return getTag2UNKScores(tag)[subT];
+	}
+
+	public double[] getTag2UNKScores(short tag)
+	{
+		return lexicon.getSubTag2UNKScores()[tag];
+	}
+
+	public boolean isRareWord(String word)
+	{
+		return lexicon.getRareWord().contains(word);
+	}
+
+	public boolean hasPreterminalSymbol(short preterminalSymbol)
+	{
+		return nonterminalTable.hasPreterminalSymbol(preterminalSymbol);
+	}
 }

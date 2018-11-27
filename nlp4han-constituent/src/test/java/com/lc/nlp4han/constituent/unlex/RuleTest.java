@@ -24,50 +24,33 @@ public class RuleTest
 		Grammar grammar = gExtractor.getGrammar();
 		TreeMap<String, Double> sameParentRuleScoreSum;
 
-		try
-		{
+		// try
+		// {
 			sameParentRuleScoreSum = grammar.calculateSameParentRuleScoreSum();
 			for (Map.Entry<String, Double> entry : sameParentRuleScoreSum.entrySet())
 			{
 				assertTrue("相同规则左侧的规则概率之和不为1。", entry.getValue() - 1 < Math.pow(10, -10));
-				System.out.println(entry.getKey() + " " + entry.getValue());
 			}
-			GrammarWriter.writeToFile(grammar, "C:\\Users\\hp\\Desktop\\berforSplit", false);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+//			GrammarWriter.writeToFile(grammar, "C:\\Users\\hp\\Desktop\\berforSplit", false);
 		GrammarSpliter.splitGrammar(grammar, treeBank);
-		try
-		{
 			sameParentRuleScoreSum = grammar.calculateSameParentRuleScoreSum();
 			for (Map.Entry<String, Double> entry : sameParentRuleScoreSum.entrySet())
 			{
 				assertTrue("相同规则左侧的规则概率之和不为1。", entry.getValue() - 1 < Math.pow(10, -10));
-				System.out.println(entry.getKey() + " " + entry.getValue());
 			}
-			GrammarWriter.writeToFile(grammar, "C:\\Users\\hp\\Desktop\\afterSplit", false);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+//			GrammarWriter.writeToFile(grammar, "C:\\Users\\hp\\Desktop\\afterSplit", false);
 		GrammarTrainer.EM(grammar, treeBank, 50);
-		try
-		{
 			sameParentRuleScoreSum = grammar.calculateSameParentRuleScoreSum();
 			for (Map.Entry<String, Double> entry : sameParentRuleScoreSum.entrySet())
 			{
 				assertTrue("相同规则左侧的规则概率之和不为1。", entry.getValue() - 1 < Math.pow(10, -10));
-				System.out.println(entry.getKey() + " " + entry.getValue());
 			}
-			GrammarWriter.writeToFile(grammar, "C:\\Users\\hp\\Desktop\\afterEM", false);
+//			GrammarWriter.writeToFile(grammar, "C:\\Users\\hp\\Desktop\\afterEM", false);
 
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+//		}
+//		catch (IOException e)
+//		{
+//			e.printStackTrace();
+//		}
 	}
 }

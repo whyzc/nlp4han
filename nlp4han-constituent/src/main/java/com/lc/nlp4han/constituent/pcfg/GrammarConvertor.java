@@ -12,7 +12,7 @@ import java.util.Set;
 public class GrammarConvertor
 {
 
-	public static CFG convertCFGToCNF(CFG cfg)
+	public static CFG CFG2CNF(CFG cfg)
 	{
 		return convertGrammar("CNF", cfg, new CFG());
 	}
@@ -25,7 +25,7 @@ public class GrammarConvertor
 	 * @param pcfg
 	 * @return
 	 */
-	public static PCFG convertPCFGToP2NF(PCFG pcfg)
+	public static PCFG PCFG2LoosePCNF(PCFG pcfg)
 	{
 		return (PCFG) convertGrammar("P2NF", pcfg, new PCFG());
 	}
@@ -36,7 +36,7 @@ public class GrammarConvertor
 	 * @param pcfg
 	 * @return
 	 */
-	public static PCFG convertPCFGToPCNF(PCFG pcfg)
+	public static PCFG PCFG2PCNF(PCFG pcfg)
 	{
 		return (PCFG)convertGrammar("PCNF", pcfg, new PCFG());
 	}
@@ -49,7 +49,7 @@ public class GrammarConvertor
 	 */
 	private static CFG convertGrammar(String type, CFG cfg, CFG cnf)
 	{
-		convertTo2NF(cfg, type, cnf);
+		toLooseCNF(cfg, type, cnf);
 
 		if (!type.contains("2"))
 		{// P2NF不需要消除单元规则
@@ -66,7 +66,7 @@ public class GrammarConvertor
 	 * 
 	 * @param cfg
 	 */
-	private static void convertTo2NF(CFG cfg, String type, CFG cnf)
+	private static void toLooseCNF(CFG cfg, String type, CFG cnf)
 	{
 		cnf.setNonTerminalSet(cfg.getNonTerminalSet());
 		cnf.setTerminalSet(cfg.getTerminalSet());

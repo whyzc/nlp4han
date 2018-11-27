@@ -48,7 +48,7 @@ public class CFGConvertToCNFTest
 
 		cfg.add(new RewriteRule("E->e"));
 
-		cnf = GrammarConvertor.convertCFGToCNF(cfg);
+		cnf = GrammarConvertor.CFG2CNF(cfg);
 
 	}
 

@@ -21,6 +21,26 @@ public class UnaryRule extends Rule
 		this.child = child;
 	}
 
+	public UnaryRule(short parent, short nSubP, short child, short nSubC)
+	{
+		super.parent = parent;
+		this.child = child;
+		for (int i = 0; i < nSubP; i++)
+		{
+			LinkedList<Double> c = new LinkedList<Double>();
+			for (int j = 0; j < nSubC; j++)
+			{
+				c.add(0.0);
+			}
+			scores.add(c);
+		}
+	}
+
+	public void setSubRuleScore(short indexSubP, short indexSubC, double score)
+	{
+		scores.get(indexSubP).set(indexSubC, score);
+	}
+
 	@Override
 	public void split()
 	{

@@ -62,15 +62,15 @@ public class GrammarConvertorTool
 
 		if (type.equals("CNF"))
 		{
-			cnf = GrammarConvertor.convertCFGToCNF(cfg);
+			cnf = GrammarConvertor.CFG2CNF(cfg);
 		}
 		else if (type.equals("P2NF"))
 		{
-			cnf = GrammarConvertor.convertPCFGToP2NF((PCFG) cfg);
+			cnf = GrammarConvertor.PCFG2LoosePCNF((PCFG) cfg);
 		}
 		else
 		{
-			cnf = GrammarConvertor.convertPCFGToPCNF((PCFG) cfg);
+			cnf = GrammarConvertor.PCFG2PCNF((PCFG) cfg);
 		}
 		if (topath == null)
 		{

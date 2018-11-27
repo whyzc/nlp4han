@@ -44,24 +44,24 @@ public class GrammarInducerlTool
 			}
 		}
 		
-		GetP2NFModel(corpusFile, encoding, modelFile);
+		ExtractAndWriteLoosePCNFModel(corpusFile, encoding, modelFile);
 	}
 
-	private static void GetP2NFModel(String corpusFile, String encoding, String modelFile) throws IOException
+	private static void ExtractAndWriteLoosePCNFModel(String corpusFile, String encoding, String modelFile) throws IOException
 	{
 		PCFG pcfg = GrammarExtractor.getPCFG(corpusFile, encoding);
 		
 //		PCFG p2nf = GrammarConvertor.convertPCFGToPCNF(pcfg);
-		PCFG p2nf = GrammarConvertor.convertPCFGToP2NF(pcfg);
+		PCFG loosePCNF = GrammarConvertor.PCFG2LoosePCNF(pcfg);
 		
 		if (modelFile == null)
 		{
-			System.out.println(p2nf.toString());
+			System.out.println(loosePCNF.toString());
 		}
 		else
 		{
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(modelFile), encoding));
-			bw.append(p2nf.toString());
+			bw.append(loosePCNF.toString());
 			bw.close();
 		}
 	}

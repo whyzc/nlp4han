@@ -3,7 +3,6 @@ package com.lc.nlp4han.constituent.unlex;
 import java.util.ArrayList;
 
 import com.lc.nlp4han.constituent.ConstituentMeasure;
-import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYLoosePCNF;
@@ -15,12 +14,12 @@ import com.lc.nlp4han.ml.util.Evaluator;
  * @author 王宁
  * 
  */
-public class EvaluatorParentLabelAdded extends Evaluator<ConstituentTree>
+public class EvaluatorLatentAnnotation extends Evaluator<ConstituentTree>
 {
 	/**
 	 * 句法分析模型得到一颗句法树
 	 */
-	private ConstituentParser cky;
+	private ConstituentParserLatentAnnotation parser;
 
 	/**
 	 * 句法树中的短语分析评估
@@ -40,14 +39,16 @@ public class EvaluatorParentLabelAdded extends Evaluator<ConstituentTree>
 		this.measure = measure;
 	}
 
-	public EvaluatorParentLabelAdded(ConstituentParser cky)
+	public EvaluatorLatentAnnotation(ConstituentParserLatentAnnotation parser)
 	{
-		this.cky = cky;
+		this.parser = parser;
 	}
 
-	public EvaluatorParentLabelAdded(PCFG p2nf, double pruneThreshold, boolean secondPrune, boolean prior)
+	public EvaluatorLatentAnnotation(Grammar gLatentAnnotation, PCFG p2nf, double pruneThreshold, boolean secondPrune,
+			boolean prior)
 	{
-		this.cky = new ConstituentParserCKYLoosePCNF(p2nf, pruneThreshold, secondPrune, prior);
+		this.parser = new ConstituentParserLatentAnnotation(
+				new ConstituentParserCKYLoosePCNF(p2nf, pruneThreshold, secondPrune, prior), gLatentAnnotation);
 	}
 
 	@Override
@@ -56,9 +57,7 @@ public class EvaluatorParentLabelAdded extends Evaluator<ConstituentTree>
 		TreeNode rootNodeRef = sample.getRoot();
 		ArrayList<String> words = new ArrayList<String>();
 		ArrayList<String> poses = new ArrayList<String>();
-		TreeUtil.addParentLabel(rootNodeRef);
 		TreeNodeUtil.getWordsAndPOSFromTree(words, poses, rootNodeRef);
-		TreeUtil.removeParentLabel(rootNodeRef);
 		String[] words1 = new String[words.size()];
 		String[] poses1 = new String[poses.size()];
 		for (int i = 0; i < words.size(); i++)
@@ -69,7 +68,7 @@ public class EvaluatorParentLabelAdded extends Evaluator<ConstituentTree>
 
 		long start = System.currentTimeMillis();
 
-		ConstituentTree treePre = cky.parse(words1, poses1);
+		ConstituentTree treePre = parser.parse(words1, poses1);
 		long thisTime = System.currentTimeMillis() - start;
 		totalTime += thisTime;
 		count++;
