@@ -7,7 +7,7 @@ import java.util.TreeMap;
 import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
-import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYP2NF;
+import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYLoosePCNF;
 
 /**
  * @author 王宁
@@ -15,16 +15,16 @@ import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYP2NF;
 public class ConstituentParserLatentAnnotation implements ConstituentParser
 {
 	public static int deafultParserCKYP2NF_K = 10;
-	private ConstituentParserCKYP2NF p2nf;
+	private ConstituentParserCKYLoosePCNF p2nf;
 	private Grammar grammarLatentLabel;
 
-	public ConstituentParserLatentAnnotation(ConstituentParserCKYP2NF p2nf, Grammar grammarLatentLabel)
+	public ConstituentParserLatentAnnotation(ConstituentParserCKYLoosePCNF p2nf, Grammar grammarLatentLabel)
 	{
 		this.p2nf = p2nf;
 		this.grammarLatentLabel = grammarLatentLabel;
 	}
 
-	public ConstituentParserLatentAnnotation(ConstituentParserCKYP2NF p2nf, Grammar grammarLatentLabel,
+	public ConstituentParserLatentAnnotation(ConstituentParserCKYLoosePCNF p2nf, Grammar grammarLatentLabel,
 			int parserCKYP2NF_K)
 	{
 		this.p2nf = p2nf;
@@ -97,12 +97,12 @@ public class ConstituentParserLatentAnnotation implements ConstituentParser
 		return sortedTree.toArray(new ConstituentTree[sortedTree.size()]);
 	}
 
-	public ConstituentParserCKYP2NF getP2nf()
+	public ConstituentParserCKYLoosePCNF getP2nf()
 	{
 		return p2nf;
 	}
 
-	public void setP2nf(ConstituentParserCKYP2NF p2nf)
+	public void setP2nf(ConstituentParserCKYLoosePCNF p2nf)
 	{
 		this.p2nf = p2nf;
 	}

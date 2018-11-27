@@ -6,7 +6,7 @@ import com.lc.nlp4han.constituent.ConstituentMeasure;
 import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
-import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYP2NF;
+import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYLoosePCNF;
 import com.lc.nlp4han.constituent.pcfg.PCFG;
 import com.lc.nlp4han.constituent.pcfg.TreeNodeUtil;
 import com.lc.nlp4han.ml.util.Evaluator;
@@ -47,7 +47,7 @@ public class EvaluatorParentLabelAdded extends Evaluator<ConstituentTree>
 
 	public EvaluatorParentLabelAdded(PCFG p2nf, double pruneThreshold, boolean secondPrune, boolean prior)
 	{
-		this.cky = new ConstituentParserCKYP2NF(p2nf, pruneThreshold, secondPrune, prior);
+		this.cky = new ConstituentParserCKYLoosePCNF(p2nf, pruneThreshold, secondPrune, prior);
 	}
 
 	@Override

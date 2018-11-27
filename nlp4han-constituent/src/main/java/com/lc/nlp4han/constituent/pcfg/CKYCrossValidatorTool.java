@@ -36,7 +36,7 @@ public class CKYCrossValidatorTool
 		PCFG pcfg = GrammarExtractor.getPCFG(bracketList);
 
 		System.out.println("对文法进行转换...");
-		PCFG pcnf = GrammarConvertor.convertPCFGToP2NF(pcfg);
+		PCFG pcnf = GrammarConvertor.PCFG2LoosePCNF(pcfg);
 		
 		if(prior) {
 			@SuppressWarnings("unchecked")
@@ -44,7 +44,7 @@ public class CKYCrossValidatorTool
 			HashMap<String,Double> map=NonterminalProUtil.brackets2Map(bracketListClone,"pcfg");
 			pcnf=new PCFGPrior(pcnf,map);
 		}
-		return new ConstituentParserCKYP2NF(pcnf, pruneThreshold, secondPrune,prior);
+		return new ConstituentParserCKYLoosePCNF(pcnf, pruneThreshold, secondPrune,prior);
 	}
 
 	/**
