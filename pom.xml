@@ -48,5 +48,6 @@
 		<module>nlp4han-coref</module>
 		<module>nlp4han-coref</module>
     <module>nlp4han-tools</module>
+    <module>nlp4han-clustering</module>
   </modules>
 </project>
