@@ -10,7 +10,6 @@ import java.util.List;
  */
 public class PruningRules
 {
-	private static int count = 0;
 	
 	
 	/**
@@ -30,7 +29,6 @@ public class PruningRules
 			//flag |=  NP_DP(root);
 			if (!flag)
 			{
-				count++;
 				postProcessing(root);
 				break;
 			}
