@@ -25,6 +25,35 @@ public class BinaryRule extends Rule
 		this.rightChild = rChild;
 	}
 
+	/**
+	 * 所有子规则的概率都为零，待录入
+	 */
+	public BinaryRule(short parent, short nSubP, short lChild, short nSubLC, short rChild, short nSubRC)
+	{
+		super.parent = parent;
+		this.leftChild = lChild;
+		this.rightChild = rChild;
+		for (int i = 0; i < nSubP; i++)
+		{
+			LinkedList<LinkedList<Double>> LR = new LinkedList<LinkedList<Double>>();
+			for (int j = 0; j < nSubLC; j++)
+			{
+				LinkedList<Double> R = new LinkedList<Double>();
+				for (int k = 0; k < nSubRC; k++)
+				{
+					R.add(0.0);
+				}
+				LR.add(R);
+			}
+			scores.add(LR);
+		}
+	}
+
+	public void setSubRuleScore(short indexSubP, short indexSubLC, short indexSubRC, double score)
+	{
+		scores.get(indexSubP).get(indexSubLC).set(indexSubRC, score);
+	}
+
 	@Override
 	public void split()
 	{
