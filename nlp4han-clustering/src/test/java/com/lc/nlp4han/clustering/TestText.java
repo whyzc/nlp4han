@@ -33,7 +33,7 @@ public class TestText
 	public void testGetTexts()
 	{
 		String folderPath = "********";
-		List<Text> ts = Text.getTexts(folderPath);
+		List<Text> ts = Text.getTexts(folderPath, false);
 	}
 	
 	@Test
@@ -50,6 +50,20 @@ public class TestText
 		Text t = null;
 		
 		t.setSample(s);
+	}
+	
+	@Test
+	public void testGetContent()
+	{
+		Text t = null;
+		String content = t.getContent();
+	}
+	
+	@Test
+	public void testGetName()
+	{
+		Text t = null;
+		String name = t.getName();
 	}
 	
 }

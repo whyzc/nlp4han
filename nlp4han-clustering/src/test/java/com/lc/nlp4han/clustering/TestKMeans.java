@@ -10,7 +10,7 @@ public class TestKMeans
 	public void testRun()
 	{
 		String folderPath = "********";
-		List<Text> ts = Text.getTexts(folderPath);
+		List<Text> ts = Text.getTexts(folderPath, false);
 		List<Group> grps = KMeans.run(ts, 10) ;
 	}
 }

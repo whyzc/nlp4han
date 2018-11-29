@@ -4,5 +4,7 @@ import java.util.List;
 
 public interface FeatureGenerator
 {
-	public List<String> getFeatures(Text text);
+	public void init(List<Text> texts);
+	public List<Feature> getFeatures(Text text);
+	public boolean isInitialized();
 }

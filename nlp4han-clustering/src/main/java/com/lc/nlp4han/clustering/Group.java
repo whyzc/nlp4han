@@ -4,19 +4,20 @@ import java.util.List;
 
 public class Group
 {
-	List<Sample> samples;
+	private List<Text> members;
+	private Text center;
 
 	public Group()
 	{
 		
 	}
 	
-	public Group(Sample sample)
+	public Group(Text text)
 	{
 		// TODO Auto-generated constructor stub
 	}
 	
-	public Group(List<Sample> samples)
+	public Group(List<Text> texts)
 	{
 		// TODO Auto-generated constructor stub
 	}
@@ -51,7 +52,7 @@ public class Group
 		
 	}
 
-	public Text getCenter()
+	public Text removeMember(Text text)
 	{
 		// TODO Auto-generated method stub
 		return null;
@@ -59,14 +60,22 @@ public class Group
 
 	public List<Text> getMembers()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return members;
 	}
-	
-	public Text removeMember(Text text)
+
+	public void setMembers(List<Text> members)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		this.members = members;
+	}
+
+	public Text getCenter()
+	{
+		return center;
+	}
+
+	public void setCenter(Text center)
+	{
+		this.center = center;
 	}
 	
 }
