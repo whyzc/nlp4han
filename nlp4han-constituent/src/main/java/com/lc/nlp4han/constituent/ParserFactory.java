@@ -30,13 +30,16 @@ public class ParserFactory
 		InputStream modelIn = ParserFactory.class.getClassLoader().getResourceAsStream(modelName);
 		String encoding = "UTF-8";
 
-		PCFG p2nf = new PCFG(modelIn, encoding);
+		PCFG grammar = new PCFG(modelIn, encoding);
+		
+//		System.out.println(grammar.isCNF());
+//		System.out.println(grammar.isLooseCNF());
 
 		double pruneThreshold = 0.0001;
 		boolean secondPrune = false;
 		boolean prior = false;
 
-		parser = new ConstituentParserCKYLoosePCNF(p2nf, pruneThreshold, secondPrune, prior);
+		parser = new ConstituentParserCKYLoosePCNF(grammar, pruneThreshold, secondPrune, prior);
 
 		return parser;
 	}

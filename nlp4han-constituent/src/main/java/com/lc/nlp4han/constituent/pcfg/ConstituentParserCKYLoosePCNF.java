@@ -17,7 +17,7 @@ import com.lc.nlp4han.constituent.TreeNode;
 /**
  * 基于宽松PCNF的CKY句法解析器
  * 
- * 宽松PCNF运行A->B形式设规则
+ * 宽松PCNF允许A->B形式的规则
  *
  */
 public class ConstituentParserCKYLoosePCNF implements ConstituentParser
