@@ -7,10 +7,22 @@ import org.junit.Test;
 public class TestFeatureGenerator
 {
 	@Test
+	public void testInit()
+	{
+		List<Text> texts = null;  //所有的文本
+		FeatureGenerator fg = null;
+		
+		fg.init(texts);  //对FeatureGenerator进行初始化
+	}
+	
+	@Test
 	public void testGetFeatures()
 	{
 		Text t1 = null;
 		FeatureGenerator fg = null;
-		List<String> features = fg.getFeatures(t1);
+		List<Feature> features = null;
+		
+		if (fg.isInitialized())		//FeatureGenerator已经初始化
+			features = fg.getFeatures(t1);
 	}
 }

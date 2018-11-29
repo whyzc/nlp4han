@@ -10,13 +10,14 @@ public class TestDistance
 		Text t1 = null;
 		Text t2 = null;
 		
+		FeatureGenerator fg = null;
 		SampleGenerator sg = null;
 		
-		t1.generateSample(sg);
-		t2.generateSample(sg);
+		t1.generateSample(sg, fg);
+		t2.generateSample(sg, fg);
 		
 		Distance dis = null;
-		double d = dis.getDistance(t1, t2);
+		double d = dis.getDistance(t1, t2);  //Text与Text间的距离
 	}
 	
 	@Test
@@ -25,13 +26,14 @@ public class TestDistance
 		Group g1 = null;
 		Text t1 = null;
 		
+		FeatureGenerator fg = null;
 		SampleGenerator sg = null;
-		t1.generateSample(sg);
+		t1.generateSample(sg, fg);
 		
 		g1.updateCenter();
 		
 		Distance dis = null;
-		double d = dis.getDistance(t1, g1);
+		double d = dis.getDistance(t1, g1);  //Text与Group间的距离
 	}
 	
 	@Test
@@ -41,6 +43,6 @@ public class TestDistance
 		Group g2 = null;
 		
 		Distance dis = null;
-		double d = dis.getDistance(g1, g2);
+		double d = dis.getDistance(g1, g2);  //Group与Group间的距离
 	}
 }
