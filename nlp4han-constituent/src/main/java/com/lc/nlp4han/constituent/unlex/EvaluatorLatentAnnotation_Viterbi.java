@@ -5,29 +5,20 @@ import java.util.ArrayList;
 import com.lc.nlp4han.constituent.ConstituentMeasure;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
-import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYLoosePCNF;
-import com.lc.nlp4han.constituent.pcfg.PCFG;
 import com.lc.nlp4han.constituent.pcfg.TreeNodeUtil;
 import com.lc.nlp4han.ml.util.Evaluator;
 
-/**
- * @author 王宁
- * 
- */
-public class EvaluatorLatentAnnotation extends Evaluator<ConstituentTree>
+public class EvaluatorLatentAnnotation_Viterbi extends Evaluator<ConstituentTree>
 {
-	/**
-	 * 句法分析模型得到一颗句法树
-	 */
-	private ConstituentParserLatentAnnotation parser;
-
-	/**
-	 * 句法树中的短语分析评估
-	 */
+	private ConstituentParserLatentAnnotation_Viterbi parser;
 	private ConstituentMeasure measure;
-
 	private long count = 0;
 	private long totalTime = 0;
+
+	public EvaluatorLatentAnnotation_Viterbi(ConstituentParserLatentAnnotation_Viterbi parser)
+	{
+		this.parser = parser;
+	}
 
 	public ConstituentMeasure getMeasure()
 	{
@@ -37,18 +28,6 @@ public class EvaluatorLatentAnnotation extends Evaluator<ConstituentTree>
 	public void setMeasure(ConstituentMeasure measure)
 	{
 		this.measure = measure;
-	}
-
-	public EvaluatorLatentAnnotation(ConstituentParserLatentAnnotation parser)
-	{
-		this.parser = parser;
-	}
-
-	public EvaluatorLatentAnnotation(Grammar gLatentAnnotation, PCFG p2nf, double pruneThreshold, boolean secondPrune,
-			boolean prior)
-	{
-		this.parser = new ConstituentParserLatentAnnotation(
-				new ConstituentParserCKYLoosePCNF(p2nf, pruneThreshold, secondPrune, prior), gLatentAnnotation);
 	}
 
 	@Override
@@ -65,17 +44,14 @@ public class EvaluatorLatentAnnotation extends Evaluator<ConstituentTree>
 			words1[i] = words.get(i);
 			poses1[i] = poses.get(i);
 		}
-
 		long start = System.currentTimeMillis();
 
 		ConstituentTree treePre = parser.parse(words1, poses1);
 		long thisTime = System.currentTimeMillis() - start;
 		totalTime += thisTime;
 		count++;
-
 		System.out.println(
 				"句子长度：" + words.size() + " 平均解析时间：" + (totalTime / count) + "ms" + " 本句解析时间：" + thisTime + "ms");
-
 		try
 		{
 			if (treePre == null)
@@ -86,15 +62,14 @@ public class EvaluatorLatentAnnotation extends Evaluator<ConstituentTree>
 			}
 			else
 			{
-				Binarization.recoverBinaryTree(treePre.getRoot());
-				measure.update(rootNodeRef, TreeUtil.removeParentLabel(treePre.getRoot()));
+				measure.update(rootNodeRef, treePre.getRoot());
 			}
 		}
 		catch (CloneNotSupportedException e)
 		{
 			e.printStackTrace();
 		}
-
 		return treePre;
 	}
+
 }

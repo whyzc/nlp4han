@@ -371,8 +371,10 @@ public class Grammar
 				}
 				scores.add(lr);
 			}
-			scores.get(index_pSubSym).get(index_lCSubSym).set(index_rCSubSym, score);
+			bRule.setScores(scores);
+			bRules.add(bRule);
 		}
+		scores.get(index_pSubSym).get(index_lCSubSym).set(index_rCSubSym, score);
 		return bRule;
 	}
 
@@ -418,6 +420,8 @@ public class Grammar
 				}
 				scores.add(c);
 			}
+			uRule.setScores(scores);
+			uRules.add(uRule);
 		}
 		scores.get(index_pSubSym).set(index_cSubSym, score);
 		return uRule;
@@ -454,6 +458,8 @@ public class Grammar
 			{
 				scores.add(0.0);
 			}
+			preRule.setScores(scores);
+			lexicon.getPreRules().add(preRule);
 		}
 		scores.set(index_pSubSym, score);
 		return preRule;
@@ -552,6 +558,11 @@ public class Grammar
 	public Short[] allNonterminalIntValArr()
 	{
 		return nonterminalTable.getInt_strMap().keySet().toArray(new Short[nonterminalTable.getInt_strMap().size()]);
+	}
+
+	public ArrayList<Short> allPreterminal()
+	{
+		return nonterminalTable.getIntValueOfPreterminalArr();
 	}
 
 	public ArrayList<Short> getNumSubsymbolArr()

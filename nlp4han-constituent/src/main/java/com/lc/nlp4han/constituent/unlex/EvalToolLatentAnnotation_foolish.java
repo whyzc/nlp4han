@@ -6,16 +6,17 @@ import java.io.IOException;
 import com.lc.nlp4han.constituent.ConstituentMeasure;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.PlainTextByTreeStream;
+import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYLoosePCNF;
 import com.lc.nlp4han.constituent.pcfg.ConstituentTreeStream;
 import com.lc.nlp4han.constituent.pcfg.PCFG;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 
-public class EvalToolLatentAnnotation
+public class EvalToolLatentAnnotation_foolish
 {
 	private static void usage()
 	{
-		System.out.println(EvalToolLatentAnnotation.class.getName() + "\n"
+		System.out.println(EvalToolLatentAnnotation_foolish.class.getName() + "\n"
 				+ "-train <trainFile> -gold <goldFile> [-trainEncoding <trainEncoding>] [-goldEncoding <trainEncoding>] [-em <emIterations>]");
 	}
 
@@ -23,15 +24,17 @@ public class EvalToolLatentAnnotation
 			double pruneThreshold, boolean secondPrune, boolean prior) throws IOException
 	{
 		long start = System.currentTimeMillis();
-		Grammar baseline = GrammarExtractorToolLatentAnnotation.getGrammar(0, 0, 0,
-				Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF, trainEn);
-		PCFG p2nf = baseline.getPCFG();
+		Grammar baseline = GrammarExtractorToolLatentAnnotation.getGrammar(0, 0, 0, Lexicon.DEFAULT_RAREWORD_THRESHOLD,
+				trainF, trainEn);
+		PCFG pcfg = baseline.getPCFG();
 		Grammar gLatentAnntation = GrammarExtractorToolLatentAnnotation.getGrammar(1, 0.5, iterations,
 				Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF, trainEn);
 
 		long end = System.currentTimeMillis();
-		EvaluatorLatentAnnotation evaluator = new EvaluatorLatentAnnotation(gLatentAnntation, p2nf, pruneThreshold,
-				secondPrune, prior);
+		ConstituentParserCKYLoosePCNF p2nf = new ConstituentParserCKYLoosePCNF(pcfg, pruneThreshold, secondPrune, prior);
+		ConstituentParserLatentAnnotation parser = new ConstituentParserLatentAnnotation_foolish(p2nf,
+				gLatentAnntation);
+		EvaluatorLatentAnnotation_foolish evaluator = new EvaluatorLatentAnnotation_foolish(parser);
 		ConstituentMeasure measure = new ConstituentMeasure();
 		evaluator.setMeasure(measure);
 		ObjectStream<String> treeStream = new PlainTextByTreeStream(new FileInputStreamFactory(new File(goldF)),

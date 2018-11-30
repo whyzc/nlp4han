@@ -5,11 +5,13 @@ import java.io.IOException;
 import com.lc.nlp4han.constituent.ConstituentMeasure;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.pcfg.ConstituentTreeStream;
-import com.lc.nlp4han.constituent.pcfg.PCFG;
 import com.lc.nlp4han.ml.util.CrossValidationPartitioner;
 import com.lc.nlp4han.ml.util.ObjectStream;
 
-public class CrossValidatorLatentAnnotation
+/**
+ * @author 王宁
+ */
+public class CrossValidatorLatentAnnotation_Viterbi
 {
 	public void evaluate(ObjectStream<String> sentenceStream, int nFolds, ConstituentMeasure measure,
 			double pruneThreshold, boolean secondPrune, boolean prior) throws IOException
@@ -24,23 +26,19 @@ public class CrossValidatorLatentAnnotation
 			long start = System.currentTimeMillis();
 			CrossValidationPartitioner.TrainingSampleStream<String> trainingSampleStream = partitioner.next();
 			TreeBank treeBank = new TreeBank();
-			TreeBank treeBank2 = new TreeBank();
 			String expression;
 			while ((expression = trainingSampleStream.read()) != null)
 			{
 				treeBank.addTree(expression, false);
-				treeBank2.addTree(expression, false);
 			}
 			GrammarExtractor gExtractor = new GrammarExtractor(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
-			Grammar g = gExtractor.getGrammar();
-			PCFG pcfg = g.getPCFG();
-			GrammarExtractor gExtractor2 = new GrammarExtractor(treeBank2, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
-			Grammar gLatent = gExtractor2.getGrammar();
-			gLatent = GrammarTrainer.train(gLatent, treeBank2, 1, 0.5, 50);
+			Grammar gLatent = gExtractor.getGrammar();
+			gLatent = GrammarTrainer.train(gLatent, treeBank, 1, 0.5, 50);
 			System.out.println("训练学习时间：" + (System.currentTimeMillis() - start) + "ms");
 			long start2 = System.currentTimeMillis();
-			EvaluatorLatentAnnotation evaluator = new EvaluatorLatentAnnotation(gLatent, pcfg, pruneThreshold,
-					secondPrune, prior);
+			ConstituentParserLatentAnnotation_Viterbi parser = new ConstituentParserLatentAnnotation_Viterbi(gLatent,
+					pruneThreshold, secondPrune, prior);
+			EvaluatorLatentAnnotation_Viterbi evaluator = new EvaluatorLatentAnnotation_Viterbi(parser);
 			evaluator.setMeasure(measure);
 			ObjectStream<ConstituentTree> sampleStream = new ConstituentTreeStream(
 					trainingSampleStream.getTestSampleStream());
@@ -49,8 +47,7 @@ public class CrossValidatorLatentAnnotation
 			totalTime += (System.currentTimeMillis() - start);
 
 			System.out.println(measure);
-			g = null;
-			pcfg = null;
+			gLatent = null;
 			treeBank = null;
 			gExtractor = null;
 			run++;

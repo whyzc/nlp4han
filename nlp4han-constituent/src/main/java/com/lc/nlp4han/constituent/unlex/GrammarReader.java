@@ -21,7 +21,9 @@ public class GrammarReader
 		Grammar g = new Grammar();
 		PlainTextByLineStream stream = new PlainTextByLineStream(new FileInputStreamFactory(new File(modelPath)),
 				encoding);
-		String str = stream.read().trim();
+		String str = stream.read();
+		if (str != null)
+			str = str.trim();
 		String[] allSymbols = null;// ROOT、......
 		Short[] numNonterminal = null;// ROOT 1
 		Short[] preSymbolIndex = null;
@@ -48,7 +50,7 @@ public class GrammarReader
 			}
 			if ((str = stream.read()) != null)
 			{
-				String indexArr[] = str.split(" ");
+				String indexArr[] = str.trim().split(" ");
 				preSymbolIndex = new Short[indexArr.length];
 				for (int i = 0; i < indexArr.length; i++)
 				{
@@ -56,9 +58,7 @@ public class GrammarReader
 				}
 			}
 		}
-
 		NonterminalTable nonterminalTable = new NonterminalTable();
-		nonterminalTable.setNumInitialSymbol((short) allSymbols.length);
 		for (String symbol : allSymbols)
 		{
 			nonterminalTable.putSymbol(symbol);
@@ -66,22 +66,24 @@ public class GrammarReader
 		nonterminalTable.setIntValueOfPreterminalArr(new ArrayList<Short>(Arrays.asList(preSymbolIndex)));
 		nonterminalTable.setNumSubsymbolArr(new ArrayList<Short>(Arrays.asList(numNonterminal)));
 		g.setNontermianalTable(nonterminalTable);
-		str = stream.read().trim();
+		str = stream.read();
+		if (str != null)
+			str = str.trim();
 		String[] rule = null;
 		if (str.equals("--一元二元规则集--"))
 		{
-			while ((str = stream.read()) != null && !str.equals("--预终结规则--"))
+			while ((str = stream.read()) != null && !str.equals("--预终结符规则--"))
 			{
 				str = str.trim();
 				rule = str.split(" ");
 				if (rule.length == 4)
-					g.readBRule(rule);
-				else if (rule.length == 5)
 					g.readURule(rule);
+				else if (rule.length == 5)
+					g.readBRule(rule);
 			}
 		}
 
-		if (str.equals("--预终结规则--"))
+		if (str.equals("--预终结符规则--"))
 		{
 			while ((str = stream.read()) != null)
 			{
@@ -94,5 +96,23 @@ public class GrammarReader
 		g.init();
 		stream.close();
 		return g;
+	}
+
+	public static void main(String[] args)
+	{
+		try
+		{
+			Grammar g = readGrammar("C:\\Users\\hp\\Desktop\\standard.grammar.allRule", "utf-8");
+			System.out.println("语法读取完毕。");
+			GrammarWriter.writeToFileStandard(g, "C:\\Users\\hp\\Desktop\\888888", false);
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }
