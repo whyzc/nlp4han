@@ -135,7 +135,7 @@ public class CFG
 	/**
 	 * 判断是否为CNF
 	 */
-	public boolean IsCNF()
+	public boolean isCNF()
 	{
 		boolean isCNF = true;
 		for (RewriteRule rule : ruleSet)
@@ -170,6 +170,39 @@ public class CFG
 		}
 		
 		return isCNF;
+	}
+	
+	/**
+	 * 判断文法是宽松CNF文法
+	 * 
+	 * 宽松CNF文法允许A->B
+	 */
+	public boolean isLooseCNF()
+	{
+		boolean isLooseCNF = true;
+		for (RewriteRule rule : ruleSet)
+		{
+			ArrayList<String> list = rule.getRhs();
+			if (list.size() >= 3)
+			{
+				isLooseCNF = false;
+				break;
+			}
+			
+			if (list.size() == 2)
+			{
+				for (String string : list)
+				{
+					if (!nonTerminalSet.contains(string))
+					{
+						isLooseCNF = false;
+						break;
+					}
+				}
+			}
+		}
+		
+		return isLooseCNF;
 	}
 	
 	public boolean isNoTerminal(String symbol)

@@ -27,10 +27,9 @@ public class EvalToolParentLabelAdded
 	{
 		long start = System.currentTimeMillis();
 		Grammar g = GrammarExtractorToolPLabelAdded.getGrammar(Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF, trainEn);
-		PCFG p2nf = g.getPCFG();
 		long end = System.currentTimeMillis();
-		EvaluatorParentLabelAdded evaluator = new EvaluatorParentLabelAdded(p2nf, pruneThreshold, secondPrune, prior);
-
+		EvaluatorParentLabelAdded evaluator = new EvaluatorParentLabelAdded(g.getPCFG(), pruneThreshold, secondPrune,
+				prior);
 		ConstituentMeasure measure = new ConstituentMeasure();
 		evaluator.setMeasure(measure);
 		ObjectStream<String> treeStream = new PlainTextByTreeStream(new FileInputStreamFactory(new File(goldF)),

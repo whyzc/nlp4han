@@ -16,6 +16,18 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <dependencies>
+  <dependency>
+  		<groupId>com.lc</groupId>
+  		<artifactId>nlp4han-wordseg</artifactId>
+  		<version>0.1</version>
+  	</dependency>
+  	
+  	<dependency>
+  		<groupId>com.lc</groupId>
+  		<artifactId>nlp4han-constituent</artifactId>
+  		<version>0.1</version>
+  	</dependency>
+  	
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

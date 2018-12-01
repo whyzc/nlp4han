@@ -13,7 +13,7 @@ import com.lc.nlp4han.ml.util.ObjectStream;
  * 
  * @author 王宁
  */
-public class CrossValidatorToolLatentAnnotation
+public class CrossValidatorToolLatentAnnotation_foolish
 {
 	private static void usage()
 	{
@@ -57,7 +57,7 @@ public class CrossValidatorToolLatentAnnotation
 			ObjectStream<String> sentenceStream = new PlainTextByTreeStream(
 					new FileInputStreamFactory(new File(corpusFile)), encoding);
 			ConstituentMeasure measure = new ConstituentMeasure();
-			CrossValidatorLatentAnnotation crossValidator = new CrossValidatorLatentAnnotation();
+			CrossValidatorLatentAnnotation_foolish crossValidator = new CrossValidatorLatentAnnotation_foolish();
 			crossValidator.evaluate(sentenceStream, folds, measure, pruneThreshold, secondPrune, prior);
 		}
 		catch (IOException e)
