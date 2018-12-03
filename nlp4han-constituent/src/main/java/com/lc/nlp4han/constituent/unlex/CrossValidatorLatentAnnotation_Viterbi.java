@@ -1,11 +1,14 @@
 package com.lc.nlp4han.constituent.unlex;
 
+import java.io.File;
 import java.io.IOException;
 
 import com.lc.nlp4han.constituent.ConstituentMeasure;
 import com.lc.nlp4han.constituent.ConstituentTree;
+import com.lc.nlp4han.constituent.PlainTextByTreeStream;
 import com.lc.nlp4han.constituent.pcfg.ConstituentTreeStream;
 import com.lc.nlp4han.ml.util.CrossValidationPartitioner;
+import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 
 /**
@@ -54,5 +57,81 @@ public class CrossValidatorLatentAnnotation_Viterbi
 			run++;
 		}
 		System.out.println("总体时间： " + totalTime + "ms");
+	}
+
+	private static void usage()
+	{
+		System.out.println(CrossValidatorLatentAnnotation_Viterbi.class.getName()
+				+ " -train <corpusFile> [-sm <SMCycle>] [-em<EMIterations>] [-merge <mergeRate>] [-smooth <smoothRate>] [-encoding <encoding>] [-folds <nFolds>] ");
+	}
+
+	public static void main(String[] args)
+	{
+		if (args.length < 1)
+		{
+			usage();
+			return;
+		}
+		String corpusFile = null;
+		int folds = 10;
+		String encoding = "utf-8";
+		int SMCycle = 1;
+		int EMIterations = 50;
+		double mergeRate = 0.5;
+		double smoothRate = 0.01;
+		double pruneThreshold = Double.MIN_VALUE;
+		boolean secondPrune = false;
+		boolean prior = false;
+		for (int i = 0; i < args.length; i++)
+		{
+			if (args[i].equals("-train"))
+			{
+				corpusFile = args[i + 1];
+				i++;
+			}
+			if (args[i].equals("-encoding"))
+			{
+				encoding = args[i + 1];
+				i++;
+			}
+			if (args[i].equals("-folds"))
+			{
+				folds = Integer.parseInt(args[i + 1]);
+				i++;
+			}
+			if (args[i].equals("-sm"))
+			{
+				SMCycle = Integer.parseInt(args[i + 1]);
+				i++;
+			}
+			if (args[i].equals("-em"))
+			{
+				EMIterations = Integer.parseInt(args[i + 1]);
+				GrammarTrainer.EMIterations = EMIterations;
+				i++;
+			}
+			if (args[i].equals("-smooth"))
+			{
+				smoothRate = Double.parseDouble(args[i + 1]);
+				i++;
+			}
+			if (args[i].equals("-merge"))
+			{
+				mergeRate = Double.parseDouble(args[i + 1]);
+			}
+		}
+		try
+		{
+			ObjectStream<String> sentenceStream = new PlainTextByTreeStream(
+					new FileInputStreamFactory(new File(corpusFile)), encoding);
+			ConstituentMeasure measure = new ConstituentMeasure();
+			CrossValidatorLatentAnnotation_Viterbi crossValidator = new CrossValidatorLatentAnnotation_Viterbi();
+			crossValidator.evaluate(sentenceStream, folds, measure, SMCycle, mergeRate, EMIterations, smoothRate,
+					pruneThreshold, secondPrune, prior);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }
