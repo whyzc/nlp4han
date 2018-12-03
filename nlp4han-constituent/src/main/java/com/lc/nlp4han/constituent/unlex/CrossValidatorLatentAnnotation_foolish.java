@@ -37,10 +37,11 @@ public class CrossValidatorLatentAnnotation_foolish
 			PCFG pcfg = g.getPCFG();
 			GrammarExtractor gExtractor2 = new GrammarExtractor(treeBank2, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
 			Grammar gLatent = gExtractor2.getGrammar();
-			gLatent = GrammarTrainer.train(gLatent, treeBank2, 1, 0.5, 50);
+			gLatent = GrammarTrainer.train(gLatent, treeBank2, 1, 0.5, 50, 0.01);
 			System.out.println("训练学习时间：" + (System.currentTimeMillis() - start) + "ms");
 			long start2 = System.currentTimeMillis();
-			ConstituentParserCKYLoosePCNF p2nf = new ConstituentParserCKYLoosePCNF(pcfg, pruneThreshold, secondPrune, prior);
+			ConstituentParserCKYLoosePCNF p2nf = new ConstituentParserCKYLoosePCNF(pcfg, pruneThreshold, secondPrune,
+					prior);
 			ConstituentParserLatentAnnotation parser = new ConstituentParserLatentAnnotation_foolish(p2nf, gLatent);
 			EvaluatorLatentAnnotation_foolish evaluator = new EvaluatorLatentAnnotation_foolish(parser);
 			evaluator.setMeasure(measure);

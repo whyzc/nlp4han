@@ -6,36 +6,33 @@ import java.io.IOException;
 import com.lc.nlp4han.constituent.ConstituentMeasure;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.PlainTextByTreeStream;
-import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYLoosePCNF;
 import com.lc.nlp4han.constituent.pcfg.ConstituentTreeStream;
-import com.lc.nlp4han.constituent.pcfg.PCFG;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 
-public class EvalToolLatentAnnotation_foolish
+/**
+ * @author wn
+ */
+public class EvalToolLatentAnnotation_Viterbi
 {
 	private static void usage()
 	{
 		System.out.println(EvalToolLatentAnnotation_foolish.class.getName() + "\n"
-				+ "-train <trainFile> -gold <goldFile> [-smooth <smoothRate>] [-trainEncoding <trainEncoding>] [-goldEncoding <trainEncoding>] [-em <emIterations>]");
+				+ "-train <trainFile> -gold <goldFile> [-sm <SMCycle>] [-meger <mergeRate>] [-smooth <smoothRate>] [-trainEncoding <trainEncoding>] [-goldEncoding <trainEncoding>] [-em <emIterations>]");
 	}
 
-	public static void eval(String trainF, String goldF, String trainEn, String goldEn, int iterations,
-			double smoothRate, double pruneThreshold, boolean secondPrune, boolean prior) throws IOException
+	public static void eval(String trainF, String goldF, String trainEn, String goldEn, int SMCycle, double mergeRate,
+			int iterations, double smoothRate, double pruneThreshold, boolean secondPrune, boolean prior)
+			throws IOException
 	{
 		long start = System.currentTimeMillis();
-		Grammar baseline = GrammarExtractorToolLatentAnnotation.getGrammar(0, 0, 0, smoothRate,
-				Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF, trainEn);
-		PCFG pcfg = baseline.getPCFG();
-		Grammar gLatentAnntation = GrammarExtractorToolLatentAnnotation.getGrammar(1, 0.5, iterations, smoothRate,
-				Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF, trainEn);
+		Grammar gLatentAnntation = GrammarExtractorToolLatentAnnotation.getGrammar(SMCycle, mergeRate, iterations,
+				smoothRate, Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF, trainEn);
 
 		long end = System.currentTimeMillis();
-		ConstituentParserCKYLoosePCNF p2nf = new ConstituentParserCKYLoosePCNF(pcfg, pruneThreshold, secondPrune,
-				prior);
-		ConstituentParserLatentAnnotation parser = new ConstituentParserLatentAnnotation_foolish(p2nf,
-				gLatentAnntation);
-		EvaluatorLatentAnnotation_foolish evaluator = new EvaluatorLatentAnnotation_foolish(parser);
+		ConstituentParserLatentAnnotation_Viterbi parser = new ConstituentParserLatentAnnotation_Viterbi(
+				gLatentAnntation, pruneThreshold, secondPrune, prior);
+		EvaluatorLatentAnnotation_Viterbi evaluator = new EvaluatorLatentAnnotation_Viterbi(parser);
 		ConstituentMeasure measure = new ConstituentMeasure();
 		evaluator.setMeasure(measure);
 		ObjectStream<String> treeStream = new PlainTextByTreeStream(new FileInputStreamFactory(new File(goldF)),
@@ -54,8 +51,10 @@ public class EvalToolLatentAnnotation_foolish
 		String goldFilePath = null;
 		String trainEncoding = "utf-8";
 		String goldEncoding = "utf-8";
+		int SMCycle = 6;
+		double mergeRate = 0.5;
 		double smoothRate = 0.01;
-		double pruneThreshold = 0.0001;
+		double pruneThreshold = Double.MIN_VALUE;
 		boolean secondPrune = false;
 		boolean prior = false;
 		int iterations = 50;// em算法迭代次数
@@ -107,6 +106,16 @@ public class EvalToolLatentAnnotation_foolish
 				smoothRate = Double.parseDouble(args[i + 1]);
 				i++;
 			}
+			if (args[i].equals("-sm"))
+			{
+				SMCycle = Integer.parseInt(args[i + 1]);
+				i++;
+			}
+			if (args[i].equals("-merge"))
+			{
+				mergeRate = Double.parseDouble(args[i + 1]);
+				i++;
+			}
 		}
 		if (trainFilePath == null || goldFilePath == null)
 		{
@@ -115,13 +124,12 @@ public class EvalToolLatentAnnotation_foolish
 		}
 		try
 		{
-			eval(trainFilePath, goldFilePath, trainEncoding, goldEncoding, iterations, smoothRate, pruneThreshold,
-					secondPrune, prior);
+			eval(trainFilePath, goldFilePath, trainEncoding, goldEncoding, SMCycle, mergeRate, iterations, smoothRate,
+					pruneThreshold, secondPrune, prior);
 		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
 	}
-
 }

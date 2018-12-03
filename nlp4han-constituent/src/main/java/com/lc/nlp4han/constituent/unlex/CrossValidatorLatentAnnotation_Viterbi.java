@@ -13,8 +13,9 @@ import com.lc.nlp4han.ml.util.ObjectStream;
  */
 public class CrossValidatorLatentAnnotation_Viterbi
 {
-	public void evaluate(ObjectStream<String> sentenceStream, int nFolds, ConstituentMeasure measure,
-			double pruneThreshold, boolean secondPrune, boolean prior) throws IOException
+	public void evaluate(ObjectStream<String> sentenceStream, int nFolds, ConstituentMeasure measure, int SMCycle,
+			double mergeRate, int EMIterations, double smoothRate, double pruneThreshold, boolean secondPrune,
+			boolean prior) throws IOException
 	{
 
 		CrossValidationPartitioner<String> partitioner = new CrossValidationPartitioner<String>(sentenceStream, nFolds);
@@ -33,7 +34,7 @@ public class CrossValidatorLatentAnnotation_Viterbi
 			}
 			GrammarExtractor gExtractor = new GrammarExtractor(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
 			Grammar gLatent = gExtractor.getGrammar();
-			gLatent = GrammarTrainer.train(gLatent, treeBank, 1, 0.5, 50);
+			gLatent = GrammarTrainer.train(gLatent, treeBank, SMCycle, mergeRate, EMIterations, smoothRate);
 			System.out.println("训练学习时间：" + (System.currentTimeMillis() - start) + "ms");
 			long start2 = System.currentTimeMillis();
 			ConstituentParserLatentAnnotation_Viterbi parser = new ConstituentParserLatentAnnotation_Viterbi(gLatent,

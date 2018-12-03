@@ -7,7 +7,6 @@ import com.lc.nlp4han.constituent.ConstituentMeasure;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.PlainTextByTreeStream;
 import com.lc.nlp4han.constituent.pcfg.ConstituentTreeStream;
-import com.lc.nlp4han.constituent.pcfg.PCFG;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 

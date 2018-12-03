@@ -120,11 +120,11 @@ public class GrammarExtractor
 		return intialG;
 	}
 
-	public Grammar getGrammar(int SMCycle, double mergeRate, int EMIterations)
+	public Grammar getGrammar(int SMCycle, double mergeRate, int EMIterations, double smooth)
 	{
 		Grammar g = getGrammar();
 		if (SMCycle != 0)
-			GrammarTrainer.train(g, treeBank, SMCycle, mergeRate, EMIterations);
+			GrammarTrainer.train(g, treeBank, SMCycle, mergeRate, EMIterations, smooth);
 		return g;
 	}
 

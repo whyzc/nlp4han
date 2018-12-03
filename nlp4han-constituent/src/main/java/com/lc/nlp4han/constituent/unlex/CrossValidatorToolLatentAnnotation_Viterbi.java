@@ -13,7 +13,7 @@ public class CrossValidatorToolLatentAnnotation_Viterbi
 	private static void usage()
 	{
 		System.out.println(CrossValidatorToolParentLabelAdded.class.getName()
-				+ " -train <corpusFile>  [-encoding <encoding>] [-folds <nFolds>] ");
+				+ " -train <corpusFile> [-sm <SMCycle>] [-em<EMIterations>] [-merge <mergeRate>] [-smooth <smoothRate>] [-encoding <encoding>] [-folds <nFolds>] ");
 	}
 
 	public static void main(String[] args)
@@ -26,6 +26,10 @@ public class CrossValidatorToolLatentAnnotation_Viterbi
 		String corpusFile = null;
 		int folds = 10;
 		String encoding = "utf-8";
+		int SMCycle = 1;
+		int EMIterations = 50;
+		double mergeRate = 0.5;
+		double smoothRate = 0.01;
 		double pruneThreshold = Double.MIN_VALUE;
 		boolean secondPrune = false;
 		boolean prior = false;
@@ -46,6 +50,26 @@ public class CrossValidatorToolLatentAnnotation_Viterbi
 				folds = Integer.parseInt(args[i + 1]);
 				i++;
 			}
+			if (args[i].equals("-sm"))
+			{
+				SMCycle = Integer.parseInt(args[i + 1]);
+				i++;
+			}
+			if (args[i].equals("-em"))
+			{
+				EMIterations = Integer.parseInt(args[i + 1]);
+				GrammarTrainer.EMIterations = EMIterations;
+				i++;
+			}
+			if (args[i].equals("-smooth"))
+			{
+				smoothRate = Double.parseDouble(args[i + 1]);
+				i++;
+			}
+			if (args[i].equals("-merge"))
+			{
+				mergeRate = Double.parseDouble(args[i + 1]);
+			}
 		}
 		try
 		{
@@ -53,7 +77,8 @@ public class CrossValidatorToolLatentAnnotation_Viterbi
 					new FileInputStreamFactory(new File(corpusFile)), encoding);
 			ConstituentMeasure measure = new ConstituentMeasure();
 			CrossValidatorLatentAnnotation_Viterbi crossValidator = new CrossValidatorLatentAnnotation_Viterbi();
-			crossValidator.evaluate(sentenceStream, folds, measure, pruneThreshold, secondPrune, prior);
+			crossValidator.evaluate(sentenceStream, folds, measure, SMCycle, mergeRate, EMIterations, smoothRate,
+					pruneThreshold, secondPrune, prior);
 		}
 		catch (IOException e)
 		{

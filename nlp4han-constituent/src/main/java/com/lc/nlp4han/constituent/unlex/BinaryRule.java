@@ -394,4 +394,16 @@ public class BinaryRule extends Rule
 		return A_iBCRuleSum;
 	}
 
+	public double getParent_i_ScoceSum(short subParentIndex)
+	{
+		double A_iScore = 0.0;
+		for (int j = 0; j < scores.get(0).size(); j++)
+		{
+			for (int k = 0; k < scores.get(0).get(0).size(); k++)
+			{
+				A_iScore = A_iScore + scores.get(subParentIndex).get(j).get(k);
+			}
+		}
+		return A_iScore;
+	}
 }
