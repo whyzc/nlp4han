@@ -14,7 +14,7 @@ public class TestKMeans
 	{
 		String folderPath = "********";
 		List<Text> ts = Text.getTexts(folderPath, false);
-		List<Group> grps = KMeans.run(ts, 10) ;
+		List<Group> grps = KMeans.run(ts, 10);
 	}
 	
 	@Test

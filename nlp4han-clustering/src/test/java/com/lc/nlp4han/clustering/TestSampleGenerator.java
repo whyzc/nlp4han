@@ -16,6 +16,8 @@ public class TestSampleGenerator
 		
 		FeatureGenerator fg = null;  //FeatureGenerator已初始化过
 		
+		sg.init(fg);  // SampleGenerator初始化
+		
 		Sample sample = sg.getSample(text, fg);  //通过FeatureGenerator生成Text的Sample
 	}
 	
@@ -30,7 +32,9 @@ public class TestSampleGenerator
 		
 		List<Feature> features = fg.getFeatures(text);
 		
-		Sample sample = sg.getSample(features);  //对Feature列表生成Sample
+		sg.init(fg);  // SampleGenerator初始化
+		
+		Sample sample = sg.getSample(features, fg);  //对Feature列表生成Sample
 	}
 	
 }
