@@ -1,6 +1,7 @@
 package com.lc.nlp4han.clustering;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,5 +36,16 @@ public class TestKMeans
 		List<Group> groups = KMeans.run(texts, 2);
 		
 		assertEquals(2, groups.size());
+		
+		Group g1 = new Group();
+		g1.addMember(t1);
+		g1.addMember(t2);
+		
+		Group g2 = new Group();
+		g2.addMember(t3);
+		g2.addMember(t4);
+		
+		assertTrue(groups.contains(g1));
+		assertTrue(groups.contains(g2));
 	}
 }

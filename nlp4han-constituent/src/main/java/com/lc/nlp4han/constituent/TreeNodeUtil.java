@@ -3,11 +3,58 @@ package com.lc.nlp4han.constituent;
 import java.util.*;
 
 /**
+ * 成分树工具方法
+ * 
  * @author 杨智超
+ * @author 邱宜龙
  *
  */
 public class TreeNodeUtil
 {
+	// 获得树的叶子或词的序列
+	public static String[] getetWordsFromTree(TreeNode tree)
+	{
+		List<String> words = new ArrayList<String>();
+		traverseTree(tree, words, null);
+		String[] words1 = new String[words.size()];
+		for (int i = 0; i < words.size(); i++)
+		{
+			words1[i] = words.get(i);
+		}
+		return words1;
+	}
+
+	// 获得树的叶子或词的个数
+	public static int getLengthFromTree(TreeNode tree)
+	{
+		List<String> words = new ArrayList<String>();
+		traverseTree(tree, words, null);
+		return words.size();
+	}
+
+	// 获得树的词和词性序列
+	public static void getWordsAndPOSFromTree(ArrayList<String> words, ArrayList<String> poses, TreeNode tree)
+	{
+		traverseTree(tree, words, poses);
+	}
+
+	private static void traverseTree(TreeNode node, List<String> words, ArrayList<String> poses)
+	{
+		if (node.getChildrenNum() == 0)
+		{
+			if (poses != null)
+			{
+				poses.add(node.getParent().getNodeName());
+			}
+
+			words.add(node.getNodeName());
+		}
+
+		for (TreeNode node1 : node.getChildren())
+		{
+			traverseTree(node1, words, poses);
+		}
+	}
 
 	/**
 	 * 至结点treeNode向上搜索，返回第一个结点名为treeNodeName的结点；若treeNodeName为null，则返回treeNode的父节点

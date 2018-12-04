@@ -38,6 +38,8 @@ import javax.swing.plaf.ColorUIResource;
 import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.ParserFactory;
+import com.lc.nlp4han.pos.POSTagger;
+import com.lc.nlp4han.pos.POSTaggerFactory;
 import com.lc.nlp4han.segment.WordSegFactory;
 import com.lc.nlp4han.segment.WordSegmenter;
 
@@ -75,6 +77,7 @@ public class TreeEditorTool
 //	private StanfordCoreNLP pipeline;
 	
 	private WordSegmenter segmenter;
+	private POSTagger tagger;
 	private ConstituentParser parser;
 
 	public void init()
@@ -556,6 +559,7 @@ public class TreeEditorTool
 					try
 					{
 						segmenter = WordSegFactory.getWordSegmenter();
+						tagger = POSTaggerFactory.getPOSTagger();
 						parser = ParserFactory.getParser();
 					}
 					catch (IOException e1)
@@ -564,7 +568,8 @@ public class TreeEditorTool
 					}
 					
 					String[] words = segmenter.segment(text);
-					ConstituentTree tree = parser.parse(words, null);
+					String[] poses = tagger.tag(words);
+					ConstituentTree tree = parser.parse(words, poses);
 					
 					String expressionofAlltrees = tree.toPrettyString();
 

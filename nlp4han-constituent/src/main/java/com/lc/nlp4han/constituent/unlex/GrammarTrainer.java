@@ -1,5 +1,7 @@
 package com.lc.nlp4han.constituent.unlex;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -12,7 +14,8 @@ public class GrammarTrainer
 	public static int EMIterations = 50;
 	public static RuleCounter ruleCounter;
 
-	public static Grammar train(Grammar g, TreeBank treeBank, int SMCycle, double mergeRate, int EMIterations)
+	public static Grammar train(Grammar g, TreeBank treeBank, int SMCycle, double mergeRate, int EMIterations,
+			double smooth)
 	{
 		treeBank.calIOScore(g);
 		double totalLSS = treeBank.calLogTreeBankSentenceSocre();
@@ -20,12 +23,21 @@ public class GrammarTrainer
 		System.out.println("SMCycle:" + SMCycle);
 		for (int i = 0; i < SMCycle; i++)
 		{
+			System.err.println("开始分裂。");
 			GrammarSpliter.splitGrammar(g, treeBank);
 			EM(g, treeBank, EMIterations);
 			System.err.println("分裂完成。");
+			System.err.println("开始合并。");
 			GrammarMerger.mergeGrammar(g, treeBank, mergeRate, ruleCounter);
 			EM(g, treeBank, EMIterations / 2);
 			System.err.println("合并完成。");
+			SmoothByRuleOfSameChild smoother = new SmoothByRuleOfSameChild(smooth);
+			System.err.println("开始平滑规则。");
+			smoother.smooth(g);
+			normalizeBAndURule(g);
+			normalizedPreTermianlRules(g);
+			EM(g, treeBank, EMIterations / 2);
+			System.err.println("平滑规则完成。");
 		}
 		double[][] subTag2UNKScores = calTag2UNKScores(g);
 		g.setSubTag2UNKScores(subTag2UNKScores);
@@ -46,7 +58,9 @@ public class GrammarTrainer
 			for (int i = 0; i < iterations; i++)
 			{
 				calRuleExpectation(g, treeBank);
+				// System.out.println("EStep完成。");
 				recalculateRuleScore(g);
+				// System.out.println("MStep完成。");
 				treeBank.calIOScore(g);
 				totalLSS = treeBank.calLogTreeBankSentenceSocre();
 				System.out.println("在本次EM迭代后树库的Log似然值：" + totalLSS);
@@ -98,7 +112,7 @@ public class GrammarTrainer
 					for (int k = 0; k < rCNumSub; k++)
 					{
 						newScore = ruleCounter.bRuleCounter.get(bRule)[i][j][k] / denominator;
-						if (newScore < Rule.rulethres)
+						if (newScore < Rule.ruleThres)
 						{
 							newScore = 0.0;
 						}
@@ -128,7 +142,7 @@ public class GrammarTrainer
 				for (int j = 0; j < cNumSub; j++)
 				{
 					newScore = ruleCounter.uRuleCounter.get(uRule)[i][j] / denominator;
-					if (newScore < Rule.rulethres)
+					if (newScore < Rule.ruleThres)
 					{
 						newScore = 0.0;
 					}
@@ -152,7 +166,7 @@ public class GrammarTrainer
 					denominator = calculateSameParentRuleCount(g, preRule.parent, i);
 				}
 				newScore = ruleCounter.preRuleCounter.get(preRule)[i] / denominator;
-				if (newScore < Rule.rulethres)
+				if (newScore < Rule.preRulethres)
 				{
 					newScore = 0.0;
 				}
@@ -241,5 +255,110 @@ public class GrammarTrainer
 			}
 		}
 		return subTag2UNKScores;
+	}
+
+	public static void normalizeBAndURule(Grammar g)
+	{
+		HashMap<Short, Double[]> sameHeadRuleScoreSum = new HashMap<Short, Double[]>();
+		for (Map.Entry<Short, HashMap<BinaryRule, BinaryRule>> entry : g.getbRuleBySameHead().entrySet())
+		{
+			Double[] ruleScoreSum = new Double[g.getNumSubSymbol(entry.getKey())];
+			sameHeadRuleScoreSum.put(entry.getKey(), ruleScoreSum);
+			for (Map.Entry<BinaryRule, BinaryRule> innerEntry : entry.getValue().entrySet())
+			{
+				for (short i = 0; i < ruleScoreSum.length; i++)
+				{
+					if (ruleScoreSum[i] == null)
+					{
+						ruleScoreSum[i] = 0.0;
+					}
+					ruleScoreSum[i] += innerEntry.getKey().getParent_i_ScoceSum(i);
+				}
+			}
+		}
+
+		for (Map.Entry<Short, HashMap<UnaryRule, UnaryRule>> entry : g.getuRuleBySameHead().entrySet())
+		{
+			Double[] ruleScoreSum;
+			if (!sameHeadRuleScoreSum.containsKey(entry.getKey()))
+			{
+				sameHeadRuleScoreSum.put(entry.getKey(), new Double[g.getNumSubSymbol(entry.getKey())]);
+			}
+			ruleScoreSum = sameHeadRuleScoreSum.get(entry.getKey());
+			for (Map.Entry<UnaryRule, UnaryRule> innerEntry : entry.getValue().entrySet())
+			{
+				for (short i = 0; i < ruleScoreSum.length; i++)
+				{
+					if (ruleScoreSum[i] == null)
+					{
+						ruleScoreSum[i] = 0.0;
+					}
+					ruleScoreSum[i] += innerEntry.getKey().getParent_i_ScoceSum(i);
+				}
+			}
+		}
+
+		for (BinaryRule bRule : g.getbRules())
+		{
+			short nSubParent = g.getNumSubSymbol(bRule.getParent());
+			for (int subP = 0; subP < nSubParent; subP++)
+			{
+				double tag_iScoreSum = sameHeadRuleScoreSum.get(bRule.getParent())[subP];
+				short nSubLC = g.getNumSubSymbol(bRule.getLeftChild());
+				for (int subLC = 0; subLC < nSubLC; subLC++)
+				{
+					short nSubRC = g.getNumSubSymbol(bRule.getRightChild());
+					for (int subRC = 0; subRC < nSubRC; subRC++)
+					{
+						double score = bRule.getScores().get(subP).get(subLC).get(subRC);
+						bRule.getScores().get(subP).get(subLC).set(subRC, score / tag_iScoreSum);
+					}
+				}
+			}
+		}
+		for (UnaryRule uRule : g.getuRules())
+		{
+			short nSubParent = g.getNumSubSymbol(uRule.getParent());
+			for (int subP = 0; subP < nSubParent; subP++)
+			{
+				double tag_iScoreSum = sameHeadRuleScoreSum.get(uRule.getParent())[subP];
+				short nSubC = g.getNumSubSymbol(uRule.getChild());
+				for (int subC = 0; subC < nSubC; subC++)
+				{
+					double score = uRule.getScores().get(subP).get(subC);
+					uRule.getScores().get(subP).set(subC, score / tag_iScoreSum);
+				}
+			}
+		}
+	}
+
+	public static void normalizedPreTermianlRules(Grammar g)
+	{
+		HashMap<Short, Double[]> sameHeadPRuleScoreSum = new HashMap<Short, Double[]>();
+		for (PreterminalRule preRule : g.getLexicon().getPreRules())
+		{
+			if (!sameHeadPRuleScoreSum.containsKey(preRule.getParent()))
+			{
+				sameHeadPRuleScoreSum.put(preRule.parent, new Double[g.getNumSubSymbol(preRule.getParent())]);
+			}
+			for (int i = 0; i < preRule.getScores().size(); i++)
+			{
+				if (sameHeadPRuleScoreSum.get(preRule.parent)[i] == null)
+				{
+					BigDecimal tag_iScoreSum = BigDecimal.valueOf(0.0);
+					for (Map.Entry<PreterminalRule, PreterminalRule> entry : g.getPreRuleBySameHead()
+							.get(preRule.parent).entrySet())
+					{
+						tag_iScoreSum = tag_iScoreSum.add(BigDecimal.valueOf(entry.getValue().getScores().get(i)));
+					}
+					sameHeadPRuleScoreSum.get(preRule.parent)[i] = tag_iScoreSum.doubleValue();
+				}
+				preRule.getScores().set(i,
+						BigDecimal.valueOf(preRule.getScores().get(i))
+								.divide(BigDecimal.valueOf(sameHeadPRuleScoreSum.get(preRule.parent)[i]), 15,
+										BigDecimal.ROUND_HALF_UP)
+								.doubleValue());
+			}
+		}
 	}
 }

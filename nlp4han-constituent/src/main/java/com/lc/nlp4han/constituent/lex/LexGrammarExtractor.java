@@ -25,16 +25,16 @@ public class LexGrammarExtractor
 	// 词性标注和词，以及数目
 	private HashMap<WordAndPOS, Integer> wordMap = null;
 	// P(H|P,t,w)）相关的统计数据
-	private HashMap<RuleCollins, AmountAndSort> headGenMap = null;
-	private HashMap<RuleCollins, HashSet<String>> parentList = null;
+	private HashMap<OccurenceCollins, AmountAndSort> headGenMap = null;
+	private HashMap<OccurenceCollins, HashSet<String>> parentList = null;
 	// 用于生成中心词左右修饰符相关统计数据
-	private HashMap<RuleCollins, AmountAndSort> sidesGeneratorMap = null;
+	private HashMap<OccurenceCollins, AmountAndSort> sidesGeneratorMap = null;
 	// 用于生成Stop的相关统计数据
-	private HashMap<RuleCollins, AmountAndSort> stopGenMap = null;
+	private HashMap<OccurenceCollins, AmountAndSort> stopGenMap = null;
 
 	// 不用，初步实验表明在中文树库中并没有丝毫效果
 	// 用于生成并列结构连词（如CC或者逗号和冒号,为简略，我将生成修饰符pos和生成修饰符word都放入此规则
-	private HashMap<RuleCollins, AmountAndSort> specialGenMap = null;
+	private HashMap<OccurenceCollins, AmountAndSort> specialGenMap = null;
 
 	public LexGrammarExtractor()
 	{
@@ -144,20 +144,22 @@ public class LexGrammarExtractor
 		String headword = node.getHeadWord();
 		String headpos = node.getHeadPos();
 		// 回退模型1
-		RuleHeadChildGenerate hcgr0 = new RuleHeadChildGenerate(headLabel, parentLabel, headpos, headword);
-		RuleHeadChildGenerate hcgr1 = new RuleHeadChildGenerate(null, parentLabel, headpos, headword);
+		OccurenceHeadChild hcgr0 = new OccurenceHeadChild(headLabel, parentLabel, headpos, headword);
+		OccurenceHeadChild hcgr1 = new OccurenceHeadChild(null, parentLabel, headpos, headword);
 		addGenerateRule(hcgr0, hcgr1, headGenMap);
+		
 		// 回退模型二
-		RuleHeadChildGenerate hcgr2 = new RuleHeadChildGenerate(headLabel, parentLabel, headpos, null);
-		RuleHeadChildGenerate hcgr3 = new RuleHeadChildGenerate(null, parentLabel, headpos, null);
+		OccurenceHeadChild hcgr2 = new OccurenceHeadChild(headLabel, parentLabel, headpos, null);
+		OccurenceHeadChild hcgr3 = new OccurenceHeadChild(null, parentLabel, headpos, null);
 		addGenerateRule(hcgr2, hcgr3, headGenMap);
+		
 		// 回退模型三
-		RuleHeadChildGenerate hcgr4 = new RuleHeadChildGenerate(headLabel, parentLabel, null, null);
-		RuleHeadChildGenerate hcgr5 = new RuleHeadChildGenerate(null, parentLabel, null, null);
+		OccurenceHeadChild hcgr4 = new OccurenceHeadChild(headLabel, parentLabel, null, null);
+		OccurenceHeadChild hcgr5 = new OccurenceHeadChild(null, parentLabel, null, null);
 		addGenerateRule(hcgr4, hcgr5, headGenMap);
 
 		// 在解析中需要用此得到候选的父节点，以免遍历不需要的非终结符
-		RuleHeadChildGenerate rhcg = new RuleHeadChildGenerate(headLabel, null, headpos, null);
+		OccurenceHeadChild rhcg = new OccurenceHeadChild(headLabel, null, headpos, null);
 		// RuleHeadChildGenerate rhcg = new RuleHeadChildGenerate(headLabel, null, null,
 		// null);
 		if (!parentList.containsKey(rhcg))
@@ -289,35 +291,38 @@ public class LexGrammarExtractor
 		}
 		// 生成两侧Label和pos的回退模型
 		// 回退模型1
-		RuleSidesGenerate rsg0 = new RuleSidesGenerate(headLabel, parentLabel, headPOS, headWord, direction, sideLabel,
+		OccurenceSides rsg0 = new OccurenceSides(headLabel, parentLabel, headPOS, headWord, direction, sideLabel,
 				sideHeadPOS, null, coor, pu, distance);
-		RuleSidesGenerate rsg1 = new RuleSidesGenerate(headLabel, parentLabel, headPOS, headWord, direction, null, null,
+		OccurenceSides rsg1 = new OccurenceSides(headLabel, parentLabel, headPOS, headWord, direction, null, null,
 				null, coor, pu, distance);
 		addGenerateRule(rsg0, rsg1, sidesGeneratorMap);
+		
 		// 回退模型二
-		RuleSidesGenerate rsg2 = new RuleSidesGenerate(headLabel, parentLabel, headPOS, null, direction, sideLabel,
+		OccurenceSides rsg2 = new OccurenceSides(headLabel, parentLabel, headPOS, null, direction, sideLabel,
 				sideHeadPOS, null, coor, pu, distance);
-		RuleSidesGenerate rsg3 = new RuleSidesGenerate(headLabel, parentLabel, headPOS, null, direction, null, null,
+		OccurenceSides rsg3 = new OccurenceSides(headLabel, parentLabel, headPOS, null, direction, null, null,
 				null, coor, pu, distance);
 		addGenerateRule(rsg2, rsg3, sidesGeneratorMap);
+		
 		// 回退模型三
-		RuleSidesGenerate rsg4 = new RuleSidesGenerate(headLabel, parentLabel, null, null, direction, sideLabel,
+		OccurenceSides rsg4 = new OccurenceSides(headLabel, parentLabel, null, null, direction, sideLabel,
 				sideHeadPOS, null, coor, pu, distance);
-		RuleSidesGenerate rsg5 = new RuleSidesGenerate(headLabel, parentLabel, null, null, direction, null, null, null,
+		OccurenceSides rsg5 = new OccurenceSides(headLabel, parentLabel, null, null, direction, null, null, null,
 				coor, pu, distance);
 		addGenerateRule(rsg4, rsg5, sidesGeneratorMap);
 
 		// 生成两侧word的回退模型
 		// 回退模型1
-		RuleSidesGenerate rsgword0 = new RuleSidesGenerate(headLabel, parentLabel, headPOS, headWord, direction,
+		OccurenceSides rsgword0 = new OccurenceSides(headLabel, parentLabel, headPOS, headWord, direction,
 				sideLabel, sideHeadPOS, sideHeadWord, coor, pu, distance);
-		RuleSidesGenerate rsgword1 = new RuleSidesGenerate(headLabel, parentLabel, headPOS, headWord, direction,
+		OccurenceSides rsgword1 = new OccurenceSides(headLabel, parentLabel, headPOS, headWord, direction,
 				sideLabel, sideHeadPOS, null, coor, pu, distance);
 		addGenerateRule(rsgword0, rsgword1, sidesGeneratorMap);
+		
 		// 回退模型2
-		RuleSidesGenerate rsgword2 = new RuleSidesGenerate(headLabel, parentLabel, headPOS, null, direction, sideLabel,
+		OccurenceSides rsgword2 = new OccurenceSides(headLabel, parentLabel, headPOS, null, direction, sideLabel,
 				sideHeadPOS, sideHeadWord, coor, pu, distance);
-		RuleSidesGenerate rsgword3 = new RuleSidesGenerate(headLabel, parentLabel, headPOS, null, direction, sideLabel,
+		OccurenceSides rsgword3 = new OccurenceSides(headLabel, parentLabel, headPOS, null, direction, sideLabel,
 				sideHeadPOS, null, coor, pu, distance);
 		addGenerateRule(rsgword2, rsgword3, sidesGeneratorMap);
 		// 回退模型3
@@ -344,21 +349,23 @@ public class LexGrammarExtractor
 		HeadTreeNodeForCollins rnode = (HeadTreeNodeForCollins) node.getChild(i + 1);
 
 		// 回退模型1
-		RuleSpecialCase rsg0 = new RuleSpecialCase(node.getNodeName(), cPOS, cWord, lnode.getNodeName(),
+		OccurenceSpecialCase rsg0 = new OccurenceSpecialCase(node.getNodeName(), cPOS, cWord, lnode.getNodeName(),
 				rnode.getNodeName(), lnode.getHeadWord(), rnode.getHeadWord(), lnode.getHeadPos(), rnode.getHeadPos());
-		RuleSpecialCase rsg1 = new RuleSpecialCase(node.getNodeName(), null, null, lnode.getNodeName(),
+		OccurenceSpecialCase rsg1 = new OccurenceSpecialCase(node.getNodeName(), null, null, lnode.getNodeName(),
 				rnode.getNodeName(), lnode.getHeadWord(), rnode.getHeadWord(), lnode.getHeadPos(), rnode.getHeadPos());
 		addGenerateRule(rsg0, rsg1, specialGenMap);
+		
 		// 回退模型2
-		RuleSpecialCase rsg2 = new RuleSpecialCase(node.getNodeName(), cPOS, cWord, lnode.getNodeName(),
+		OccurenceSpecialCase rsg2 = new OccurenceSpecialCase(node.getNodeName(), cPOS, cWord, lnode.getNodeName(),
 				rnode.getNodeName(), null, null, lnode.getHeadPos(), rnode.getHeadPos());
-		RuleSpecialCase rsg3 = new RuleSpecialCase(node.getNodeName(), null, null, lnode.getNodeName(),
+		OccurenceSpecialCase rsg3 = new OccurenceSpecialCase(node.getNodeName(), null, null, lnode.getNodeName(),
 				rnode.getNodeName(), null, null, lnode.getHeadPos(), rnode.getHeadPos());
 		addGenerateRule(rsg2, rsg3, specialGenMap);
+		
 		// 回退模型3
-		RuleSpecialCase rsg4 = new RuleSpecialCase(node.getNodeName(), cPOS, cWord, lnode.getNodeName(),
+		OccurenceSpecialCase rsg4 = new OccurenceSpecialCase(node.getNodeName(), cPOS, cWord, lnode.getNodeName(),
 				rnode.getNodeName(), null, null, null, null);
-		RuleSpecialCase rsg5 = new RuleSpecialCase(node.getNodeName(), null, null, lnode.getNodeName(),
+		OccurenceSpecialCase rsg5 = new OccurenceSpecialCase(node.getNodeName(), null, null, lnode.getNodeName(),
 				rnode.getNodeName(), null, null, null, null);
 		addGenerateRule(rsg4, rsg5, specialGenMap);
 	}
@@ -377,14 +384,14 @@ public class LexGrammarExtractor
 	{
 		// 生成两侧word的回退模型,输出只有两种，所以不需要单独添加计算概率和权重时的分母`
 		// 回退模型1
-		RuleStopGenerate sg0 = new RuleStopGenerate(headLabel, parentLabel, headPOS, headWord, direction, stop,
+		OccurenceStop sg0 = new OccurenceStop(headLabel, parentLabel, headPOS, headWord, direction, stop,
 				distance);
 		addGenerateRule(sg0, null, stopGenMap);
 		// 回退模型2
-		RuleStopGenerate sg2 = new RuleStopGenerate(headLabel, parentLabel, headPOS, null, direction, stop, distance);
+		OccurenceStop sg2 = new OccurenceStop(headLabel, parentLabel, headPOS, null, direction, stop, distance);
 		addGenerateRule(sg2, null, stopGenMap);
 		// 回退模型3
-		RuleStopGenerate sg4 = new RuleStopGenerate(headLabel, parentLabel, null, null, direction, stop, distance);
+		OccurenceStop sg4 = new OccurenceStop(headLabel, parentLabel, null, null, direction, stop, distance);
 		addGenerateRule(sg4, null, stopGenMap);
 	}
 
@@ -437,7 +444,7 @@ public class LexGrammarExtractor
 	 * @param rule1
 	 * @param rule2
 	 */
-	private void addGenerateRule(RuleCollins rule1, RuleCollins rule2, HashMap<RuleCollins, AmountAndSort> map)
+	private void addGenerateRule(OccurenceCollins rule1, OccurenceCollins rule2, HashMap<OccurenceCollins, AmountAndSort> map)
 	{
 		if (rule2 == null)
 		{

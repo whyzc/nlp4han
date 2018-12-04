@@ -6,6 +6,7 @@ import com.lc.nlp4han.constituent.ConstituentMeasure;
 import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
+import com.lc.nlp4han.constituent.TreeNodeUtil;
 import com.lc.nlp4han.constituent.lex.ConstituentParseLexPCFG;
 import com.lc.nlp4han.constituent.lex.LexPCFG;
 import com.lc.nlp4han.ml.util.Evaluator;

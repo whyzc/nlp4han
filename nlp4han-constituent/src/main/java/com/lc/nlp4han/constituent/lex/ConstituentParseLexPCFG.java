@@ -434,7 +434,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 */
 	private void addSingle(Edge edge, ArrayList<Edge> tempEdgeList)
 	{
-		RuleHeadChildGenerate rhcg = new RuleHeadChildGenerate(edge.getLabel(), null, edge.getHeadPOS(), null);
+		OccurenceHeadChild rhcg = new OccurenceHeadChild(edge.getLabel(), null, edge.getHeadPOS(), null);
 		// RuleHeadChildGenerate rhcg = new RuleHeadChildGenerate(edge.getLabel(), null,
 		// null, null);
 		HashSet<String> parentSet = lexpcfg.getParentSet(rhcg);
@@ -502,18 +502,18 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 			return;
 		}
 		// 分别初始化两侧的stop规则
-		RuleStopGenerate rsg1 = new RuleStopGenerate(edge.getHeadLabel(), edge.getLabel(), edge.getHeadPOS(),
+		OccurenceStop rsg1 = new OccurenceStop(edge.getHeadLabel(), edge.getLabel(), edge.getHeadPOS(),
 				edge.getHeadWord(), 1, true, edge.getLc());
-		RuleStopGenerate rsg2 = new RuleStopGenerate(edge.getHeadLabel(), edge.getLabel(), edge.getHeadPOS(),
+		OccurenceStop rsg2 = new OccurenceStop(edge.getHeadLabel(), edge.getLabel(), edge.getHeadPOS(),
 				edge.getHeadWord(), 2, true, edge.getRc());
 
 		if (edge.getLabel().equals("NPB"))
 		{
 			Edge edge1 = edge.getFirstChild();
 			Edge edge2 = edge.getLastChild();
-			rsg1 = new RuleStopGenerate(edge1.getLabel(), edge.getLabel(), edge1.getHeadPOS(), edge1.getHeadWord(), 1,
+			rsg1 = new OccurenceStop(edge1.getLabel(), edge.getLabel(), edge1.getHeadPOS(), edge1.getHeadWord(), 1,
 					true, new Distance());
-			rsg2 = new RuleStopGenerate(edge2.getLabel(), edge.getLabel(), edge2.getHeadPOS(), edge.getHeadWord(), 2,
+			rsg2 = new OccurenceStop(edge2.getLabel(), edge.getLabel(), edge2.getHeadPOS(), edge.getHeadWord(), 2,
 					true, new Distance());
 		}
 		// 将原始概率与两侧规则的概率相乘得到新的概率
@@ -582,7 +582,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	{
 		Edge edge;
 		Distance lc, rc;
-		RuleSidesGenerate rsg;
+		OccurenceSides rsg;
 		ArrayList<Edge> children = new ArrayList<Edge>();
 
 		// 动词集合
@@ -610,7 +610,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 			}
 			else
 			{
-				rsg = new RuleSidesGenerate(e1.getHeadLabel(), e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(),
+				rsg = new OccurenceSides(e1.getHeadLabel(), e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(),
 						direction, e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(), 0, 0, e1.getRc());
 			}
 			pro = pro * lexpcfg.getGeneratePro(rsg, "sides");
@@ -646,7 +646,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 			}
 			else
 			{
-				rsg = new RuleSidesGenerate(e2.getHeadLabel(), e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(),
+				rsg = new OccurenceSides(e2.getHeadLabel(), e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(),
 						direction, e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(), 0, 0, e2.getLc());
 			}
 			pro = pro * lexpcfg.getGeneratePro(rsg, "sides");
@@ -687,20 +687,20 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 * @param rsg
 	 * @return
 	 */
-	private RuleSidesGenerate disposeNPB(Edge e1, Edge e2, int direction)
+	private OccurenceSides disposeNPB(Edge e1, Edge e2, int direction)
 	{
-		RuleSidesGenerate rsg;
+		OccurenceSides rsg;
 		if (direction == 2)
 		{
 			Edge lastChild = e1.getLastChild();
-			rsg = new RuleSidesGenerate(lastChild.getLabel(), e1.getLabel(), lastChild.getHeadPOS(),
+			rsg = new OccurenceSides(lastChild.getLabel(), e1.getLabel(), lastChild.getHeadPOS(),
 					lastChild.getHeadWord(), direction, e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(), 0, 0,
 					new Distance());
 		}
 		else
 		{
 			Edge firstChild = e2.getFirstChild();
-			rsg = new RuleSidesGenerate(firstChild.getLabel(), e2.getLabel(), firstChild.getHeadPOS(),
+			rsg = new OccurenceSides(firstChild.getLabel(), e2.getLabel(), firstChild.getHeadPOS(),
 					firstChild.getHeadWord(), direction, e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(), 0, 0,
 					new Distance());
 		}
@@ -717,16 +717,16 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 * @param pro
 	 * @return
 	 */
-	private double disposeCoorAndPC(Edge e1, Edge e2, int direction, RuleSidesGenerate rsg, double pro)
+	private double disposeCoorAndPC(Edge e1, Edge e2, int direction, OccurenceSides rsg, double pro)
 	{
 		if (e1.getChildNum() >= 2 && !e1.getLabel().equals("NPB") && e1.getLastChild().getLabel().equals("CC")
 				&& e1.getLabel().equals(e1.getChildLabel(e1.getChildNum() - 2)) && e1.getLabel().equals(e2.getLabel()))
 		{
 			Edge lastChild = e1.getLastChild();
-			rsg = new RuleSidesGenerate(lastChild.getLabel(), e1.getLabel(), lastChild.getHeadPOS(),
+			rsg = new OccurenceSides(lastChild.getLabel(), e1.getLabel(), lastChild.getHeadPOS(),
 					lastChild.getHeadWord(), direction, e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(), 1, 0,
 					e1.getRc());
-			RuleSpecialCase sg = new RuleSpecialCase(e1.getLabel(), lastChild.getHeadPOS(), lastChild.getHeadWord(),
+			OccurenceSpecialCase sg = new OccurenceSpecialCase(e1.getLabel(), lastChild.getHeadPOS(), lastChild.getHeadWord(),
 					e1.getChildLabel(e1.getChildNum() - 2), e2.getLabel(),
 					e1.getChild(e1.getChildNum() - 2).getHeadWord(), e2.getHeadWord(),
 					e1.getChild(e1.getChildNum() - 2).getHeadPOS(), e2.getHeadPOS());

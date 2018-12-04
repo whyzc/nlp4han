@@ -12,7 +12,8 @@ import java.util.HashSet;
  */
 public abstract class Rule
 {
-	public static double rulethres = 1.0e-30;// 小于该值均赋值为0.0
+	public static double ruleThres = 1.0e-30;// 小于该值均赋值为0.0
+	public static double preRulethres = 1.0e-87;
 	protected short parent;
 
 	public abstract void split();
