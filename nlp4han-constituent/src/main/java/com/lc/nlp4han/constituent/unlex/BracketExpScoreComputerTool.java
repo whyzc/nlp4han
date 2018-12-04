@@ -17,7 +17,8 @@ public class BracketExpScoreComputerTool
 	{
 		TreeBank.calculateInnerScore(gLatentAnnotation, tree);
 		// System.out
-		//		.println("score:" + tree.getLabel().getInnerScores()[0] + ",scale:" + tree.getLabel().getInnerScale());
+		// .println("score:" + tree.getLabel().getInnerScores()[0] + ",scale:" +
+		// tree.getLabel().getInnerScale());
 		return Math.log(tree.getLabel().getInnerScores()[0]) + 100 * tree.getLabel().getInnerScale();
 	}
 
@@ -25,7 +26,7 @@ public class BracketExpScoreComputerTool
 	{
 		try
 		{
-			Grammar gLatentAnnotation = GrammarExtractorToolLatentAnnotation.getGrammar(1, 0.5, 50, 10,
+			Grammar gLatentAnnotation = GrammarExtractorToolLatentAnnotation.getGrammar(1, 0.5, 50, 0.01, 10,
 					"C:\\Users\\hp\\Desktop\\test100.txt", "utf-8");
 			TreeNode tree = Binarization.binarizeTree(BracketExpUtil.generateTree(
 					"(ROOT(FRAG(NN 新华社)(NR 上海)(NT 二月)(NT 十日)(NN 电)(PU （)(NN 记者)(NR 谢金虎)(PU 、)(NR 张持坚)(PU ）)))"));

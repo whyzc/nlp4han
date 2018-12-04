@@ -41,7 +41,7 @@ public class PreterminalRule extends Rule
 	public void split()
 	{
 		Random random = Grammar.random;
-		boolean randomPerturbation = true;
+		boolean randomPerturbation = false;// preRule分裂不添加随机扰动
 		// split father
 		int pNumSubSymbol = scores.size();
 		for (int i = pNumSubSymbol - 1; i >= 0; i--)

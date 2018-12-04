@@ -20,25 +20,25 @@ public class GrammarSpliter
 		splitRule(oldG.getbRules());
 		splitRule(oldG.getuRules());
 		splitRule(oldG.getLexicon().getPreRules());
+		oldG.getNumSubsymbolArr().replaceAll(e -> Short.valueOf((short) (e * 2)));
+		oldG.getNumSubsymbolArr().set(oldG.symbolIntValue(oldG.getStartSymbol()), (short) 1);
 		// 让PreterminalRule概率归一化
-		normalizedPreTermianlRules(oldG);
+		GrammarTrainer.normalizedPreTermianlRules(oldG);
 		for (AnnotationTreeNode tree : treeBank.getTreeBank())
 		{
 			splitTreeAnnotation(tree, oldG);
 		}
-		oldG.getNumSubsymbolArr().replaceAll(e -> Short.valueOf((short) (e * 2)));
-		oldG.getNumSubsymbolArr().set(oldG.symbolIntValue(oldG.getStartSymbol()), (short) 1);
+
 	}
 
 	public static void normalizedPreTermianlRules(Grammar g)
 	{
-
 		HashMap<Short, Double[]> sameHeadPRuleScoreSum = new HashMap<Short, Double[]>();
 		for (PreterminalRule preRule : g.getLexicon().getPreRules())
 		{
 			if (!sameHeadPRuleScoreSum.containsKey(preRule.getParent()))
 			{
-				sameHeadPRuleScoreSum.put(preRule.parent, new Double[preRule.getScores().size()]);
+				sameHeadPRuleScoreSum.put(preRule.parent, new Double[g.getNumSubSymbol(preRule.getParent())]);
 			}
 			for (int i = 0; i < preRule.getScores().size(); i++)
 			{
@@ -76,7 +76,7 @@ public class GrammarSpliter
 		if (tree.isLeaf())
 			return;
 		if (!(tree.getLabel().getSymbol() == g.getNonterminalTable().intValue("ROOT")))
-			tree.getLabel().setNumSubSymbol((short) (g.getNumSubSymbol(tree.getLabel().getSymbol()) * 2));
+			tree.getLabel().setNumSubSymbol((short) (g.getNumSubSymbol(tree.getLabel().getSymbol())));
 
 		for (AnnotationTreeNode child : tree.getChildren())
 		{
@@ -90,7 +90,7 @@ public class GrammarSpliter
 		Grammar g = null;
 		try
 		{
-			g = GrammarExtractorToolLatentAnnotation.getGrammar(0, 0.5, 50, Lexicon.DEFAULT_RAREWORD_THRESHOLD,
+			g = GrammarExtractorToolLatentAnnotation.getGrammar(0, 0.5, 50, 0.01, Lexicon.DEFAULT_RAREWORD_THRESHOLD,
 					"C:\\Users\\hp\\Desktop\\test100tree.txt", "utf-8");
 		}
 		catch (IOException e)

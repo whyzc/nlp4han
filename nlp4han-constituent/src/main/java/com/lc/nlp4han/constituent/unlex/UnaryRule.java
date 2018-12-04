@@ -275,13 +275,19 @@ public class UnaryRule extends Rule
 			{
 				parentStr = g.symbolStrValue(parent) + "_" + i;
 			}
-			double A_iScore = 0.0;
-			for (int j = 0; j < scores.get(0).size(); j++)
-			{
-				A_iScore = A_iScore + scores.get(i).get(j);
-			}
+			double A_iScore = getParent_i_ScoceSum((short) i);
 			A_iBRuleSum.put(parentStr, A_iScore);
 		}
 		return A_iBRuleSum;
+	}
+
+	public double getParent_i_ScoceSum(short subParentIndex)
+	{
+		double A_iScore = 0.0;
+		for (int j = 0; j < scores.get(0).size(); j++)
+		{
+			A_iScore = A_iScore + scores.get(subParentIndex).get(j);
+		}
+		return A_iScore;
 	}
 }
