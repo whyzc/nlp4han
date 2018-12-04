@@ -5,5 +5,6 @@ import java.util.List;
 public interface SampleGenerator
 {
 	public Sample getSample(Text text, FeatureGenerator fg);
-	public Sample getSample(List<Feature> features);
+	public Sample getSample(List<Feature> features, FeatureGenerator fg);
+	public void init(FeatureGenerator fg);
 }

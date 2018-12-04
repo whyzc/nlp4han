@@ -32,7 +32,8 @@ public class TestGroup
 	public void testAddMember()
 	{
 		Group g1 = null;
-		g1.addMember();
+		Text t = null;
+		g1.addMember(t);
 	}
 	
 	@Test
@@ -64,7 +65,7 @@ public class TestGroup
 	{
 		Group g1 = null;
 		
-		Text center = g1.getCenter();
+		Sample center = g1.getCenter();
 	}
 	
 	@Test
