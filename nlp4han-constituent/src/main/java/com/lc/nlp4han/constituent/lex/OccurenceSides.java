@@ -4,7 +4,7 @@ package com.lc.nlp4han.constituent.lex;
  * @author qyl
  *
  */
-public class RuleSidesGenerate extends  RuleHeadChildGenerate
+public class OccurenceSides extends  OccurenceHeadChild
 {
 	private int direction = 0;//头结点为0,左侧为1，右侧为2
 	private String sideLabel = null;//所求孩子节点的标记
@@ -15,7 +15,7 @@ public class RuleSidesGenerate extends  RuleHeadChildGenerate
 	private Distance distance=new Distance();//距离度量
 	
 	
-	public RuleSidesGenerate(String[] strs)
+	public OccurenceSides(String[] strs)
 	{
 		super(strs);
 		this.direction = Integer.parseInt(strs[4]);
@@ -27,7 +27,7 @@ public class RuleSidesGenerate extends  RuleHeadChildGenerate
 		this.distance = new Distance(Boolean.parseBoolean(strs[10]), Boolean.parseBoolean(strs[11]));
 	}
 
-	public RuleSidesGenerate(String headLabel, String parentLabel, String headPOS, String headWord, int direction,
+	public OccurenceSides(String headLabel, String parentLabel, String headPOS, String headWord, int direction,
 			String sideLabel, String sideHeadPOS, String sideHeadWord, int coor, int  pu, Distance distance)
 	{
 		super(headLabel, parentLabel, headPOS, headWord);
@@ -134,7 +134,7 @@ public class RuleSidesGenerate extends  RuleHeadChildGenerate
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		RuleSidesGenerate other = (RuleSidesGenerate) obj;
+		OccurenceSides other = (OccurenceSides) obj;
 		if (coor != other.coor)
 			return false;
 		if (direction != other.direction)

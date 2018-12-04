@@ -29,17 +29,17 @@ public class LexPCFG
 	private HashMap<String, HashSet<String>> posesOfWord = new HashMap<String, HashSet<String>>();
 
 	// P(H|P,t,w)）相关的统计数据
-	private HashMap<RuleCollins, AmountAndSort> headGenMap = new HashMap<RuleCollins, AmountAndSort>();
-	private HashMap<RuleCollins, HashSet<String>> parentList = new HashMap<RuleCollins, HashSet<String>>();
+	private HashMap<OccurenceCollins, AmountAndSort> headGenMap = new HashMap<OccurenceCollins, AmountAndSort>();
+	private HashMap<OccurenceCollins, HashSet<String>> parentList = new HashMap<OccurenceCollins, HashSet<String>>();
 
 	// 用于生成SidesChild(包含其中心word和pos)相关统计数据
-	private HashMap<RuleCollins, AmountAndSort> sidesGenMap = new HashMap<RuleCollins, AmountAndSort>();
+	private HashMap<OccurenceCollins, AmountAndSort> sidesGenMap = new HashMap<OccurenceCollins, AmountAndSort>();
 
 	// 用于生成Stop的相关统计数据
-	private HashMap<RuleCollins, AmountAndSort> stopGenMap = new HashMap<RuleCollins, AmountAndSort>();
+	private HashMap<OccurenceCollins, AmountAndSort> stopGenMap = new HashMap<OccurenceCollins, AmountAndSort>();
 
 	// 用于生成并列结构连词（如CC或者逗号和冒号,为简略，我将生成修饰符pos和生成修饰符word都放入此规则
-	private HashMap<RuleCollins, AmountAndSort> specialGenMap = new HashMap<RuleCollins, AmountAndSort>();
+	private HashMap<OccurenceCollins, AmountAndSort> specialGenMap = new HashMap<OccurenceCollins, AmountAndSort>();
 
 	public LexPCFG()
 	{
@@ -47,9 +47,9 @@ public class LexPCFG
 	}
     
 	public LexPCFG(String startSymbol, HashSet<String> posSet, HashMap<WordAndPOS, Integer> wordMap,
-			HashMap<String, HashSet<String>> posesOfWord, HashMap<RuleCollins, AmountAndSort> headGenMap,
-			HashMap<RuleCollins, HashSet<String>> parentList, HashMap<RuleCollins, AmountAndSort> sidesGenMap,
-			HashMap<RuleCollins, AmountAndSort> stopGenMap, HashMap<RuleCollins, AmountAndSort> specialGenMap)
+			HashMap<String, HashSet<String>> posesOfWord, HashMap<OccurenceCollins, AmountAndSort> headGenMap,
+			HashMap<OccurenceCollins, HashSet<String>> parentList, HashMap<OccurenceCollins, AmountAndSort> sidesGenMap,
+			HashMap<OccurenceCollins, AmountAndSort> stopGenMap, HashMap<OccurenceCollins, AmountAndSort> specialGenMap)
 	{
 		this.StartSymbol = startSymbol;
 		this.posSet = posSet;
@@ -97,7 +97,7 @@ public class LexPCFG
 			String[] strs = str.split(" ");
 			int amount = Integer.parseInt(strs[strs.length - 2]);
 			int sort = Integer.parseInt(strs[strs.length - 1]);
-			headGenMap.put(new RuleHeadChildGenerate(strs), new AmountAndSort(amount, sort));
+			headGenMap.put(new OccurenceHeadChild(strs), new AmountAndSort(amount, sort));
 			str = buffer.readLine();
 		}
 		str = buffer.readLine();
@@ -109,7 +109,7 @@ public class LexPCFG
 			{
 				set.add(strs[i]);
 			}
-			parentList.put(new RuleHeadChildGenerate(strs), set);
+			parentList.put(new OccurenceHeadChild(strs), set);
 			str = buffer.readLine();
 		}
 		str = buffer.readLine();
@@ -118,7 +118,7 @@ public class LexPCFG
 			String[] strs = str.split(" ");
 			int amount = Integer.parseInt(strs[strs.length - 2]);
 			int sort = Integer.parseInt(strs[strs.length - 1]);
-			sidesGenMap.put(new RuleSidesGenerate(strs), new AmountAndSort(amount, sort));
+			sidesGenMap.put(new OccurenceSides(strs), new AmountAndSort(amount, sort));
 			str = buffer.readLine();
 		}
 		str = buffer.readLine();
@@ -138,7 +138,7 @@ public class LexPCFG
 				}
 			}
 			int sort = Integer.parseInt(strs[strs.length - 1]);
-			stopGenMap.put(new RuleStopGenerate(strs), new AmountAndSort(amount, sort));
+			stopGenMap.put(new OccurenceStop(strs), new AmountAndSort(amount, sort));
 			str = buffer.readLine();
 		}
 		str = buffer.readLine();
@@ -148,7 +148,7 @@ public class LexPCFG
 			String[] strs = str.split(" ");
 			int amount = Integer.parseInt(strs[strs.length - 2]);
 			int sort = Integer.parseInt(strs[strs.length - 1]);
-			specialGenMap.put(new RuleSpecialCase(strs), new AmountAndSort(amount, sort));
+			specialGenMap.put(new OccurenceSpecialCase(strs), new AmountAndSort(amount, sort));
 			str = buffer.readLine();
 		}
 		buffer.close();
@@ -180,7 +180,7 @@ public class LexPCFG
 	 * 
 	 * @return
 	 */
-	public HashSet<String> getParentSet(RuleHeadChildGenerate rhcg)
+	public HashSet<String> getParentSet(OccurenceHeadChild rhcg)
 	{
 		return parentList.get(rhcg);
 	}
@@ -192,23 +192,23 @@ public class LexPCFG
 	 * @param type
 	 * @return
 	 */
-	public double getGeneratePro(RuleCollins rule, String type)
+	public double getGeneratePro(OccurenceCollins rule, String type)
 	{
 		if (type.equals("head"))
 		{
-			return getProForGenerateHead((RuleHeadChildGenerate) rule);
+			return getProForGenerateHead((OccurenceHeadChild) rule);
 		}
 		else if (type.equals("sides"))
 		{
-			return getProForGenerateSides((RuleSidesGenerate) rule);
+			return getProForGenerateSides((OccurenceSides) rule);
 		}
 		else if (type.equals("stop"))
 		{
-			return getProForGenerateStop((RuleStopGenerate) rule);
+			return getProForGenerateStop((OccurenceStop) rule);
 		}
 		else
 		{
-			return getProForSpecialCase((RuleSpecialCase) rule);
+			return getProForSpecialCase((OccurenceSpecialCase) rule);
 		}
 	}
 
@@ -217,7 +217,7 @@ public class LexPCFG
 	 * 
 	 * @return
 	 */
-	private double getProForGenerateHead(RuleHeadChildGenerate rhcg)
+	private double getProForGenerateHead(OccurenceHeadChild rhcg)
 	{
 		return getProOfBackOff(rhcg, headGenMap, "head");
 	}
@@ -228,7 +228,7 @@ public class LexPCFG
 	 * @param rsg
 	 * @return
 	 */
-	private double getProForGenerateStop(RuleStopGenerate rsg)
+	private double getProForGenerateStop(OccurenceStop rsg)
 	{
 		return getProOfBackOff(rsg, stopGenMap, "stop");
 	}
@@ -239,7 +239,7 @@ public class LexPCFG
 	 * @param sidesRule
 	 * @return
 	 */
-	private double getProForGenerateSides(RuleSidesGenerate sr)
+	private double getProForGenerateSides(OccurenceSides sr)
 	{
 		// 需要进行平滑运算将其分为两部分
 		String parentLabel = sr.getParentLabel();// 父节点的非终结符标记
@@ -254,9 +254,9 @@ public class LexPCFG
 		int pu = sr.getPu();// 标点符号，由于只保留了顿号所以我们可以把它当做并列结构
 		Distance distance = sr.getDistance();// 距离度量
 
-		RuleSidesGenerate rule1 = new RuleSidesGenerate(headLabel, parentLabel, headPOS, headWord, direction, sideLabel,
+		OccurenceSides rule1 = new OccurenceSides(headLabel, parentLabel, headPOS, headWord, direction, sideLabel,
 				sideHeadPOS, null, coor, pu, distance);
-		RuleSidesGenerate rule2 = new RuleSidesGenerate(headLabel, parentLabel, headPOS, headWord, direction, sideLabel,
+		OccurenceSides rule2 = new OccurenceSides(headLabel, parentLabel, headPOS, headWord, direction, sideLabel,
 				sideHeadPOS, sideHeadWord, coor, pu, distance);
 		return getProOfBackOff(rule1, sidesGenMap, "1side") * getProOfBackOff(rule2, sidesGenMap, "2side");
 	}
@@ -268,7 +268,7 @@ public class LexPCFG
 	 * @param specialRule
 	 * @return
 	 */
-	private double getProForSpecialCase(RuleSpecialCase specialRule)
+	private double getProForSpecialCase(OccurenceSpecialCase specialRule)
 	{
 		return getProOfBackOff(specialRule, specialGenMap, "special");
 	}
@@ -280,7 +280,7 @@ public class LexPCFG
 	 * @param map
 	 * @return
 	 */
-	private double getProOfBackOff(RuleCollins rule, HashMap<RuleCollins, AmountAndSort> map, String type)
+	private double getProOfBackOff(OccurenceCollins rule, HashMap<OccurenceCollins, AmountAndSort> map, String type)
 	{
 		double e1, e2, e3, w1, w2;
 		e3 = 0;
@@ -297,7 +297,7 @@ public class LexPCFG
 		rule.setHeadPOS(null);
 		if (type.equals("2side"))
 		{
-			RuleSidesGenerate rs = (RuleSidesGenerate) rule;
+			OccurenceSides rs = (OccurenceSides) rule;
 			double i = 0.5;
 			e3=getProForWord(rs,i);
 		}
@@ -320,7 +320,7 @@ public class LexPCFG
      *   
      * @return
      */
-	private double getProForWord(RuleSidesGenerate rs,double count) {
+	private double getProForWord(OccurenceSides rs,double count) {
 		double e3=0;
 		WordAndPOS wop = new WordAndPOS(rs.getSideHeadWord(), rs.getSideHeadPOS());
 		if (wordMap.keySet().contains(wop))
@@ -338,7 +338,7 @@ public class LexPCFG
 	 * 
 	 * @return
 	 */
-	private double[] getProAndWeight(RuleCollins rhcg, HashMap<RuleCollins, AmountAndSort> map, String type)
+	private double[] getProAndWeight(OccurenceCollins rhcg, HashMap<OccurenceCollins, AmountAndSort> map, String type)
 	{
 		int x, u, y;
 		double[] pw = new double[2];
@@ -354,23 +354,23 @@ public class LexPCFG
 			switch (type)
 			{
 			case "head":
-				RuleHeadChildGenerate rhcg1 = (RuleHeadChildGenerate) rhcg;
-				rhcg1 = new RuleHeadChildGenerate(null, rhcg1.getParentLabel(), rhcg1.getHeadPOS(),
+				OccurenceHeadChild rhcg1 = (OccurenceHeadChild) rhcg;
+				rhcg1 = new OccurenceHeadChild(null, rhcg1.getParentLabel(), rhcg1.getHeadPOS(),
 						rhcg1.getHeadWord());
 				y = map.get(rhcg1).getAmount();
 				u = map.get(rhcg1).getSort();
 				break;
 			case "1side":
-				RuleSidesGenerate rsg1 = (RuleSidesGenerate) rhcg;
-				rsg1 = new RuleSidesGenerate(rsg1.getHeadLabel(), rsg1.getParentLabel(), rsg1.getHeadPOS(),
+				OccurenceSides rsg1 = (OccurenceSides) rhcg;
+				rsg1 = new OccurenceSides(rsg1.getHeadLabel(), rsg1.getParentLabel(), rsg1.getHeadPOS(),
 						rsg1.getHeadWord(), rsg1.getDirection(), null, null, rsg1.getSideHeadWord(), rsg1.getCoor(),
 						rsg1.getPu(), rsg1.getDistance());
 				y = map.get(rsg1).getAmount();
 				u = map.get(rsg1).getSort();
 				break;
 			case "2side":
-				RuleSidesGenerate rsg2 = (RuleSidesGenerate) rhcg;
-				rsg2 = new RuleSidesGenerate(rsg2.getHeadLabel(), rsg2.getParentLabel(), rsg2.getHeadPOS(),
+				OccurenceSides rsg2 = (OccurenceSides) rhcg;
+				rsg2 = new OccurenceSides(rsg2.getHeadLabel(), rsg2.getParentLabel(), rsg2.getHeadPOS(),
 						rsg2.getHeadWord(), rsg2.getDirection(), rsg2.getSideLabel(), rsg2.getSideHeadPOS(), null,
 						rsg2.getCoor(), rsg2.getPu(), rsg2.getDistance());
 
@@ -380,8 +380,8 @@ public class LexPCFG
 				break;
 			case "stop":
 				y = 0;
-				RuleStopGenerate rsg3 = (RuleStopGenerate) rhcg;
-				rsg3 = new RuleStopGenerate(rsg3.getHeadLabel(), rsg3.getParentLabel(), rsg3.getHeadPOS(),
+				OccurenceStop rsg3 = (OccurenceStop) rhcg;
+				rsg3 = new OccurenceStop(rsg3.getHeadLabel(), rsg3.getParentLabel(), rsg3.getHeadPOS(),
 						rsg3.getHeadWord(), rsg3.getDirection(), true, rsg3.getDistance());
 				if (map.containsKey(rsg3))
 				{
@@ -395,8 +395,8 @@ public class LexPCFG
 				u = 2;
 				break;
 			case "special":
-				RuleSpecialCase rsg4 = (RuleSpecialCase) rhcg;
-				rsg4 = new RuleSpecialCase(rsg4.getParentLabel(), null, null, rsg4.getLeftLabel(), rsg4.getRightLabel(),
+				OccurenceSpecialCase rsg4 = (OccurenceSpecialCase) rhcg;
+				rsg4 = new OccurenceSpecialCase(rsg4.getParentLabel(), null, null, rsg4.getLeftLabel(), rsg4.getRightLabel(),
 						rsg4.getLheadWord(), rsg4.getRheadWord(), rsg4.getLheadPOS(), rsg4.getRheadPOS());
 				y = map.get(rsg4).getAmount();
 				u = map.get(rsg4).getSort();
@@ -449,52 +449,52 @@ public class LexPCFG
 		this.posesOfWord = posesOfWord;
 	}
 
-	public HashMap<RuleCollins, AmountAndSort> getHeadGenMap()
+	public HashMap<OccurenceCollins, AmountAndSort> getHeadGenMap()
 	{
 		return headGenMap;
 	}
 
-	public void setHeadGenMap(HashMap<RuleCollins, AmountAndSort> headGenMap)
+	public void setHeadGenMap(HashMap<OccurenceCollins, AmountAndSort> headGenMap)
 	{
 		this.headGenMap = headGenMap;
 	}
 
-	public HashMap<RuleCollins, HashSet<String>> getParentList()
+	public HashMap<OccurenceCollins, HashSet<String>> getParentList()
 	{
 		return parentList;
 	}
 
-	public void setParentList(HashMap<RuleCollins, HashSet<String>> parentList)
+	public void setParentList(HashMap<OccurenceCollins, HashSet<String>> parentList)
 	{
 		this.parentList = parentList;
 	}
 
-	public HashMap<RuleCollins, AmountAndSort> getSidesGeneratorMap()
+	public HashMap<OccurenceCollins, AmountAndSort> getSidesGeneratorMap()
 	{
 		return sidesGenMap;
 	}
 
-	public void setSidesGeneratorMap(HashMap<RuleCollins, AmountAndSort> sidesGenMap)
+	public void setSidesGeneratorMap(HashMap<OccurenceCollins, AmountAndSort> sidesGenMap)
 	{
 		this.sidesGenMap = sidesGenMap;
 	}
 
-	public HashMap<RuleCollins, AmountAndSort> getStopGenMap()
+	public HashMap<OccurenceCollins, AmountAndSort> getStopGenMap()
 	{
 		return stopGenMap;
 	}
 
-	public void setStopGenMap(HashMap<RuleCollins, AmountAndSort> stopGenMap)
+	public void setStopGenMap(HashMap<OccurenceCollins, AmountAndSort> stopGenMap)
 	{
 		this.stopGenMap = stopGenMap;
 	}
 
-	public HashMap<RuleCollins, AmountAndSort> getSpecialGenMap()
+	public HashMap<OccurenceCollins, AmountAndSort> getSpecialGenMap()
 	{
 		return specialGenMap;
 	}
 
-	public void setSpecialGenMap(HashMap<RuleCollins, AmountAndSort> specialGenMap)
+	public void setSpecialGenMap(HashMap<OccurenceCollins, AmountAndSort> specialGenMap)
 	{
 		this.specialGenMap = specialGenMap;
 	}
@@ -525,18 +525,18 @@ public class LexPCFG
 			stb.append(wap1.toString() + " " + wordMap.get(wap1) + '\n');
 		}
 		stb.append("--生成头结点的规则集--" + '\n');
-		Set<RuleCollins> set = headGenMap.keySet();
-		for (RuleCollins rule : set)
+		Set<OccurenceCollins> set = headGenMap.keySet();
+		for (OccurenceCollins rule : set)
 		{
-			RuleHeadChildGenerate rule1 = (RuleHeadChildGenerate) rule;
+			OccurenceHeadChild rule1 = (OccurenceHeadChild) rule;
 			stb.append(rule1.toString() + " " + headGenMap.get(rule1).toString() + '\n');
 		}
 
 		stb.append("--头结点向上延伸的标记集--" + '\n');
-		Set<RuleCollins> set1 = parentList.keySet();
-		for (RuleCollins rule : set1)
+		Set<OccurenceCollins> set1 = parentList.keySet();
+		for (OccurenceCollins rule : set1)
 		{
-			RuleHeadChildGenerate rule1 = (RuleHeadChildGenerate) rule;
+			OccurenceHeadChild rule1 = (OccurenceHeadChild) rule;
 			stb.append(rule1.toString() + " ");
 			for (String str : parentList.get(rule1))
 			{
@@ -546,26 +546,26 @@ public class LexPCFG
 		}
 
 		stb.append("--生成两侧孩子的规则集--" + '\n');
-		Set<RuleCollins> set2 = sidesGenMap.keySet();
-		for (RuleCollins rule : set2)
+		Set<OccurenceCollins> set2 = sidesGenMap.keySet();
+		for (OccurenceCollins rule : set2)
 		{
-			RuleHeadChildGenerate rule1 = (RuleHeadChildGenerate) rule;
+			OccurenceHeadChild rule1 = (OccurenceHeadChild) rule;
 			stb.append(rule1.toString() + " " + sidesGenMap.get(rule1).toString() + '\n');
 		}
 
 		stb.append("--生成两侧Stop的规则集--" + '\n');
-		Set<RuleCollins> set3 = stopGenMap.keySet();
-		for (RuleCollins rule : set3)
+		Set<OccurenceCollins> set3 = stopGenMap.keySet();
+		for (OccurenceCollins rule : set3)
 		{
-			RuleHeadChildGenerate rule1 = (RuleHeadChildGenerate) rule;
+			OccurenceHeadChild rule1 = (OccurenceHeadChild) rule;
 			stb.append(rule1.toString() + " " + stopGenMap.get(rule1).toString() + '\n');
 		}
 
 		stb.append("--特殊规则集--" + '\n');
-		Set<RuleCollins> set4 = specialGenMap.keySet();
-		for (RuleCollins rule : set4)
+		Set<OccurenceCollins> set4 = specialGenMap.keySet();
+		for (OccurenceCollins rule : set4)
 		{
-			RuleHeadChildGenerate rule1 = (RuleHeadChildGenerate) rule;
+			OccurenceHeadChild rule1 = (OccurenceHeadChild) rule;
 			stb.append(rule1.toString() + " " + specialGenMap.get(rule1).toString() + '\n');
 		}
 		return stb.toString();

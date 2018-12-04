@@ -4,19 +4,19 @@ package com.lc.nlp4han.constituent.lex;
  * @author qyl
  *
  */
-public  class RuleCollins
+public  class OccurenceCollins
 {
 	private String parentLabel=null;//父节点的非终结符标记
 	private String headPOS=null;//中心词词性标记,在NPB中为上一个修饰符的pos
 	private String headWord=null;//中心词,在NPB中为上一个修饰符的word
-	public RuleCollins(String parentLabel, String headPOS, String headWord)
+	public OccurenceCollins(String parentLabel, String headPOS, String headWord)
 	{
 		this.parentLabel = parentLabel;
 		this.headPOS = headPOS;
 		this.headWord = headWord;
 	}
 	
-	public RuleCollins(String parentLabel)
+	public OccurenceCollins(String parentLabel)
 	{
 		this.parentLabel = parentLabel;
 	}
@@ -64,7 +64,7 @@ public  class RuleCollins
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		RuleCollins other = (RuleCollins) obj;
+		OccurenceCollins other = (OccurenceCollins) obj;
 		if (headPOS == null)
 		{
 			if (other.headPOS != null)
