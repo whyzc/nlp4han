@@ -54,25 +54,21 @@ public class Group
 		if (members==null || members.size()<1)
 			return false;
 			
-		ArrayList<Double> newCenter = new ArrayList<Double>();
-		int n = members.get(0).getSample().getVecter().size();  // Sample中vector的维度
-		for (int i=0 ; i<n ; i++)  // 初始化为0
-		{
-			newCenter.add(0.0);
-		}
+		int n = members.get(0).getSample().getVecter().length;  // Sample中vector的维度
+		double[] newCenter = new double[n];
 		
 		for (int i=0 ; i<members.size() ; i++)  // 将members每个成员的Sample中vector的每位对应相加
 		{
-			List<Double> tmp = members.get(i).getSample().getVecter();
-			for (int j=0 ; j<tmp.size() ; j++)
+			double[] tmp = members.get(i).getSample().getVecter();
+			for (int j=0 ; j<tmp.length ; j++)
 			{
-				newCenter.set(j, newCenter.get(j)+tmp.get(j));
+				newCenter[j] += tmp[j];
 			}
 		}
 		
 		for (int i=0 ; i<n ; i++)
 		{
-			newCenter.set(i, newCenter.get(i)/members.size());
+			newCenter[i] /= members.size();
 		}
 		
 		if (newCenter.equals(center.getVecter()))
@@ -163,5 +159,28 @@ public class Group
 		return true;
 	}
 	
+	public List<String> getMembersNames()
+	{
+		List<String> result = new ArrayList<String>();
+		for (Text t : members)
+		{
+			result.add(t.getName());
+		}
+		return result;
+	}
+	
+	public int getMembersNumber()
+	{
+		if (members != null)
+			return members.size();
+		else
+			return 0;
+	}
+	
+	public void clear()
+	{
+		if (members != null)
+			members.clear();
+	}
 	
 }

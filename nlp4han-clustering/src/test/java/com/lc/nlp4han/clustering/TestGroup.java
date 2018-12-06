@@ -1,6 +1,9 @@
 package com.lc.nlp4han.clustering;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -73,6 +76,45 @@ public class TestGroup
 	{
 		Group g1 = null;
 		List<Text> texts = g1.getMembers();
+	}
+	
+	@Test
+	public void testGetMembersNames()
+	{
+		Text t1 = new Text("a", "aa");
+		Text t2 = new Text("b", "aa");
+		Text t3 = new Text("c", "aa");
+		List<Text> texts = new ArrayList<Text>();
+		texts.add(t1);
+		texts.add(t2);
+		texts.add(t3);
+		
+		Group g = new Group(texts);
+		
+		List<String> result = g.getMembersNames();
+		
+		String[] s = new String[] {"a", "b", "c"};
+		List<String> expected = Arrays.asList(s);
+		
+		assertEquals(expected, result);
+	}
+	
+	@Test
+	public void testClear()
+	{
+		Text t1 = new Text("a", "aa");
+		Text t2 = new Text("b", "aa");
+		Text t3 = new Text("c", "aa");
+		List<Text> texts = new ArrayList<Text>();
+		texts.add(t1);
+		texts.add(t2);
+		texts.add(t3);
+		
+		Group g = new Group(texts);
+		
+		g.clear();
+		
+		assertEquals(0, g.getMembersNumber());
 	}
 	
 }

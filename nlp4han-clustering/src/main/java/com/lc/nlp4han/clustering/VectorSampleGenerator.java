@@ -1,6 +1,5 @@
 package com.lc.nlp4han.clustering;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,15 +25,16 @@ public class VectorSampleGenerator implements SampleGenerator
 	{
 		if (vectorInfo == null)
 			init(fg);
-		ArrayList<Double> vector = new ArrayList<Double>();
-		for (int i=0 ; i<vectorInfo.size() ; i++)  // 对vector初始化
+		double[] vector = new double[vectorInfo.size()];
+		for (int i=0 ; i<vector.length ; i++)  // 对vector初始化
 		{
-			vector.add(0.0);
+			vector[i] = 0;
 		}
-		for (Feature f : features)
+		
+		for (int i=0 ; i<features.size() ; i++)
 		{
-			int index = vectorInfo.get(f.getKey());
-			vector.set(index, f.getValue());
+			int index = vectorInfo.get(features.get(i).getKey());
+			vector[index] = features.get(i).getValue();
 		}
 		
 		Sample s = new Sample();

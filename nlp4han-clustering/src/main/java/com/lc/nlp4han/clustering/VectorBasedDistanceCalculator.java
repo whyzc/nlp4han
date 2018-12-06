@@ -1,7 +1,5 @@
 package com.lc.nlp4han.clustering;
 
-import java.util.List;
-
 public class VectorBasedDistanceCalculator implements Distance
 {
 
@@ -20,12 +18,12 @@ public class VectorBasedDistanceCalculator implements Distance
 	
 	public double getDistance(Sample s1, Sample s2)
 	{
-		List<Double> v1 = s1.getVecter();
-		List<Double> v2 = s2.getVecter();
+		double[] v1 = s1.getVecter();
+		double[] v2 = s2.getVecter();
 		double squareOfResult = 0;
-		for (int i=0 ; i<v1.size() ; i++)
+		for (int i=0 ; i<v1.length ; i++)
 		{
-			squareOfResult += (v1.get(i)-v2.get(i)) * (v1.get(i)-v2.get(i));
+			squareOfResult += (v1[i]-v2[i]) * (v1[i]-v2[i]);
 		}
 		return Math.sqrt(squareOfResult);
 	}
