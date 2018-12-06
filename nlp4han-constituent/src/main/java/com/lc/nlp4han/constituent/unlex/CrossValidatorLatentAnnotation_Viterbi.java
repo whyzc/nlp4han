@@ -79,7 +79,7 @@ public class CrossValidatorLatentAnnotation_Viterbi
 		int EMIterations = 50;
 		double mergeRate = 0.5;
 		double smoothRate = 0.01;
-		double pruneThreshold = Double.MIN_VALUE;
+		double pruneThreshold = 0.0001;
 		boolean secondPrune = false;
 		boolean prior = false;
 		for (int i = 0; i < args.length; i++)

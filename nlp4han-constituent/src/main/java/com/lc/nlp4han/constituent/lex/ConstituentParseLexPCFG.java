@@ -9,6 +9,13 @@ import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
 
+/**
+ * 词汇化PCFG句法解析器
+ * 
+ * 依据Collins1999论文实现
+ * 
+ *
+ */
 public class ConstituentParseLexPCFG implements ConstituentParser
 {
 	private boolean coorAndPc = false;// 判断是否处理并列结构及标点符号
