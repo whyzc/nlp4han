@@ -1,6 +1,6 @@
 package com.lc.nlp4han.clustering;
 
-public class VectorBasedDistanceCalculator implements Distance
+public class VectorBasedDistanceCalculator extends DistanceCalculator
 {
 
 	@Override
