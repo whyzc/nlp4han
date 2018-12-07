@@ -21,7 +21,7 @@ public class KMeans
 		fg.init(texts);
 		SampleGenerator sg = new VectorSampleGenerator();
 		sg.init(fg);
-		Distance vbdc = new VectorBasedDistanceCalculator();
+		Distance distance = new Distance();
 		
 		for (int i=0 ; i<texts.size() ; i++)
 		{
@@ -61,7 +61,7 @@ public class KMeans
 			
 			for (int j=0 ; j<texts.size() ; j++)
 			{
-				int index = minDistanceGroup(texts.get(j), groups, vbdc);
+				int index = minDistanceGroup(texts.get(j), groups, distance);
 				groups.get(index).addMember(texts.get(j));
 			}
 			

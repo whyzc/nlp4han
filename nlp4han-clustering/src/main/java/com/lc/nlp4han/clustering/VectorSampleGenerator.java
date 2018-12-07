@@ -56,4 +56,17 @@ public class VectorSampleGenerator implements SampleGenerator
 			vectorInfo.put(e.getKey(), vectorInfo.size());
 		}
 	}
+
+	@Override
+	public double getDistance(Sample s1, Sample s2)
+	{
+		double[] v1 = s1.getVecter();
+		double[] v2 = s2.getVecter();
+		double squareOfResult = 0;
+		for (int i=0 ; i<v1.length ; i++)
+		{
+			squareOfResult += (v1[i]-v2[i]) * (v1[i]-v2[i]);
+		}
+		return Math.sqrt(squareOfResult);
+	}
 }
