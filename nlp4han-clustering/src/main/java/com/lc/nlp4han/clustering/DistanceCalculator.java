@@ -1,6 +1,6 @@
 package com.lc.nlp4han.clustering;
 
-public class Distance
+public class DistanceCalculator
 {
 	private SampleGenerator sampleGenerator;
 	

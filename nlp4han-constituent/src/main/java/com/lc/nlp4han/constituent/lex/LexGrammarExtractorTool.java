@@ -18,7 +18,7 @@ public class LexGrammarExtractorTool
 		}
 		String frompath = null;
 		String topath = null;
-		String encoding = null;
+		String encoding = "UTF-8";
 		for (int i = 0; i < args.length; i++)
 		{
 			if (args[i].equals("-data"))

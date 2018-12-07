@@ -16,7 +16,7 @@ public class TestGroup
 	{
 		Group g1 = new Group();
 		Group g2 = new Group();
-		Distance dc = null;
+		DistanceCalculator dc = null;
 		
 		Double d = Group.getDistance(g1, g2, dc);
 	}
@@ -26,7 +26,7 @@ public class TestGroup
 	{
 		Group g = new Group();
 		List<Group> grps = new ArrayList<Group>();
-		Distance dc = null;
+		DistanceCalculator dc = null;
 		
 		Group group = Group.getNearestGroup(g, grps, dc);
 	}

@@ -28,12 +28,12 @@ public class Group
 		members.addAll(texts);
 	}
 
-	public static Double getDistance(Group g1, Group g2, Distance d)
+	public static Double getDistance(Group g1, Group g2, DistanceCalculator d)
 	{
 		return d.getDistance(g1, g2);
 	}
 
-	public static Group getNearestGroup(Group g, List<Group> grps, Distance d)
+	public static Group getNearestGroup(Group g, List<Group> grps, DistanceCalculator d)
 	{
 		double minDistance = Double.POSITIVE_INFINITY;
 		int index = -1;
