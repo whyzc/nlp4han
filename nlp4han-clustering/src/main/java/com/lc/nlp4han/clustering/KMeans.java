@@ -22,6 +22,7 @@ public class KMeans
 		SampleGenerator sg = new VectorSampleGenerator();
 		sg.init(fg);
 		DistanceCalculator distance = new DistanceCalculator();
+		distance.setSampleGenerator(sg);
 		
 		for (int i=0 ; i<texts.size() ; i++)
 		{
