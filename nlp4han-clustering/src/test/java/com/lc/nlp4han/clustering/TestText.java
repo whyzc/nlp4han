@@ -8,14 +8,14 @@ import org.junit.Test;
 public class TestText
 {
 	@Test
-	public void Initialization_1()
+	public void testConstructor_1()
 	{
 		File f = new File("******");
 		Text t = new Text(f);
 	}
 	
 	@Test
-	public void Initialization_2()
+	public void testConstructor_2()
 	{
 		String name = "+++";
 		String content = "**************";
@@ -23,7 +23,7 @@ public class TestText
 	}
 	
 	@Test
-	public void Initialization_3()
+	public void testConstructor_3()
 	{
 		String content = "**************";
 		Text t = new Text(content);

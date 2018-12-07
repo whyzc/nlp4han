@@ -1,20 +1,21 @@
 package com.lc.nlp4han.clustering;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Sample implements Cloneable
 {
-	private ArrayList<Double> vecter = null;
+	private double[] vecter = null;
 
-	public ArrayList<Double> getVecter()
+	public double[] getVecter()
 	{
 		return vecter;
 	}
 
-	public void setVecter(ArrayList<Double> vecter)
+	public void setVecter(double[] vecter)
 	{
 		this.vecter = vecter;
 	}
+
 
 	@Override
 	protected Sample clone()
@@ -28,10 +29,14 @@ public class Sample implements Cloneable
 		{
 			e.printStackTrace();
 		}
-		result.vecter = (ArrayList<Double>)vecter.clone();
+		result.vecter = vecter.clone();
 		return result;
 	}
-	
-	
 
+	@Override
+	public String toString()
+	{
+		return "Sample [vecter=" + Arrays.toString(vecter) + "]";
+	}
+	
 }

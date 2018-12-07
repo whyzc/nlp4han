@@ -86,33 +86,87 @@ public class TestEvaluation
 	}
 	
 	@Test
-	public void testPurity()
+	public void testPurity_RI_FMeasures_NMI()
 	{
-		List<Text> texts = null;
-		List<Group> actualResult = null;
+		List<Text> texts = new ArrayList<Text>();
+		Text t1_1 = new Text("1-1", "xxxxx");
+		texts.add(t1_1);
+		Text t1_2 = new Text("1-2", "xxxxx");
+		texts.add(t1_2);
+		Text t1_3 = new Text("1-3", "xxxxx");
+		texts.add(t1_3);
+		Text t1_4 = new Text("1-4", "xxxxx");
+		texts.add(t1_4);
+		Text t1_5 = new Text("1-5", "xxxxx");
+		texts.add(t1_5);
+		Text t1_6 = new Text("1-6", "xxxxx");
+		texts.add(t1_6);
+		Text t1_7 = new Text("1-7", "xxxxx");
+		texts.add(t1_7);
+		Text t1_8 = new Text("1-8", "xxxxx");
+		texts.add(t1_8);
+		Text t2_1 = new Text("2-1", "xxxxx");
+		texts.add(t2_1);
+		Text t2_2 = new Text("2-2", "xxxxx");
+		texts.add(t2_2);
+		Text t2_3 = new Text("2-3", "xxxxx");
+		texts.add(t2_3);
+		Text t2_4 = new Text("2-4", "xxxxx");
+		texts.add(t2_4);
+		Text t2_5 = new Text("2-5", "xxxxx");
+		texts.add(t2_5);
+		Text t3_1 = new Text("3-1", "xxxxx");
+		texts.add(t3_1);
+		Text t3_2 = new Text("3-2", "xxxxx");
+		texts.add(t3_2);
+		Text t3_3 = new Text("3-3", "xxxxx");
+		texts.add(t3_3);
+		Text t3_4 = new Text("3-4", "xxxxx");
+		texts.add(t3_4);
+		
+		
+		List<Group> actualResult = new ArrayList<Group>();
+		Group g1 = new Group();  // 5个"1"类，1个"2"类
+		g1.addMember(t1_1);
+		g1.addMember(t1_2);
+		g1.addMember(t1_3);
+		g1.addMember(t1_4);
+		g1.addMember(t1_5);
+		g1.addMember(t2_1);
+		
+		Group g2 = new Group();  // 1个"1"类，4个"2"类，1个"3"类
+		g2.addMember(t1_6);
+		g2.addMember(t2_2);
+		g2.addMember(t2_3);
+		g2.addMember(t2_4);
+		g2.addMember(t2_5);
+		g2.addMember(t3_1);
+		
+		Group g3 = new Group();  // 2个"1"类，3个"3"类
+		g3.addMember(t1_7);
+		g3.addMember(t1_8);
+		g3.addMember(t3_2);
+		g3.addMember(t3_3);
+		g3.addMember(t3_4);
+		
+		actualResult.add(g1);
+		actualResult.add(g2);
+		actualResult.add(g3);
 		
 		Evaluation eval = new Evaluation(texts, actualResult);
+		
 		double purity = eval.purity();
-	}
-	
-	@Test
-	public void testRIValue()
-	{
-		List<Text> texts = null;
-		List<Group> actualResult = null;
+		assertEquals("0.71", String.format("%.2f", purity));
 		
-		Evaluation eval = new Evaluation(texts, actualResult);
-		double RI = eval.RIValue();
-	}
-	
-	@Test
-	public void testFValue()
-	{
-		List<Text> texts = null;
-		List<Group> actualResult = null;
+		double ri = eval.RI();
+		assertEquals("0.68", String.format("%.2f", ri));
 		
-		Evaluation eval = new Evaluation(texts, actualResult);
-		double F = eval.FValue();
+		double f5 = eval.FMeasure(5);
+		assertEquals("0.46", String.format("%.2f", f5));
+		
+		double nmi = eval.NMI();
+		assertEquals("0.36", String.format("%.2f", nmi));
+		
 	}
 	
 }
