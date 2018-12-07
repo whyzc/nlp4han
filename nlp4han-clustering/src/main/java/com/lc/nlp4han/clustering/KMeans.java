@@ -21,7 +21,7 @@ public class KMeans
 		fg.init(texts);
 		SampleGenerator sg = new VectorSampleGenerator();
 		sg.init(fg);
-		Distance distance = new Distance();
+		DistanceCalculator distance = new DistanceCalculator();
 		
 		for (int i=0 ; i<texts.size() ; i++)
 		{
@@ -79,7 +79,7 @@ public class KMeans
 		return groups;
 	}
 	
-	private static int minDistanceGroup(Text t, List<Group> grps, Distance d)
+	private static int minDistanceGroup(Text t, List<Group> grps, DistanceCalculator d)
 	{
 		double min = Double.POSITIVE_INFINITY;
 		int index = -1;

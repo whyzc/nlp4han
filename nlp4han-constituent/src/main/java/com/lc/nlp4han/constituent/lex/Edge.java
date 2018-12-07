@@ -12,17 +12,28 @@ import java.util.Collections;
 public class Edge implements Comparable<Edge>
 {
 	private String label = null;
+	
+	// head儿子的非终结符符号
 	private String headLabel = null;
 	private String headWord = null;
 	private String headPOS = null;
+	
 	private int start = -1;
 	private int end = -1;
+	
+	// head左边距离特征
 	private Distance lc = null;
+	
+	// head右边距离特征
 	private Distance rc = null;
+	
 	int coor = 0;
 	int pu = 0;
+	
+	// 边是否接受stop概率
 	private boolean stop = false;
 	private double pro = -1;
+	
 	private ArrayList<Edge> children = null;
 
 	public Edge()
@@ -124,9 +135,11 @@ public class Edge implements Comparable<Edge>
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		
 		Edge other = (Edge) obj;
 		if (coor != other.coor)
 			return false;
+		
 		if (headLabel == null)
 		{
 			if (other.headLabel != null)
@@ -134,6 +147,7 @@ public class Edge implements Comparable<Edge>
 		}
 		else if (!headLabel.equals(other.headLabel))
 			return false;
+		
 		if (headPOS == null)
 		{
 			if (other.headPOS != null)
@@ -141,6 +155,7 @@ public class Edge implements Comparable<Edge>
 		}
 		else if (!headPOS.equals(other.headPOS))
 			return false;
+		
 		if (headWord == null)
 		{
 			if (other.headWord != null)
@@ -148,6 +163,7 @@ public class Edge implements Comparable<Edge>
 		}
 		else if (!headWord.equals(other.headWord))
 			return false;
+		
 		if (label == null)
 		{
 			if (other.label != null)
@@ -155,6 +171,7 @@ public class Edge implements Comparable<Edge>
 		}
 		else if (!label.equals(other.label))
 			return false;
+		
 		if (lc == null)
 		{
 			if (other.lc != null)
@@ -162,8 +179,10 @@ public class Edge implements Comparable<Edge>
 		}
 		else if (!lc.equals(other.lc))
 			return false;
+		
 		if (pu != other.pu)
 			return false;
+		
 		if (rc == null)
 		{
 			if (other.rc != null)
@@ -171,8 +190,10 @@ public class Edge implements Comparable<Edge>
 		}
 		else if (!rc.equals(other.rc))
 			return false;
+		
 		if (stop != other.stop)
 			return false;
+		
 		return true;
 	}
 
