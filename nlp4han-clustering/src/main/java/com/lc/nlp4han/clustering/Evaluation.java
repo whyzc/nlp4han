@@ -102,16 +102,16 @@ public class Evaluation
 		
 		FP = TP_FP - TP;				//算出FP
 		
-//		for (int i=0 ; i<analysisOfResults.size() ; i++)			//算出FP
-//		{
-//			for (int j=0 ; j<analysisOfResults.get(i).length ; j++)
-//			{
-//				for (int k=j+1 ; k<analysisOfResults.get(i).length ; k++)
-//				{
-//					FP += analysisOfResults.get(i)[j] * analysisOfResults.get(i)[k];
-//				}
-//			}
-//		}
+		/*for (int i=0 ; i<analysisOfResults.size() ; i++)			//算出FP
+		{
+			for (int j=0 ; j<analysisOfResults.get(i).length ; j++)
+			{
+				for (int k=j+1 ; k<analysisOfResults.get(i).length ; k++)
+				{
+					FP += analysisOfResults.get(i)[j] * analysisOfResults.get(i)[k];
+				}
+			}
+		}*/
 		
 		for (int i=0 ; i<sameClassTextNumberList.size() ; i++)			//算出FN
 		{

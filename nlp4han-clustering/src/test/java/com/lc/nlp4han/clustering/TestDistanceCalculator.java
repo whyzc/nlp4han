@@ -2,7 +2,7 @@ package com.lc.nlp4han.clustering;
 
 import org.junit.Test;
 
-public class TestDistance
+public class TestDistanceCalculator
 {
 	@Test
 	public void testGetDistance_1()
