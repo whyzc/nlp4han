@@ -15,7 +15,7 @@ import com.lc.nlp4han.util.CharTypeUtil;
 public class WordBasedFeatureGenerator implements FeatureGenerator
 {
 	private Map<String, Count> wordInfo = new HashMap<String, Count>();
-	private Map<String, Count> prunedWordInfo = null;
+	//private Map<String, Count> prunedWordInfo = null;
 	private int totalDocumentNumber = 0;
 	
 	@Override
@@ -81,6 +81,8 @@ public class WordBasedFeatureGenerator implements FeatureGenerator
 			double tf = tn*1.0 / c.tn;
 			double idf = Math.log(totalDocumentNumber*1.0/(c.dn+1));
 			result.setValue(tf*idf);
+			
+			//result.setValue(1);
 		}
 		else
 			result.setValue(0);
@@ -155,7 +157,7 @@ public class WordBasedFeatureGenerator implements FeatureGenerator
 				}
 			}
 		}
-		prunedWordInfo = pruning(wordInfo);
+		wordInfo = pruning(wordInfo);
 		totalDocumentNumber = texts.size();
 	}
 	
@@ -213,21 +215,13 @@ public class WordBasedFeatureGenerator implements FeatureGenerator
 	}
 	
 	/**
-	 * 获取所有分词信息（未被剪枝）
+	 * 获取所有分词信息
 	 * @return 分词信息
 	 */
+	@Override
 	public Map<String, Count> getWordInfo()
 	{
 		return wordInfo;
-	}
-
-	/**
-	 * 获取被剪枝后的分词信息
-	 * @return 被剪枝后的分词信息
-	 */
-	public Map<String, Count> getPrunedWordInfo()
-	{
-		return prunedWordInfo;
 	}
 
 	/**
@@ -242,25 +236,7 @@ public class WordBasedFeatureGenerator implements FeatureGenerator
 	@Override
 	public String toString()
 	{
-		return  prunedWordInfo + "";
-	}
-
-	public class Count
-	{
-		public int tn = 0;  //Term Number总词条数，该词在所有文档中出现的次数
-		public int dn = 0;	//Document Number文档数，含有该词的文档数
-		
-		public Count(int tn, int dn)
-		{
-			this.tn = tn;
-			this.dn = dn;
-		}
-
-		@Override
-		public String toString()
-		{
-			return " [tn=" + tn + ", dn=" + dn + "]";
-		}
+		return  wordInfo + "";
 	}
 }
 

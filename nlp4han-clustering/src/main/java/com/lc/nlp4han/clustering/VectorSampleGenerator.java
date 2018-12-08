@@ -6,8 +6,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.lc.nlp4han.clustering.WordBasedFeatureGenerator.Count;
-
 public class VectorSampleGenerator implements SampleGenerator
 {
 	private Map<String, Integer> vectorInfo = null;
@@ -48,9 +46,8 @@ public class VectorSampleGenerator implements SampleGenerator
 	{
 		if (vectorInfo == null)
 			vectorInfo = new HashMap<String, Integer>();
-		WordBasedFeatureGenerator wbfg = (WordBasedFeatureGenerator)fg;
-		Map<String, Count> prunedWordInfo = wbfg.getPrunedWordInfo();
-		Set<Entry<String, Count>> es = prunedWordInfo.entrySet();
+		Map<String, Count> wordInfo = fg.getWordInfo();
+		Set<Entry<String, Count>> es = wordInfo.entrySet();
 		for (Entry<String, Count> e : es)
 		{
 			vectorInfo.put(e.getKey(), vectorInfo.size());
