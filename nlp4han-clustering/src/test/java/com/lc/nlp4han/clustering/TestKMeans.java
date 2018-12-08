@@ -9,15 +9,7 @@ import java.util.List;
 import org.junit.Test;
 
 public class TestKMeans
-{
-	@Test
-	public void testRun()
-	{
-		String folderPath = "********";
-		List<Text> ts = Text.getTexts(folderPath, false);
-		List<Group> grps = KMeans.run(ts, 10);
-	}
-	
+{	
 	@Test
 	public void test1()
 	{
@@ -26,6 +18,37 @@ public class TestKMeans
 		
 		Text t3 = new Text("d e f");
 		Text t4 = new Text("d e f d e");
+		
+		List<Text> texts = new ArrayList<Text>();
+		texts.add(t1);
+		texts.add(t2);
+		texts.add(t3);
+		texts.add(t4);
+		
+		List<Group> groups = KMeans.run(texts, 2);
+		
+		assertEquals(2, groups.size());
+		
+		Group g1 = new Group();
+		g1.addMember(t1);
+		g1.addMember(t2);
+		
+		Group g2 = new Group();
+		g2.addMember(t3);
+		g2.addMember(t4);
+		
+		assertTrue(groups.contains(g1));
+		assertTrue(groups.contains(g2));
+	}
+	
+	@Test
+	public void test2()
+	{
+		Text t1 = new Text("我喜欢他");
+		Text t2 = new Text("他喜欢我");
+		
+		Text t3 = new Text("学习语言");
+		Text t4 = new Text("学习语言");
 		
 		List<Text> texts = new ArrayList<Text>();
 		texts.add(t1);
