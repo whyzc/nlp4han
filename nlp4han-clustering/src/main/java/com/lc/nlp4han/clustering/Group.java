@@ -1,6 +1,7 @@
 package com.lc.nlp4han.clustering;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -71,7 +72,7 @@ public class Group
 			newCenter[i] /= members.size();
 		}
 		
-		if (newCenter.equals(center.getVecter()))
+		if (Arrays.equals(newCenter, center.getVecter()))
 			return false;
 		else
 		{
