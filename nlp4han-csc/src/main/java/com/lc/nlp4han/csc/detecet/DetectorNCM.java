@@ -5,12 +5,16 @@ import java.util.ArrayList;
 import com.lc.nlp4han.csc.model.NoisyChannelModel;
 import com.lc.nlp4han.csc.util.Sentence;
 
-public class ChinsesSpellErrorDetector implements Detector
+/**
+ * 基于噪音信道模型的拼写检测器实现
+ *
+ */
+public class DetectorNCM implements Detector
 {
 
 	private NoisyChannelModel detectModel;
 
-	public ChinsesSpellErrorDetector(NoisyChannelModel detectModel)
+	public DetectorNCM(NoisyChannelModel detectModel)
 	{
 		this.detectModel = detectModel;
 	}
@@ -45,8 +49,8 @@ public class ChinsesSpellErrorDetector implements Detector
 
 				if (errors.size() != 0)
 					errorList.add(errors.toArray(new SpellError[errors.size()]));
-				else
-					errorList.add(null);
+//				else
+//					errorList.add(null);
 			} // end for
 		}
 
