@@ -11,7 +11,6 @@ import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.PlainTextByTreeStream;
 import com.lc.nlp4han.constituent.pcfg.CKYParserEvaluator;
 import com.lc.nlp4han.constituent.pcfg.ConstituentTreeStream;
-import com.lc.nlp4han.constituent.pcfg.NonterminalProUtil;
 import com.lc.nlp4han.ml.util.CrossValidationPartitioner;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
@@ -41,12 +40,16 @@ public class LexCKYCrossValidatorTool
 		System.out.println("训练模型句子的个数是 " + i);
 		System.out.println("从树库提取文法...");
 		LexPCFG lexpcfg = LexGrammarExtractor.getLexPCFG(bracketList);
+		
 		if(prior) {
 			@SuppressWarnings("unchecked")
 			ArrayList<String> bracketListClone=(ArrayList<String>) bracketList.clone();
-			HashMap<String,Double> map=NonterminalProUtil.brackets2Map(bracketListClone,"lex");
-			lexpcfg=new LexPCFGPrior(lexpcfg,map);
+			HashMap<String,Double> map=POSProUtil.brackets2Map(bracketListClone,"lex");
+			LexPCFGPrior lpgp=(LexPCFGPrior)lexpcfg;
+			lpgp.setPriorMap(map);
+			return new ConstituentParseLexPCFG(lpgp,pruneThreshold,secondPrune,prior);
 		}
+		
 		return new ConstituentParseLexPCFG(lexpcfg,pruneThreshold,secondPrune,prior);
 	}
 
