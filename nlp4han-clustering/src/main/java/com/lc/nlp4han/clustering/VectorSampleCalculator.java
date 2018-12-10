@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-public class VectorSampleGenerator implements SampleCalculator
+public class VectorSampleCalculator implements SampleCalculator
 {
 	private Map<String, Integer> vectorInfo = null;
 

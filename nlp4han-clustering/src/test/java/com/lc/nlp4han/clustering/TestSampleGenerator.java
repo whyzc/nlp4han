@@ -30,7 +30,7 @@ public class TestSampleGenerator
 		Sample s2 = new Sample(fs2);
 		
 		
-		SampleCalculator sg = new VectorSampleGenerator();
+		SampleCalculator sg = new VectorSampleCalculator();
 		sg.init(fs);
 		
 		double distance = sg.getDistance(s1, s2);

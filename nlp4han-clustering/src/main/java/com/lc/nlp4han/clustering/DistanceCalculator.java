@@ -2,11 +2,11 @@ package com.lc.nlp4han.clustering;
 
 public class DistanceCalculator
 {
-	private SampleCalculator sampleGenerator;
+	private SampleCalculator sampleCalculator;
 	
-	public void setSampleGenerator(SampleCalculator sg)
+	public void setSampleCalculator(SampleCalculator sc)
 	{
-		this.sampleGenerator = sg;
+		this.sampleCalculator = sc;
 	}
 	
 	public double getDistance(Text t1, Text t2)
@@ -18,7 +18,7 @@ public class DistanceCalculator
 		Sample s1 = t1.getSample();
 		Sample s2 = t2.getSample();
 		
-		return sampleGenerator.getDistance(s1, s2);
+		return sampleCalculator.getDistance(s1, s2);
 	}
 	
 	public double getDistance(Text t1, Group g1) 
@@ -28,7 +28,7 @@ public class DistanceCalculator
 			throw new RuntimeException("参数错误！");
 		}
 		Sample s2 = g1.getCenter();
-		return sampleGenerator.getDistance(t1.getSample(), s2);
+		return sampleCalculator.getDistance(t1.getSample(), s2);
 	}
 	
 	public double getDistance(Group g1, Group g2)
@@ -40,6 +40,6 @@ public class DistanceCalculator
 		
 		Sample s1 = g1.getCenter();
 		Sample s2 = g2.getCenter();
-		return sampleGenerator.getDistance(s1, s2);
+		return sampleCalculator.getDistance(s1, s2);
 	}
 }
