@@ -42,12 +42,17 @@ public class Text
 
 	public static List<Text> getTexts(String folderPath, boolean useDefaultName)
 	{
+		return getTexts(folderPath, useDefaultName, "UTF-8");
+	}
+	
+	public static List<Text> getTexts(String folderPath, boolean useDefaultName, String encoding)
+	{
 		List<Text> result = new ArrayList<Text>();
 		List<File> files = travaringFilesForLevelTraversal(folderPath);
 		
 		for (File file : files)
 		{
-			Text t = processingFile(file, useDefaultName, "GB2312");
+			Text t = processingFile(file, useDefaultName, encoding);
 			if (t != null)
 				result.add(t);
 		}
