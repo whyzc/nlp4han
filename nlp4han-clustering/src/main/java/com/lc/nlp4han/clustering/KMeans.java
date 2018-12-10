@@ -19,15 +19,15 @@ public class KMeans
 		
 		FeatureGenerator fg = new WordBasedFeatureGenerator();
 		fg.init(texts);
-		SampleGenerator sg = new VectorSampleGenerator();
-		sg.init(fg);
+		SampleCalculator sc = new VectorSampleCalculator();
+		sc.init(fg);
 		DistanceCalculator distance = new DistanceCalculator();
-		distance.setSampleGenerator(sg);
+		distance.setSampleCalculator(sc);
 		
 		for (int i=0 ; i<texts.size() ; i++)
 		{
 			Text t = texts.get(i);
-			Sample s = sg.getSample(t, fg);
+			Sample s = new Sample(fg.getFeatures(t));
 			t.setSample(s);
 		}
 		
