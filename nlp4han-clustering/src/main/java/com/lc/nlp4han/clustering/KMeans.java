@@ -19,7 +19,7 @@ public class KMeans
 		
 		FeatureGenerator fg = new WordBasedFeatureGenerator();
 		fg.init(texts);
-		SampleGenerator sg = new VectorSampleGenerator();
+		SampleCalculator sg = new VectorSampleGenerator();
 		sg.init(fg);
 		DistanceCalculator distance = new DistanceCalculator();
 		distance.setSampleGenerator(sg);
@@ -27,7 +27,7 @@ public class KMeans
 		for (int i=0 ; i<texts.size() ; i++)
 		{
 			Text t = texts.get(i);
-			Sample s = sg.getSample(t, fg);
+			Sample s = new Sample(fg.getFeatures(t));
 			t.setSample(s);
 		}
 		

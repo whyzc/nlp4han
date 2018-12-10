@@ -11,10 +11,10 @@ public class TestDistanceCalculator
 		Text t2 = null;
 		
 		FeatureGenerator fg = null;
-		SampleGenerator sg = null;
+		SampleCalculator sg = null;
 		
-		t1.generateSample(sg, fg);
-		t2.generateSample(sg, fg);
+		t1.generateSample(fg);
+		t2.generateSample(fg);
 		
 		DistanceCalculator dis = new DistanceCalculator();
 		dis.setSampleGenerator(sg);  // 调用getDistance()前，先设置SampleGenerator
@@ -28,8 +28,8 @@ public class TestDistanceCalculator
 		Text t1 = null;
 		
 		FeatureGenerator fg = null;
-		SampleGenerator sg = null;
-		t1.generateSample(sg, fg);
+		SampleCalculator sg = null;
+		t1.generateSample(fg);
 		
 		g1.updateCenter();
 		
@@ -44,7 +44,7 @@ public class TestDistanceCalculator
 		Group g1 = null;
 		Group g2 = null;
 		
-		SampleGenerator sg = null;
+		SampleCalculator sg = null;
 		
 		DistanceCalculator dis = new DistanceCalculator();
 		dis.setSampleGenerator(sg);

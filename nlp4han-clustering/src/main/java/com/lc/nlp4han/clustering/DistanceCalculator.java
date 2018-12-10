@@ -2,9 +2,9 @@ package com.lc.nlp4han.clustering;
 
 public class DistanceCalculator
 {
-	private SampleGenerator sampleGenerator;
+	private SampleCalculator sampleGenerator;
 	
-	public void setSampleGenerator(SampleGenerator sg)
+	public void setSampleGenerator(SampleCalculator sg)
 	{
 		this.sampleGenerator = sg;
 	}
