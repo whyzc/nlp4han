@@ -13,14 +13,14 @@ import com.lc.nlp4han.constituent.TreeNodeUtil;
  */
 public class PNFilter extends CandidateFilter
 {
-	private List<TreeNode> treeNodes;
+//	private List<TreeNode> treeNodes;
 	
 	public PNFilter()
 	{
 	}
 
 	@Override
-	public List<TreeNode> filter()
+	public List<TreeNode> filter(List<TreeNode> treeNodes)
 	{
 
 		for (int i = 0; i < treeNodes.size(); i++)
@@ -40,11 +40,11 @@ public class PNFilter extends CandidateFilter
 		return treeNodes;
 	}
 
-	@Override
-	public void setFilteredNodes(List<TreeNode> treeNodes)
-	{
-		this.treeNodes = treeNodes;
-	}
+//	@Override
+//	public void setFilteredNodes(List<TreeNode> treeNodes)
+//	{
+//		this.treeNodes = treeNodes;
+//	}
 
 	private boolean isPronoun(String str)
 	{
