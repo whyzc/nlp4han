@@ -1,7 +1,6 @@
 package com.lc.nlp4han.constituent.unlex;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -33,11 +32,11 @@ public class RuleCounter
 		for (AnnotationTreeNode tree : treeBank.getTreeBank())
 		{
 			refreshRuleCountExpectation(g, tree, tree);
-//			if (++count % 100 == 0)
-//			{
-//				double end = System.currentTimeMillis();
-//				System.out.println(count / (end - start) * 1000.0 + "/s");
-//			}
+			// if (++count % 100 == 0)
+			// {
+			// double end = System.currentTimeMillis();
+			// System.out.println(count / (end - start) * 1000.0 + "/s");
+			// }
 		}
 		calSameParentRulesExpectation(g);
 	}
@@ -119,7 +118,6 @@ public class RuleCounter
 			Annotation rCLabel = rC.getLabel();
 			BinaryRule rule = new BinaryRule(pLabel.getSymbol(), lCLabel.getSymbol(), rCLabel.getSymbol());
 			rule = g.getbRuleBySameHead().get(pLabel.getSymbol()).get(rule);
-			LinkedList<LinkedList<LinkedList<Double>>> scores = rule.getScores();
 			double[][][] count;
 			if (!bRuleCounter.containsKey(rule))
 			{
@@ -137,22 +135,22 @@ public class RuleCounter
 			Double[] pOutS = pLabel.getOuterScores();
 			Double[] lCinnerS = lCLabel.getInnerScores();
 			Double[] rCinnerS = rCLabel.getInnerScores();
-			for (int i = 0; i < g.getNumSubSymbol(pLabel.getSymbol()); i++)
+			for (short i = 0; i < g.getNumSubSymbol(pLabel.getSymbol()); i++)
 			{
 				double pOS = pOutS[i];
 				if (pOS == 0)
 					continue;
-				for (int j = 0; j < g.getNumSubSymbol(lCLabel.getSymbol()); j++)
+				for (short j = 0; j < g.getNumSubSymbol(lCLabel.getSymbol()); j++)
 				{
 					double lCIS = lCinnerS[j];
 					if (lCIS == 0)
 						continue;
-					for (int k = 0; k < g.getNumSubSymbol(rC.getLabel().getSymbol()); k++)
+					for (short k = 0; k < g.getNumSubSymbol(rC.getLabel().getSymbol()); k++)
 					{
 						double rCIS = rCinnerS[k];
 						if (rCIS == 0)
 							continue;
-						double rS = scores.get(i).get(j).get(k);
+						double rS = rule.getScore(i, j, k);
 						if (rS == 0)
 							continue;
 						count[i][j][k] = count[i][j][k] + (rS * lCIS / rootIS * rCIS * scalingFactor * pOS);
@@ -166,7 +164,6 @@ public class RuleCounter
 			Annotation cLabel = child.getLabel();
 			UnaryRule rule = new UnaryRule(tree.getLabel().getSymbol(), cLabel.getSymbol());
 			rule = g.getuRuleBySameHead().get(pLabel.getSymbol()).get(rule);
-			LinkedList<LinkedList<Double>> scores = rule.getScores();
 			double[][] count;
 			if (!uRuleCounter.containsKey(rule))
 			{
@@ -182,17 +179,17 @@ public class RuleCounter
 					.calcScaleFactor(pLabel.getOuterScale() + cLabel.getInnerScale() - rootLabel.getInnerScale());
 			Double[] pOutS = pLabel.getOuterScores();
 			Double[] cInnerS = cLabel.getInnerScores();
-			for (int i = 0; i < g.getNumSubSymbol(pLabel.getSymbol()); i++)
+			for (short i = 0; i < g.getNumSubSymbol(pLabel.getSymbol()); i++)
 			{
 				double pOS = pOutS[i];
 				if (pOS == 0.0)
 					continue;
-				for (int j = 0; j < g.getNumSubSymbol(cLabel.getSymbol()); j++)
+				for (short j = 0; j < g.getNumSubSymbol(cLabel.getSymbol()); j++)
 				{
 					double cIS = cInnerS[j];
 					if (cIS == 0.0)
 						continue;
-					double rS = scores.get(i).get(j);
+					double rS = rule.getScore(i, j);
 					if (rS == 0.0)
 						continue;
 					count[i][j] = count[i][j] + (rS * cIS / rootIS * scalingFactor * pOS);
@@ -204,7 +201,6 @@ public class RuleCounter
 			PreterminalRule rule = new PreterminalRule(tree.getLabel().getSymbol(),
 					tree.getChildren().get(0).getLabel().getWord());
 			rule = g.getPreRuleBySameHead().get(rule.getParent()).get(rule);
-			LinkedList<Double> scores = rule.getScores();
 			double[] count;
 			if (!preRuleCounter.containsKey(rule))
 			{
@@ -219,12 +215,12 @@ public class RuleCounter
 			scalingFactor = ScalingTools
 					.calcScaleFactor(tree.getLabel().getOuterScale() - root.getLabel().getInnerScale());
 			double tempCount = 0.0;
-			for (int i = 0; i < g.getNumSubSymbol(tree.getLabel().getSymbol()); i++)
+			for (short i = 0; i < g.getNumSubSymbol(tree.getLabel().getSymbol()); i++)
 			{
 				double pOS = tree.getLabel().getOuterScores()[i];
 				if (pOS == 0)
 					continue;
-				double rs = scores.get(i);
+				double rs = rule.getScore(i);
 				if (rs == 0)
 					continue;
 				tempCount = rs / rootIS * scalingFactor * tree.getLabel().getOuterScores()[i];

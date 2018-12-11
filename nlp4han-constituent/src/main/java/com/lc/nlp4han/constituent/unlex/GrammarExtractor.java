@@ -5,7 +5,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -251,9 +250,8 @@ public class GrammarExtractor
 				double b1 = entry.getValue();
 				double b2 = numOfSameHeadRule[entry.getKey().parent];
 				double score = b1 / b2;
-				entry.getKey().getScores().add(new LinkedList<LinkedList<Double>>());
-				entry.getKey().getScores().get(0).add(new LinkedList<Double>());
-				entry.getKey().getScores().get(0).get(0).add(score);
+				entry.getKey().initScores((short) 1, (short) 1, (short) 1);
+				entry.getKey().setScore((short) 0, (short) 0, (short) 0, score);
 			}
 		}
 		for (HashMap<PreterminalRule, Integer> map : preRuleBySameHeadCount)
@@ -264,7 +262,8 @@ public class GrammarExtractor
 					double b1 = entry.getValue();
 					double b2 = numOfSameHeadRule[entry.getKey().parent];
 					double score = b1 / b2;
-					entry.getKey().getScores().add(score);
+					entry.getKey().initScores((short) 1);
+					entry.getKey().setScore((short) 0, score);
 				}
 		}
 		for (HashMap<UnaryRule, Integer> map : uRuleBySameHeadCount)
@@ -274,8 +273,8 @@ public class GrammarExtractor
 				double b1 = entry.getValue();
 				double b2 = numOfSameHeadRule[entry.getKey().parent];
 				double score = b1 / b2;
-				entry.getKey().getScores().add(new LinkedList<Double>());
-				entry.getKey().getScores().get(0).add(score);
+				entry.getKey().initScores((short) 1, (short) 1);
+				entry.getKey().setScore((short) 0, (short) 0, score);
 			}
 		}
 	}

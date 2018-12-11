@@ -3,7 +3,6 @@ package com.lc.nlp4han.constituent.unlex;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
@@ -342,39 +341,23 @@ public class Grammar
 		else
 			index_rCSubSym = Short.parseShort(rule[3].split("_")[1]);
 		BinaryRule bRule = new BinaryRule(symbolIntValue(parent), symbolIntValue(lChild), symbolIntValue(rChild));
-		LinkedList<LinkedList<LinkedList<Double>>> scores = null;
 		if (bRules.contains(bRule))
 		{
 			for (BinaryRule theRule : bRules)
 			{
 				if (bRule.equals(theRule))
 				{
-					scores = theRule.getScores();
+					bRule = theRule;
 					break;
 				}
 			}
 		}
 		else
 		{
-			scores = new LinkedList<LinkedList<LinkedList<Double>>>();
-			for (int i = 0; i < numSymP; i++)
-			{
-				LinkedList<LinkedList<Double>> lr = new LinkedList<LinkedList<Double>>();
-				for (int j = 0; j < numSymLC; j++)
-				{
-					LinkedList<Double> r = new LinkedList<Double>();
-					for (int k = 0; k < numSymRC; k++)
-					{
-						r.add(0.0);
-					}
-					lr.add(r);
-				}
-				scores.add(lr);
-			}
-			bRule.setScores(scores);
+			bRule.initScores(numSymP, numSymLC, numSymRC);
 			bRules.add(bRule);
 		}
-		scores.get(index_pSubSym).get(index_lCSubSym).set(index_rCSubSym, score);
+		bRule.setScore(index_pSubSym, index_lCSubSym, index_rCSubSym, score);
 		return bRule;
 	}
 
@@ -396,34 +379,23 @@ public class Grammar
 		else
 			index_cSubSym = Short.parseShort(rule[2].split("_")[1]);
 		UnaryRule uRule = new UnaryRule(symbolIntValue(parent), symbolIntValue(child));
-		LinkedList<LinkedList<Double>> scores = null;
 		if (uRules.contains(uRule))
 		{
 			for (UnaryRule theRule : uRules)
 			{
 				if (uRule.equals(theRule))
 				{
-					scores = theRule.getScores();
+					uRule = theRule;
 					break;
 				}
 			}
 		}
 		else
 		{
-			scores = new LinkedList<LinkedList<Double>>();
-			for (int i = 0; i < numSymP; i++)
-			{
-				LinkedList<Double> c = new LinkedList<Double>();
-				for (int j = 0; j < numSymC; j++)
-				{
-					c.add(0.0);
-				}
-				scores.add(c);
-			}
-			uRule.setScores(scores);
+			uRule.initScores(numSymP, numSymC);
 			uRules.add(uRule);
 		}
-		scores.get(index_pSubSym).set(index_cSubSym, score);
+		uRule.setScore(index_pSubSym, index_cSubSym, score);
 		return uRule;
 	}
 
@@ -439,29 +411,23 @@ public class Grammar
 		else
 			index_pSubSym = Short.parseShort(rule[0].split("_")[1]);
 		PreterminalRule preRule = new PreterminalRule(symbolIntValue(parent), word);
-		LinkedList<Double> scores = null;
 		if (lexicon.getPreRules().contains(preRule))
 		{
 			for (PreterminalRule theRule : lexicon.getPreRules())
 			{
 				if (preRule.equals(theRule))
 				{
-					scores = theRule.getScores();
+					preRule = theRule;
 					break;
 				}
 			}
 		}
 		else
 		{
-			scores = new LinkedList<Double>();
-			for (int i = 0; i < numSymP; i++)
-			{
-				scores.add(0.0);
-			}
-			preRule.setScores(scores);
+			preRule.initScores(numSymP);
 			lexicon.getPreRules().add(preRule);
 		}
-		scores.set(index_pSubSym, score);
+		preRule.setScore(index_pSubSym, score);
 		return preRule;
 	}
 

@@ -1,7 +1,5 @@
 package com.lc.nlp4han.constituent.unlex;
 
-import java.util.LinkedList;
-
 /**
  * 通过不同父亲（原始符号相同）相同的孩子（原始符号和字符号的后缀也相同）的派生规则来平滑规则概率
  * 
@@ -22,7 +20,6 @@ public class SmoothByRuleOfSameChild extends Smoother
 	{
 		if (nSubSymP == 1)
 			return bRule;
-		LinkedList<LinkedList<LinkedList<Double>>> scores = bRule.getScores();
 		double[][] scoreAverage = new double[nSubSymLC][];
 		for (short subLC = 0; subLC < nSubSymLC; subLC++)
 		{
@@ -34,7 +31,7 @@ public class SmoothByRuleOfSameChild extends Smoother
 					{
 						scoreAverage[subLC] = new double[nSubSymRC];
 					}
-					scoreAverage[subLC][subRC] += scores.get(subP).get(subLC).get(subRC) / nSubSymP;
+					scoreAverage[subLC][subRC] += bRule.getScore(subP, subLC, subRC) / nSubSymP;
 				}
 			}
 		}
@@ -44,8 +41,8 @@ public class SmoothByRuleOfSameChild extends Smoother
 			{
 				for (short subRC = 0; subRC < nSubSymRC; subRC++)
 				{
-					scores.get(subP).get(subLC).set(subRC,
-							scores.get(subP).get(subLC).get(subRC) * same + scoreAverage[subLC][subRC] * diff);
+					bRule.setScore(subP, subLC, subRC,
+							bRule.getScore(subP, subLC, subRC) * same + scoreAverage[subLC][subRC] * diff);
 				}
 			}
 		}
@@ -57,21 +54,20 @@ public class SmoothByRuleOfSameChild extends Smoother
 	{
 		if (nSubSymP == 1)
 			return uRule;
-		LinkedList<LinkedList<Double>> scores = uRule.getScores();
 		double[] scoreAverage = new double[nSubSymC];
 		for (short subC = 0; subC < nSubSymC; subC++)
 		{
 			for (short subP = 0; subP < nSubSymP; subP++)
 			{
-				scoreAverage[subC] += scores.get(subP).get(subC) / nSubSymP;
+				scoreAverage[subC] += uRule.getScore(subP, subC) / nSubSymP;
 			}
 		}
 		for (short subP = 0; subP < nSubSymP; subP++)
 		{
 			for (short subC = 0; subC < nSubSymC; subC++)
 			{
-				scores.get(subP).set(subC,
-						scores.get(subP).get(subC) * (1 - diff * 10) + scoreAverage[subC] * diff * 10);
+				uRule.setScore(subP, subC,
+						uRule.getScore(subP, subC) * (1 - diff * 10) + scoreAverage[subC] * diff * 10);
 			}
 		}
 		return uRule;
@@ -82,15 +78,14 @@ public class SmoothByRuleOfSameChild extends Smoother
 	{
 		if (nSubSymP == 1)
 			return preRule;
-		LinkedList<Double> scores = preRule.getScores();
 		double scoreAverage = 0.0;
 		for (short subP = 0; subP < nSubSymP; subP++)
 		{
-			scoreAverage += scores.get(subP) / nSubSymP;
+			scoreAverage += preRule.getScore(subP) / nSubSymP;
 		}
 		for (short subP = 0; subP < nSubSymP; subP++)
 		{
-			scores.set(subP, scores.get(subP) * same + scoreAverage * diff);
+			preRule.setScore(subP, preRule.getScore(subP) * same + scoreAverage * diff);
 		}
 		return preRule;
 	}
