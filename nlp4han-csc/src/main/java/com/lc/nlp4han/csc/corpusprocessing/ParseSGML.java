@@ -20,7 +20,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.lc.nlp4han.csc.util.FileOperator;
+import com.lc.nlp4han.csc.util.FileUtils;
 import com.lc.nlp4han.csc.util.Sentence;
 
 /**
@@ -36,7 +36,7 @@ public class ParseSGML {
 	private static HashMap<String, Sentence> map;
 	
 	public static void parse(String inputPath, String encoding, String outPath, boolean hasId) throws IOException {
-		List<String> list = FileOperator.readSGMLFile(inputPath, encoding);
+		List<String> list = FileUtils.readSGMLFile(inputPath, encoding);
 		
 		map = new HashMap<>();
 		String sgml = "";
