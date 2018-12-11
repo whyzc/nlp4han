@@ -95,7 +95,7 @@ public class GrammarTrainer
 			int lCNumSub = g.getNumSubSymbol(bRule.getLeftChild());
 			int rCNumSub = g.getNumSubSymbol(bRule.getRightChild());
 
-			for (int i = 0; i < pNumSub; i++)
+			for (short i = 0; i < pNumSub; i++)
 			{
 
 				if (ruleCounter.sameParentRulesCounter.containsKey(bRule.parent)
@@ -107,9 +107,9 @@ public class GrammarTrainer
 				{
 					denominator = calculateSameParentRuleCount(g, bRule.parent, i);
 				}
-				for (int j = 0; j < lCNumSub; j++)
+				for (short j = 0; j < lCNumSub; j++)
 				{
-					for (int k = 0; k < rCNumSub; k++)
+					for (short k = 0; k < rCNumSub; k++)
 					{
 						newScore = ruleCounter.bRuleCounter.get(bRule)[i][j][k] / denominator;
 						if (newScore < Rule.ruleThres)
@@ -117,7 +117,7 @@ public class GrammarTrainer
 							newScore = 0.0;
 						}
 
-						bRule.getScores().get(i).get(j).set(k, newScore);
+						bRule.setScore(i, j, k, newScore);
 					}
 				}
 			}
@@ -128,7 +128,7 @@ public class GrammarTrainer
 		{
 			int pNumSub = g.getNumSubSymbol(uRule.getParent());
 			int cNumSub = g.getNumSubSymbol(uRule.getChild());
-			for (int i = 0; i < pNumSub; i++)
+			for (short i = 0; i < pNumSub; i++)
 			{
 				if (ruleCounter.sameParentRulesCounter.containsKey(uRule.parent)
 						&& ruleCounter.sameParentRulesCounter.get(uRule.parent)[i] != null)
@@ -139,14 +139,14 @@ public class GrammarTrainer
 				{
 					denominator = calculateSameParentRuleCount(g, uRule.parent, i);
 				}
-				for (int j = 0; j < cNumSub; j++)
+				for (short j = 0; j < cNumSub; j++)
 				{
 					newScore = ruleCounter.uRuleCounter.get(uRule)[i][j] / denominator;
 					if (newScore < Rule.ruleThres)
 					{
 						newScore = 0.0;
 					}
-					uRule.getScores().get(i).set(j, newScore);
+					uRule.setScore(i, j, newScore);
 				}
 			}
 		}
@@ -154,7 +154,7 @@ public class GrammarTrainer
 		for (PreterminalRule preRule : g.getLexicon().getPreRules())
 		{
 			int pNumSub = g.getNumSubSymbol(preRule.parent);
-			for (int i = 0; i < pNumSub; i++)
+			for (short i = 0; i < pNumSub; i++)
 			{
 				if (ruleCounter.sameParentRulesCounter.containsKey(preRule.parent)
 						&& ruleCounter.sameParentRulesCounter.get(preRule.parent)[i] != null)
@@ -170,7 +170,7 @@ public class GrammarTrainer
 				{
 					newScore = 0.0;
 				}
-				preRule.getScores().set(i, newScore);
+				preRule.setScore(i, newScore);
 			}
 		}
 	}
@@ -301,17 +301,17 @@ public class GrammarTrainer
 		for (BinaryRule bRule : g.getbRules())
 		{
 			short nSubParent = g.getNumSubSymbol(bRule.getParent());
-			for (int subP = 0; subP < nSubParent; subP++)
+			for (short subP = 0; subP < nSubParent; subP++)
 			{
 				double tag_iScoreSum = sameHeadRuleScoreSum.get(bRule.getParent())[subP];
 				short nSubLC = g.getNumSubSymbol(bRule.getLeftChild());
-				for (int subLC = 0; subLC < nSubLC; subLC++)
+				for (short subLC = 0; subLC < nSubLC; subLC++)
 				{
 					short nSubRC = g.getNumSubSymbol(bRule.getRightChild());
-					for (int subRC = 0; subRC < nSubRC; subRC++)
+					for (short subRC = 0; subRC < nSubRC; subRC++)
 					{
-						double score = bRule.getScores().get(subP).get(subLC).get(subRC);
-						bRule.getScores().get(subP).get(subLC).set(subRC, score / tag_iScoreSum);
+						double score = bRule.getScore(subP, subLC, subRC);
+						bRule.setScore(subP, subLC, subRC, score / tag_iScoreSum);
 					}
 				}
 			}
@@ -319,14 +319,14 @@ public class GrammarTrainer
 		for (UnaryRule uRule : g.getuRules())
 		{
 			short nSubParent = g.getNumSubSymbol(uRule.getParent());
-			for (int subP = 0; subP < nSubParent; subP++)
+			for (short subP = 0; subP < nSubParent; subP++)
 			{
 				double tag_iScoreSum = sameHeadRuleScoreSum.get(uRule.getParent())[subP];
 				short nSubC = g.getNumSubSymbol(uRule.getChild());
-				for (int subC = 0; subC < nSubC; subC++)
+				for (short subC = 0; subC < nSubC; subC++)
 				{
-					double score = uRule.getScores().get(subP).get(subC);
-					uRule.getScores().get(subP).set(subC, score / tag_iScoreSum);
+					double score = uRule.getScore(subP, subC);
+					uRule.setScore(subP, subC, score / tag_iScoreSum);
 				}
 			}
 		}
@@ -337,11 +337,13 @@ public class GrammarTrainer
 		HashMap<Short, Double[]> sameHeadPRuleScoreSum = new HashMap<Short, Double[]>();
 		for (PreterminalRule preRule : g.getLexicon().getPreRules())
 		{
+			short parent = preRule.parent;
+			short nSubP = g.getNumSubSymbol(parent);
 			if (!sameHeadPRuleScoreSum.containsKey(preRule.getParent()))
 			{
 				sameHeadPRuleScoreSum.put(preRule.parent, new Double[g.getNumSubSymbol(preRule.getParent())]);
 			}
-			for (int i = 0; i < preRule.getScores().size(); i++)
+			for (short i = 0; i < nSubP; i++)
 			{
 				if (sameHeadPRuleScoreSum.get(preRule.parent)[i] == null)
 				{
@@ -349,12 +351,12 @@ public class GrammarTrainer
 					for (Map.Entry<PreterminalRule, PreterminalRule> entry : g.getPreRuleBySameHead()
 							.get(preRule.parent).entrySet())
 					{
-						tag_iScoreSum = tag_iScoreSum.add(BigDecimal.valueOf(entry.getValue().getScores().get(i)));
+						tag_iScoreSum = tag_iScoreSum.add(BigDecimal.valueOf(entry.getValue().getScore(i)));
 					}
 					sameHeadPRuleScoreSum.get(preRule.parent)[i] = tag_iScoreSum.doubleValue();
 				}
-				preRule.getScores().set(i,
-						BigDecimal.valueOf(preRule.getScores().get(i))
+				preRule.setScore(i,
+						BigDecimal.valueOf(preRule.getScore(i))
 								.divide(BigDecimal.valueOf(sameHeadPRuleScoreSum.get(preRule.parent)[i]), 15,
 										BigDecimal.ROUND_HALF_UP)
 								.doubleValue());

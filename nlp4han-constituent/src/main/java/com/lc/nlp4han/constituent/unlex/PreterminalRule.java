@@ -1,7 +1,7 @@
 package com.lc.nlp4han.constituent.unlex;
 
 import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.TreeMap;
 
@@ -14,7 +14,7 @@ import java.util.TreeMap;
 public class PreterminalRule extends Rule
 {
 	private String word;
-	private LinkedList<Double> scores = new LinkedList<Double>();
+	private ArrayList<Double> scores = new ArrayList<Double>();
 
 	public PreterminalRule(short parent, String word)
 	{
@@ -130,12 +130,29 @@ public class PreterminalRule extends Rule
 		this.word = word;
 	}
 
-	public LinkedList<Double> getScores()
+	// public ArrayList<Double> getScores()
+	// {
+	// return scores;
+	// }
+	public void initScores(short numSubP)
 	{
-		return scores;
+		for (short subP = 0; subP < numSubP; subP++)
+		{
+			scores.add(0.0);
+		}
 	}
 
-	public void setScores(LinkedList<Double> scores)
+	public double getScore(short subP)
+	{
+		return scores.get(subP);
+	}
+
+	public void setScore(short subP, double score)
+	{
+		scores.set(subP, score);
+	}
+
+	public void setScores(ArrayList<Double> scores)
 	{
 		this.scores = scores;
 	}

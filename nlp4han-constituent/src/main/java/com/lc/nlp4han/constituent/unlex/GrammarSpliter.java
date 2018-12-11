@@ -1,7 +1,6 @@
 package com.lc.nlp4han.constituent.unlex;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -36,27 +35,25 @@ public class GrammarSpliter
 		HashMap<Short, Double[]> sameHeadPRuleScoreSum = new HashMap<Short, Double[]>();
 		for (PreterminalRule preRule : g.getLexicon().getPreRules())
 		{
+			short parent = preRule.parent;
+			short nSubP = g.getNumSubSymbol(parent);
 			if (!sameHeadPRuleScoreSum.containsKey(preRule.getParent()))
 			{
 				sameHeadPRuleScoreSum.put(preRule.parent, new Double[g.getNumSubSymbol(preRule.getParent())]);
 			}
-			for (int i = 0; i < preRule.getScores().size(); i++)
+			for (short i = 0; i < nSubP; i++)
 			{
 				if (sameHeadPRuleScoreSum.get(preRule.parent)[i] == null)
 				{
-					BigDecimal tag_iScoreSum = BigDecimal.valueOf(0.0);
+					double tag_iScoreSum = 0.0;
 					for (Map.Entry<PreterminalRule, PreterminalRule> entry : g.getPreRuleBySameHead()
 							.get(preRule.parent).entrySet())
 					{
-						tag_iScoreSum = tag_iScoreSum.add(BigDecimal.valueOf(entry.getValue().getScores().get(i)));
+						tag_iScoreSum += entry.getValue().getScore(i);
 					}
-					sameHeadPRuleScoreSum.get(preRule.parent)[i] = tag_iScoreSum.doubleValue();
+					sameHeadPRuleScoreSum.get(preRule.parent)[i] = tag_iScoreSum;
 				}
-				preRule.getScores().set(i,
-						BigDecimal.valueOf(preRule.getScores().get(i))
-								.divide(BigDecimal.valueOf(sameHeadPRuleScoreSum.get(preRule.parent)[i]), 15,
-										BigDecimal.ROUND_HALF_UP)
-								.doubleValue());
+				preRule.setScore(i, preRule.getScore(i) / sameHeadPRuleScoreSum.get(preRule.parent)[i]);
 			}
 		}
 	}
