@@ -19,10 +19,9 @@ public class KMeans
 		
 		FeatureGenerator fg = new WordBasedFeatureGenerator();
 		fg.init(texts);
-		SampleCalculator sc = new VectorSampleCalculator();
-		sc.init(fg);
-		DistanceCalculator distance = new DistanceCalculator();
-		distance.setSampleCalculator(sc);
+		
+		
+		DistanceCalculator distance = new JaccardCoefficientBasedDistanceCalculator();
 		
 		for (int i=0 ; i<texts.size() ; i++)
 		{
