@@ -13,7 +13,7 @@ public class RuleCounter
 	protected HashMap<BinaryRule, double[][][]> bRuleCounter;
 	protected HashMap<UnaryRule, double[][]> uRuleCounter;
 	protected HashMap<PreterminalRule, double[]> preRuleCounter;
-	protected HashMap<Short, Double[]> sameParentRulesCounter;// <parent,[ParentSubIndex,sum]>
+	protected HashMap<Short, double[]> sameParentRulesCounter;// <parent,[ParentSubIndex,sum]>
 	protected HashMap<Short, double[]> sameTagToUNKCounter;// 记录tag_i-->UNK 的期望
 
 	public RuleCounter()
@@ -27,8 +27,8 @@ public class RuleCounter
 
 	public void calRuleExpectation(Grammar g, TreeBank treeBank)
 	{
-		int count = 0;
-		double start = System.currentTimeMillis();
+		// int count = 0;
+		// double start = System.currentTimeMillis();
 		for (AnnotationTreeNode tree : treeBank.getTreeBank())
 		{
 			refreshRuleCountExpectation(g, tree, tree);
@@ -41,20 +41,85 @@ public class RuleCounter
 		calSameParentRulesExpectation(g);
 	}
 
+	// public void calSameParentRulesExpectation(ArrayList<Short> nSubSymbolArr)
+	// {
+	// for (Map.Entry<BinaryRule, double[][][]> entry : bRuleCounter.entrySet())
+	// {
+	// BinaryRule bRule = entry.getKey();
+	// double[][][] ruleCount = entry.getValue();
+	// double[] samePCount = new double[nSubSymbolArr.get(bRule.getParent())];
+	// for (int pSubSymbol = 0; pSubSymbol < samePCount.length; pSubSymbol++)
+	// {
+	// double tempCount = 0.0;
+	// for (double[] countArr : ruleCount[pSubSymbol])
+	// {
+	// for (double subRuleCount : countArr)
+	// {
+	// tempCount += subRuleCount;
+	// }
+	// }
+	// samePCount[pSubSymbol] += tempCount;
+	// }
+	// calSameParentRulesExpectationHelper(bRule.getParent(), samePCount);
+	// }
+	// for (Map.Entry<UnaryRule, double[][]> entry : uRuleCounter.entrySet())
+	// {
+	// UnaryRule uRule = entry.getKey();
+	// double[][] ruleCount = entry.getValue();
+	// double[] samePCount = new double[nSubSymbolArr.get(uRule.getParent())];
+	// for (int pSubSymbol = 0; pSubSymbol < samePCount.length; pSubSymbol++)
+	// {
+	// double tempCount = 0.0;
+	// for (double subRuleCount : ruleCount[pSubSymbol])
+	// {
+	// tempCount += subRuleCount;
+	// }
+	// samePCount[pSubSymbol] += tempCount;
+	// }
+	// calSameParentRulesExpectationHelper(uRule.getParent(), samePCount);
+	// }
+	// for (Map.Entry<PreterminalRule, double[]> entry : preRuleCounter.entrySet())
+	// {
+	// PreterminalRule preRule = entry.getKey();
+	// double[] ruleCount = entry.getValue();
+	// double[] samePCount = new double[nSubSymbolArr.get(preRule.getParent())];
+	// for (int pSubSymbol = 0; pSubSymbol < ruleCount.length; pSubSymbol++)
+	// {
+	// samePCount[pSubSymbol] = ruleCount[pSubSymbol];
+	// }
+	// calSameParentRulesExpectationHelper(preRule.getParent(), samePCount);
+	// }
+	// }
+	//
+	// private void calSameParentRulesExpectationHelper(short parent, double[]
+	// samePCount)
+	// {
+	// sameParentRulesCounter.merge(parent, samePCount, (oldCount, newCount) ->
+	// {
+	// if (newCount.length != oldCount.length)
+	// throw new Error("传递参数有错误。");
+	// for (int i = 0; i < newCount.length; i++)
+	// {
+	// oldCount[i] += newCount[i];
+	// }
+	// return oldCount;
+	// });
+	// }
+
 	public void calSameParentRulesExpectation(Grammar g)
 	{
 		for (short pSymbol = 0; pSymbol < g.getNumSymbol(); pSymbol++)
 		{
-			Double[] count = new Double[g.getNumSubSymbol((short) pSymbol)];
-			for (int i = 0; i < count.length; i++)
+			double[] count = new double[g.getNumSubSymbol((short) pSymbol)];
+			// for (int i = 0; i < count.length; i++)
+			// {
+			// count[i] = 0.0;
+			// }
+			if (g.getbRuleSetBySameHead(pSymbol) != null)
 			{
-				count[i] = 0.0;
-			}
-			if (g.getbRuleBySameHead().containsKey(pSymbol))
-			{
-				for (Map.Entry<BinaryRule, BinaryRule> entry : g.getbRuleBySameHead().get(pSymbol).entrySet())
+				for (BinaryRule bRule : g.getbRuleSetBySameHead(pSymbol))
 				{
-					double[][][] ruleCount = bRuleCounter.get(entry.getValue());
+					double[][][] ruleCount = bRuleCounter.get(bRule);
 					for (int pSubSymbol = 0; pSubSymbol < count.length; pSubSymbol++)
 					{
 						double tempCount = 0.0;
@@ -69,11 +134,11 @@ public class RuleCounter
 					}
 				}
 			}
-			if (g.getuRuleBySameHead().containsKey(pSymbol))
+			if (g.getuRuleSetBySameHead(pSymbol) != null)
 			{
-				for (Map.Entry<UnaryRule, UnaryRule> entry : g.getuRuleBySameHead().get(pSymbol).entrySet())
+				for (UnaryRule uRule : g.getuRuleSetBySameHead(pSymbol))
 				{
-					double[][] ruleCount = uRuleCounter.get(entry.getValue());
+					double[][] ruleCount = uRuleCounter.get(uRule);
 					for (int pSubSymbol = 0; pSubSymbol < count.length; pSubSymbol++)
 					{
 						double tempCount = 0.0;
@@ -117,7 +182,7 @@ public class RuleCounter
 			Annotation lCLabel = lC.getLabel();
 			Annotation rCLabel = rC.getLabel();
 			BinaryRule rule = new BinaryRule(pLabel.getSymbol(), lCLabel.getSymbol(), rCLabel.getSymbol());
-			rule = g.getbRuleBySameHead().get(pLabel.getSymbol()).get(rule);
+			rule = g.getRule(rule);
 			double[][][] count;
 			if (!bRuleCounter.containsKey(rule))
 			{
@@ -163,7 +228,7 @@ public class RuleCounter
 			AnnotationTreeNode child = tree.getChildren().get(0);
 			Annotation cLabel = child.getLabel();
 			UnaryRule rule = new UnaryRule(tree.getLabel().getSymbol(), cLabel.getSymbol());
-			rule = g.getuRuleBySameHead().get(pLabel.getSymbol()).get(rule);
+			rule = g.getRule(rule);
 			double[][] count;
 			if (!uRuleCounter.containsKey(rule))
 			{

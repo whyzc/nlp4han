@@ -3,6 +3,7 @@ package com.lc.nlp4han.constituent.unlex;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 语法训练器
@@ -39,8 +40,11 @@ public class GrammarTrainer
 			EM(g, treeBank, EMIterations / 2);
 			System.err.println("平滑规则完成。");
 		}
-		double[][] subTag2UNKScores = calTag2UNKScores(g);
-		g.setSubTag2UNKScores(subTag2UNKScores);
+		if (SMCycle != 0)
+		{
+			double[][] subTag2UNKScores = calTag2UNKScores(g);
+			g.setSubTag2UNKScores(subTag2UNKScores);
+		}
 		return g;
 	}
 
@@ -97,15 +101,13 @@ public class GrammarTrainer
 
 			for (short i = 0; i < pNumSub; i++)
 			{
-
-				if (ruleCounter.sameParentRulesCounter.containsKey(bRule.parent)
-						&& ruleCounter.sameParentRulesCounter.get(bRule.parent)[i] != null)
+				if (ruleCounter.sameParentRulesCounter.get(bRule.parent)[i] != 0.0)
 				{
 					denominator = ruleCounter.sameParentRulesCounter.get(bRule.parent)[i];
 				}
 				else
 				{
-					denominator = calculateSameParentRuleCount(g, bRule.parent, i);
+					throw new Error("sameParentRulesCounter计算错误。");
 				}
 				for (short j = 0; j < lCNumSub; j++)
 				{
@@ -130,14 +132,13 @@ public class GrammarTrainer
 			int cNumSub = g.getNumSubSymbol(uRule.getChild());
 			for (short i = 0; i < pNumSub; i++)
 			{
-				if (ruleCounter.sameParentRulesCounter.containsKey(uRule.parent)
-						&& ruleCounter.sameParentRulesCounter.get(uRule.parent)[i] != null)
+				if (ruleCounter.sameParentRulesCounter.get(uRule.parent)[i] != 0.0)
 				{
 					denominator = ruleCounter.sameParentRulesCounter.get(uRule.parent)[i];
 				}
 				else
 				{
-					denominator = calculateSameParentRuleCount(g, uRule.parent, i);
+					throw new Error("sameParentRulesCounter计算错误。");
 				}
 				for (short j = 0; j < cNumSub; j++)
 				{
@@ -156,14 +157,13 @@ public class GrammarTrainer
 			int pNumSub = g.getNumSubSymbol(preRule.parent);
 			for (short i = 0; i < pNumSub; i++)
 			{
-				if (ruleCounter.sameParentRulesCounter.containsKey(preRule.parent)
-						&& ruleCounter.sameParentRulesCounter.get(preRule.parent)[i] != null)
+				if (ruleCounter.sameParentRulesCounter.get(preRule.parent)[i] != 0.0)
 				{
 					denominator = ruleCounter.sameParentRulesCounter.get(preRule.parent)[i];
 				}
 				else
 				{
-					denominator = calculateSameParentRuleCount(g, preRule.parent, i);
+					throw new Error("sameParentRulesCounter计算错误。");
 				}
 				newScore = ruleCounter.preRuleCounter.get(preRule)[i] / denominator;
 				if (newScore < Rule.preRulethres)
@@ -172,61 +172,6 @@ public class GrammarTrainer
 				}
 				preRule.setScore(i, newScore);
 			}
-		}
-	}
-
-	/*
-	 * 如果表格中(parent,pSubsymbolIndex)位置没有数值表示该值该没有计算，否则直接从表格中取值
-	 */
-	public static Double calculateSameParentRuleCount(Grammar g, int parent, int pSubSymbolIndex)
-	{
-		if (!ruleCounter.sameParentRulesCounter.containsKey((short) parent)
-				|| ruleCounter.sameParentRulesCounter.get((short) parent)[pSubSymbolIndex] == null)
-		{
-			double ruleCount = 0.0;
-			if (g.getbRuleBySameHead().containsKey((short) parent))
-				for (Map.Entry<BinaryRule, BinaryRule> entry : g.getbRuleBySameHead().get((short) parent).entrySet())
-				{
-					double[][][] count = ruleCounter.bRuleCounter.get(entry.getValue());
-					for (int i = 0; i < count[pSubSymbolIndex].length; i++)
-					{
-						for (int j = 0; j < count[pSubSymbolIndex][i].length; j++)
-						{
-							ruleCount = ruleCount + count[pSubSymbolIndex][i][j];
-						}
-					}
-				}
-			if (g.getuRuleBySameHead().containsKey((short) parent))
-				for (Map.Entry<UnaryRule, UnaryRule> entry : g.getuRuleBySameHead().get((short) parent).entrySet())
-				{
-					double[][] count = ruleCounter.uRuleCounter.get(entry.getValue());
-					for (int i = 0; i < count[pSubSymbolIndex].length; i++)
-					{
-						ruleCount = ruleCount + count[pSubSymbolIndex][i];
-					}
-				}
-			if (g.getPreRuleBySameHead().containsKey((short) parent))
-				for (Map.Entry<PreterminalRule, PreterminalRule> entry : g.getPreRuleBySameHead().get((short) parent)
-						.entrySet())
-				{
-					double[] count = ruleCounter.preRuleCounter.get(entry.getValue());
-					ruleCount = ruleCount + count[pSubSymbolIndex];
-				}
-			if (ruleCounter.sameParentRulesCounter.containsKey((short) parent))
-			{
-				ruleCounter.sameParentRulesCounter.get((short) parent)[pSubSymbolIndex] = ruleCount;
-			}
-			else
-			{
-				Double[] countArr = new Double[g.getNumSubSymbol((short) parent)];
-				countArr[pSubSymbolIndex] = ruleCount;
-				ruleCounter.sameParentRulesCounter.put((short) parent, countArr);
-			}
-			return ruleCount;
-		}
-		else
-		{
-			return ruleCounter.sameParentRulesCounter.get((short) parent)[pSubSymbolIndex];
 		}
 	}
 
@@ -257,44 +202,122 @@ public class GrammarTrainer
 		return subTag2UNKScores;
 	}
 
+	// public static void normalizeBAndURule(Grammar g)
+	// {
+	// HashMap<Short, Double[]> sameHeadRuleScoreSum = new HashMap<Short,
+	// Double[]>();
+	// for (Map.Entry<Short, HashMap<BinaryRule, BinaryRule>> entry :
+	// g.getbRuleBySameHead().entrySet())
+	// {
+	// Double[] ruleScoreSum = new Double[g.getNumSubSymbol(entry.getKey())];
+	// sameHeadRuleScoreSum.put(entry.getKey(), ruleScoreSum);
+	// for (Map.Entry<BinaryRule, BinaryRule> innerEntry :
+	// entry.getValue().entrySet())
+	// {
+	// for (short i = 0; i < ruleScoreSum.length; i++)
+	// {
+	// if (ruleScoreSum[i] == null)
+	// {
+	// ruleScoreSum[i] = 0.0;
+	// }
+	// ruleScoreSum[i] += innerEntry.getKey().getParent_i_ScoceSum(i);
+	// }
+	// }
+	// }
+	//
+	// for (Map.Entry<Short, HashMap<UnaryRule, UnaryRule>> entry :
+	// g.getuRuleBySameHead().entrySet())
+	// {
+	// Double[] ruleScoreSum;
+	// if (!sameHeadRuleScoreSum.containsKey(entry.getKey()))
+	// {
+	// sameHeadRuleScoreSum.put(entry.getKey(), new
+	// Double[g.getNumSubSymbol(entry.getKey())]);
+	// }
+	// ruleScoreSum = sameHeadRuleScoreSum.get(entry.getKey());
+	// for (Map.Entry<UnaryRule, UnaryRule> innerEntry :
+	// entry.getValue().entrySet())
+	// {
+	// for (short i = 0; i < ruleScoreSum.length; i++)
+	// {
+	// if (ruleScoreSum[i] == null)
+	// {
+	// ruleScoreSum[i] = 0.0;
+	// }
+	// ruleScoreSum[i] += innerEntry.getKey().getParent_i_ScoceSum(i);
+	// }
+	// }
+	// }
+	//
+	// for (BinaryRule bRule : g.getbRules())
+	// {
+	// short nSubParent = g.getNumSubSymbol(bRule.getParent());
+	// for (short subP = 0; subP < nSubParent; subP++)
+	// {
+	// double tag_iScoreSum = sameHeadRuleScoreSum.get(bRule.getParent())[subP];
+	// short nSubLC = g.getNumSubSymbol(bRule.getLeftChild());
+	// for (short subLC = 0; subLC < nSubLC; subLC++)
+	// {
+	// short nSubRC = g.getNumSubSymbol(bRule.getRightChild());
+	// for (short subRC = 0; subRC < nSubRC; subRC++)
+	// {
+	// double score = bRule.getScore(subP, subLC, subRC);
+	// bRule.setScore(subP, subLC, subRC, score / tag_iScoreSum);
+	// }
+	// }
+	// }
+	// }
+	// for (UnaryRule uRule : g.getuRules())
+	// {
+	// short nSubParent = g.getNumSubSymbol(uRule.getParent());
+	// for (short subP = 0; subP < nSubParent; subP++)
+	// {
+	// double tag_iScoreSum = sameHeadRuleScoreSum.get(uRule.getParent())[subP];
+	// short nSubC = g.getNumSubSymbol(uRule.getChild());
+	// for (short subC = 0; subC < nSubC; subC++)
+	// {
+	// double score = uRule.getScore(subP, subC);
+	// uRule.setScore(subP, subC, score / tag_iScoreSum);
+	// }
+	// }
+	// }
+	// }
+
 	public static void normalizeBAndURule(Grammar g)
 	{
 		HashMap<Short, Double[]> sameHeadRuleScoreSum = new HashMap<Short, Double[]>();
-		for (Map.Entry<Short, HashMap<BinaryRule, BinaryRule>> entry : g.getbRuleBySameHead().entrySet())
+		for (short symbol = 0; symbol < g.getNumSymbol(); symbol++)
 		{
-			Double[] ruleScoreSum = new Double[g.getNumSubSymbol(entry.getKey())];
-			sameHeadRuleScoreSum.put(entry.getKey(), ruleScoreSum);
-			for (Map.Entry<BinaryRule, BinaryRule> innerEntry : entry.getValue().entrySet())
+			if (!g.hasPreterminalSymbol(symbol))
 			{
-				for (short i = 0; i < ruleScoreSum.length; i++)
-				{
-					if (ruleScoreSum[i] == null)
+				Double[] ruleScoreSum = new Double[g.getNumSubSymbol(symbol)];
+				sameHeadRuleScoreSum.put(symbol, ruleScoreSum);
+				Set<BinaryRule> sameHeadBSet = g.getbRuleSetBySameHead(symbol);
+				if (sameHeadBSet != null)
+					for (BinaryRule bRule : sameHeadBSet)
 					{
-						ruleScoreSum[i] = 0.0;
+						for (short i = 0; i < ruleScoreSum.length; i++)
+						{
+							if (ruleScoreSum[i] == null)
+							{
+								ruleScoreSum[i] = 0.0;
+							}
+							ruleScoreSum[i] += bRule.getParent_i_ScoceSum(i);
+						}
 					}
-					ruleScoreSum[i] += innerEntry.getKey().getParent_i_ScoceSum(i);
-				}
-			}
-		}
-
-		for (Map.Entry<Short, HashMap<UnaryRule, UnaryRule>> entry : g.getuRuleBySameHead().entrySet())
-		{
-			Double[] ruleScoreSum;
-			if (!sameHeadRuleScoreSum.containsKey(entry.getKey()))
-			{
-				sameHeadRuleScoreSum.put(entry.getKey(), new Double[g.getNumSubSymbol(entry.getKey())]);
-			}
-			ruleScoreSum = sameHeadRuleScoreSum.get(entry.getKey());
-			for (Map.Entry<UnaryRule, UnaryRule> innerEntry : entry.getValue().entrySet())
-			{
-				for (short i = 0; i < ruleScoreSum.length; i++)
-				{
-					if (ruleScoreSum[i] == null)
+				Set<UnaryRule> sameHeadUSet = g.getuRuleSetBySameHead(symbol);
+				if (sameHeadUSet != null)
+					for (UnaryRule uRule : sameHeadUSet)
 					{
-						ruleScoreSum[i] = 0.0;
+						for (short i = 0; i < ruleScoreSum.length; i++)
+						{
+							if (ruleScoreSum[i] == null)
+							{
+								ruleScoreSum[i] = 0.0;
+							}
+							ruleScoreSum[i] += uRule.getParent_i_ScoceSum(i);
+						}
 					}
-					ruleScoreSum[i] += innerEntry.getKey().getParent_i_ScoceSum(i);
-				}
 			}
 		}
 
