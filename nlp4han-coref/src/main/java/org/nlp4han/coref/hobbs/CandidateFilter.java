@@ -5,7 +5,7 @@ import java.util.List;
 import com.lc.nlp4han.constituent.TreeNode;
 
 /**
- * 过滤器接口
+ * 候选先行词结点过滤器接口
  * 
  * @author 杨智超
  *
