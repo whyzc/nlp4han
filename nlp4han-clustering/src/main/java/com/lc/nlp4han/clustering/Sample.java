@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class Sample implements Cloneable
+public class Sample
 {
 	private Map<String, Feature> features = null;
 
@@ -28,7 +28,7 @@ public class Sample implements Cloneable
 	
 	/**
 	 * 获取所有特征
-	 * @return
+	 * @return 所有特征
 	 */
 	public List<Feature> getFeatures()
 	{
@@ -44,12 +44,20 @@ public class Sample implements Cloneable
 		return result;
 	}
 
+	/**
+	 * 设置特征
+	 * @param fs 被指定的特征列表
+	 */
 	public void setFeatures(List<Feature> fs)
 	{
 		clear();
 		add(fs);
 	}
 	
+	/**
+	 * 添加特征
+	 * @param fs
+	 */
 	public void add(List<Feature> fs)
 	{
 		if (features == null)
@@ -60,15 +68,37 @@ public class Sample implements Cloneable
 		}
 	}
 	
+	/**
+	 * 添加特征
+	 * @param f
+	 */
+	public void add(Feature f)
+	{
+		if (features == null)
+			features = new HashMap<String, Feature>();
+		
+		features.put(f.getKey(), f);
+		
+	}
+	
 	public void clear()
 	{
 		if (features != null)
 			this.features.clear();
 	}
 
+	public Set<String> getKeySet()
+	{
+		return features.keySet();
+	}
+	
+	public boolean containsKey(String key) 
+	{
+		return features.containsKey(key);
+	}
 
 	@Override
-	protected Sample clone()
+	public Sample clone()
 	{
 		Sample result = new Sample();
 		
@@ -83,11 +113,20 @@ public class Sample implements Cloneable
 		
 		return result;
 	}
+	
 
 	@Override
 	public String toString()
 	{
 		return getFeatures() + "";
+	}
+
+	public int size()
+	{
+		if (features != null)
+			return features.size();
+		else
+			return 0;
 	}
 
 	

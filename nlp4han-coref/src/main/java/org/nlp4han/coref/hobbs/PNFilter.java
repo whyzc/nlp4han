@@ -28,7 +28,7 @@ public class PNFilter extends CandidateFilter
 			TreeNode node = treeNodes.get(i);
 			if (node.getNodeName().equals("NP"))
 			{
-				TreeNode head = TreeNodeUtil.getHead(node, NPHeadRuleSetPTB.getNPRuleSet());
+				TreeNode head = TreeNodeUtil.getHead(node);
 				String strOfHead = TreeNodeUtil.getString(head);
 				if (isPronoun(strOfHead))
 				{

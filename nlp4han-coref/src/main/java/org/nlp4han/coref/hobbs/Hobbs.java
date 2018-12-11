@@ -72,7 +72,7 @@ public class Hobbs implements AnaphoraResolution
 				{
 					for (int k = 0; k < candidateNodes.size(); k++)
 					{
-						if (TreeNodeUtil.getHead(candidateNodes.get(k), NPHeadRuleSetPTB.getNPRuleSet()) != null)
+						if (TreeNodeUtil.getHead(candidateNodes.get(k)) != null)
 							return candidateNodes.get(k);
 					}
 				}
@@ -96,7 +96,7 @@ public class Hobbs implements AnaphoraResolution
 				{
 					for (int k = 0; k < candidateNodes.size(); k++)
 					{
-						if (TreeNodeUtil.getHead(candidateNodes.get(k), NPHeadRuleSetPTB.getNPRuleSet()) != null)
+						if (TreeNodeUtil.getHead(candidateNodes.get(k)) != null)
 							return candidateNodes.get(k);
 					}
 				}
@@ -118,7 +118,7 @@ public class Hobbs implements AnaphoraResolution
 				{
 					for (int k = 0; k < candidateNodes.size(); k++)
 					{
-						if (TreeNodeUtil.getHead(candidateNodes.get(k), NPHeadRuleSetPTB.getNPRuleSet()) != null)
+						if (TreeNodeUtil.getHead(candidateNodes.get(k)) != null)
 							return candidateNodes.get(k);
 					}
 				}
@@ -132,7 +132,7 @@ public class Hobbs implements AnaphoraResolution
 					{
 						for (int k = 0; k < candidateNodes.size(); k++)
 						{
-							if (TreeNodeUtil.getHead(candidateNodes.get(k), NPHeadRuleSetPTB.getNPRuleSet()) != null)
+							if (TreeNodeUtil.getHead(candidateNodes.get(k)) != null)
 								return candidateNodes.get(k);
 						}
 					}
@@ -235,7 +235,7 @@ public class Hobbs implements AnaphoraResolution
 			site_s1 = site_s2 = constituentTrees.indexOf(root1);
 			site_pron = leafSite(TreeNodeUtil.getString(pronoun), leaves);
 			site_ante = leafSite(
-					TreeNodeUtil.getString(TreeNodeUtil.getHead(antecedent, NPHeadRuleSetPTB.getNPRuleSet())), leaves);
+					TreeNodeUtil.getString(TreeNodeUtil.getHead(antecedent)), leaves);
 		}
 		else
 		{
@@ -245,12 +245,12 @@ public class Hobbs implements AnaphoraResolution
 			site_s2 = constituentTrees.indexOf(root2);
 			site_pron = leafSite(TreeNodeUtil.getString(pronoun), leaves1);
 			site_ante = leafSite(
-					TreeNodeUtil.getString(TreeNodeUtil.getHead(antecedent, NPHeadRuleSetPTB.getNPRuleSet())), leaves2);
+					TreeNodeUtil.getString(TreeNodeUtil.getHead(antecedent)), leaves2);
 		}
 
 		String nodeName_pron = TreeNodeUtil.getString(pronoun);
 		String nodeName_ante = TreeNodeUtil
-				.getString(TreeNodeUtil.getHead(antecedent, NPHeadRuleSetPTB.getNPRuleSet()));
+				.getString(TreeNodeUtil.getHead(antecedent));
 		String result = nodeName_pron + "(" + (site_s1 + 1) + "-" + (site_pron + 1) + ")" + CenteringBFP.SEPARATOR
 				+ nodeName_ante + "(" + (site_s2 + 1) + "-" + (site_ante + 1) + ")";
 

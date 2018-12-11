@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-public class VectorSampleCalculator implements SampleCalculator
+public class SpaceVectorBasedDistanceCalculator extends DistanceCalculator
 {
 	private Map<String, Integer> vectorInfo = null;
 

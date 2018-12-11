@@ -324,61 +324,17 @@ public class TreeNodeUtil
 	 * @param nPNode
 	 * @return
 	 */
-	public static TreeNode getHead(TreeNode nPNode, HashMap<String, List<HeadRule>> NPRules)
+	public static TreeNode getHead(TreeNode nPNode)
 	{
-		String currNodeName = nPNode.getNodeName();
-		TreeNode result = null;
-		if (NPRules.containsKey(currNodeName))
-		{
-			for (int k = 0; k < NPRules.get(currNodeName).size(); k++)
-			{
-				if (NPRules.get(currNodeName).get(k).getDirection().equals("right"))
-				{
-					// 用所有的子节点从左向右匹配规则中每一个
-					for (int i = 0; i < NPRules.get(currNodeName).get(k).getRightRulesSize(); i++)
-					{
-						for (int j = 0; j < nPNode.getChildrenNum(); j++)
-						{
-							if (nPNode.getChildName(j).equals(NPRules.get(currNodeName).get(k).getRightRule(i)))
-							{
-								result = nPNode.getChild(j);
-								if (result.getNodeName().equals("NP"))
-								{
-									return getHead(result, NPRules);
-								}
-								else
-								{
-									return result;
-								}
-							}
-						}
-					}
-				}
-				else if (NPRules.get(currNodeName).get(k).getDirection().equals("left"))
-				{
-					for (int i = 0; i < NPRules.get(currNodeName).get(k).getRightRulesSize(); i++)
-					{
-						for (int j = nPNode.getChildrenNum() - 1; j >= 0; j--)
-						{
-							if (nPNode.getChildName(j).equals(NPRules.get(currNodeName).get(k).getRightRule(i)))
-							{
-								result = nPNode.getChild(j);
-								if (result.getNodeName().equals("NP"))
-								{
-									return getHead(result, NPRules);
-								}
-								else
-								{
-									return result;
-								}
-							}
-						}
-					}
-				}
-			}
-
-		}
-		return result;
+		AbstractHeadGenerator headGen = new HeadGeneratorCollins(new HeadRuleSetCTB());
+		HeadTreeNode headTree1 = TreeToHeadTree.treeToHeadTree(nPNode, headGen);
+		
+		String headWord = headTree1.getHeadWord();
+		
+		List<TreeNode> leaves = getAllLeafNodes(nPNode);
+		TreeNode headNode = getLastNodeWithSpecifiedName(leaves, new String[] {headWord});
+		
+		return headNode;
 	}
 
 	private static TreeNode getFirstNodeFromRightToLeft(List<? extends TreeNode> nodes, String[] taggers)
