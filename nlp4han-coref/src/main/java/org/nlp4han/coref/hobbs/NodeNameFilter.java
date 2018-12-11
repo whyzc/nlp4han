@@ -10,7 +10,7 @@ import com.lc.nlp4han.constituent.TreeNode;
  */
 public class NodeNameFilter extends CandidateFilter
 {
-	private List<TreeNode> treeNodes;
+//	private List<TreeNode> treeNodes;
 	private String[] treeNodeNames;
 
 	public NodeNameFilter()
@@ -18,15 +18,20 @@ public class NodeNameFilter extends CandidateFilter
 
 	}
 
-	public NodeNameFilter(List<TreeNode> treeNodes)
+//	public NodeNameFilter(List<TreeNode> treeNodes)
+//	{
+//		this.treeNodes = treeNodes;
+//	}
+//
+//	public NodeNameFilter(List<TreeNode> treeNodes, String[] treeNodeNames)
+//	{
+//		super();
+//		this.treeNodes = treeNodes;
+//		this.treeNodeNames = treeNodeNames;
+//	}
+	
+	public NodeNameFilter(String[] treeNodeNames)
 	{
-		this.treeNodes = treeNodes;
-	}
-
-	public NodeNameFilter(List<TreeNode> treeNodes, String[] treeNodeNames)
-	{
-		super();
-		this.treeNodes = treeNodes;
 		this.treeNodeNames = treeNodeNames;
 	}
 
@@ -37,7 +42,7 @@ public class NodeNameFilter extends CandidateFilter
 	}
 
 	@Override
-	public List<TreeNode> filter()
+	public List<TreeNode> filter(List<TreeNode> treeNodes)
 	{
 		if (treeNodeNames != null)
 		{
@@ -61,10 +66,10 @@ public class NodeNameFilter extends CandidateFilter
 		return treeNodes;
 	}
 
-	@Override
-	public void setFilteredNodes(List<TreeNode> treeNodes)
-	{
-		this.treeNodes = treeNodes;
-
-	}
+//	@Override
+//	public void setFilteredNodes(List<TreeNode> treeNodes)
+//	{
+//		this.treeNodes = treeNodes;
+//
+//	}
 }

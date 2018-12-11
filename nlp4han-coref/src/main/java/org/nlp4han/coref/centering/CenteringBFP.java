@@ -352,8 +352,8 @@ public class CenteringBFP implements AnaphoraResolution
 		if (filter != null)
 		{
 			filter.setReferenceConditions(node);
-			filter.setFilteredNodes(nodes_copy);
-			filter.filter();
+//			filter.setFilteredNodes(nodes_copy);
+			filter.filter(nodes_copy);
 		}
 
 		for (TreeNode n : nodes_copy)
@@ -512,7 +512,7 @@ public class CenteringBFP implements AnaphoraResolution
 
 		if (attributeFilter == null)
 		{
-			AttributeFilter af = new AttributeFilter(new PNFilter(new NodeNameFilter())); // 组合过滤器
+			AttributeFilter af = new AttributeFilter(new PNFilter()); // 组合过滤器
 
 			af.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 			attributeFilter = af;

@@ -3,7 +3,7 @@ package com.lc.nlp4han.csc.evaluation;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import com.lc.nlp4han.csc.util.FileOperator;
+import com.lc.nlp4han.csc.util.FileUtils;
 import com.lc.nlp4han.csc.util.Sentence;
 
 /**
@@ -30,16 +30,16 @@ public class EvaluatorApp {
 		String resultFile = args[2];
 		String encoding = args[3];
 		
-		ArrayList<Sentence> original = FileOperator.readSentenceFile(originalFile, encoding);
-		ArrayList<Sentence> gold = FileOperator.readSentenceFile(goldFile, encoding);
-		ArrayList<Sentence> result = FileOperator.readSentenceFile(resultFile, encoding);;
+		ArrayList<Sentence> original = FileUtils.readSentenceFile(originalFile, encoding);
+		ArrayList<Sentence> gold = FileUtils.readSentenceFile(goldFile, encoding);
+		ArrayList<Sentence> result = FileUtils.readSentenceFile(resultFile, encoding);;
 		
 		Evaluation evaluator = new CSCEvaluator(original, gold, result);
 		String eval = evaluator.show();
 		
 		if(len == 5) {
 			String output = args[4];
-			FileOperator.writeEvaluation(output, encoding, eval);
+			FileUtils.writeEvaluation(output, encoding, eval);
 		}
 	}
 	

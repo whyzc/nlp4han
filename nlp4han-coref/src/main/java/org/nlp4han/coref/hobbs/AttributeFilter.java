@@ -112,9 +112,9 @@ public class AttributeFilter extends FilterWrapper
 	}
 
 	@Override
-	public List<TreeNode> filter()
+	public List<TreeNode> filter(List<TreeNode> nodes)
 	{
-		List<TreeNode> treeNodes = filter.filter();
+		List<TreeNode> treeNodes = filter.filter(nodes);
 		if (this.referenceNode == null)
 			throw new RuntimeException("未设置基准结点");
 		if (this.attributeGenerator != null)
@@ -136,11 +136,11 @@ public class AttributeFilter extends FilterWrapper
 		return treeNodes;
 	}
 
-	@Override
-	public void setFilteredNodes(List<TreeNode> treeNodes)
-	{
-		filter.setFilteredNodes(treeNodes);
-	}
+//	@Override
+//	public void setFilteredNodes(List<TreeNode> treeNodes)
+//	{
+//		filter.setFilteredNodes(treeNodes);
+//	}
 
 	@Override
 	public void setReferenceConditions(Object obj)

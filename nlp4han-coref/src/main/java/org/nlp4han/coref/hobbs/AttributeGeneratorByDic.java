@@ -90,7 +90,7 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 			}
 			else
 			{
-				TreeNode head = TreeNodeUtil.getHead(treeNode, NPHeadRuleSetPTB.getNPRuleSet());
+				TreeNode head = TreeNodeUtil.getHead(treeNode);
 				if (head != null)
 				{
 					Properties genderDic = loadProperties("gender.properties", "utf-8");
@@ -159,7 +159,7 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 		{
 			if (treeNode.getNodeName().equals("NP"))
 			{
-				TreeNode head = TreeNodeUtil.getHead(treeNode, NPHeadRuleSetPTB.getNPRuleSet());
+				TreeNode head = TreeNodeUtil.getHead(treeNode);
 				if (head == null)
 				{
 					if (result.size() < 1)
@@ -265,7 +265,7 @@ public class AttributeGeneratorByDic implements AttributeGenerator
 			}
 			else
 			{
-				TreeNode head = TreeNodeUtil.getHead(treeNode, NPHeadRuleSetPTB.getNPRuleSet());
+				TreeNode head = TreeNodeUtil.getHead(treeNode);
 				if (head != null)
 				{
 					Properties animacyDic = loadProperties("animacy.properties", "utf-8");

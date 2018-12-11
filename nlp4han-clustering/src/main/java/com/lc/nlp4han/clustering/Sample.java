@@ -1,42 +1,133 @@
 package com.lc.nlp4han.clustering;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-public class Sample implements Cloneable
+public class Sample
 {
-	private double[] vecter = null;
+	private Map<String, Feature> features = null;
 
-	public double[] getVecter()
+	public Sample()
 	{
-		return vecter;
+		
+	}
+	
+	public Sample(List<Feature> fs)
+	{
+		setFeatures(fs);
 	}
 
-	public void setVecter(double[] vecter)
+	public Feature getFeature(String key)
 	{
-		this.vecter = vecter;
+		Feature f = features.get(key);
+		return f;
 	}
-
-
-	@Override
-	protected Sample clone()
+	
+	/**
+	 * 获取所有特征
+	 * @return 所有特征
+	 */
+	public List<Feature> getFeatures()
 	{
-		Sample result = null;
-		try
+		List<Feature> result = new ArrayList<Feature>();
+		
+		Set<String> keys = features.keySet();
+		for (String key : keys)
 		{
-			result = (Sample)super.clone();
+			Feature f = features.get(key);
+			result.add(f.clone());
 		}
-		catch (CloneNotSupportedException e)
-		{
-			e.printStackTrace();
-		}
-		result.vecter = vecter.clone();
+		
 		return result;
 	}
+
+	/**
+	 * 设置特征
+	 * @param fs 被指定的特征列表
+	 */
+	public void setFeatures(List<Feature> fs)
+	{
+		clear();
+		add(fs);
+	}
+	
+	/**
+	 * 添加特征
+	 * @param fs
+	 */
+	public void add(List<Feature> fs)
+	{
+		if (features == null)
+			features = new HashMap<String, Feature>();
+		for (Feature f : fs)
+		{
+			features.put(f.getKey(), f);
+		}
+	}
+	
+	/**
+	 * 添加特征
+	 * @param f
+	 */
+	public void add(Feature f)
+	{
+		if (features == null)
+			features = new HashMap<String, Feature>();
+		
+		features.put(f.getKey(), f);
+		
+	}
+	
+	public void clear()
+	{
+		if (features != null)
+			this.features.clear();
+	}
+
+	public Set<String> getKeySet()
+	{
+		return features.keySet();
+	}
+	
+	public boolean containsKey(String key) 
+	{
+		return features.containsKey(key);
+	}
+
+	@Override
+	public Sample clone()
+	{
+		Sample result = new Sample();
+		
+		result.features = new HashMap<String, Feature>();
+		Set<String> keys = features.keySet();
+		
+		for (String key : keys)
+		{
+			Feature f = features.get(key);
+			result.features.put(key, f.clone());
+		}
+		
+		return result;
+	}
+	
 
 	@Override
 	public String toString()
 	{
-		return "Sample [vecter=" + Arrays.toString(vecter) + "]";
+		return getFeatures() + "";
 	}
+
+	public int size()
+	{
+		if (features != null)
+			return features.size();
+		else
+			return 0;
+	}
+
 	
 }

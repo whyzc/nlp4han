@@ -38,7 +38,7 @@ public class TestCenteringBFP
 		CenteringBFP bfp = new CenteringBFP();
 		bfp.setGrammaticalRoleRuleSet(GrammaticalRoleRuleSet.getGrammaticalRoleRuleSet());		//设置语法角色规则集，此规则集为缺省值
 		
-		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter(new NodeNameFilter())); // 组合过滤器
+		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter()); // 组合过滤器
 		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		bfp.setAttributeFilter(attributeFilter);	//设置属性过滤器，此过滤器为缺省值
 		
@@ -69,7 +69,7 @@ public class TestCenteringBFP
 		CenteringBFP bfp = new CenteringBFP();
 		bfp.setGrammaticalRoleRuleSet(GrammaticalRoleRuleSet.getGrammaticalRoleRuleSet());		//设置语法角色规则集，此规则集为缺省值
 		
-		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter(new NodeNameFilter())); // 组合过滤器
+		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter()); // 组合过滤器
 		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		bfp.setAttributeFilter(attributeFilter);	//设置属性过滤器，此过滤器为缺省值
 
@@ -103,7 +103,7 @@ public class TestCenteringBFP
 		CenteringBFP bfp = new CenteringBFP();
 		bfp.setGrammaticalRoleRuleSet(GrammaticalRoleRuleSet.getGrammaticalRoleRuleSet());		//设置语法角色规则集，此规则集为缺省值
 		
-		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter(new NodeNameFilter())); // 组合过滤器
+		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter()); // 组合过滤器
 		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		bfp.setAttributeFilter(attributeFilter);	//设置属性过滤器，此过滤器为缺省值
 		
@@ -140,7 +140,7 @@ public class TestCenteringBFP
 		CenteringBFP bfp = new CenteringBFP();
 		bfp.setGrammaticalRoleRuleSet(GrammaticalRoleRuleSet.getGrammaticalRoleRuleSet());		//设置语法角色规则集，此规则集为缺省值
 		
-		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter(new NodeNameFilter())); // 组合过滤器
+		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter()); // 组合过滤器
 		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		bfp.setAttributeFilter(attributeFilter);	//设置属性过滤器，此过滤器为缺省值
 		
@@ -173,7 +173,7 @@ public class TestCenteringBFP
 		CenteringBFP bfp = new CenteringBFP();
 		bfp.setGrammaticalRoleRuleSet(GrammaticalRoleRuleSet.getGrammaticalRoleRuleSet());		//设置语法角色规则集，此规则集为缺省值
 		
-		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter(new NodeNameFilter())); // 组合过滤器
+		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter()); // 组合过滤器
 		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		bfp.setAttributeFilter(attributeFilter);	//设置属性过滤器，此过滤器为缺省值
 		

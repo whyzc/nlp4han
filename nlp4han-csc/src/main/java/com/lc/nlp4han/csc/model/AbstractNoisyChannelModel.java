@@ -11,7 +11,7 @@ import java.util.Queue;
 import com.lc.nlp4han.csc.ngram.NGramModel;
 import com.lc.nlp4han.csc.util.ConfusionSet;
 import com.lc.nlp4han.csc.util.Dictionary;
-import com.lc.nlp4han.csc.util.FileOperator;
+import com.lc.nlp4han.csc.util.FileUtils;
 import com.lc.nlp4han.csc.util.CommonUtils;
 import com.lc.nlp4han.csc.util.Sentence;
 import com.lc.nlp4han.csc.util.Sequence;
@@ -296,7 +296,7 @@ public abstract class AbstractNoisyChannelModel implements NoisyChannelModel
 		String path = "com/lc/nlp4han/csc/dict/" + charType + "Dict.bin";
 		File dictFile = new File(this.getClass().getClassLoader().getResource(path).getFile());
 
-		return FileOperator.loadDict(dictFile);
+		return FileUtils.loadDict(dictFile);
 	}
 
 	/**

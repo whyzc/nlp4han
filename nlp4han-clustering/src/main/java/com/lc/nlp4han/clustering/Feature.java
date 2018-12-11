@@ -72,6 +72,13 @@ public class Feature
 			return false;
 		return true;
 	}
+
+	@Override
+	protected Feature clone()
+	{
+		Feature result = new Feature(key, value);
+		return  result;
+	}
 	
 	
 }
