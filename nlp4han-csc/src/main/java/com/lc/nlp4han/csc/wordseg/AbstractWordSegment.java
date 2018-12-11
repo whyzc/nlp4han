@@ -10,10 +10,6 @@ import com.lc.nlp4han.csc.util.Sentence;
 public abstract class AbstractWordSegment
 {
 
-	public AbstractWordSegment()
-	{
-	}
-
 	/**
 	 * 给定句子返回分词后的词列表
 	 * 
