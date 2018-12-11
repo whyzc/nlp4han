@@ -287,7 +287,7 @@ public class Hobbs implements AnaphoraResolution
 		{
 			if (filter == null)
 			{
-				AttributeFilter af = new AttributeFilter(new PNFilter(new NodeNameFilter())); // 组合过滤器
+				AttributeFilter af = new AttributeFilter(new PNFilter()); // 组合过滤器
 				af.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 				
 				filter = af;
@@ -311,7 +311,7 @@ public class Hobbs implements AnaphoraResolution
 	{
 		if (filter == null)
 		{
-			AttributeFilter af = new AttributeFilter(new PNFilter(new NodeNameFilter())); // 组合过滤器
+			AttributeFilter af = new AttributeFilter(new PNFilter()); // 组合过滤器
 			af.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 			
 			filter = af;

@@ -11,19 +11,18 @@ import com.lc.nlp4han.constituent.TreeNodeUtil;
  * @author 杨智超
  *
  */
-public class PNFilter extends FilterWrapper
+public class PNFilter extends CandidateFilter
 {
-
-	public PNFilter(CandidateFilter filter)
+	private List<TreeNode> treeNodes;
+	
+	public PNFilter()
 	{
-		this.filter = filter;
 	}
 
 	@Override
 	public List<TreeNode> filter()
 	{
-		List<TreeNode> treeNodes = filter.filter();
-		
+
 		for (int i = 0; i < treeNodes.size(); i++)
 		{
 			TreeNode node = treeNodes.get(i);
@@ -44,7 +43,7 @@ public class PNFilter extends FilterWrapper
 	@Override
 	public void setFilteredNodes(List<TreeNode> treeNodes)
 	{
-		filter.setFilteredNodes(treeNodes);
+		this.treeNodes = treeNodes;
 	}
 
 	private boolean isPronoun(String str)
