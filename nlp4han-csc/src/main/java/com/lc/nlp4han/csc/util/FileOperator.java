@@ -22,7 +22,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import com.lc.nlp4han.csc.detecet.SpellError;
-import com.lc.nlp4han.csc.ngram.HustNGramModel;
+import com.lc.nlp4han.csc.ngram.NGramModelImpl;
 import com.lc.nlp4han.csc.ngram.NGramModel;
 import com.lc.nlp4han.ml.ngram.io.BinaryFileNGramModelReader;
 import com.lc.nlp4han.ml.ngram.model.AbstractNGramModelReader;
@@ -212,7 +212,7 @@ public class FileOperator {
 	public static NGramModel loadModel(File file) throws ClassNotFoundException, IOException {
 		AbstractNGramModelReader modelReader = new BinaryFileNGramModelReader(file);
 	 
-		return new HustNGramModel(modelReader.constructModel());
+		return new NGramModelImpl(modelReader.constructModel());
 	}
 	
 	/**

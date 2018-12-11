@@ -11,7 +11,7 @@ import java.util.List;
 
 import com.lc.nlp4han.csc.evaluation.CSCEvaluator;
 import com.lc.nlp4han.csc.evaluation.Evaluation;
-import com.lc.nlp4han.csc.ngram.HustNGramModel;
+import com.lc.nlp4han.csc.ngram.NGramModelImpl;
 import com.lc.nlp4han.csc.ngram.NGramModel;
 import com.lc.nlp4han.csc.util.Dictionary;
 import com.lc.nlp4han.csc.util.FileOperator;
@@ -41,7 +41,7 @@ public class CSCTool {
 		ChineseSpellCheckerTrainer trainer = new ChineseSpellCheckerTrainer();
 		ArrayList<String> files = new ArrayList<>();
 		System.out.println("开始训练语言模型...");
-		HustNGramModel nGramModel = trainer.constructLM(corpus, encoding, 3);
+		NGramModelImpl nGramModel = trainer.constructLM(corpus, encoding, 3);
 		String lm = zipPath + "\\lm.bin";
 		nGramModel.writeLM(lm);
 		System.out.println("语言模型训练完成。");

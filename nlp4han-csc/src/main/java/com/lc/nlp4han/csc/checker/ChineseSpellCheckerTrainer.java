@@ -30,7 +30,7 @@ import com.lc.nlp4han.csc.model.SIMDNoisyChannelModelBasedBigram;
 import com.lc.nlp4han.csc.model.SIMDNoisyChannelModelBasedCharacter;
 import com.lc.nlp4han.csc.model.SIMDNoisyChannelModelBasedCharacterAndBigram;
 import com.lc.nlp4han.csc.model.SIMDNoisyChannelModelBasedCharacterInBalance;
-import com.lc.nlp4han.csc.ngram.HustNGramModel;
+import com.lc.nlp4han.csc.ngram.NGramModelImpl;
 import com.lc.nlp4han.csc.ngram.NGramModel;
 import com.lc.nlp4han.csc.util.ConfusionSet;
 import com.lc.nlp4han.csc.util.Dictionary;
@@ -218,11 +218,11 @@ public class ChineseSpellCheckerTrainer {
 	 * @return			ngram模型
 	 * @throws IOException	
 	 */
-	public HustNGramModel constructLM(String corpus, String encoding, int n) throws IOException {
+	public NGramModelImpl constructLM(String corpus, String encoding, int n) throws IOException {
 		StringGramSentenceStream gramSentenceStream = new StringGramSentenceStream(corpus, encoding);
 		KneserNeyLanguageModelTrainer trainer = new KneserNeyLanguageModelTrainer(gramSentenceStream, n);
 
-		return new HustNGramModel(trainer.trainModel());
+		return new NGramModelImpl(trainer.trainModel());
 	}
 
 	/**
