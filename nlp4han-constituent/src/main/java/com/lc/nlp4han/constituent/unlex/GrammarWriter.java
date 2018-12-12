@@ -95,9 +95,9 @@ public class GrammarWriter
 			{
 				preRulesBySameSubHead[i] = new HashMap<String, Double>();
 			}
-			if (gLatentA.getPreRuleBySameHead().containsKey(symbol))
+			if (gLatentA.getPreRuleSetBySameHead(symbol) != null)
 			{
-				for (PreterminalRule preRule : gLatentA.getPreRuleBySameHead().get(symbol).keySet())
+				for (PreterminalRule preRule : gLatentA.getPreRuleSetBySameHead(symbol))
 				{
 					String[] subRuleOfpreRule = preRule.toStringRules(gLatentA);
 					int c = subRuleOfpreRule.length / numSubSymbol;
@@ -232,9 +232,9 @@ public class GrammarWriter
 			allBAndURules.put(grammar.symbolStrValue(symbol), bAndURules);
 
 			Map<String, PreterminalRule> preRules = new TreeMap<>();
-			if (grammar.getPreRuleBySameHead().containsKey(symbol))
+			if (grammar.getPreRuleSetBySameHead(symbol) != null)
 			{
-				for (PreterminalRule preRule : grammar.getPreRuleBySameHead().get(symbol).keySet())
+				for (PreterminalRule preRule : grammar.getPreRuleSetBySameHead(symbol))
 				{
 					preRules.put(preRule.toStringIgnoreSubSymbol(grammar), preRule);
 					for (Map.Entry<String, Double> entry : preRule.getParent_i_ScoceSum(grammar).entrySet())

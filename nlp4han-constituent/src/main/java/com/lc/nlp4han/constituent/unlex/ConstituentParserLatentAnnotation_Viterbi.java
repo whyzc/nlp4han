@@ -71,6 +71,13 @@ public class ConstituentParserLatentAnnotation_Viterbi implements ConstituentPar
 			return null;
 	}
 
+	
+	/**
+	 * 去掉为了viterbi解析特意添加的额外的规则
+	 * 
+	 * @param tree
+	 * @return
+	 */
 	private TreeNode removeOriginalTag(TreeNode tree)
 	{
 		if (tree.getChildren().size() == 1 && tree.getNodeName().split("_")[0].equals(tree.getChild(0).getNodeName())

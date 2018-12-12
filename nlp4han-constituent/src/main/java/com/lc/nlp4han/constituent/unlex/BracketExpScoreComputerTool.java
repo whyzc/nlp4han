@@ -30,7 +30,7 @@ public class BracketExpScoreComputerTool
 					"C:\\Users\\hp\\Desktop\\test100.txt", "utf-8");
 			TreeNode tree = Binarization.binarizeTree(BracketExpUtil.generateTree(
 					"(ROOT(FRAG(NN 新华社)(NR 上海)(NT 二月)(NT 十日)(NN 电)(PU （)(NN 记者)(NR 谢金虎)(PU 、)(NR 张持坚)(PU ）)))"));
-			AnnotationTreeNode theTree = AnnotationTreeNode.getInstance(tree, gLatentAnnotation.getNonterminalTable());
+			AnnotationTreeNode theTree = gLatentAnnotation.convert2AnnotationTreeNode(tree);
 			double score = comperter(gLatentAnnotation, theTree);
 			System.out.println("logS:" + score);
 		}

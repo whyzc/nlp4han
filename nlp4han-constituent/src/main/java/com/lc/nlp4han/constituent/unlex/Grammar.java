@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
 
+import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.pcfg.PCFG;
 import com.lc.nlp4han.constituent.pcfg.PRule;
 
@@ -561,25 +562,39 @@ public class Grammar
 	{
 		return random;
 	}
+	// 暂时不用
+	// public HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>>
+	// getPreRuleBySameChildren()
+	// {
+	// return preRuleBySameChildren;
+	// }
+	//
+	// public HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>>
+	// getbRuleBySameChildren()
+	// {
+	// return bRuleBySameChildren;
+	// }
+	//
+	// public HashMap<Short, HashMap<UnaryRule, UnaryRule>> getuRuleBySameChildren()
+	// {
+	// return uRuleBySameChildren;
+	// }
 
-	public HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>> getPreRuleBySameChildren()
+	public Set<PreterminalRule> getPreRuleSetBySameHead(short parent)
 	{
-		return preRuleBySameChildren;
+		if (preRuleBySameHead.containsKey(parent))
+			return preRuleBySameHead.get(parent).keySet();
+		else
+			return null;
 	}
 
-	public HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>> getbRuleBySameChildren()
+	public PreterminalRule getRule(PreterminalRule tempPreRule)
 	{
-		return bRuleBySameChildren;
-	}
-
-	public HashMap<Short, HashMap<UnaryRule, UnaryRule>> getuRuleBySameChildren()
-	{
-		return uRuleBySameChildren;
-	}
-
-	public HashMap<Short, HashMap<PreterminalRule, PreterminalRule>> getPreRuleBySameHead()
-	{
-		return preRuleBySameHead;
+		short parent = tempPreRule.getParent();
+		if (preRuleBySameHead.containsKey(parent))
+			return preRuleBySameHead.get(parent).get(tempPreRule);
+		else
+			return null;
 	}
 
 	public Set<BinaryRule> getbRuleSetBySameHead(short parent)
@@ -616,10 +631,10 @@ public class Grammar
 			return null;
 	}
 
-	public NonterminalTable getNonterminalTable()
-	{
-		return nonterminalTable;
-	}
+	// public NonterminalTable getNonterminalTable()
+	// {
+	// return nonterminalTable;
+	// }
 
 	public void setSubTag2UNKScores(double[][] subTag2UNKScores)
 	{
@@ -644,5 +659,26 @@ public class Grammar
 	public boolean hasPreterminalSymbol(short preterminalSymbol)
 	{
 		return nonterminalTable.hasPreterminalSymbol(preterminalSymbol);
+	}
+
+	/**
+	 * 将非终结符号是原始符号的Treenode的转换成对应的AnnotationTreeNode
+	 * 
+	 * @param tree
+	 * @return
+	 */
+	public AnnotationTreeNode convert2AnnotationTreeNode(TreeNode tree)
+	{
+		// if (tree == null)
+		// return null;
+		// if (tree.isLeaf())
+		// return tree;
+		// tree.setNewName(String.valueOf(this.symbolIntValue(tree.getNodeName())));
+		// for (int child = 0; child < tree.getChildrenNum(); child++)
+		// {
+		// replaceTreeNodeName(tree.getChild(child));
+		// }
+
+		return AnnotationTreeNode.getInstance(tree, nonterminalTable);
 	}
 }
