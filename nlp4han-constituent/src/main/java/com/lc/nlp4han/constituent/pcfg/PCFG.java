@@ -19,14 +19,20 @@ public class PCFG extends CFG
 	{
 
 	}
-
-	public PCFG(String startSymbol, Set<String> nonTerminalSet, Set<String> terminalSet,
+   
+	public PCFG(String startSymbol, Set<String> nonTerminalSet, Set<String> terminalSet,HashMap<String,Double> posMap,
 			HashMap<String, HashSet<RewriteRule>> ruleMapStartWithlhs,
 			HashMap<ArrayList<String>, HashSet<RewriteRule>> ruleMapStartWithrhs)
 	{
-		super(startSymbol,nonTerminalSet,terminalSet,ruleMapStartWithlhs,ruleMapStartWithrhs);
+		super(startSymbol,nonTerminalSet,terminalSet,posMap,ruleMapStartWithlhs,ruleMapStartWithrhs);
 	}
-
+	
+	public PCFG(String startSymbol, HashMap<String, Double> posMap, Set<String> nonTerminalSet, Set<String> terminalSet,
+			Set<RewriteRule> ruleSet)
+	{
+		super(startSymbol, posMap,nonTerminalSet, terminalSet,ruleSet);
+	}
+	
 	public PCFG(InputStream in, String encoding) throws IOException
 	{
 		super.readGrammar(in, encoding);
@@ -35,6 +41,10 @@ public class PCFG extends CFG
 	protected RewriteRule readRule(String ruleStr)
 	{
 		return new PRule(ruleStr);
+	}
+	
+	public double getPosPro(String pos) {
+		return super.posMap.get(pos);
 	}
 
 	/**

@@ -55,6 +55,7 @@ public class GrammarExtractor
 	private static CFG brackets2Grammar(ArrayList<String> bracketStrList, String type) throws IOException
 	{
 		HashMap<PRule, Integer> ruleCounter = null;
+		HashMap<String,Integer> posMap=new HashMap<String,Integer>();
 		CFG grammar = null;
 		if (type.contains("P"))
 		{
@@ -69,21 +70,21 @@ public class GrammarExtractor
 		for (String bracketStr : bracketStrList)
 		{
 			TreeNode rootNode1 = BracketExpUtil.generateTree(bracketStr);
-			traverse(rootNode1, grammar, ruleCounter);
+			traverse(rootNode1, grammar, ruleCounter,posMap);
 		}
 
 		if (type.contains("P"))
 		{
 			ComputeProOfRule(grammar, ruleCounter);
 		}
-
+        grammar.setPosMap(getProMap(posMap,type));
 		return grammar;
 	}
 
 	/**
 	 * 遍历树得到基本文法
 	 */
-	private static void traverse(TreeNode node, CFG grammar, HashMap<PRule, Integer> ruleCounter)
+	private static void traverse(TreeNode node, CFG grammar, HashMap<PRule, Integer> ruleCounter,HashMap<String,Integer> posMap)
 	{
 		if (grammar.getStartSymbol() == null)
 		{// 起始符提取
@@ -95,7 +96,16 @@ public class GrammarExtractor
 			grammar.addTerminal(node.getNodeName());// 终结符提取
 			return;
 		}
-
+        
+		if(node.getChildren().size()==1&&node.getChild(0).isLeaf()) //词性标注提取
+		{
+			String string=node.getNodeName();
+			if(posMap.keySet().contains(string)) {
+				posMap.put(string,posMap.get(string)+1);
+			}else {
+				posMap.put(string,1);
+			}
+		}
 		grammar.addNonTerminal(node.getNodeName());// 非终结符提取
 
 		if (node.getChildren() != null && node.getChildren().size() > 0)
@@ -111,7 +121,7 @@ public class GrammarExtractor
 
 			for (TreeNode node1 : node.getChildren())
 			{// 深度优先遍历
-				traverse(node1, grammar, ruleCounter);
+				traverse(node1, grammar, ruleCounter,posMap);
 			}
 		}
 	}
@@ -147,7 +157,30 @@ public class GrammarExtractor
 			}
 		}
 	}
-
+	/**
+	 * 由词性标注计数器得到词性标注概率
+	 * @param map
+	 * @return
+	 */
+	private static HashMap<String, Double> getProMap(HashMap<String, Integer> map,String type)
+	{
+		int sum = 0;
+		HashMap<String, Double> map1 = new HashMap<String, Double>();
+		for (String str : map.keySet())
+		{
+			sum += map.get(str);
+		}
+		for (String str : map.keySet())
+		{
+			if(!type.contains("P")) {
+				map1.put(str, 0.0);
+			}else {
+				double pro = 1.0 * map.get(str) / sum;
+				map1.put(str, pro);				
+			}
+		}
+		return map1;
+	}
 	/**
 	 * 由括号表达式列表直接得到PCFG
 	 */
