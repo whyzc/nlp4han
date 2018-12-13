@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class KMeans
 {
-	private static final int TIMES = 100;
+	private static final int TIMES = 5000;
 	
 	public static List<Group> run(List<Text> texts, int k)
 	{
@@ -52,7 +52,8 @@ public class KMeans
 			groups.add(g);
 		}
 		
-		for (int i=0 ; i<TIMES ; i++)
+		int iterationTimes = 0;
+		for (; iterationTimes<TIMES ; iterationTimes++)
 		{
 			for (int j=0 ; j<k ; j++)
 			{
@@ -76,17 +77,22 @@ public class KMeans
 			else
 				exitFlag = true;
 		}
+		
+		if (iterationTimes > TIMES)
+			System.out.println("共迭代："+ (iterationTimes-1) + "次");
+		else
+			System.out.println("共迭代："+ iterationTimes + "次");
 		return groups;
 	}
 	
 	private static int minDistanceGroup(Text t, List<Group> grps, DistanceCalculator d)
 	{
-		double min = Double.POSITIVE_INFINITY;
+		double min = -1;
 		int index = -1;
 		for (int i=0 ; i<grps.size() ; i++)
 		{
 			double distance = d.getDistance(t, grps.get(i));
-			if (distance < min)
+			if (distance > min)
 			{
 				min = distance;
 				index = i;
