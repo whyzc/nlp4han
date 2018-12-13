@@ -600,7 +600,7 @@ public class GrammarExtractor
 	// }
 	// }
 
-	public void normalizeBAndURule(Grammar g)
+	public static void normalizeBAndURule(Grammar g)
 	{
 		HashMap<Short, Double[]> sameHeadRuleScoreSum = new HashMap<Short, Double[]>();
 		for (short symbol = 0; symbol < g.getNumSymbol(); symbol++)
@@ -672,7 +672,7 @@ public class GrammarExtractor
 		}
 	}
 
-	public void normalizedPreTermianlRules(Grammar g)
+	public static void normalizedPreTermianlRules(Grammar g)
 	{
 		HashMap<Short, Double[]> sameHeadPRuleScoreSum = new HashMap<Short, Double[]>();
 		for (PreterminalRule preRule : g.getLexicon().getPreRules())
