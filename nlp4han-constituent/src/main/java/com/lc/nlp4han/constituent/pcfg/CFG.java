@@ -1,6 +1,8 @@
 package com.lc.nlp4han.constituent.pcfg;
 
 import java.io.BufferedReader;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -10,12 +12,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import com.lc.nlp4han.constituent.GrammarWritable;
+
 /**
  * 上下文无关文法
  * 
  * 包含：开始符，重写规则，非终结符集，终结符集
  */
-public class CFG
+public class CFG implements GrammarWritable
 {
 	private String startSymbol = null;
 	protected HashMap<String, Double> posMap = new HashMap<String, Double>();// 词性标注-概率映射
@@ -25,7 +29,6 @@ public class CFG
 
 	private HashMap<String, HashSet<RewriteRule>> LHS2Rules = new HashMap<String, HashSet<RewriteRule>>();// 以左部为key值的规则集map
 	private HashMap<ArrayList<String>, HashSet<RewriteRule>> RHS2Rules = new HashMap<ArrayList<String>, HashSet<RewriteRule>>();// 以规则右部为key值的规则集map
-
 	
 	/**
 	 * 构造函数,一步创建
@@ -540,5 +543,17 @@ public class CFG
 			}
 		}
 		return stb.toString();
+	}
+
+	@Override
+	public void write(DataOutput out) throws IOException
+	{
+		// 将文法模型的内容写入到out中
+	}
+
+	@Override
+	public void read(DataInput in) throws IOException
+	{	
+		// 从out中读入文法模型内容
 	}
 }
