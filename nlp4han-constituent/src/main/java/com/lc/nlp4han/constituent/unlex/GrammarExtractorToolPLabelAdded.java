@@ -9,10 +9,10 @@ import java.io.IOException;
  */
 public class GrammarExtractorToolPLabelAdded
 {
-	public static Grammar getGrammar(int rareWordThreshold, String trainFilePath, String encoding)
+	public static Grammar getGrammar(String trainFilePath, String encoding, int rareWordThreshold) throws IOException
 	{
-		GrammarExtractor gExtractor = new GrammarExtractor(trainFilePath, true, encoding, rareWordThreshold);
-		return gExtractor.getGrammar();
+		GrammarExtractor gExtractor = new GrammarExtractor();
+		return gExtractor.extractGrammarPLabelAdded(trainFilePath, encoding, rareWordThreshold);
 	}
 
 	public static void main(String[] args)
@@ -47,8 +47,8 @@ public class GrammarExtractorToolPLabelAdded
 		{
 			long start = System.currentTimeMillis();
 			System.out.println("开始提取初始文法");
-			Grammar g = GrammarExtractorToolPLabelAdded.getGrammar(Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainFilePath,
-					encoding);
+			Grammar g = GrammarExtractorToolPLabelAdded.getGrammar(trainFilePath, encoding,
+					Lexicon.DEFAULT_RAREWORD_THRESHOLD);
 			GrammarWriter.writeToFile(g, outputFilePath, true);
 			System.out.println("提取初始文法完毕");
 			long end = System.currentTimeMillis();
@@ -63,7 +63,7 @@ public class GrammarExtractorToolPLabelAdded
 
 	private static void usage()
 	{
-		System.out.println(GrammarExtractorToolLatentAnnotation.class.getName() + "\n"
+		System.out.println(GrammarExtractorToolPLabelAdded.class.getName() + "\n"
 				+ " -train <trainFile> -out <outFile>  [-encoing <encoding>]  ");
 	}
 

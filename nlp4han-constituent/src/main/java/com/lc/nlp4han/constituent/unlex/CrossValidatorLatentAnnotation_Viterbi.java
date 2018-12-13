@@ -17,7 +17,7 @@ import com.lc.nlp4han.ml.util.ObjectStream;
 public class CrossValidatorLatentAnnotation_Viterbi
 {
 	public void evaluate(ObjectStream<String> sentenceStream, int nFolds, ConstituentMeasure measure, int SMCycle,
-			double mergeRate, int EMIterations, double smoothRate, double pruneThreshold, boolean secondPrune,
+			double mergeRate, int EMIterations, double smooth, double pruneThreshold, boolean secondPrune,
 			boolean prior) throws IOException
 	{
 
@@ -35,9 +35,9 @@ public class CrossValidatorLatentAnnotation_Viterbi
 			{
 				treeBank.addTree(expression, false);
 			}
-			GrammarExtractor gExtractor = new GrammarExtractor(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
-			Grammar gLatent = gExtractor.getGrammar();
-			gLatent = GrammarTrainer.train(gLatent, treeBank, SMCycle, mergeRate, EMIterations, smoothRate);
+			GrammarExtractor gExtractor = new GrammarExtractor();
+			Grammar gLatent = gExtractor.extractGrammarLatentAnnotation(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD,
+					SMCycle, EMIterations, mergeRate, smooth);
 			System.out.println("训练学习时间：" + (System.currentTimeMillis() - start) + "ms");
 			long start2 = System.currentTimeMillis();
 			ConstituentParserLatentAnnotation_Viterbi parser = new ConstituentParserLatentAnnotation_Viterbi(gLatent,
@@ -107,7 +107,6 @@ public class CrossValidatorLatentAnnotation_Viterbi
 			if (args[i].equals("-em"))
 			{
 				EMIterations = Integer.parseInt(args[i + 1]);
-				GrammarTrainer.EMIterations = EMIterations;
 				i++;
 			}
 			if (args[i].equals("-smooth"))

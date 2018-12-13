@@ -145,7 +145,6 @@ public class EvaluatorLatentAnnotation_Viterbi extends Evaluator<ConstituentTree
 			if (args[i].equals("-em"))
 			{
 				iterations = Integer.parseInt(args[i + 1]);
-				GrammarTrainer.EMIterations = iterations;
 				i++;
 			}
 			if (args[i].equals("-pruneThreshold"))
