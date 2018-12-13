@@ -1,4 +1,4 @@
-package com.lc.nlp4han.constituent.pcfg;
+package com.lc.nlp4han.constituent.lex;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +11,7 @@ import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.lex.CTBPreprocessTool;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 
-public class NonterminalProUtil
+public class POSProUtil
 {
 	public static HashMap<String, Double> getNonterminalPro(String fileName, String enCoding) throws IOException
 	{

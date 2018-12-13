@@ -1,34 +1,42 @@
 package com.lc.nlp4han.constituent.lex;
+
 /**
  * 单词和词性标注的结合，或者只有词性作为统计数据存储的结构
+ * 
  * @author qyl
  *
  */
-public class WordAndPOS
+public class pos2Word
 {
-       private String word=null;
-       private String pos=null;
-   	public WordAndPOS(String word, String pos)
-   	{
-   		this.word = word;
-   		this.pos = pos;
-   	}
+	private String word = null;
+	private String pos = null;
+
+	public pos2Word(String word, String pos)
+	{
+		this.word = word;
+		this.pos = pos;
+	}
+
 	public String getWord()
 	{
 		return word;
 	}
+
 	public void setWord(String word)
 	{
 		this.word = word;
 	}
+
 	public String getPos()
 	{
 		return pos;
 	}
+
 	public void setPos(String pos)
 	{
 		this.pos = pos;
 	}
+
 	@Override
 	public int hashCode()
 	{
@@ -38,6 +46,7 @@ public class WordAndPOS
 		result = prime * result + ((word == null) ? 0 : word.hashCode());
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -47,7 +56,7 @@ public class WordAndPOS
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		WordAndPOS other = (WordAndPOS) obj;
+		pos2Word other = (pos2Word) obj;
 		if (pos == null)
 		{
 			if (other.pos != null)
@@ -64,9 +73,10 @@ public class WordAndPOS
 			return false;
 		return true;
 	}
+
 	@Override
 	public String toString()
 	{
-		return word+" "+pos;
-	}    
+		return word + " " + pos;
+	}
 }

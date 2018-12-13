@@ -12,7 +12,7 @@ import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYLoosePCNF;
 import com.lc.nlp4han.constituent.pcfg.ConstituentTreeStream;
 import com.lc.nlp4han.constituent.pcfg.PCFG;
-import com.lc.nlp4han.constituent.pcfg.TreeNodeUtil;
+import com.lc.nlp4han.constituent.TreeNodeUtil;
 import com.lc.nlp4han.ml.util.Evaluator;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;

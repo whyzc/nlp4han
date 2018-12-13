@@ -5,18 +5,18 @@ package com.lc.nlp4han.constituent.lex;
  * @author qyl
  *
  */
-public class RuleHeadChildGenerate  extends RuleCollins
+public class OccurenceHeadChild  extends OccurenceCollins
 {
 
 	private String headLabel = null;//中心节点标记
 	
-	public RuleHeadChildGenerate(String[] strs)
+	public OccurenceHeadChild(String[] strs)
 	{
 		super(strs[0], strs[1], strs[2]);
 		this.headLabel=strs[3];
 	}
 
-	public RuleHeadChildGenerate(String headLabel,String parentLabel, String headPOS, String headWord)
+	public OccurenceHeadChild(String headLabel,String parentLabel, String headPOS, String headWord)
 	{
 		super(parentLabel, headPOS, headWord);
         this.headLabel=headLabel;
@@ -50,7 +50,7 @@ public class RuleHeadChildGenerate  extends RuleCollins
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		RuleHeadChildGenerate other = (RuleHeadChildGenerate) obj;
+		OccurenceHeadChild other = (OccurenceHeadChild) obj;
 		if (headLabel == null)
 		{
 			if (other.headLabel != null)

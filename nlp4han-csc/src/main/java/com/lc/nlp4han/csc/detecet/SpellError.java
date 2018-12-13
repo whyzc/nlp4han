@@ -1,14 +1,10 @@
 package com.lc.nlp4han.csc.detecet;
 
 /**
- *<ul>
- *<li>Description: 句子中的一个拼写错误
- *<li>Company: HUST
- *<li>@author Sonly
- *<li>Date: 2017年10月20日
- *</ul>
+ * 句子中的一个拼写错误
  */
-public class SpellError {
+public class SpellError
+{
 
 	/**
 	 * 拼写错误的字
@@ -20,21 +16,25 @@ public class SpellError {
 	 */
 	private int location;
 
-	public SpellError(String character, int location) {
+	public SpellError(String character, int location)
+	{
 		this.character = character;
 		this.location = location;
 	}
-	
-	public int getLocation() {
+
+	public int getLocation()
+	{
 		return location;
 	}
 
-	public String getCharacter() {
+	public String getCharacter()
+	{
 		return character;
 	}
-	
+
 	@Override
-	public int hashCode() {
+	public int hashCode()
+	{
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((character == null) ? 0 : character.hashCode());
@@ -43,7 +43,8 @@ public class SpellError {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(Object obj)
+	{
 		if (this == obj)
 			return true;
 		if (obj == null)
@@ -51,10 +52,12 @@ public class SpellError {
 		if (getClass() != obj.getClass())
 			return false;
 		SpellError other = (SpellError) obj;
-		if (character == null) {
+		if (character == null)
+		{
 			if (other.character != null)
 				return false;
-		} else if (!character.equals(other.character))
+		}
+		else if (!character.equals(other.character))
 			return false;
 		if (location != other.location)
 			return false;
@@ -62,7 +65,8 @@ public class SpellError {
 	}
 
 	@Override
-	public String toString() {
-		return String.valueOf(location);
+	public String toString()
+	{
+		return character + "-" + String.valueOf(location);
 	}
 }

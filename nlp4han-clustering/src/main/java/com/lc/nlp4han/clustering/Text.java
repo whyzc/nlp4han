@@ -2,9 +2,9 @@ package com.lc.nlp4han.clustering;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,12 +42,17 @@ public class Text
 
 	public static List<Text> getTexts(String folderPath, boolean useDefaultName)
 	{
+		return getTexts(folderPath, useDefaultName, "UTF-8");
+	}
+	
+	public static List<Text> getTexts(String folderPath, boolean useDefaultName, String encoding)
+	{
 		List<Text> result = new ArrayList<Text>();
 		List<File> files = travaringFilesForLevelTraversal(folderPath);
 		
 		for (File file : files)
 		{
-			Text t = processingFile(file, useDefaultName);
+			Text t = processingFile(file, useDefaultName, encoding);
 			if (t != null)
 				result.add(t);
 		}
@@ -55,9 +60,15 @@ public class Text
 		return result;
 	}
 	
-	public void generateSample(SampleGenerator sg, FeatureGenerator fg)
+	/**
+	 * 生成Sample
+	 * @param sg 样本生成器
+	 * @param fg 特征生成器
+	 */
+	public void generateSample(FeatureGenerator fg)
 	{
-		this.sample = sg.getSample(this, fg);
+		List<Feature> fs = fg.getFeatures(this);
+		this.sample = new Sample(fs);
 	}
 
 	public Sample getSample()
@@ -130,17 +141,15 @@ public class Text
 	 * @param useDefaultName 是否使用默认名字
 	 * @param texts 存储生成的文本层文本
 	 */
-	private static Text processingFile(File f, boolean useDefaultName)
+	private static Text processingFile(File f, boolean useDefaultName, String encoding)
 	{
 		
 		StringBuffer content = new StringBuffer();
 		String tmp;
-		Reader read;
 		BufferedReader bufr;
 		try
 		{
-			read = new FileReader(f);
-			bufr = new BufferedReader(read);
+			bufr = new BufferedReader(new InputStreamReader(new FileInputStream(f), encoding));
 		
 			while ((tmp=bufr.readLine()) != null)
 			{
@@ -170,5 +179,51 @@ public class Text
 			return null;
 		
 	}
+
+
+	@Override
+	public String toString()
+	{
+		return "Text [name=" + name + ", content=" + content + "]";
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((content == null) ? 0 : content.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Text other = (Text) obj;
+		if (content == null)
+		{
+			if (other.content != null)
+				return false;
+		}
+		else if (!content.equals(other.content))
+			return false;
+		if (name == null)
+		{
+			if (other.name != null)
+				return false;
+		}
+		else if (!name.equals(other.name))
+			return false;
+		return true;
+	}
+	
+	
 
 }

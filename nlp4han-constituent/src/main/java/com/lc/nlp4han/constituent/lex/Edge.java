@@ -12,17 +12,28 @@ import java.util.Collections;
 public class Edge implements Comparable<Edge>
 {
 	private String label = null;
+	
+	// head儿子的非终结符符号
 	private String headLabel = null;
 	private String headWord = null;
 	private String headPOS = null;
+	
 	private int start = -1;
 	private int end = -1;
+	
+	// head左边距离特征
 	private Distance lc = null;
+	
+	// head右边距离特征
 	private Distance rc = null;
-	int coor = 0;
-	int pu = 0;
+  
+	private boolean coor = false;
+	private boolean pu = false;
+  
+    //边是否接受stop概率
 	private boolean stop = false;
 	private double pro = -1;
+  
 	private ArrayList<Edge> children = null;
 
 	public Edge()
@@ -47,7 +58,7 @@ public class Edge implements Comparable<Edge>
 
 	// 添加并列结构的构造方法
 	public Edge(String label, String headLabel, String headWord, String headPOS, int start, int end, Distance lc,
-			Distance rc, int coor, int pu, boolean stop, double pro, ArrayList<Edge> children)
+			Distance rc, boolean coor, boolean pu, boolean stop, double pro, ArrayList<Edge> children)
 	{
 		this.label = label;
 		this.headLabel = headLabel;
@@ -97,19 +108,19 @@ public class Edge implements Comparable<Edge>
 		int num = this.getChildren().size();
 		return this.getChildren().get(num - 1);
 	}
-
+	
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + coor;
+		result = prime * result + (coor ? 1231 : 1237);
 		result = prime * result + ((headLabel == null) ? 0 : headLabel.hashCode());
 		result = prime * result + ((headPOS == null) ? 0 : headPOS.hashCode());
 		result = prime * result + ((headWord == null) ? 0 : headWord.hashCode());
 		result = prime * result + ((label == null) ? 0 : label.hashCode());
 		result = prime * result + ((lc == null) ? 0 : lc.hashCode());
-		result = prime * result + pu;
+		result = prime * result + (pu ? 1231 : 1237);
 		result = prime * result + ((rc == null) ? 0 : rc.hashCode());
 		result = prime * result + (stop ? 1231 : 1237);
 		return result;
@@ -124,9 +135,11 @@ public class Edge implements Comparable<Edge>
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		
 		Edge other = (Edge) obj;
 		if (coor != other.coor)
 			return false;
+		
 		if (headLabel == null)
 		{
 			if (other.headLabel != null)
@@ -134,6 +147,7 @@ public class Edge implements Comparable<Edge>
 		}
 		else if (!headLabel.equals(other.headLabel))
 			return false;
+		
 		if (headPOS == null)
 		{
 			if (other.headPOS != null)
@@ -141,6 +155,7 @@ public class Edge implements Comparable<Edge>
 		}
 		else if (!headPOS.equals(other.headPOS))
 			return false;
+		
 		if (headWord == null)
 		{
 			if (other.headWord != null)
@@ -148,6 +163,7 @@ public class Edge implements Comparable<Edge>
 		}
 		else if (!headWord.equals(other.headWord))
 			return false;
+		
 		if (label == null)
 		{
 			if (other.label != null)
@@ -155,6 +171,7 @@ public class Edge implements Comparable<Edge>
 		}
 		else if (!label.equals(other.label))
 			return false;
+		
 		if (lc == null)
 		{
 			if (other.lc != null)
@@ -162,8 +179,10 @@ public class Edge implements Comparable<Edge>
 		}
 		else if (!lc.equals(other.lc))
 			return false;
+		
 		if (pu != other.pu)
 			return false;
+		
 		if (rc == null)
 		{
 			if (other.rc != null)
@@ -171,8 +190,10 @@ public class Edge implements Comparable<Edge>
 		}
 		else if (!rc.equals(other.rc))
 			return false;
+		
 		if (stop != other.stop)
 			return false;
+		
 		return true;
 	}
 
@@ -285,27 +306,27 @@ public class Edge implements Comparable<Edge>
 	{
 		this.children = children;
 	}
-
-	public int getCoor()
+	   
+	public boolean isCoor()
 	{
 		return coor;
 	}
 
-	public void setCoor(int coor)
+	public void setCoor(boolean coor)
 	{
 		this.coor = coor;
 	}
 
-	public int getPu()
+	public boolean isPu()
 	{
 		return pu;
 	}
 
-	public void setPu(int pu)
+	public void setPu(boolean pu)
 	{
 		this.pu = pu;
 	}
-    
+
 	@Override
 	public String toString()
 	{

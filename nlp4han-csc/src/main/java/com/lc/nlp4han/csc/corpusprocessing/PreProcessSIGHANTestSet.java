@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import com.lc.nlp4han.csc.detecet.SpellError;
-import com.lc.nlp4han.csc.util.FileOperator;
+import com.lc.nlp4han.csc.util.FileUtils;
 import com.lc.nlp4han.csc.util.Sentence;
 
 /**
@@ -36,8 +36,8 @@ public class PreProcessSIGHANTestSet {
 		String testFile = args[3];
 		String goldFile = args[4];
 		
-		HashMap<String, Sentence> tests = FileOperator.readTestFile(testInput, encoding);
-		HashMap<String, ArrayList<SpellError>> res = FileOperator.readGoldFile(goldInput, encoding);
+		HashMap<String, Sentence> tests = FileUtils.readTestFile(testInput, encoding);
+		HashMap<String, ArrayList<SpellError>> res = FileUtils.readGoldFile(goldInput, encoding);
 		
 		OutputStreamWriter test = new OutputStreamWriter(new FileOutputStream(new File(testFile)), encoding);
 		BufferedWriter testwriter = new BufferedWriter(test);

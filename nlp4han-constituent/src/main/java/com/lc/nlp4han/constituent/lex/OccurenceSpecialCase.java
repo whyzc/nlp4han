@@ -6,7 +6,7 @@ package com.lc.nlp4han.constituent.lex;
  * @author qyl
  *
  */
-public class RuleSpecialCase extends RuleCollins
+public class OccurenceSpecialCase extends OccurenceCollins
 {
 	private String CCPOS = null;// 并列结构中的连词的词性标注
 	private String CCword = null;// 连词
@@ -17,7 +17,7 @@ public class RuleSpecialCase extends RuleCollins
 	private String lheadPOS = null;// 并列结构左侧的中心词词性
 	private String rheadPOS = null;// 并列结构右侧的中心词词性
 
-	public RuleSpecialCase(String[] strs)
+	public OccurenceSpecialCase(String[] strs)
 	{
 		super(strs[0]);
 		this.CCPOS = strs[1];
@@ -30,7 +30,7 @@ public class RuleSpecialCase extends RuleCollins
 		this.rheadPOS = strs[8];
 	}
 
-	public RuleSpecialCase(String parentLabel, String cCPOS, String cCword, String leftLabel, String rightLabel,
+	public OccurenceSpecialCase(String parentLabel, String cCPOS, String cCword, String leftLabel, String rightLabel,
 			String lheadWord, String rheadWord, String lheadPOS, String rheadPOS)
 	{
 		super(parentLabel);
@@ -149,7 +149,7 @@ public class RuleSpecialCase extends RuleCollins
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		RuleSpecialCase other = (RuleSpecialCase) obj;
+		OccurenceSpecialCase other = (OccurenceSpecialCase) obj;
 		if (CCPOS == null)
 		{
 			if (other.CCPOS != null)

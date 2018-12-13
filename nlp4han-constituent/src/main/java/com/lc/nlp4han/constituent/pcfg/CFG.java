@@ -1,6 +1,8 @@
 package com.lc.nlp4han.constituent.pcfg;
 
 import java.io.BufferedReader;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -10,39 +12,77 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import com.lc.nlp4han.constituent.GrammarWritable;
+
 /**
  * 上下文无关文法
  * 
  * 包含：开始符，重写规则，非终结符集，终结符集
  */
-public class CFG
+public class CFG implements GrammarWritable
 {
 	private String startSymbol = null;
+	protected HashMap<String, Double> posMap = new HashMap<String, Double>();// 词性标注-概率映射
 	private Set<String> nonTerminalSet = new HashSet<String>();// 非终结符集
 	private Set<String> terminalSet = new HashSet<String>();// 终结符集
 	private Set<RewriteRule> ruleSet = new HashSet<RewriteRule>();// 规则集
-	
+
 	private HashMap<String, HashSet<RewriteRule>> LHS2Rules = new HashMap<String, HashSet<RewriteRule>>();// 以左部为key值的规则集map
 	private HashMap<ArrayList<String>, HashSet<RewriteRule>> RHS2Rules = new HashMap<ArrayList<String>, HashSet<RewriteRule>>();// 以规则右部为key值的规则集map
-
+	
 	/**
 	 * 构造函数,一步创建
 	 */
-	public CFG(String startSymbol, Set<String> nonTerminalSet, Set<String> terminalSet,
+	public CFG(String startSymbol, Set<String> nonTerminalSet, Set<String> terminalSet, HashMap<String, Double> posMap,
 			HashMap<String, HashSet<RewriteRule>> ruleMapStartWithlhs,
 			HashMap<ArrayList<String>, HashSet<RewriteRule>> ruleMapStartWithrhs)
 	{
 		this.startSymbol = startSymbol;
 		this.nonTerminalSet = nonTerminalSet;
 		this.terminalSet = terminalSet;
-		
+		this.posMap = posMap;
+
 		this.LHS2Rules = ruleMapStartWithlhs;
 		this.RHS2Rules = ruleMapStartWithrhs;
-		
+
 		for (String lhs : ruleMapStartWithlhs.keySet())
 		{
 			ruleSet.addAll(ruleMapStartWithlhs.get(lhs));
 		}
+		this.posMap=getPosSet(ruleSet);
+	}
+	
+	public CFG(String startSymbol, HashMap<String, Double> posMap, Set<String> nonTerminalSet, Set<String> terminalSet,
+			Set<RewriteRule> ruleSet, HashMap<String, HashSet<RewriteRule>> lHS2Rules,
+			HashMap<ArrayList<String>, HashSet<RewriteRule>> rHS2Rules)
+	{
+		this.startSymbol = startSymbol;
+		this.posMap = posMap;
+		this.nonTerminalSet = nonTerminalSet;
+		this.terminalSet = terminalSet;
+		this.ruleSet = ruleSet;
+		LHS2Rules = lHS2Rules;
+		RHS2Rules = rHS2Rules;
+	}
+    
+	
+    /**
+     * 构造时缺少LHS2Rules，RHS2Rules，并通过遍历ruleSet进行添加 
+     * @param startSymbol
+     * @param posMap
+     * @param nonTerminalSet
+     * @param terminalSet
+     * @param ruleSet
+     */
+	public CFG(String startSymbol, HashMap<String, Double> posMap, Set<String> nonTerminalSet, Set<String> terminalSet,
+			Set<RewriteRule> ruleSet)
+	{
+		this.startSymbol = startSymbol;
+		this.posMap = posMap;
+		this.nonTerminalSet = nonTerminalSet;
+		this.terminalSet = terminalSet;
+		for(RewriteRule rule : ruleSet)
+			add(rule);
 	}
 
 	/**
@@ -91,7 +131,7 @@ public class CFG
 		{
 			setStartSymbol(buffer.readLine().trim());
 		}
-		
+
 		buffer.readLine();
 		str = buffer.readLine().trim();
 		while (!str.equals("--终结符集--"))
@@ -99,26 +139,34 @@ public class CFG
 			addNonTerminal(str);
 			str = buffer.readLine().trim();
 		}
-		
+
 		str = buffer.readLine();
-		while (!str.equals("--规则集--"))
+		while (!str.equals("--词性标注映射--"))
 		{
 			addTerminal(str);
 			str = buffer.readLine().trim();
 		}
-		
+
+		str = buffer.readLine().trim();
+		while (!str.equals("--规则集--"))
+		{
+			String[] pos = str.split("=");
+			posMap.put(pos[0], Double.parseDouble(pos[1]));
+			str = buffer.readLine().trim();
+		}
+
 		str = buffer.readLine();
 		while (str != null)
 		{
-			str = str.trim();		
+			str = str.trim();
 			add(readRule(str));
 
 			str = buffer.readLine();
 		}
-		
+
 		buffer.close();
 	}
-	
+
 	protected RewriteRule readRule(String ruleStr)
 	{
 		return new RewriteRule(ruleStr);
@@ -131,12 +179,12 @@ public class CFG
 	{
 
 	}
-
 	/**
-	 * 判断是否为CNF
+	 * 判断是否为CNF,将词性标注作为解析规则的最底层
 	 */
-	public boolean isCNF()
+	public boolean IsCNF()
 	{
+		Set<String> set = posMap.keySet();
 		boolean isCNF = true;
 		for (RewriteRule rule : ruleSet)
 		{
@@ -146,7 +194,7 @@ public class CFG
 				isCNF = false;
 				break;
 			}
-			
+
 			if (list.size() == 2)
 			{
 				for (String string : list)
@@ -158,58 +206,58 @@ public class CFG
 					}
 				}
 			}
-			
+
 			if (list.size() == 1)
 			{
-				if (nonTerminalSet.contains(list.get(0)))
+				String string = list.get(0);
+				if (!set.contains(string) && !terminalSet.contains(string))
 				{
 					isCNF = false;
 					break;
 				}
 			}
 		}
-		
+
 		return isCNF;
 	}
-	
+
 	/**
 	 * 判断文法是宽松CNF文法
 	 * 
 	 * 宽松CNF文法允许A->B
 	 */
-	public boolean isLooseCNF()
+	public boolean isLosseCNF()
 	{
-		boolean isLooseCNF = true;
+		boolean isLosseCNF = true;
 		for (RewriteRule rule : ruleSet)
 		{
 			ArrayList<String> list = rule.getRhs();
 			if (list.size() >= 3)
 			{
-				isLooseCNF = false;
+				isLosseCNF = false;
 				break;
 			}
-			
+
 			if (list.size() == 2)
 			{
 				for (String string : list)
 				{
 					if (!nonTerminalSet.contains(string))
 					{
-						isLooseCNF = false;
+						isLosseCNF = false;
 						break;
 					}
 				}
 			}
 		}
-		
-		return isLooseCNF;
+		return isLosseCNF;
 	}
-	
+
 	public boolean isNoTerminal(String symbol)
 	{
 		return nonTerminalSet.contains(symbol);
 	}
-	
+
 	public boolean isTerminal(String symbol)
 	{
 		return terminalSet.contains(symbol);
@@ -245,11 +293,6 @@ public class CFG
 		this.terminalSet = terminalSet;
 	}
 
-	public HashMap<String, HashSet<RewriteRule>> getLHS2Rules()
-	{
-		return LHS2Rules;
-	}
-
 	public void setLHS2Rules(HashMap<String, HashSet<RewriteRule>> lHS2Rules)
 	{
 		LHS2Rules = lHS2Rules;
@@ -269,7 +312,24 @@ public class CFG
 	{
 		this.ruleSet = ruleSet;
 	}
-
+   /**
+    * CFG专用，从规则集中得到词性标注集
+    * @param ruleSet
+    * @return
+    */
+	private HashMap<String,Double> getPosSet(Set<RewriteRule> ruleSet) {
+		HashMap<String,Double> posMap1=new HashMap<String,Double>();
+		HashSet<String> posSet=new HashSet<String>();
+		for(RewriteRule rule:ruleSet) {
+			if(rule.getRhs().size()==1&&terminalSet.contains(rule.getRhs().get(0))) {
+				posSet.add(rule.getLhs());
+			}
+		}
+		for(String pos:posSet) {
+			posMap1.put(pos, 0.0);
+		}
+		return posMap1;
+	}
 	/**
 	 * 添加单个规则
 	 */
@@ -286,7 +346,7 @@ public class CFG
 			set.add(rule);
 			LHS2Rules.put(rule.getLhs(), set);
 		}
-		
+
 		if (RHS2Rules.keySet().contains(rule.getRhs()))
 		{
 			RHS2Rules.get(rule.getRhs()).add(rule);
@@ -363,8 +423,26 @@ public class CFG
 		{
 			list.add(string);
 		}
-		
+
 		return RHS2Rules.get(list);
+	}
+
+	/**
+	 * 得到词性标注集合
+	 * 
+	 * @return
+	 */
+	public HashSet<String> getPosSet()
+	{
+		return new HashSet<String>(posMap.keySet());
+	}
+
+	/**
+	 * 设置词性标注的集合及对应的概率
+	 */
+	public void setPosMap(HashMap<String, Double> posMap)
+	{
+		this.posMap = posMap;
 	}
 
 	@Override
@@ -388,9 +466,9 @@ public class CFG
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		
+
 		CFG other = (CFG) obj;
-		
+
 		if (nonTerminalSet == null)
 		{
 			if (other.nonTerminalSet != null)
@@ -398,7 +476,7 @@ public class CFG
 		}
 		else if (!nonTerminalSet.equals(other.nonTerminalSet))
 			return false;
-		
+
 		if (ruleSet == null)
 		{
 			if (other.ruleSet != null)
@@ -406,7 +484,7 @@ public class CFG
 		}
 		else if (!ruleSet.equals(other.ruleSet))
 			return false;
-		
+
 		if (startSymbol == null)
 		{
 			if (other.startSymbol != null)
@@ -414,7 +492,7 @@ public class CFG
 		}
 		else if (!startSymbol.equals(other.startSymbol))
 			return false;
-		
+
 		if (terminalSet == null)
 		{
 			if (other.terminalSet != null)
@@ -422,7 +500,7 @@ public class CFG
 		}
 		else if (!terminalSet.equals(other.terminalSet))
 			return false;
-		
+
 		return true;
 	}
 
@@ -447,6 +525,12 @@ public class CFG
 			stb.append(itr2.next() + '\n');
 		}
 
+		stb.append("--词性标注映射--" + '\n');
+		for (String string : posMap.keySet())
+		{
+			stb.append(string + "=" + posMap.get(string) + '\n');
+		}
+
 		stb.append("--规则集--" + '\n');
 		Set<String> set = LHS2Rules.keySet();
 		for (String string : set)
@@ -459,5 +543,17 @@ public class CFG
 			}
 		}
 		return stb.toString();
+	}
+
+	@Override
+	public void write(DataOutput out) throws IOException
+	{
+		// 将文法模型的内容写入到out中
+	}
+
+	@Override
+	public void read(DataInput in) throws IOException
+	{	
+		// 从out中读入文法模型内容
 	}
 }

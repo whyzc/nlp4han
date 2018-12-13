@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.nlp4han.coref.hobbs.NPHeadRuleSetPTB;
-
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.TreeNodeUtil;
@@ -311,7 +309,7 @@ public class Entity implements Comparable<Entity>
 		TreeNode tmp;
 		if (node.getNodeName().equals("NP"))
 		{
-			tmp = TreeNodeUtil.getHead(node, NPHeadRuleSetPTB.getNPRuleSet());
+			tmp = TreeNodeUtil.getHead(node);
 		}
 		else
 			tmp = node;

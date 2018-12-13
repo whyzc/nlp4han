@@ -1,7 +1,6 @@
 package com.lc.nlp4han.constituent.pcfg;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import com.lc.nlp4han.constituent.ConstituentMeasure;
 import com.lc.nlp4han.constituent.ConstituentTree;
@@ -11,7 +10,7 @@ import com.lc.nlp4han.ml.util.ObjectStream;
 
 public class CKYEvalTool
 {
-	public static void main(String[] args) throws IOException
+	public static void main(String[] args) throws IOException, ClassNotFoundException
 	{
 		if (args.length < 1)
 		{
@@ -24,6 +23,7 @@ public class CKYEvalTool
 		double pruneThreshold=0.0001;
 		boolean secondPrune=false;
 		boolean prior=false;
+		boolean segmentPrune=false;
 		for (int i = 0; i < args.length; i++)
 		{
 			if (args[i].equals("-model"))
@@ -56,14 +56,19 @@ public class CKYEvalTool
 				prior = Boolean.parseBoolean(args[i + 1]);
 				i++;
 			}
+			else if (args[i].equals("-segmentPrune"))
+			{
+				segmentPrune = Boolean.parseBoolean(args[i + 1]);
+				i++;
+			}
 		}
-		eval(trainFile, goldFile, encoding,pruneThreshold,secondPrune,prior);
+		eval(trainFile, goldFile, encoding,pruneThreshold,secondPrune,prior,segmentPrune);
 	}
 
-	public static void eval(String trainFile, String goldFile, String encoding,double pruneThreshold,boolean secondPrune,boolean prior) throws IOException
+	public static void eval(String trainFile, String goldFile, String encoding,double pruneThreshold,boolean secondPrune,boolean prior,boolean segmentPrune) throws IOException, ClassNotFoundException
 	{
-		PCFG p2nf = new PCFG(new FileInputStream(new File(trainFile)), encoding);
-		CKYParserEvaluator evaluator = new CKYParserEvaluator(p2nf,pruneThreshold,secondPrune,prior);
+		PCFG pcnf =(PCFG) CFGModelIOUtil.loadModel(trainFile); 
+		CKYParserEvaluator evaluator = new CKYParserEvaluator(pcnf,"pcnf",pruneThreshold,secondPrune,prior,segmentPrune);
 		
 		ConstituentMeasure measure = new ConstituentMeasure();
 		evaluator.setMeasure(measure);

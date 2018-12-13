@@ -1,11 +1,10 @@
 package com.lc.nlp4han.constituent.pcfg;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Scanner;
 import java.util.Set;
@@ -184,18 +183,17 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 			// 添加先验概率
 			if (prior)
 			{
-				PCFGPrior pcp = (PCFGPrior) pcnf;
-				HashMap<String, Double> map1 = pcp.getPriorMap();
+				HashSet<String> posSet=pcnf.getPosSet();
 				if (str.contains("@"))
 				{
 					String strs[] = str.split("@");
 					for (String str0 : strs)
 					{
-						if (!map1.keySet().contains(str0))
+						if (!posSet.contains(str0))
 						{
 							break;
 						}
-						pro *= map1.get(str0);
+						pro *= pcnf.getPosPro(str0);
 					}
 				}
 				else if (str.contains("&"))
@@ -203,11 +201,11 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 					String strs[] = str.split("&");
 					for (String str0 : strs)
 					{
-						if (!map1.keySet().contains(str0))
+						if (!posSet.contains(str0))
 						{
 							break;
 						}
-						pro *= map1.get(str0);
+						pro *= pcnf.getPosPro(str0);
 					}
 				}
 			}
@@ -557,9 +555,9 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 		}
 	}
 	
-	public static void main(String[] args) throws IOException
+	public static void main(String[] args) throws IOException, ClassNotFoundException
 	{
-		PCFG p2nf = new PCFG(new FileInputStream(new File(args[0])), args[1]);
+		PCFG p2nf = (PCFG) CFGModelIOUtil.loadModel(args[0]); 
 		
 		double pruneThreshold = 0.0001;//Double.parseDouble(args[2]);
 		boolean secondPrune = false;//Boolean.getBoolean(args[3]);

@@ -31,7 +31,7 @@ public class WordSegFactory
 		if(wordSegmenter != null)
 			return wordSegmenter;
 		
-		String modelName = "com/lc/nlp4han/segment/ws-pku-gb.model";
+		String modelName = "com/lc/nlp4han/segment/ctb8-seg.model";
 
 		InputStream modelIn = WordSegFactory.class.getClassLoader().getResourceAsStream(modelName);
 		ModelWrapper model = new ModelWrapper(modelIn);

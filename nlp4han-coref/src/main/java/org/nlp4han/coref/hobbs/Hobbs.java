@@ -62,8 +62,8 @@ public class Hobbs implements AnaphoraResolution
 		{
 			Path path = new Path(x, tmp);
 			candidateNodes = TreeNodeUtil.getNPNodeOnLeftOfPath(x, path);
-			filter.setFilteredNodes(candidateNodes);
-			filter.filter();
+//			filter.setFilteredNodes(candidateNodes);
+			filter.filter(candidateNodes);
 
 			if (!candidateNodes.isEmpty())
 			{ // 若存在NP结点，并且在x和该候选结点间存在NP或IP结点，则返回该结点
@@ -72,7 +72,7 @@ public class Hobbs implements AnaphoraResolution
 				{
 					for (int k = 0; k < candidateNodes.size(); k++)
 					{
-						if (TreeNodeUtil.getHead(candidateNodes.get(k), NPHeadRuleSetPTB.getNPRuleSet()) != null)
+						if (TreeNodeUtil.getHead(candidateNodes.get(k)) != null)
 							return candidateNodes.get(k);
 					}
 				}
@@ -90,13 +90,13 @@ public class Hobbs implements AnaphoraResolution
 					break;
 				x = constituentTrees.get(index);
 				candidateNodes = TreeNodeUtil.getNPNodes(x);
-				filter.setFilteredNodes(candidateNodes);
-				filter.filter();
+//				filter.setFilteredNodes(candidateNodes);
+				filter.filter(candidateNodes);
 				if (!candidateNodes.isEmpty())
 				{
 					for (int k = 0; k < candidateNodes.size(); k++)
 					{
-						if (TreeNodeUtil.getHead(candidateNodes.get(k), NPHeadRuleSetPTB.getNPRuleSet()) != null)
+						if (TreeNodeUtil.getHead(candidateNodes.get(k)) != null)
 							return candidateNodes.get(k);
 					}
 				}
@@ -112,13 +112,13 @@ public class Hobbs implements AnaphoraResolution
 				}
 				
 				candidateNodes = TreeNodeUtil.getNPNodeOnLeftOfPath(x, path);
-				filter.setFilteredNodes(candidateNodes);
-				filter.filter();
+//				filter.setFilteredNodes(candidateNodes);
+				filter.filter(candidateNodes);
 				if (!candidateNodes.isEmpty())
 				{
 					for (int k = 0; k < candidateNodes.size(); k++)
 					{
-						if (TreeNodeUtil.getHead(candidateNodes.get(k), NPHeadRuleSetPTB.getNPRuleSet()) != null)
+						if (TreeNodeUtil.getHead(candidateNodes.get(k)) != null)
 							return candidateNodes.get(k);
 					}
 				}
@@ -126,13 +126,13 @@ public class Hobbs implements AnaphoraResolution
 				if (TreeNodeUtil.isIPNode(x))
 				{
 					candidateNodes = getNPNodeOnRightOfPath(x, path);
-					filter.setFilteredNodes(candidateNodes);
-					filter.filter();
+//					filter.setFilteredNodes(candidateNodes);
+					filter.filter(candidateNodes);
 					if (!candidateNodes.isEmpty())
 					{
 						for (int k = 0; k < candidateNodes.size(); k++)
 						{
-							if (TreeNodeUtil.getHead(candidateNodes.get(k), NPHeadRuleSetPTB.getNPRuleSet()) != null)
+							if (TreeNodeUtil.getHead(candidateNodes.get(k)) != null)
 								return candidateNodes.get(k);
 						}
 					}
@@ -235,7 +235,7 @@ public class Hobbs implements AnaphoraResolution
 			site_s1 = site_s2 = constituentTrees.indexOf(root1);
 			site_pron = leafSite(TreeNodeUtil.getString(pronoun), leaves);
 			site_ante = leafSite(
-					TreeNodeUtil.getString(TreeNodeUtil.getHead(antecedent, NPHeadRuleSetPTB.getNPRuleSet())), leaves);
+					TreeNodeUtil.getString(TreeNodeUtil.getHead(antecedent)), leaves);
 		}
 		else
 		{
@@ -245,12 +245,12 @@ public class Hobbs implements AnaphoraResolution
 			site_s2 = constituentTrees.indexOf(root2);
 			site_pron = leafSite(TreeNodeUtil.getString(pronoun), leaves1);
 			site_ante = leafSite(
-					TreeNodeUtil.getString(TreeNodeUtil.getHead(antecedent, NPHeadRuleSetPTB.getNPRuleSet())), leaves2);
+					TreeNodeUtil.getString(TreeNodeUtil.getHead(antecedent)), leaves2);
 		}
 
 		String nodeName_pron = TreeNodeUtil.getString(pronoun);
 		String nodeName_ante = TreeNodeUtil
-				.getString(TreeNodeUtil.getHead(antecedent, NPHeadRuleSetPTB.getNPRuleSet()));
+				.getString(TreeNodeUtil.getHead(antecedent));
 		String result = nodeName_pron + "(" + (site_s1 + 1) + "-" + (site_pron + 1) + ")" + CenteringBFP.SEPARATOR
 				+ nodeName_ante + "(" + (site_s2 + 1) + "-" + (site_ante + 1) + ")";
 
@@ -287,7 +287,7 @@ public class Hobbs implements AnaphoraResolution
 		{
 			if (filter == null)
 			{
-				AttributeFilter af = new AttributeFilter(new PNFilter(new NodeNameFilter())); // 组合过滤器
+				AttributeFilter af = new AttributeFilter(new PNFilter()); // 组合过滤器
 				af.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 				
 				filter = af;
@@ -311,7 +311,7 @@ public class Hobbs implements AnaphoraResolution
 	{
 		if (filter == null)
 		{
-			AttributeFilter af = new AttributeFilter(new PNFilter(new NodeNameFilter())); // 组合过滤器
+			AttributeFilter af = new AttributeFilter(new PNFilter()); // 组合过滤器
 			af.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 			
 			filter = af;

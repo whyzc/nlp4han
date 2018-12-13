@@ -35,6 +35,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.plaf.ColorUIResource;
 
+import com.lc.nlp4han.constituent.ConstituentParser;
+import com.lc.nlp4han.constituent.ConstituentTree;
+import com.lc.nlp4han.constituent.ParserFactory;
+import com.lc.nlp4han.pos.POSTagger;
+import com.lc.nlp4han.pos.POSTaggerFactory;
+import com.lc.nlp4han.segment.WordSegFactory;
+import com.lc.nlp4han.segment.WordSegmenter;
+
 
 /**
  * 短语结构树标注工具
@@ -67,6 +75,10 @@ public class TreeEditorTool
 	private static int NEXT = 0, PREV = -1;// 表示左右滑动
 
 //	private StanfordCoreNLP pipeline;
+	
+	private WordSegmenter segmenter;
+	private POSTagger tagger;
+	private ConstituentParser parser;
 
 	public void init()
 	{
@@ -541,6 +553,53 @@ public class TreeEditorTool
 
 			public void actionPerformed(ActionEvent e)
 			{
+				String text = editRawText.getText();
+				if (text.trim().length() != 0)
+				{			
+					try
+					{
+						segmenter = WordSegFactory.getWordSegmenter();
+						tagger = POSTaggerFactory.getPOSTagger();
+						parser = ParserFactory.getParser();
+					}
+					catch (IOException e1)
+					{
+						e1.printStackTrace();
+					}
+					
+					String[] words = segmenter.segment(text);
+					String[] poses = tagger.tag(words);
+					ConstituentTree tree = parser.parse(words, poses);
+					
+					String expressionofAlltrees = tree.toPrettyString();
+
+					System.out.println(expressionofAlltrees);
+
+					ArrayList<TreePanelNode> treeLists = TreePanelNode.fromTextToTree(expressionofAlltrees);
+					String sentencesofMultLines = "";
+					int count = 0;
+					for (TreePanelNode root : treeLists)
+					{
+						count++;
+						if (root.leafHasNoSibling() && root != null)
+							for (String word : root.changeIntoText())
+								sentencesofMultLines = sentencesofMultLines + word;
+						else
+							sentencesofMultLines = sentencesofMultLines + "第" + count + "个括号表达式格式错误。";
+
+						sentencesofMultLines = sentencesofMultLines + "\r\n";
+					}
+
+					editBracket.setText(sentencesofMultLines);
+
+				}
+
+				resetButtonstatus();
+
+				treePanel.setSelectedNodes(-1);
+				treePanel.initCombineNodes();
+				treePanel.repaint();
+				
 //				if (pipeline == null)
 //				{
 //					JOptionPane.showMessageDialog(frame, "首次装入句法分析模型", "消息提示框", JOptionPane.INFORMATION_MESSAGE);

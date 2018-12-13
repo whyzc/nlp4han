@@ -33,7 +33,7 @@ public class TestHobbs
 		constituentTrees.add(s1);
 		constituentTrees.add(s2);
 		
-		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter(new NodeNameFilter())); // 组合过滤器
+		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter()); // 组合过滤器
 		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		
 		Hobbs hobbs = new Hobbs(attributeFilter);
@@ -62,7 +62,7 @@ public class TestHobbs
 		constituentTrees.add(s1);
 		constituentTrees.add(s2);
 
-		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter(new NodeNameFilter())); // 组合过滤器
+		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter()); // 组合过滤器
 		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		
 		Hobbs hobbs = new Hobbs(attributeFilter);
@@ -88,7 +88,7 @@ public class TestHobbs
 		List<TreeNode> constituentTrees = new ArrayList<TreeNode>();
 		constituentTrees.add(s1);
 
-		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter(new NodeNameFilter())); // 组合过滤器
+		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter()); // 组合过滤器
 		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		
 		Hobbs hobbs = new Hobbs(attributeFilter);

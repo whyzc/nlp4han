@@ -6,6 +6,7 @@ import com.lc.nlp4han.constituent.ConstituentMeasure;
 import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
+import com.lc.nlp4han.constituent.TreeNodeUtil;
 import com.lc.nlp4han.constituent.lex.ConstituentParseLexPCFG;
 import com.lc.nlp4han.constituent.lex.LexPCFG;
 import com.lc.nlp4han.ml.util.Evaluator;
@@ -40,9 +41,14 @@ public class CKYParserEvaluator extends Evaluator<ConstituentTree>
 		this.cky = cky;
 	}
 
-	public CKYParserEvaluator(PCFG p2nf, double pruneThreshold, boolean secondPrune,boolean prior)
+	public CKYParserEvaluator(PCFG pcnf, String type,double pruneThreshold, boolean secondPrune,boolean prior,boolean segmentPrune)
 	{
-		this.cky = new ConstituentParserCKYLoosePCNF(p2nf, pruneThreshold, secondPrune,prior);
+		if(type.equals("pcnf")) {
+			this.cky = new ConstituentParserCKYPCNF(pcnf, pruneThreshold, secondPrune,prior);			
+		}else {
+			this.cky = new ConstituentParserCKYLoosePCNF(pcnf, pruneThreshold, secondPrune,prior);
+		}
+
 	}
 
 	public CKYParserEvaluator(LexPCFG lexpcfg, double pruneThreshold, boolean secondPrune,boolean prior)

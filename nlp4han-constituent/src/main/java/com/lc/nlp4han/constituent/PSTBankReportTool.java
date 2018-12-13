@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.HashSet;
 
 import com.lc.nlp4han.constituent.PlainTextByTreeStream;
-import com.lc.nlp4han.constituent.pcfg.TreeNodeUtil;
+import com.lc.nlp4han.constituent.TreeNodeUtil;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 
 /**

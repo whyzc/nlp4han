@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import com.lc.nlp4han.constituent.ConstituentMeasure;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
-import com.lc.nlp4han.constituent.pcfg.TreeNodeUtil;
+import com.lc.nlp4han.constituent.TreeNodeUtil;
 import com.lc.nlp4han.ml.util.Evaluator;
 import com.lc.nlp4han.constituent.PlainTextByTreeStream;
 import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYLoosePCNF;

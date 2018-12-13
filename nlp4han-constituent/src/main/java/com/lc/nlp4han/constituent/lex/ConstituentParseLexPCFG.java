@@ -9,9 +9,16 @@ import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
 
+/**
+ * 词汇化PCFG句法解析器
+ * 
+ * 依据Collins1999论文实现
+ * 
+ *
+ */
 public class ConstituentParseLexPCFG implements ConstituentParser
 {
-	private boolean coorAndPc = false;// 判断是否处理并列结构及标点符号
+	private boolean coorAndPc = false;// 是否处理并列结构及标点符号
 	private LexNode[][] chart = null;
 	private LexPCFG lexpcfg = null;
 	private double pruneThreshold;
@@ -335,7 +342,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	{
 		double pruneThreshold1 = pruneThreshold;
 		int num = n / 20;
-		while (pruneThreshold1 < 0.01 && num >= 1)
+		while (pruneThreshold1 < 0.001 && num >= 1)
 		{
 			pruneThreshold1 *= 10;
 			num--;
@@ -434,7 +441,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 */
 	private void addSingle(Edge edge, ArrayList<Edge> tempEdgeList)
 	{
-		RuleHeadChildGenerate rhcg = new RuleHeadChildGenerate(edge.getLabel(), null, edge.getHeadPOS(), null);
+		OccurenceHeadChild rhcg = new OccurenceHeadChild(edge.getLabel(), null, edge.getHeadPOS(), null);
 		// RuleHeadChildGenerate rhcg = new RuleHeadChildGenerate(edge.getLabel(), null,
 		// null, null);
 		HashSet<String> parentSet = lexpcfg.getParentSet(rhcg);
@@ -451,6 +458,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 			int start = edge.getStart();
 			int end = edge.getEnd();
 			rhcg.setParentLabel(str);
+			rhcg.setHeadWord(edge.getHeadWord());
 			double pro = lexpcfg.getGeneratePro(rhcg, "head") * edge.getPro();
 
 			Edge e1 = new Edge(str, edge.getLabel(), edge.getHeadWord(), edge.getHeadPOS(), start, end, lc, rc, false,
@@ -497,23 +505,23 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	private void addStop(Edge edge, ArrayList<Edge> tempEdgeList)
 	{
 		// 若此边包含没有合并的并列结构或者顿号，则不添加stop
-		if (edge.getCoor() == 1 || edge.getPu() == 1)
+		if (edge.isCoor()|| edge.isPu())
 		{
 			return;
 		}
 		// 分别初始化两侧的stop规则
-		RuleStopGenerate rsg1 = new RuleStopGenerate(edge.getHeadLabel(), edge.getLabel(), edge.getHeadPOS(),
+		OccurenceStop rsg1 = new OccurenceStop(edge.getHeadLabel(), edge.getLabel(), edge.getHeadPOS(),
 				edge.getHeadWord(), 1, true, edge.getLc());
-		RuleStopGenerate rsg2 = new RuleStopGenerate(edge.getHeadLabel(), edge.getLabel(), edge.getHeadPOS(),
+		OccurenceStop rsg2 = new OccurenceStop(edge.getHeadLabel(), edge.getLabel(), edge.getHeadPOS(),
 				edge.getHeadWord(), 2, true, edge.getRc());
 
 		if (edge.getLabel().equals("NPB"))
 		{
 			Edge edge1 = edge.getFirstChild();
 			Edge edge2 = edge.getLastChild();
-			rsg1 = new RuleStopGenerate(edge1.getLabel(), edge.getLabel(), edge1.getHeadPOS(), edge1.getHeadWord(), 1,
+			rsg1 = new OccurenceStop(edge1.getLabel(), edge.getLabel(), edge1.getHeadPOS(), edge1.getHeadWord(), 1,
 					true, new Distance());
-			rsg2 = new RuleStopGenerate(edge2.getLabel(), edge.getLabel(), edge2.getHeadPOS(), edge.getHeadWord(), 2,
+			rsg2 = new OccurenceStop(edge2.getLabel(), edge.getLabel(), edge2.getHeadPOS(), edge.getHeadWord(), 2,
 					true, new Distance());
 		}
 		// 将原始概率与两侧规则的概率相乘得到新的概率
@@ -521,6 +529,10 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 		// 如果概率为零则不添加
 		if (pro == 0.0)
 		{
+			if(lexpcfg.getGeneratePro(rsg1, "stop")==0.0)
+				System.out.println("左侧rsg1="+" 父标记="+rsg1.getParentLabel()+"  中心孩子标记="+rsg1.getHeadLabel()+" 距离= "+rsg1.getDistance()+" 方向= "+rsg1.getDirection()+" 概率="+lexpcfg.getGeneratePro(rsg1, "stop"));
+			if(lexpcfg.getGeneratePro(rsg2, "stop")==0.0)
+				System.out.println("右侧rsg2="+" 父标记="+rsg2.getParentLabel()+"  中心孩子标记="+rsg2.getHeadLabel()+" 距离= "+rsg2.getDistance()+" 方向= "+rsg2.getDirection()+" 概率="+lexpcfg.getGeneratePro(rsg2, "stop"));
 			return;
 		}
 
@@ -582,7 +594,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	{
 		Edge edge;
 		Distance lc, rc;
-		RuleSidesGenerate rsg;
+		OccurenceSides rsg;
 		ArrayList<Edge> children = new ArrayList<Edge>();
 
 		// 动词集合
@@ -610,8 +622,8 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 			}
 			else
 			{
-				rsg = new RuleSidesGenerate(e1.getHeadLabel(), e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(),
-						direction, e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(), 0, 0, e1.getRc());
+				rsg = new OccurenceSides(e1.getHeadLabel(), e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(),
+						direction, e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(), false, false, e1.getRc());
 			}
 			pro = pro * lexpcfg.getGeneratePro(rsg, "sides");
 
@@ -646,8 +658,8 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 			}
 			else
 			{
-				rsg = new RuleSidesGenerate(e2.getHeadLabel(), e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(),
-						direction, e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(), 0, 0, e2.getLc());
+				rsg = new OccurenceSides(e2.getHeadLabel(), e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(),
+						direction, e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(), false, false, e2.getLc());
 			}
 			pro = pro * lexpcfg.getGeneratePro(rsg, "sides");
 
@@ -687,21 +699,21 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 * @param rsg
 	 * @return
 	 */
-	private RuleSidesGenerate disposeNPB(Edge e1, Edge e2, int direction)
+	private OccurenceSides disposeNPB(Edge e1, Edge e2, int direction)
 	{
-		RuleSidesGenerate rsg;
+		OccurenceSides rsg;
 		if (direction == 2)
 		{
 			Edge lastChild = e1.getLastChild();
-			rsg = new RuleSidesGenerate(lastChild.getLabel(), e1.getLabel(), lastChild.getHeadPOS(),
-					lastChild.getHeadWord(), direction, e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(), 0, 0,
+			rsg = new OccurenceSides(lastChild.getLabel(), e1.getLabel(), lastChild.getHeadPOS(),
+					lastChild.getHeadWord(), direction, e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(), false, false,
 					new Distance());
 		}
 		else
 		{
 			Edge firstChild = e2.getFirstChild();
-			rsg = new RuleSidesGenerate(firstChild.getLabel(), e2.getLabel(), firstChild.getHeadPOS(),
-					firstChild.getHeadWord(), direction, e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(), 0, 0,
+			rsg = new OccurenceSides(firstChild.getLabel(), e2.getLabel(), firstChild.getHeadPOS(),
+					firstChild.getHeadWord(), direction, e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(), false, false,
 					new Distance());
 		}
 		return rsg;
@@ -717,16 +729,16 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 * @param pro
 	 * @return
 	 */
-	private double disposeCoorAndPC(Edge e1, Edge e2, int direction, RuleSidesGenerate rsg, double pro)
+	private double disposeCoorAndPC(Edge e1, Edge e2, int direction, OccurenceSides rsg, double pro)
 	{
 		if (e1.getChildNum() >= 2 && !e1.getLabel().equals("NPB") && e1.getLastChild().getLabel().equals("CC")
 				&& e1.getLabel().equals(e1.getChildLabel(e1.getChildNum() - 2)) && e1.getLabel().equals(e2.getLabel()))
 		{
 			Edge lastChild = e1.getLastChild();
-			rsg = new RuleSidesGenerate(lastChild.getLabel(), e1.getLabel(), lastChild.getHeadPOS(),
-					lastChild.getHeadWord(), direction, e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(), 1, 0,
+			rsg = new OccurenceSides(lastChild.getLabel(), e1.getLabel(), lastChild.getHeadPOS(),
+					lastChild.getHeadWord(), direction, e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(), true, false,
 					e1.getRc());
-			RuleSpecialCase sg = new RuleSpecialCase(e1.getLabel(), lastChild.getHeadPOS(), lastChild.getHeadWord(),
+			OccurenceSpecialCase sg = new OccurenceSpecialCase(e1.getLabel(), lastChild.getHeadPOS(), lastChild.getHeadWord(),
 					e1.getChildLabel(e1.getChildNum() - 2), e2.getLabel(),
 					e1.getChild(e1.getChildNum() - 2).getHeadWord(), e2.getHeadWord(),
 					e1.getChild(e1.getChildNum() - 2).getHeadPOS(), e2.getHeadPOS());
@@ -750,7 +762,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 				&& e1.getLabel().equals(e1.getLastChild().getLabel()))
 		{
 			edge = new Edge(e1.getLabel(), e1.getHeadLabel(), e1.getHeadWord(), e1.getHeadPOS(), e1.getStart(),
-					e2.getEnd(), e1.getLc(), new Distance(false, e1.getRc().isCrossVerb()), 1, 0, false, e1.getPro(),
+					e2.getEnd(), e1.getLc(), new Distance(false, e1.getRc().isCrossVerb()), true, false, false, e1.getPro(),
 					children);
 		}
 		return edge;

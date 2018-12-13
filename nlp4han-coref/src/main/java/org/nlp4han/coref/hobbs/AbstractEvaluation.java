@@ -189,7 +189,7 @@ public abstract class AbstractEvaluation
 			if (ts.size() > 1)
 			{
 				//p1 = TreeNodeUtil.getAllLeafNodes(TreeNodeUtil.getHead(ponoun, NPHeadRuleSetPTB.getNPRuleSet())).get(0);
-				a1 = TreeNodeUtil.getAllLeafNodes(TreeNodeUtil.getHead(antecedent, NPHeadRuleSetPTB.getNPRuleSet())).get(0);
+				a1 = TreeNodeUtil.getAllLeafNodes(TreeNodeUtil.getHead(antecedent)).get(0);
 			}
 			else
 			{

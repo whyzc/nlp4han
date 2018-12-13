@@ -1,22 +1,27 @@
 package com.lc.nlp4han.constituent.lex;
 
 import java.util.HashMap;
-
+/**
+ * 添加词性标注的概率，并在解析时作为先验概率
+ * @author qyl
+ *
+ */
 public class LexPCFGPrior extends LexPCFG
 {
 	private HashMap<String, Double> priorMap = new HashMap<String, Double>();
 
-	public LexPCFGPrior(LexPCFG lexpcfg, HashMap<String, Double> priorMap)
+	public LexPCFGPrior()
 	{
-		super(lexpcfg.getStartSymbol(), lexpcfg.getPosSet(), lexpcfg.getWordMap(), lexpcfg.getPosesOfWord(),
-				lexpcfg.getHeadGenMap(), lexpcfg.getParentList(), lexpcfg.getSidesGeneratorMap(),
-				lexpcfg.getStopGenMap(), lexpcfg.getSpecialGenMap());
-		this.priorMap = priorMap;
 	}
 
 	public HashMap<String, Double> getPriorMap()
 	{
 		return priorMap;
+	}
+
+	public double getPosPro(String pos)
+	{
+		return priorMap.get(pos);
 	}
 
 	public void setPriorMap(HashMap<String, Double> priorMap)
