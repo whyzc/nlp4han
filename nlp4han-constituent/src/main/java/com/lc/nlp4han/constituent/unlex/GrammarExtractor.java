@@ -291,9 +291,10 @@ public class GrammarExtractor
 		treeBank.calIOScore(g);
 		double totalLSS = treeBank.calLogTreeBankSentenceSocre();
 		System.out.println("训练前树库似然值：" + totalLSS);
-		System.out.println("SMCycle:" + SMCycle);
+		System.out.println("SMCycle: " + SMCycle);
 		for (int i = 0; i < SMCycle; i++)
 		{
+			System.out.println("->SMCycle: #" + i);
 			System.err.println("开始分裂。");
 			GrammarSpliter.splitGrammar(g, treeBank);
 			EM(g, treeBank, EMIterations);
@@ -340,7 +341,7 @@ public class GrammarExtractor
 				// MStep完成
 				treeBank.calIOScore(g);
 				totalLSS = treeBank.calLogTreeBankSentenceSocre();
-				System.out.println("在本次EM迭代后树库的Log似然值：" + totalLSS);
+				System.out.println(i + "次EM迭代后树库的Log似然值：" + totalLSS);
 			}
 			calRuleExpectation(g, treeBank);
 			System.out.println("EM算法结束。");
