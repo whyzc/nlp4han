@@ -371,7 +371,6 @@ public class GrammarMerger
 		grammar.add(Cc);
 		grammar.add(Ee);
 		grammar.add(Ff);
-		grammar.init();
 
 		System.out.println("合并前");
 		grammar.printRules();
