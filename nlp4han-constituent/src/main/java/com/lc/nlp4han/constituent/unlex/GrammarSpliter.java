@@ -1,9 +1,7 @@
 package com.lc.nlp4han.constituent.unlex;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 
 /**
  * 分裂语法
@@ -22,7 +20,7 @@ public class GrammarSpliter
 		oldG.getNumSubsymbolArr().replaceAll(e -> Short.valueOf((short) (e * 2)));
 		oldG.getNumSubsymbolArr().set(oldG.symbolIntValue(oldG.getStartSymbol()), (short) 1);
 		// 让PreterminalRule概率归一化
-		GrammarTrainer.normalizedPreTermianlRules(oldG);
+		GrammarExtractor.normalizedPreTermianlRules(oldG);
 		for (AnnotationTreeNode tree : treeBank.getTreeBank())
 		{
 			splitTreeAnnotation(tree, oldG);
@@ -30,33 +28,35 @@ public class GrammarSpliter
 
 	}
 
-	public static void normalizedPreTermianlRules(Grammar g)
-	{
-		HashMap<Short, Double[]> sameHeadPRuleScoreSum = new HashMap<Short, Double[]>();
-		for (PreterminalRule preRule : g.getLexicon().getPreRules())
-		{
-			short parent = preRule.parent;
-			short nSubP = g.getNumSubSymbol(parent);
-			if (!sameHeadPRuleScoreSum.containsKey(preRule.getParent()))
-			{
-				sameHeadPRuleScoreSum.put(preRule.parent, new Double[g.getNumSubSymbol(preRule.getParent())]);
-			}
-			for (short i = 0; i < nSubP; i++)
-			{
-				if (sameHeadPRuleScoreSum.get(preRule.parent)[i] == null)
-				{
-					double tag_iScoreSum = 0.0;
-					for (Map.Entry<PreterminalRule, PreterminalRule> entry : g.getPreRuleBySameHead()
-							.get(preRule.parent).entrySet())
-					{
-						tag_iScoreSum += entry.getValue().getScore(i);
-					}
-					sameHeadPRuleScoreSum.get(preRule.parent)[i] = tag_iScoreSum;
-				}
-				preRule.setScore(i, preRule.getScore(i) / sameHeadPRuleScoreSum.get(preRule.parent)[i]);
-			}
-		}
-	}
+	// public static void normalizedPreTermianlRules(Grammar g)
+	// {
+	// HashMap<Short, Double[]> sameHeadPRuleScoreSum = new HashMap<Short,
+	// Double[]>();
+	// for (PreterminalRule preRule : g.getLexicon().getPreRules())
+	// {
+	// short parent = preRule.parent;
+	// short nSubP = g.getNumSubSymbol(parent);
+	// if (!sameHeadPRuleScoreSum.containsKey(preRule.getParent()))
+	// {
+	// sameHeadPRuleScoreSum.put(preRule.parent, new
+	// Double[g.getNumSubSymbol(preRule.getParent())]);
+	// }
+	// for (short i = 0; i < nSubP; i++)
+	// {
+	// if (sameHeadPRuleScoreSum.get(preRule.parent)[i] == null)
+	// {
+	// double tag_iScoreSum = 0.0;
+	// for (PreterminalRule theRule : g.getPreRuleSetBySameHead(preRule.parent))
+	// {
+	// tag_iScoreSum += theRule.getScore(i);
+	// }
+	// sameHeadPRuleScoreSum.get(preRule.parent)[i] = tag_iScoreSum;
+	// }
+	// preRule.setScore(i, preRule.getScore(i) /
+	// sameHeadPRuleScoreSum.get(preRule.parent)[i]);
+	// }
+	// }
+	// }
 
 	private static <T extends Rule> void splitRule(HashSet<T> rules)
 	{
@@ -72,7 +72,7 @@ public class GrammarSpliter
 			return;
 		if (tree.isLeaf())
 			return;
-		if (!(tree.getLabel().getSymbol() == g.getNonterminalTable().intValue("ROOT")))
+		if (!(tree.getLabel().getSymbol() == g.symbolIntValue(g.getStartSymbol())))
 			tree.getLabel().setNumSubSymbol((short) (g.getNumSubSymbol(tree.getLabel().getSymbol())));
 
 		for (AnnotationTreeNode child : tree.getChildren())

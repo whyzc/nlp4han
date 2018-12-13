@@ -35,12 +35,13 @@ public class CrossValidatorLatentAnnotation_foolish
 				treeBank.addTree(expression, false);
 				treeBank2.addTree(expression, false);
 			}
-			GrammarExtractor gExtractor = new GrammarExtractor(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
-			Grammar g = gExtractor.getGrammar();
+			GrammarExtractor gExtractor = new GrammarExtractor();
+			Grammar g = gExtractor.extractGrammarLatentAnnotation(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD, 0, 50,
+					0.5, 0.01);
 			PCFG pcfg = g.getPCFG();
-			GrammarExtractor gExtractor2 = new GrammarExtractor(treeBank2, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
-			Grammar gLatent = gExtractor2.getGrammar();
-			gLatent = GrammarTrainer.train(gLatent, treeBank2, 1, 0.5, 50, 0.01);
+			GrammarExtractor gExtractor2 = new GrammarExtractor();
+			Grammar gLatent = gExtractor2.extractGrammarLatentAnnotation(treeBank2, Lexicon.DEFAULT_RAREWORD_THRESHOLD,
+					1, 50, 0.5, 0.01);
 			System.out.println("训练学习时间：" + (System.currentTimeMillis() - start) + "ms");
 			long start2 = System.currentTimeMillis();
 			ConstituentParserCKYLoosePCNF p2nf = new ConstituentParserCKYLoosePCNF(pcfg, pruneThreshold, secondPrune,

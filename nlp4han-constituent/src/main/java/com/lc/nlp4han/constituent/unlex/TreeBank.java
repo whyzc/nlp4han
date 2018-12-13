@@ -144,8 +144,7 @@ public class TreeBank
 			Double[] innerScores = new Double[length];
 			if (g.getLexicon().getPreRules().contains(tempPreRule))
 			{
-
-				tempPreRule = g.getPreRuleBySameHead().get(tree.getLabel().getSymbol()).get(tempPreRule);
+				tempPreRule = g.getRule(tempPreRule);
 				for (short i = 0; i < innerScores.length; i++)
 				{
 					innerScores[i] = tempPreRule.getScore(i);
