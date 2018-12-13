@@ -669,16 +669,6 @@ public class Grammar
 	 */
 	public AnnotationTreeNode convert2AnnotationTreeNode(TreeNode tree)
 	{
-		// if (tree == null)
-		// return null;
-		// if (tree.isLeaf())
-		// return tree;
-		// tree.setNewName(String.valueOf(this.symbolIntValue(tree.getNodeName())));
-		// for (int child = 0; child < tree.getChildrenNum(); child++)
-		// {
-		// replaceTreeNodeName(tree.getChild(child));
-		// }
-
 		return AnnotationTreeNode.getInstance(tree, nonterminalTable);
 	}
 }

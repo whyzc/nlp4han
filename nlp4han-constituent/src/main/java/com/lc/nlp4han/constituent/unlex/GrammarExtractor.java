@@ -65,31 +65,6 @@ public class GrammarExtractor
 		return tallyInitialGrammar();
 	}
 
-	// public GrammarExtractor(String treeBankPath, boolean addParentLabel, String
-	// encoding, int rareWordThreshold)
-	// {
-	// try
-	// {
-	// treeBank = new TreeBank(treeBankPath, addParentLabel, encoding);
-	// }
-	// catch (IOException e1)
-	// {
-	// e1.printStackTrace();
-	// }
-	// initGrammarExtractor(rareWordThreshold);
-	//
-	// }
-	//
-	// public GrammarExtractor(TreeBank treeBank, int rareWordThreshold)
-	// {
-	// this.treeBank = treeBank;
-	// initGrammarExtractor(rareWordThreshold);
-	// }
-	//
-	// public GrammarExtractor()
-	// {
-	// }
-
 	/**
 	 * 
 	 * @return 初始语法
@@ -158,15 +133,6 @@ public class GrammarExtractor
 		intialG.setSubTag2UNKScores(subTag2UNKScores);
 		return intialG;
 	}
-
-	// public Grammar getGrammarUnlex(int SMCycle, double mergeRate, int
-	// EMIterations, double smooth)
-	// {
-	// Grammar g = tallyInitialGrammar();
-	// if (SMCycle != 0)
-	// GrammarTrainer.train(g, treeBank, SMCycle, mergeRate, EMIterations, smooth);
-	// return g;
-	// }
 
 	@SuppressWarnings("unchecked")
 	public void initGrammarExtractor()
@@ -332,10 +298,12 @@ public class GrammarExtractor
 			GrammarSpliter.splitGrammar(g, treeBank);
 			EM(g, treeBank, EMIterations);
 			System.err.println("分裂完成。");
+
 			System.err.println("开始合并。");
 			GrammarMerger.mergeGrammar(g, treeBank, mergeRate, ruleCounter);
 			EM(g, treeBank, EMIterations / 2);
 			System.err.println("合并完成。");
+
 			SmoothByRuleOfSameChild smoother = new SmoothByRuleOfSameChild(smooth);
 			System.err.println("开始平滑规则。");
 			smoother.smooth(g);
@@ -344,11 +312,11 @@ public class GrammarExtractor
 			EM(g, treeBank, EMIterations / 2);
 			System.err.println("平滑规则完成。");
 		}
-		if (SMCycle != 0)
-		{
-			double[][] subTag2UNKScores = calTag2UNKScores(g);
-			g.setSubTag2UNKScores(subTag2UNKScores);
-		}
+		// if (SMCycle != 0)
+		// {
+		// double[][] subTag2UNKScores = calTag2UNKScores(g);
+		// g.setSubTag2UNKScores(subTag2UNKScores);
+		// }
 		return g;
 	}
 
@@ -366,8 +334,7 @@ public class GrammarExtractor
 			for (int i = 0; i < iterations; i++)
 			{
 				// 重新计算规则的期望
-				// calRuleExpectation(g, treeBank);
-				calRuleExpectation2(g, treeBank);
+				calRuleExpectation(g, treeBank);
 				// EStep完成
 				recalculateRuleScore(g);
 				// MStep完成
@@ -384,16 +351,17 @@ public class GrammarExtractor
 
 	public void calRuleExpectation(Grammar g, TreeBank treeBank)
 	{
-		ruleCounter = new RuleCounter();
-		ruleCounter.calRuleExpectation(g, treeBank);
-	}
-
-	public void calRuleExpectation2(Grammar g, TreeBank treeBank)
-	{
+		// int count = 0;
+		// double start = System.currentTimeMillis();
 		ruleCounter = new RuleCounter();
 		for (AnnotationTreeNode tree : treeBank.getTreeBank())
 		{
 			refreshRuleCountExpectation(g, tree, tree);
+			// if (++count % 100 == 0)
+			// {
+			// double end = System.currentTimeMillis();
+			// System.out.println(count / (end - start) * 1000.0 + "/s");
+			// }
 		}
 		ruleCounter.calSameParentRulesExpectation(g);
 	}
@@ -829,15 +797,16 @@ public class GrammarExtractor
 					continue;
 				tempCount = rs / rootIS * scalingFactor * pOS;
 				count[i] = count[i] + tempCount;
-				if (g.isRareWord(rule.getWord()))
-				{
-					if (!ruleCounter.sameTagToUNKCounter.containsKey(pSymbol))
-					{
-						ruleCounter.sameTagToUNKCounter.put(pSymbol, new double[nSubP]);
-					}
-					ruleCounter.sameTagToUNKCounter.get(pSymbol)[i] = ruleCounter.sameTagToUNKCounter.get(pSymbol)[i]
-							+ tempCount;
-				}
+				// if (g.isRareWord(rule.getWord()))//这句对效率影响非常大，每次去ArrayList中调用contains（）
+				// {
+				// if (!ruleCounter.sameTagToUNKCounter.containsKey(pSymbol))
+				// {
+				// ruleCounter.sameTagToUNKCounter.put(pSymbol, new double[nSubP]);
+				// }
+				// ruleCounter.sameTagToUNKCounter.get(pSymbol)[i] =
+				// ruleCounter.sameTagToUNKCounter.get(pSymbol)[i]
+				// + tempCount;
+				// }
 			}
 		}
 		else if (tree.getChildren().size() > 2)
