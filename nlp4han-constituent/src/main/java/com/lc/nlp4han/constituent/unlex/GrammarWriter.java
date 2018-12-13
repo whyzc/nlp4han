@@ -44,9 +44,9 @@ public class GrammarWriter
 			{
 				bAndURulesBySameSubHead[i] = new HashMap<String, Double>();
 			}
-			if (gLatentA.getbRuleBySameHead().containsKey(symbol))
+			if (gLatentA.getbRuleSetBySameHead(symbol) != null)
 			{
-				for (BinaryRule bRule : gLatentA.getbRuleBySameHead().get(symbol).keySet())
+				for (BinaryRule bRule : gLatentA.getbRuleSetBySameHead(symbol))
 				{
 					String[] subRulesOfbRule = bRule.toStringRules(gLatentA);
 					int c = subRulesOfbRule.length / numSubSymbol;
@@ -60,14 +60,16 @@ public class GrammarWriter
 					}
 					for (Map.Entry<String, Double> entry : bRule.getParent_i_ScoceSum(gLatentA).entrySet())
 					{
-						sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(),
-								(score, newScore) -> score + newScore);
+						sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(), (newScore, score) ->
+						{
+							return score + newScore;
+						});
 					}
 				}
 			}
-			if (gLatentA.getuRuleBySameHead().containsKey(symbol))
+			if (gLatentA.getuRuleSetBySameHead(symbol) != null)
 			{
-				for (UnaryRule uRule : gLatentA.getuRuleBySameHead().get(symbol).keySet())
+				for (UnaryRule uRule : gLatentA.getuRuleSetBySameHead(symbol))
 				{
 					String[] subRuleOfuRule = uRule.toStringRules(gLatentA);
 					int c = subRuleOfuRule.length / numSubSymbol;
@@ -203,9 +205,9 @@ public class GrammarWriter
 		for (Short symbol : grammar.allNonterminalIntValArr())
 		{
 			Map<String, Rule> bAndURules = new TreeMap<>();
-			if (grammar.getbRuleBySameHead().containsKey(symbol))
+			if (grammar.getbRuleSetBySameHead(symbol) != null)
 			{
-				for (BinaryRule bRule : grammar.getbRuleBySameHead().get(symbol).keySet())
+				for (BinaryRule bRule : grammar.getbRuleSetBySameHead(symbol))
 				{
 					bAndURules.put(bRule.toStringIgnoreSubSymbol(grammar), bRule);
 					for (Map.Entry<String, Double> entry : bRule.getParent_i_ScoceSum(grammar).entrySet())
@@ -215,9 +217,9 @@ public class GrammarWriter
 					}
 				}
 			}
-			if (grammar.getuRuleBySameHead().containsKey(symbol))
+			if (grammar.getuRuleSetBySameHead(symbol) != null)
 			{
-				for (UnaryRule uRule : grammar.getuRuleBySameHead().get(symbol).keySet())
+				for (UnaryRule uRule : grammar.getuRuleSetBySameHead(symbol))
 				{
 					bAndURules.put(uRule.toStringIgnoreSubSymbol(grammar), uRule);
 					for (Map.Entry<String, Double> entry : uRule.getParent_i_ScoceSum(grammar).entrySet())

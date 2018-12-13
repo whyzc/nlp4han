@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
 
@@ -581,14 +582,38 @@ public class Grammar
 		return preRuleBySameHead;
 	}
 
-	public HashMap<Short, HashMap<BinaryRule, BinaryRule>> getbRuleBySameHead()
+	public Set<BinaryRule> getbRuleSetBySameHead(short parent)
 	{
-		return bRuleBySameHead;
+		if (bRuleBySameHead.containsKey(parent))
+			return bRuleBySameHead.get(parent).keySet();
+		else
+			return null;
 	}
 
-	public HashMap<Short, HashMap<UnaryRule, UnaryRule>> getuRuleBySameHead()
+	public BinaryRule getRule(BinaryRule tempBRule)
 	{
-		return uRuleBySameHead;
+		short parent = tempBRule.getParent();
+		if (bRuleBySameHead.containsKey(parent))
+			return bRuleBySameHead.get(parent).get(tempBRule);
+		else
+			return null;
+	}
+
+	public Set<UnaryRule> getuRuleSetBySameHead(short parent)
+	{
+		if (uRuleBySameHead.containsKey(parent))
+			return uRuleBySameHead.get(parent).keySet();
+		else
+			return null;
+	}
+
+	public UnaryRule getRule(UnaryRule tempURule)
+	{
+		short parent = tempURule.getParent();
+		if (uRuleBySameHead.containsKey(parent))
+			return uRuleBySameHead.get(parent).get(tempURule);
+		else
+			return null;
 	}
 
 	public NonterminalTable getNonterminalTable()
