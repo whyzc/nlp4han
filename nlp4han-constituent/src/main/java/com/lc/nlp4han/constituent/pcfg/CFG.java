@@ -545,15 +545,98 @@ public class CFG implements GrammarWritable
 		return stb.toString();
 	}
 
+	/**
+	 * 将CFG文法模型(二进制)的内容写入到out
+	 */
 	@Override
 	public void write(DataOutput out) throws IOException
 	{
-		// 将文法模型的内容写入到out中
+		/**
+		 * 写入起始符
+		 */
+		out.writeUTF("--起始符--");
+		out.writeUTF(startSymbol);
+
+		/**
+		 * 写入非终结符
+		 */
+		out.writeUTF("--非终结符集--");
+		for (String nonter : nonTerminalSet)
+		{
+			out.writeUTF(nonter);
+		}
+
+		/**
+		 * 写入终结符
+		 */
+		out.writeUTF("--终结符集--");
+		for (String ter : terminalSet)
+		{
+			out.writeUTF(ter);
+		}
+
+		/**
+		 * 写入词性标注映射
+		 */
+		out.writeUTF("--词性标注映射--");
+		for (String pos : posMap.keySet())
+		{
+			out.writeUTF(pos + "=" + posMap.get(pos));
+		}
+
+		/**
+		 * 写入规则集
+		 */
+		out.writeUTF("--规则集--");
+		for (RewriteRule rule : ruleSet)
+		{
+			out.writeUTF(rule.toString());
+		}
+		
+		out.writeUTF("完");
 	}
 
+	/**
+	 * 从out中读入文法模型内容	
+	 */
 	@Override
 	public void read(DataInput in) throws IOException
 	{	
-		// 从out中读入文法模型内容
+
+		String str = in.readUTF();
+		if (str.equals("--起始符--"))
+		{
+			startSymbol=in.readUTF();
+		}
+		in.readUTF();//此行为"--非终结符--"，不处理
+		
+		str = in.readUTF();
+		while (!str.equals("--终结符集--"))
+		{
+			nonTerminalSet.add(str);
+			str =in.readUTF();
+		}
+
+		str =in.readUTF();
+		while (!str.equals("--词性标注映射--"))
+		{
+			terminalSet.add(str);
+			str = in.readUTF();
+		}
+
+		str = in.readUTF();
+		while (!str.equals("--规则集--"))
+		{
+			String[] strs=str.split("=");
+			posMap.put(strs[0],Double.parseDouble(strs[1]) );
+			str = in.readUTF();
+		}
+		
+		str = in.readUTF();
+		while (!str.equals("完")&&str!=null)
+		{
+			add(readRule(str));
+			str = in.readUTF();
+		}
 	}
 }

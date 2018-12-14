@@ -1,12 +1,13 @@
 package com.lc.nlp4han.constituent.pcfg;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
-import java.io.File;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-
-import org.omg.CORBA.portable.InputStream;
+import java.io.OutputStreamWriter;
 
 public class CFGModelIOUtil
 {
@@ -19,65 +20,38 @@ public class CFGModelIOUtil
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	public static CFG loadModel(String modelFile) throws ClassNotFoundException, IOException
+	public static CFG loadModel(CFG cfg,String modelFile) throws ClassNotFoundException, IOException
 	{
-		AbstractCFGModelReader modelReader;
 		if (modelFile.endsWith(".bin"))
-			modelReader = new BinaryFileCFGModelReader(new File(modelFile));
+			cfg.read(new DataInputStream(new BufferedInputStream(new FileInputStream(modelFile))));
 		else
-			modelReader = new TextFileCFGModelReader(new File(modelFile));
-
-		return modelReader.constructModel();
-	}
-
-	/**
-	 * 加载模型文件，得到CFG模型二进制文件
-	 * 
-	 * @param dis
-	 *            数据输入流
-	 * @return CFG模型
-	 * @throws ClassNotFoundException
-	 * @throws IOException
-	 */
-	public static CFG loadBinaryModel(DataInputStream dis) throws ClassNotFoundException, IOException
-	{
-		AbstractCFGModelReader modelReader = new BinaryFileCFGModelReader(dis);
-		return modelReader.constructModel();
+			cfg.readGrammar(new FileInputStream(modelFile), "utf-8");
+		
+		return cfg;
 	}
 	
 	/**
-	 * 加载模型文件，得到CFG模型二进制文件
+	 * 加载模型文件，得到n元模型
 	 * 
-	 * @param dis
-	 *            数据输入流
+	 * @param modelFile
+	 *            待加载的模型文件
 	 * @return CFG模型
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	public static CFG loadBinaryModel(InputStream dis) throws ClassNotFoundException, IOException
+	public static PCFG loadModel(PCFG pcfg,String modelFile) throws ClassNotFoundException, IOException
 	{
-		AbstractCFGModelReader modelReader = new BinaryFileCFGModelReader(dis);
-		return modelReader.constructModel();
+		if (modelFile.endsWith(".bin"))
+			pcfg.read(new DataInputStream(new BufferedInputStream(new FileInputStream(modelFile))));
+		else
+			pcfg.readGrammar(new FileInputStream(modelFile), "utf-8");
+		
+		return pcfg;
 	}
-
-	/**
-	 * 加载模型文件，得到CFG模型文本文件
-	 * 
-	 * @param dis
-	 *            数据输入流
-	 * @return CFG模型
-	 * @throws ClassNotFoundException
-	 * @throws IOException
-	 */
-	public static CFG loadTextModel(InputStream dis) throws ClassNotFoundException, IOException
-	{
-		AbstractCFGModelReader modelReader = new TextFileCFGModelReader(dis);
-		return modelReader.constructModel();
-	}
-
+	
 	/**
 	 * 将CFG模型写入文件
-	 * 
+	 * CFG和PCFG的写入方法没有区别，故不需要重载
 	 * @param lModel
 	 *            待写入的cfg模型
 	 * @param modelFile
@@ -86,22 +60,66 @@ public class CFGModelIOUtil
 	 */
 	public static void writeModel(CFG cfg, String modelFile) throws IOException
 	{
-		AbstractCFGModelWriter modelWriter;
-
 		/**
 		 * text-文本文件 binary-二进制文件
 		 */
-		if (modelFile.endsWith(".txt"))
-			modelWriter = new TextFileCFGModelWriter(cfg, new File(modelFile));
+		if (modelFile.endsWith(".txt")) {
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(modelFile), "utf-8"));
+		    bw.append(cfg.toString());
+		    bw.close();
+		}
 		else if (modelFile.endsWith(".bin"))
-			modelWriter = new BinaryFileCFGModelWriter(cfg, new File(modelFile));
+			cfg.write(new DataOutputStream(new FileOutputStream(modelFile)));
 		else
 			throw new IllegalArgumentException();
-
-		modelWriter.persist();
 	}
 
 	/**
+	 * 加载模型文件，得到CFG模型二进制文件
+	 * 
+	 * @param dis
+	 *            数据输入流
+	 * @return CFG模型
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 *//*
+	public static CFG loadBinaryModel(DataInputStream dis) throws ClassNotFoundException, IOException
+	{
+		AbstractCFGModelReader modelReader = new BinaryFileCFGModelReader(dis);
+		return modelReader.constructModel();
+	}
+	
+	*//**
+	 * 加载模型文件，得到CFG模型二进制文件
+	 * 
+	 * @param dis
+	 *            数据输入流
+	 * @return CFG模型
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 *//*
+	public static CFG loadBinaryModel(InputStream dis) throws ClassNotFoundException, IOException
+	{
+		AbstractCFGModelReader modelReader = new BinaryFileCFGModelReader(dis);
+		return modelReader.constructModel();
+	}
+
+	*//**
+	 * 加载模型文件，得到CFG模型文本文件
+	 * 
+	 * @param dis
+	 *            数据输入流
+	 * @return CFG模型
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 *//*
+	public static CFG loadTextModel(InputStream dis) throws ClassNotFoundException, IOException
+	{
+		AbstractCFGModelReader modelReader = new TextFileCFGModelReader(dis);
+		return modelReader.constructModel();
+	}*/
+
+/*	*//**
 	 * 将cfg模型写入文本文件
 	 * 
 	 * @param lModel
@@ -109,14 +127,14 @@ public class CFGModelIOUtil
 	 * @param modelFile
 	 *            写入路径
 	 * @throws IOException
-	 */
+	 *//*
 	public static void writeTextModel(CFG cfg, BufferedWriter bw) throws IOException
 	{
 		AbstractCFGModelWriter modelWriter = new TextFileCFGModelWriter(cfg, bw);
 		modelWriter.persist();
 	}
 	
-	/**
+	*//**
 	 * 将cfg模型写入文本文件
 	 * 
 	 * @param lModel
@@ -124,14 +142,14 @@ public class CFGModelIOUtil
 	 * @param modelFile
 	 *            写入路径
 	 * @throws IOException
-	 */
+	 *//*
 	public static void writeTextModel(CFG cfg, OutputStream out) throws IOException
 	{
 		AbstractCFGModelWriter modelWriter = new TextFileCFGModelWriter(cfg, out);
 		modelWriter.persist();
 	}
 	
-	/**
+	*//**
 	 * 将cfg模型写入二进制文件
 	 * 
 	 * @param cfg
@@ -139,10 +157,10 @@ public class CFGModelIOUtil
 	 * @param dos
 	 *            输入流
 	 * @throws IOException
-	 */
+	 *//*
 	public static void writeBinaryModel(CFG cfg, OutputStream dos) throws IOException
 	{
 		AbstractCFGModelWriter modelWriter = new BinaryFileCFGModelWriter(cfg, dos);
 		modelWriter.persist();
-	}
+	}*/
 }

@@ -513,7 +513,8 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 
 	public static void main(String[] args) throws IOException, ClassNotFoundException
 	{
-		PCFG pcnf = (PCFG) CFGModelIOUtil.loadModel(args[0]); 
+		PCFG pcnf=new PCFG();
+		CFGModelIOUtil.loadModel(pcnf,args[0]); 
 		
 		double pruneThreshold = 0.0001;//Double.parseDouble(args[2]);
 		boolean secondPrune = false;//Boolean.getBoolean(args[3]);
