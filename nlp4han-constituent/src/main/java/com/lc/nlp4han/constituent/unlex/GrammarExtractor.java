@@ -42,9 +42,13 @@ public class GrammarExtractor
 	{
 		this.treeBank = treeBank;
 		this.rareWordThreshold = rareWordThreshold;
+		
 		initGrammarExtractor();
+		
 		Grammar g = tallyInitialGrammar();
+		
 		train(g, treeBank, SMCycle, mergeRate, EMIterations, smooth);
+		
 		return g;
 	}
 
@@ -72,6 +76,7 @@ public class GrammarExtractor
 	private Grammar tallyInitialGrammar()
 	{
 		tallyInitialGRuleCount();
+		
 		HashSet<BinaryRule> bRules;
 		HashSet<UnaryRule> uRules;
 		HashSet<PreterminalRule> preRules;
@@ -89,6 +94,7 @@ public class GrammarExtractor
 			allBRule.putAll(map);
 
 		}
+		
 		for (HashMap<PreterminalRule, Integer> map : this.preRuleBySameHeadCount)
 		{
 			allPreRule.putAll(map);
@@ -111,26 +117,32 @@ public class GrammarExtractor
 				}
 			}
 		}
+		
 		for (HashMap<UnaryRule, Integer> map : this.uRuleBySameHeadCount)
 		{
 			allURule.putAll(map);
 		}
+		
 		for (Map.Entry<String, Double> entry : wordCount.entrySet())
 		{
 			if (entry.getValue() <= rareWordThreshold)
 				rareWord.add(entry.getKey());
 		}
+		
 		bRules = new HashSet<BinaryRule>(allBRule.keySet());
 		uRules = new HashSet<UnaryRule>(allURule.keySet());
 		preRules = new HashSet<PreterminalRule>(allPreRule.keySet());
 		Lexicon lexicon = new Lexicon(preRules, this.dictionary, tagWithRareWord, rareWordCount, rareWord, allRareWord);
 		Grammar intialG = new Grammar(bRules, uRules, lexicon, treeBank.getNonterminalTable());
+		
 		double[][] subTag2UNKScores = new double[intialG.getNumSymbol()][1];
 		for (double[] arr : subTag2UNKScores)
 		{
 			arr[0] = 1;
 		}
+		
 		intialG.setSubTag2UNKScores(subTag2UNKScores);
+		
 		return intialG;
 	}
 
@@ -140,20 +152,24 @@ public class GrammarExtractor
 		dictionary = new HashSet<String>();
 		preterminal = treeBank.getNonterminalTable().getIntValueOfPreterminalArr();
 		preRuleBySameHeadCount = new HashMap[preterminal.size()];
+		
 		for (int i = 0; i < preterminal.size(); i++)
 		{
 			preRuleBySameHeadCount[i] = new HashMap<PreterminalRule, Integer>();
 		}
+		
 		bRuleBySameHeadCount = new HashMap[treeBank.getNonterminalTable().getNumSymbol()];
 		for (int i = 0; i < treeBank.getNonterminalTable().getNumSymbol(); i++)
 		{
 			bRuleBySameHeadCount[i] = new HashMap<BinaryRule, Integer>();
 		}
+		
 		uRuleBySameHeadCount = new HashMap[treeBank.getNonterminalTable().getNumSymbol()];
 		for (int i = 0; i < treeBank.getNonterminalTable().getNumSymbol(); i++)
 		{
 			uRuleBySameHeadCount[i] = new HashMap<UnaryRule, Integer>();
 		}
+		
 		numOfSameHeadRule = new int[this.treeBank.getNonterminalTable().getNumSymbol()];
 		wordCount = new HashMap<>();
 	}
@@ -243,6 +259,7 @@ public class GrammarExtractor
 				}
 			}
 		}
+		
 		calculateInitalRuleScores();
 	}
 
@@ -260,6 +277,7 @@ public class GrammarExtractor
 				entry.getKey().setScore((short) 0, (short) 0, (short) 0, score);
 			}
 		}
+		
 		for (HashMap<PreterminalRule, Integer> map : preRuleBySameHeadCount)
 		{
 			if (map.size() != 0)
@@ -272,6 +290,7 @@ public class GrammarExtractor
 					entry.getKey().setScore((short) 0, score);
 				}
 		}
+		
 		for (HashMap<UnaryRule, Integer> map : uRuleBySameHeadCount)
 		{
 			for (Map.Entry<UnaryRule, Integer> entry : map.entrySet())
@@ -289,12 +308,15 @@ public class GrammarExtractor
 	public Grammar train(Grammar g, TreeBank treeBank, int SMCycle, double mergeRate, int EMIterations, double smooth)
 	{
 		treeBank.calIOScore(g);
+		
 		double totalLSS = treeBank.calLogTreeBankSentenceSocre();
 		System.out.println("训练前树库似然值：" + totalLSS);
+		
 		System.out.println("SMCycle: " + SMCycle);
 		for (int i = 0; i < SMCycle; i++)
 		{
 			System.out.println("->SMCycle: #" + i);
+			
 			System.err.println("开始分裂。");
 			GrammarSpliter.splitGrammar(g, treeBank);
 			EM(g, treeBank, EMIterations);
@@ -330,8 +352,10 @@ public class GrammarExtractor
 		{
 			double totalLSS = 0;
 			treeBank.calIOScore(g);
+			
 			totalLSS = treeBank.calLogTreeBankSentenceSocre();
 			System.out.println("EM算法开始前树库的log似然值：" + totalLSS);
+			
 			for (int i = 0; i < iterations; i++)
 			{
 				// 重新计算规则的期望
@@ -339,11 +363,15 @@ public class GrammarExtractor
 				// EStep完成
 				recalculateRuleScore(g);
 				// MStep完成
+				
 				treeBank.calIOScore(g);
+				
 				totalLSS = treeBank.calLogTreeBankSentenceSocre();
 				System.out.println(i + "次EM迭代后树库的Log似然值：" + totalLSS);
 			}
+			
 			calRuleExpectation(g, treeBank);
+			
 			System.out.println("EM算法结束。");
 			System.out.println("EM算法结束后树库的log似然值：" + totalLSS);
 		}
@@ -394,6 +422,7 @@ public class GrammarExtractor
 				{
 					throw new Error("sameParentRulesCounter计算错误。");
 				}
+				
 				for (short j = 0; j < lCNumSub; j++)
 				{
 					for (short k = 0; k < rCNumSub; k++)
@@ -425,6 +454,7 @@ public class GrammarExtractor
 				{
 					throw new Error("sameParentRulesCounter计算错误。");
 				}
+				
 				for (short j = 0; j < cNumSub; j++)
 				{
 					newScore = ruleCounter.uRuleCounter.get(uRule)[i][j] / denominator;
@@ -450,6 +480,7 @@ public class GrammarExtractor
 				{
 					throw new Error("sameParentRulesCounter计算错误。");
 				}
+				
 				newScore = ruleCounter.preRuleCounter.get(preRule)[i] / denominator;
 				if (newScore < Rule.preRulethres)
 				{
@@ -591,6 +622,7 @@ public class GrammarExtractor
 							ruleScoreSum[i] += bRule.getParent_i_ScoceSum(i);
 						}
 					}
+				
 				Set<UnaryRule> sameHeadUSet = g.getuRuleSetBySameHead(symbol);
 				if (sameHeadUSet != null)
 					for (UnaryRule uRule : sameHeadUSet)
@@ -625,6 +657,7 @@ public class GrammarExtractor
 				}
 			}
 		}
+		
 		for (UnaryRule uRule : g.getuRules())
 		{
 			short nSubParent = g.getNumSubSymbol(uRule.getParent());
@@ -666,6 +699,7 @@ public class GrammarExtractor
 					sameHeadPRuleScoreSum.get(preRule.parent)[i] = tag_iScoreSum.doubleValue();
 					sameHeadScoreSum = tag_iScoreSum.doubleValue();
 				}
+				
 				preRule.setScore(i, BigDecimal.valueOf(preRule.getScore(i))
 						.divide(BigDecimal.valueOf(sameHeadScoreSum), 15, BigDecimal.ROUND_HALF_UP).doubleValue());
 			}
