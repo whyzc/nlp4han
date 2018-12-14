@@ -713,6 +713,27 @@ public class Grammar
 		return nonterminalTable.hasPreterminalSymbol(preterminalSymbol);
 	}
 
+	public String toStringAllSymbol()
+	{
+		StringBuilder str1 = new StringBuilder("预终结符号：");
+		for (short preterminalSym : this.allPreterminal())
+		{
+			str1 = str1.append(
+					"[" + this.symbolStrValue(preterminalSym) + "," + this.getNumSubSymbol(preterminalSym) + "]" + " ");
+		}
+		str1.append("\n");
+		str1.append("非预终结，其他符号：");
+		for (short nonterminalSym : this.allNonterminalIntValArr())
+		{
+			if (!this.hasPreterminalSymbol(nonterminalSym))
+			{
+				str1.append("[" + this.symbolStrValue(nonterminalSym) + "," + this.getNumSubSymbol(nonterminalSym) + "]"
+						+ " ");
+			}
+		}
+		return str1.toString();
+	}
+
 	/**
 	 * 将非终结符号是原始符号的Treenode的转换成对应的AnnotationTreeNode
 	 * 

@@ -292,32 +292,37 @@ public class GrammarExtractor
 		double totalLSS = treeBank.calLogTreeBankSentenceSocre();
 		System.out.println("训练前树库似然值：" + totalLSS);
 		System.out.println("SMCycle: " + SMCycle);
+		System.out.println("startSymbol:" + g.getStartSymbol());
 		for (int i = 0; i < SMCycle; i++)
 		{
-			System.out.println("->SMCycle: #" + i);
-			System.err.println("开始分裂。");
+			System.out.println("->SMCycle: #" + (i + 1));
+
 			GrammarSpliter.splitGrammar(g, treeBank);
+			System.out.println("分裂后：\n" + g.toStringAllSymbol());
 			EM(g, treeBank, EMIterations);
-			System.err.println("分裂完成。");
+			System.err.println("分裂、EM完成。");
 
 			System.err.println("开始合并。");
 			GrammarMerger.mergeGrammar(g, treeBank, mergeRate, ruleCounter);
+			System.out.println("合并后：\n" + g.toStringAllSymbol());
 			EM(g, treeBank, EMIterations / 2);
-			System.err.println("合并完成。");
+			System.err.println("合并、EM完成。");
 
 			SmoothByRuleOfSameChild smoother = new SmoothByRuleOfSameChild(smooth);
 			System.err.println("开始平滑规则。");
 			smoother.smooth(g);
 			normalizeBAndURule(g);
 			normalizedPreTermianlRules(g);
+			System.out.println("平滑后：\n" + g.toStringAllSymbol());
 			EM(g, treeBank, EMIterations / 2);
-			System.err.println("平滑规则完成。");
+			System.err.println("平滑、EM完成。");
 		}
 		// if (SMCycle != 0)
 		// {
 		// double[][] subTag2UNKScores = calTag2UNKScores(g);
 		// g.setSubTag2UNKScores(subTag2UNKScores);
 		// }
+		System.out.println("经" + SMCycle + "次SM周期后：\n" + g.toStringAllSymbol());
 		return g;
 	}
 
@@ -332,16 +337,23 @@ public class GrammarExtractor
 			treeBank.calIOScore(g);
 			totalLSS = treeBank.calLogTreeBankSentenceSocre();
 			System.out.println("EM算法开始前树库的log似然值：" + totalLSS);
+			double t1, t2, t3, t4;
 			for (int i = 0; i < iterations; i++)
 			{
-				// 重新计算规则的期望
-				calRuleExpectation(g, treeBank);
-				// EStep完成
-				recalculateRuleScore(g);
-				// MStep完成
-				treeBank.calIOScore(g);
+
+				t1 = System.currentTimeMillis();
+				calRuleExpectation(g, treeBank);// 重新计算规则的期望， EStep完成。
+
+				t2 = System.currentTimeMillis();
+				recalculateRuleScore(g);// 刷新规则概率，MSetp完成。
+
+				t3 = System.currentTimeMillis();
+				treeBank.calIOScore(g);// 刷新树库上节点内外向概率
+				t4 = System.currentTimeMillis();
+
 				totalLSS = treeBank.calLogTreeBankSentenceSocre();
-				System.out.println(i + "次EM迭代后树库的Log似然值：" + totalLSS);
+				System.out.println("第" + (i + 1) + "次EM迭代后树库的Log似然值：" + totalLSS + "………………calExpT:" + (t2 - t1) + "ms"
+						+ ",calRuleST:" + (t3 - t2) + "ms" + ",calIOST:" + (t4 - t3) + "ms");
 			}
 			calRuleExpectation(g, treeBank);
 			System.out.println("EM算法结束。");
