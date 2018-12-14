@@ -5,9 +5,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
 
+import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.pcfg.PCFG;
 import com.lc.nlp4han.constituent.pcfg.PRule;
 
@@ -51,14 +53,14 @@ public class Grammar
 		this.preRuleBySameHead = new HashMap<Short, HashMap<PreterminalRule, PreterminalRule>>();
 		this.nonterminalTable = nonterminalTable;
 		init();
-		grammarExam();
+		// grammarExam();
 	}
 
 	public Grammar()
 	{
 		this.bRules = new HashSet<>();
 		this.uRules = new HashSet<>();
-		this.lexicon = new Lexicon(null, null, 0);
+		this.lexicon = new Lexicon();
 		this.bRuleBySameChildren = new HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>>();
 		this.uRuleBySameChildren = new HashMap<Short, HashMap<UnaryRule, UnaryRule>>();
 		this.preRuleBySameChildren = new HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>>();
@@ -88,6 +90,7 @@ public class Grammar
 				}
 			}
 		}
+		
 		for (BinaryRule bRule : bRules)
 		{
 			for (String aRule : bRule.toStringRules(this))
@@ -102,6 +105,7 @@ public class Grammar
 			}
 
 		}
+		
 		for (PreterminalRule preRule : lexicon.getPreRules())
 		{
 			for (String aRule : preRule.toStringRules(this))
@@ -115,11 +119,12 @@ public class Grammar
 				}
 			}
 		}
+		
 		pcfg.setStartSymbol("ROOT");
 		return pcfg;
 	}
 
-	public void init()
+	private void init()
 	{
 		for (BinaryRule bRule : bRules)
 		{
@@ -128,6 +133,7 @@ public class Grammar
 			{
 				bRuleBySameHead.put(bRule.parent, new HashMap<BinaryRule, BinaryRule>());
 			}
+			
 			bRuleBySameHead.get(bRule.parent).put(bRule, bRule);
 
 			if (!bRuleBySameChildren.containsKey(bRule.getLeftChild()))
@@ -135,11 +141,13 @@ public class Grammar
 
 				bRuleBySameChildren.put(bRule.getLeftChild(), new HashMap<Short, HashMap<BinaryRule, BinaryRule>>());
 			}
+			
 			if (!bRuleBySameChildren.get(bRule.getLeftChild()).containsKey(bRule.getRightChild()))
 			{
 				bRuleBySameChildren.get(bRule.getLeftChild()).put(bRule.getRightChild(),
 						new HashMap<BinaryRule, BinaryRule>());
 			}
+			
 			bRuleBySameChildren.get(bRule.getLeftChild()).get(bRule.getRightChild()).put(bRule, bRule);
 		}
 
@@ -198,6 +206,7 @@ public class Grammar
 					}
 				}
 			}
+			
 			if (this.uRuleBySameHead.containsKey(symbol))
 			{
 				for (UnaryRule uRule : this.uRuleBySameHead.get(symbol).keySet())
@@ -222,6 +231,7 @@ public class Grammar
 				}
 			}
 		}
+		
 		return sameParentRuleScoreSum;
 	}
 
@@ -240,12 +250,14 @@ public class Grammar
 				berrcount++;
 				System.err.println(false + "********************二元规则集bRuleBySameHead" + berrcount);
 			}
+			
 			if (bRule != bRuleBySameChildren.get(bRule.getLeftChild()).get(bRule.getRightChild()).get(bRule))
 			{
 				berrcount1++;
 				System.err.println(false + "********************二元规则集bRuleBySameChildren" + berrcount1);
 			}
 		}
+		
 		for (UnaryRule uRule : uRules)
 		{
 			if (uRule == uRuleBySameHead.get(uRule.parent).get(uRule))
@@ -257,12 +269,14 @@ public class Grammar
 				uerrcount++;
 				System.err.println(false + "********************一元规则uRuleBySameHead" + uerrcount);
 			}
+			
 			if (uRule != uRuleBySameChildren.get(uRule.getChild()).get(uRule))
 			{
 				uerrcount1++;
 				System.err.println(false + "********************一元规则uRuleBySameChildren" + uerrcount1);
 			}
 		}
+		
 		for (PreterminalRule preRule : lexicon.getPreRules())
 		{
 			if (preRule == preRuleBySameHead.get(preRule.parent).get(preRule))
@@ -274,6 +288,7 @@ public class Grammar
 				perrcount++;
 				System.err.println(false + "********************预终结符号规则preRuleBySameHead" + perrcount);
 			}
+			
 			if (preRule != preRuleBySameChildren.get(lexicon.getDictionary().get(preRule.getWord())).get(preRule))
 			{
 				perrcount1++;
@@ -300,19 +315,78 @@ public class Grammar
 		return nonterminalTable.intValue(symbol);
 	}
 
+	public int wordIntValue(String word)
+	{
+		return lexicon.wordIntValue(word);
+	}
+
 	public void add(BinaryRule bRule)
 	{
 		bRules.add(bRule);
+		short parent = bRule.getParent();
+		if (!bRuleBySameHead.containsKey(parent))
+		{
+			HashMap<BinaryRule, BinaryRule> inner = new HashMap<>();
+			bRuleBySameHead.put(parent, inner);
+		}
+		bRuleBySameHead.get(parent).put(bRule, bRule);
+
+		short lc = bRule.getLeftChild();
+		short rc = bRule.getRightChild();
+		HashMap<Short, HashMap<BinaryRule, BinaryRule>> middleMap;
+		if (!bRuleBySameChildren.containsKey(lc))
+		{
+			bRuleBySameChildren.put(lc, new HashMap<Short, HashMap<BinaryRule, BinaryRule>>());
+		}
+		
+		middleMap = bRuleBySameChildren.get(lc);
+		HashMap<BinaryRule, BinaryRule> innerMap;
+		if (!middleMap.containsKey(rc))
+		{
+			middleMap.put(rc, new HashMap<BinaryRule, BinaryRule>());
+		}
+		
+		innerMap = middleMap.get(rc);
+		innerMap.put(bRule, bRule);
 	}
 
 	public void add(UnaryRule uRule)
 	{
 		uRules.add(uRule);
+		short parent = uRule.getParent();
+		if (!uRuleBySameHead.containsKey(parent))
+		{
+			HashMap<UnaryRule, UnaryRule> inner = new HashMap<>();
+			uRuleBySameHead.put(parent, inner);
+		}
+		uRuleBySameHead.get(parent).put(uRule, uRule);
+
+		short c = uRule.getChild();
+
+		if (!uRuleBySameChildren.containsKey(c))
+		{
+			uRuleBySameChildren.put(c, new HashMap<UnaryRule, UnaryRule>());
+		}
+		uRuleBySameChildren.get(c).put(uRule, uRule);
 	}
 
 	public void add(PreterminalRule preRule)
 	{
 		lexicon.add(preRule);
+		short parent = preRule.getParent();
+		if (!preRuleBySameHead.containsKey(parent))
+		{
+			HashMap<PreterminalRule, PreterminalRule> inner = new HashMap<>();
+			preRuleBySameHead.put(parent, inner);
+		}
+		preRuleBySameHead.get(parent).put(preRule, preRule);
+
+		Integer wordIntVal = wordIntValue(preRule.getWord());
+		if (!preRuleBySameChildren.containsKey(wordIntVal))
+		{
+			preRuleBySameChildren.put(wordIntVal, new HashMap<PreterminalRule, PreterminalRule>());
+		}
+		preRuleBySameChildren.get(wordIntVal).put(preRule, preRule);
 	}
 
 	public BinaryRule readBRule(String[] rule)
@@ -332,10 +406,12 @@ public class Grammar
 			index_pSubSym = 0;
 		else
 			index_pSubSym = Short.parseShort(rule[0].split("_")[1]);
+		
 		if (numSymLC == 1)
 			index_lCSubSym = 0;
 		else
 			index_lCSubSym = Short.parseShort(rule[2].split("_")[1]);
+		
 		if (numSymRC == 1)
 			index_rCSubSym = 0;
 		else
@@ -357,6 +433,7 @@ public class Grammar
 			bRule.initScores(numSymP, numSymLC, numSymRC);
 			bRules.add(bRule);
 		}
+		
 		bRule.setScore(index_pSubSym, index_lCSubSym, index_rCSubSym, score);
 		return bRule;
 	}
@@ -425,7 +502,7 @@ public class Grammar
 		else
 		{
 			preRule.initScores(numSymP);
-			lexicon.getPreRules().add(preRule);
+			add(preRule);
 		}
 		preRule.setScore(index_pSubSym, score);
 		return preRule;
@@ -440,6 +517,7 @@ public class Grammar
 				System.out.println(str);
 			}
 		}
+		
 		for (UnaryRule rule : this.getuRules())
 		{
 			for (String str : rule.toStringRules(this))
@@ -447,6 +525,7 @@ public class Grammar
 				System.out.println(str);
 			}
 		}
+		
 		for (PreterminalRule rule : this.getLexicon().getPreRules())
 		{
 			for (String str : rule.toStringRules(this))
@@ -560,40 +639,73 @@ public class Grammar
 	{
 		return random;
 	}
+	// 暂时不用
+	// public HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>>
+	// getPreRuleBySameChildren()
+	// {
+	// return preRuleBySameChildren;
+	// }
+	//
+	// public HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>>
+	// getbRuleBySameChildren()
+	// {
+	// return bRuleBySameChildren;
+	// }
+	//
+	// public HashMap<Short, HashMap<UnaryRule, UnaryRule>> getuRuleBySameChildren()
+	// {
+	// return uRuleBySameChildren;
+	// }
 
-	public HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>> getPreRuleBySameChildren()
+	public Set<PreterminalRule> getPreRuleSetBySameHead(short parent)
 	{
-		return preRuleBySameChildren;
+		if (preRuleBySameHead.containsKey(parent))
+			return preRuleBySameHead.get(parent).keySet();
+		else
+			return null;
 	}
 
-	public HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>> getbRuleBySameChildren()
+	public PreterminalRule getRule(PreterminalRule tempPreRule)
 	{
-		return bRuleBySameChildren;
+		short parent = tempPreRule.getParent();
+		if (preRuleBySameHead.containsKey(parent))
+			return preRuleBySameHead.get(parent).get(tempPreRule);
+		else
+			return null;
 	}
 
-	public HashMap<Short, HashMap<UnaryRule, UnaryRule>> getuRuleBySameChildren()
+	public Set<BinaryRule> getbRuleSetBySameHead(short parent)
 	{
-		return uRuleBySameChildren;
+		if (bRuleBySameHead.containsKey(parent))
+			return bRuleBySameHead.get(parent).keySet();
+		else
+			return null;
 	}
 
-	public HashMap<Short, HashMap<PreterminalRule, PreterminalRule>> getPreRuleBySameHead()
+	public BinaryRule getRule(BinaryRule tempBRule)
 	{
-		return preRuleBySameHead;
+		short parent = tempBRule.getParent();
+		if (bRuleBySameHead.containsKey(parent))
+			return bRuleBySameHead.get(parent).get(tempBRule);
+		else
+			return null;
 	}
 
-	public HashMap<Short, HashMap<BinaryRule, BinaryRule>> getbRuleBySameHead()
+	public Set<UnaryRule> getuRuleSetBySameHead(short parent)
 	{
-		return bRuleBySameHead;
+		if (uRuleBySameHead.containsKey(parent))
+			return uRuleBySameHead.get(parent).keySet();
+		else
+			return null;
 	}
 
-	public HashMap<Short, HashMap<UnaryRule, UnaryRule>> getuRuleBySameHead()
+	public UnaryRule getRule(UnaryRule tempURule)
 	{
-		return uRuleBySameHead;
-	}
-
-	public NonterminalTable getNonterminalTable()
-	{
-		return nonterminalTable;
+		short parent = tempURule.getParent();
+		if (uRuleBySameHead.containsKey(parent))
+			return uRuleBySameHead.get(parent).get(tempURule);
+		else
+			return null;
 	}
 
 	public void setSubTag2UNKScores(double[][] subTag2UNKScores)
@@ -619,5 +731,16 @@ public class Grammar
 	public boolean hasPreterminalSymbol(short preterminalSymbol)
 	{
 		return nonterminalTable.hasPreterminalSymbol(preterminalSymbol);
+	}
+
+	/**
+	 * 将非终结符号是原始符号的Treenode的转换成对应的AnnotationTreeNode
+	 * 
+	 * @param tree
+	 * @return
+	 */
+	public AnnotationTreeNode convert2AnnotationTreeNode(TreeNode tree)
+	{
+		return AnnotationTreeNode.getInstance(tree, nonterminalTable);
 	}
 }

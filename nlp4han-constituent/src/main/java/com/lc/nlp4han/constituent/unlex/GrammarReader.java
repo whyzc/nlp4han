@@ -93,7 +93,6 @@ public class GrammarReader
 					g.readPreRule(rule);
 			}
 		}
-		g.init();
 		stream.close();
 		return g;
 	}

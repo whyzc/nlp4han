@@ -68,21 +68,21 @@ public class Group
 				{
 					newCenter.add(fs.get(j).clone());
 				}
-				else
-				{
-					Feature tmp = newCenter.get(index);
-					tmp.setValue(tmp.getValue()+fs.get(j).getValue());
-				}
+//				else
+//				{
+//					Feature tmp = newCenter.get(index);
+//					tmp.setValue(tmp.getValue()+fs.get(j).getValue());
+//				}
 			}
 			
 			
 		}
 		
-		for (int i=0 ; i<newCenter.size() ; i++)
-		{
-			Feature tmp = newCenter.get(i);
-			tmp.setValue(tmp.getValue()/members.size());
-		}
+//		for (int i=0 ; i<newCenter.size() ; i++)
+//		{
+//			Feature tmp = newCenter.get(i);
+//			tmp.setValue(tmp.getValue()/members.size());
+//		}
 		
 		if (newCenter.equals(center.getFeatures()))
 			return false;
@@ -92,6 +92,7 @@ public class Group
 			return true;
 		}
 	}
+	
 
 	public void addMember(Text t)
 	{

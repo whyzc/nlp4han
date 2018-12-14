@@ -13,14 +13,15 @@ public class GrammarExtractorToolLatentAnnotation
 	public static Grammar getGrammar(int SMCycle, double mergeRate, int EMIterations, double smooth,
 			int rareWordThreshold, String treeBankPath, String encoding) throws IOException
 	{
-		GrammarExtractor gExtractor = new GrammarExtractor(treeBankPath, false, encoding, rareWordThreshold);
+		GrammarExtractor gExtractor = new GrammarExtractor();
 		if (SMCycle < 0)
 		{
 			throw new Error("SMCycle不能小于0");
 		}
 		else
 		{
-			return gExtractor.getGrammar(SMCycle, mergeRate, EMIterations, smooth);
+			return gExtractor.extractGrammarLatentAnnotation(treeBankPath, encoding, rareWordThreshold, SMCycle,
+					EMIterations, mergeRate, smooth);
 		}
 	}
 
@@ -59,7 +60,6 @@ public class GrammarExtractorToolLatentAnnotation
 			if (args[i].equals("-em"))
 			{
 				iterations = Integer.parseInt(args[i + 1]);
-				GrammarTrainer.EMIterations = iterations;
 				i++;
 			}
 			if (args[i].equals("-smooth"))

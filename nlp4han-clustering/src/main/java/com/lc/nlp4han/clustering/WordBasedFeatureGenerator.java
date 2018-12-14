@@ -1,8 +1,12 @@
 package com.lc.nlp4han.clustering;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -15,8 +19,8 @@ import com.lc.nlp4han.util.CharTypeUtil;
 public class WordBasedFeatureGenerator implements FeatureGenerator
 {
 	private Map<String, Count> wordInfo = new HashMap<String, Count>();
-	//private Map<String, Count> prunedWordInfo = null;
 	private int totalDocumentNumber = 0;
+	private Set<String> stopWords = new HashSet<String>();
 	
 	@Override
 	public List<Feature> getFeatures(Text text)
@@ -77,12 +81,12 @@ public class WordBasedFeatureGenerator implements FeatureGenerator
 		result.setKey(word);
 		if (wordInfo.containsKey(word))
 		{
-			Count c = wordInfo.get(word);
-			double tf = tn*1.0 / c.tn;
-			double idf = Math.log(totalDocumentNumber*1.0/(c.dn+1));
-			result.setValue(tf*idf);
+//			Count c = wordInfo.get(word);
+//			double tf = tn*1.0 / c.tn;
+//			double idf = Math.log(totalDocumentNumber*1.0/(c.dn+1));
+//			result.setValue(tf*idf);
 			
-			//result.setValue(1);
+			result.setValue(1);
 		}
 		else
 			result.setValue(0);
@@ -108,6 +112,8 @@ public class WordBasedFeatureGenerator implements FeatureGenerator
 	private boolean isPruned(String word)
 	{
 		if (CharTypeUtil.isChinesePunctuation(word))
+			return true;
+		if (isStopWord(word))
 			return true;
 		for (int i=0 ; i<word.length() ; i++)
 		{
@@ -237,6 +243,37 @@ public class WordBasedFeatureGenerator implements FeatureGenerator
 	public String toString()
 	{
 		return  wordInfo + "";
+	}
+	
+	private boolean isStopWord(String word)
+	{
+		if (stopWords.size()<1)
+			loadStopWordList("停用词.txt", "utf-8");
+		if (stopWords.contains(word))
+			return true;
+		else
+			return false;
+	}
+
+	private void loadStopWordList(String fileName, String encoding)
+	{
+		InputStream is = WordBasedFeatureGenerator.class.getClassLoader().getResourceAsStream("停用词.txt");
+		BufferedReader br = null;
+		try
+		{
+			br = new BufferedReader(new InputStreamReader(is, encoding));
+			String tmp = null;
+			while ((tmp=br.readLine()) != null)
+			{
+				stopWords.add(tmp);
+			}
+			br.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		
 	}
 }
 

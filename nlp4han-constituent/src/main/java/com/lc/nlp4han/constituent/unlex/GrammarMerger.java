@@ -18,16 +18,20 @@ public class GrammarMerger
 	public static void mergeGrammar(Grammar grammar, TreeBank treeBank, double mergeRate, RuleCounter ruleCounter)
 	{
 		double[][] mergeWeight = computerMergerWeight(grammar, ruleCounter);
+		
 		// printMergeWeight(mergeWeight);
 		ArrayList<Short> newNumSubsymbolArr = new ArrayList<>(
 				Arrays.asList(new Short[grammar.getNumSubsymbolArr().size()]));
 		Collections.copy(newNumSubsymbolArr, grammar.getNumSubsymbolArr());
 		Short[][] mergeSymbols = getMergeSymbol(grammar, treeBank, mergeRate, newNumSubsymbolArr, mergeWeight);
+		
 		mergeRule(grammar.getbRules(), mergeSymbols, mergeWeight);
 		mergeRule(grammar.getuRules(), mergeSymbols, mergeWeight);
 		mergeRule(grammar.getLexicon().getPreRules(), mergeSymbols, mergeWeight);
+		
 		grammar.setNumSubsymbolArr(newNumSubsymbolArr);
 		mergeWeight = null;
+		
 		mergeTrees(grammar, treeBank);
 	}
 
@@ -52,6 +56,7 @@ public class GrammarMerger
 	{
 		if (tree.isLeaf())
 			return;
+		
 		tree.getLabel().setNumSubSymbol(g.getNumSubSymbol(tree.getLabel().getSymbol()));
 		tree.forgetIOScoreAndScale();
 		tree.getLabel().setInnerScores(null);
@@ -371,7 +376,6 @@ public class GrammarMerger
 		grammar.add(Cc);
 		grammar.add(Ee);
 		grammar.add(Ff);
-		grammar.init();
 
 		System.out.println("合并前");
 		grammar.printRules();
