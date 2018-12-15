@@ -336,27 +336,26 @@ public class GrammarExtractor
 		{
 			double totalLSS = 0;
 			treeBank.calIOScore(g);
+			
 			totalLSS = treeBank.calLogTreeBankSentenceSocre();
 			System.out.println("EM算法开始前树库的log似然值：" + totalLSS);
-			double t1, t2, t3, t4;
+			
 			for (int i = 0; i < iterations; i++)
 			{
-
-				t1 = System.currentTimeMillis();
-				calRuleExpectation(g, treeBank);// 重新计算规则的期望， EStep完成。
-
-				t2 = System.currentTimeMillis();
-				recalculateRuleScore(g);// 刷新规则概率，MSetp完成。
-
-				t3 = System.currentTimeMillis();
-				treeBank.calIOScore(g);// 刷新树库上节点内外向概率
-				t4 = System.currentTimeMillis();
-
+				// 重新计算规则的期望
+				calRuleExpectation(g, treeBank);
+				// EStep完成
+				recalculateRuleScore(g);
+				// MStep完成
+				
+				treeBank.calIOScore(g);
+				
 				totalLSS = treeBank.calLogTreeBankSentenceSocre();
-				System.out.println("第" + (i + 1) + "次EM迭代后树库的Log似然值：" + totalLSS + "………………calExpT:" + (t2 - t1) + "ms"
-						+ ",calRuleST:" + (t3 - t2) + "ms" + ",calIOST:" + (t4 - t3) + "ms");
+				System.out.println(i + "次EM迭代后树库的Log似然值：" + totalLSS);
 			}
+			
 			calRuleExpectation(g, treeBank);
+			
 			System.out.println("EM算法结束。");
 			System.out.println("EM算法结束后树库的log似然值：" + totalLSS);
 		}
