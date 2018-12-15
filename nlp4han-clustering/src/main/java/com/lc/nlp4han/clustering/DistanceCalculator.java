@@ -1,11 +1,11 @@
 package com.lc.nlp4han.clustering;
 
-import java.util.List;
+import java.util.Collection;
 
 public abstract class DistanceCalculator
 {
 	public abstract void init(FeatureGenerator fg);
-	public abstract void init(List<Feature> fg);
+	public abstract void init(Collection<Feature> fg);
 	public abstract double getDistance(Sample s1, Sample s2);
 	
 	
