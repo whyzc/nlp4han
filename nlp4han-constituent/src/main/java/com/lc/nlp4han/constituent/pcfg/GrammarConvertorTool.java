@@ -49,22 +49,19 @@ public class GrammarConvertorTool
 
 		if (type.equals("CNF"))
 		{
-			CFG cfg=new CFG();
-			CFGModelIOUtil.loadModel(cfg, corpusFile);
+			CFG cfg=CFGModelIOUtil.loadCFGModel(corpusFile);	
 			
 			cnf = GrammarConvertor.CFG2CNF(cfg);
 		}
 		else if (type.equals("P2NF"))
 		{
-			PCFG p2nf=new PCFG();
-			CFGModelIOUtil.loadModel(p2nf, corpusFile);
+			PCFG p2nf=CFGModelIOUtil.loadPCFGModel(corpusFile);
 			
 			cnf = GrammarConvertor.PCFG2LoosePCNF(p2nf);
 		}
 		else
 		{
-			PCFG pcnf=new PCFG();
-			CFGModelIOUtil.loadModel(pcnf, corpusFile);
+			PCFG pcnf=CFGModelIOUtil.loadPCFGModel(corpusFile);
 			
 			cnf = GrammarConvertor.PCFG2PCNF(pcnf);
 		}
