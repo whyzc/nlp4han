@@ -24,11 +24,13 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	private double pruneThreshold;
 	private boolean secondPrune;
 	private boolean prior;
+	
+	private double smoothPro=0.000001;//当概率为零时的平滑值
 
 	public ConstituentParseLexPCFG(LexPCFG lexpcfg, double pruneThreshold, boolean secondPrune, boolean prior)
 	{
 		this.lexpcfg = lexpcfg;
-		this.pruneThreshold = pruneThreshold;
+		this.pruneThreshold = Math.log(1.0/pruneThreshold);
 		this.secondPrune = secondPrune;
 		this.prior = prior;
 	}
@@ -143,7 +145,16 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 				    pruneEdge(i, j, words.length);
 				}
 			}
-		}
+		}	
+		
+/*		for(int i=0;i<words.length;i++)
+		{
+			for(int j=i+1;j<words.length;j++) {
+				for(Edge edge:chart[i][j].getEdgeMap().keySet()) {
+					System.out.println(edge.toString()+" "+chart[i][j].getEdgeMap().get(edge));
+				}
+			}
+		}*/
 		return BracketListToTree.bracketexpressionGet(chart, words.length, k);
 	}
 
@@ -287,47 +298,49 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 */
 	private void pruneEdge(int i, int j, int n)
 	{
-		double bestPro1 = -1.0;
-		double bestPro2 = -1.0;
+		double bestPro1 = -1000;
+		double bestPro2 = -1000;
 		// 动态得到剪枝比例
-		double pruneThreshold1 = getPruneThreshold(n);
+		double pruneThreshold1 = pruneThreshold;
+		//double pruneThreshold1 = getPruneThreshold(n);
 
 		ArrayList<Edge> deleteList = new ArrayList<Edge>();
 		HashMap<Edge, Double> map = chart[i][j].getEdgeMap();
 		for (Edge edge : map.keySet())
 		{
-			double pro = 1.0;
+			double pro = 0.0;
 			if (prior)
 			{
 				LexPCFGPrior lpp = (LexPCFGPrior) lexpcfg;
 				HashMap<String, Double> map1 = lpp.getPriorMap();
-				pro = map1.get(edge.getLabel());
+				pro = Math.log(map1.get(edge.getLabel()));
 			}
 
-			if (edge.isStop() && map.get(edge) * pro > bestPro1)
+			if (edge.isStop() && map.get(edge) + pro > bestPro1)
 			{
-				bestPro1 = map.get(edge);
+				bestPro1 = map.get(edge)+pro;
 			}
-			else if (!edge.isStop() && map.get(edge) * pro > bestPro2)
+			else if (!edge.isStop() && map.get(edge)+ pro > bestPro2)
 			{
-				bestPro2 = map.get(edge);
+				bestPro2 = map.get(edge)+pro;
 			}
 		}
+		
 		for (Edge edge : map.keySet())
 		{
-			double pro = 1.0;
+			double pro = 0.0;
 			if (prior)
 			{
 				LexPCFGPrior lpp = (LexPCFGPrior) lexpcfg;
 				HashMap<String, Double> map1 = lpp.getPriorMap();
-				pro = map1.get(edge.getLabel());
+				pro = Math.log(map1.get(edge.getLabel()));
 			}
-
-			if (edge.isStop() && map.get(edge) * pro < pruneThreshold1 * bestPro1)
+			
+			if (edge.isStop() && map.get(edge) + pro < bestPro1-pruneThreshold1 )
 			{
 				deleteList.add(edge);
 			}
-			else if (!edge.isStop() && map.get(edge) * pro < pruneThreshold1 * bestPro2)
+			else if (!edge.isStop() && map.get(edge)+pro < bestPro2- pruneThreshold1 )
 			{
 				deleteList.add(edge);
 			}
@@ -336,18 +349,6 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 		{
 			map.remove(edge);
 		}
-	}
-
-	private double getPruneThreshold(int n)
-	{
-		double pruneThreshold1 = pruneThreshold;
-		int num = n / 20;
-		while (pruneThreshold1 < 0.001 && num >= 1)
-		{
-			pruneThreshold1 *= 10;
-			num--;
-		}
-		return pruneThreshold1;
 	}
 
 	/**
@@ -373,10 +374,10 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 				{
 					Distance lc = new Distance(true, false);
 					Distance rc = new Distance(true, false);
-					Edge edge = new Edge(poses[i], null, words[i], poses[i], i, i + 1, lc, rc, true, 1.0, null);
+					Edge edge = new Edge(poses[i], null, words[i], poses[i], i, i + 1, lc, rc, true, 0.0, null);
 
 					chart[i][j].setFlag(true);
-					chart[i][j].getEdgeMap().put(edge, 1.0);
+					chart[i][j].getEdgeMap().put(edge, 0.0);
 					addSinglesAndStops(i, j);
 				}
 			}
@@ -441,14 +442,20 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 */
 	private void addSingle(Edge edge, ArrayList<Edge> tempEdgeList)
 	{
+		OccurenceHeadChild rhcg0 = new OccurenceHeadChild(edge.getLabel(), null, edge.getHeadPOS(), edge.getHeadWord());
 		OccurenceHeadChild rhcg = new OccurenceHeadChild(edge.getLabel(), null, edge.getHeadPOS(), null);
-		// RuleHeadChildGenerate rhcg = new RuleHeadChildGenerate(edge.getLabel(), null,
-		// null, null);
-		HashSet<String> parentSet = lexpcfg.getParentSet(rhcg);
+		OccurenceHeadChild rhcg1 = new OccurenceHeadChild(edge.getLabel(), null,null, null);
+		HashSet<String> parentSet = lexpcfg.getParentSet(rhcg0);
 		if (parentSet == null)
-		{// 若没有可以向上延伸的则直接返回
-			return;
+		{// 若没有可以向上延伸的规则，进行回退试探
+			parentSet= lexpcfg.getParentSet(rhcg);
+			if(parentSet==null) {
+				parentSet= lexpcfg.getParentSet(rhcg1);
+			}
+			if(parentSet==null)
+				return;
 		}
+		
 		for (String str : parentSet)
 		{
 			ArrayList<Edge> children = new ArrayList<Edge>();
@@ -457,9 +464,12 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 			Distance rc = new Distance(true, false);
 			int start = edge.getStart();
 			int end = edge.getEnd();
-			rhcg.setParentLabel(str);
-			rhcg.setHeadWord(edge.getHeadWord());
-			double pro = lexpcfg.getGeneratePro(rhcg, "head") * edge.getPro();
+			rhcg0.setParentLabel(str);
+			double edgePro=lexpcfg.getProForGenerateHead(rhcg0);
+			if(edgePro==0.0) {
+				edgePro=smoothPro;
+				}
+			double pro = Math.log(edgePro) + edge.getPro();
 
 			Edge e1 = new Edge(str, edge.getLabel(), edge.getHeadWord(), edge.getHeadPOS(), start, end, lc, rc, false,
 					pro, children);
@@ -525,16 +535,16 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 					true, new Distance());
 		}
 		// 将原始概率与两侧规则的概率相乘得到新的概率
-		double pro = edge.getPro() * lexpcfg.getGeneratePro(rsg1, "stop") * lexpcfg.getGeneratePro(rsg2, "stop");
+		double lstop=lexpcfg.getProForGenerateStop(rsg1);
+		double rstop=lexpcfg.getProForGenerateStop(rsg2);
+		
 		// 如果概率为零则不添加
-		if (pro == 0.0)
-		{
-			if(lexpcfg.getGeneratePro(rsg1, "stop")==0.0)
-				System.out.println("左侧rsg1="+" 父标记="+rsg1.getParentLabel()+"  中心孩子标记="+rsg1.getHeadLabel()+" 距离= "+rsg1.getDistance()+" 方向= "+rsg1.getDirection()+" 概率="+lexpcfg.getGeneratePro(rsg1, "stop"));
-			if(lexpcfg.getGeneratePro(rsg2, "stop")==0.0)
-				System.out.println("右侧rsg2="+" 父标记="+rsg2.getParentLabel()+"  中心孩子标记="+rsg2.getHeadLabel()+" 距离= "+rsg2.getDistance()+" 方向= "+rsg2.getDirection()+" 概率="+lexpcfg.getGeneratePro(rsg2, "stop"));
+		if(lstop==0) lstop=smoothPro;
+		if(rstop==0) rstop=smoothPro;
+/*		if(lstop==0.0||rstop==0.0) {
 			return;
-		}
+		}*/
+		double pro = edge.getPro()+Math.log(lstop)+Math.log(rstop);
 
 		Edge e1 = new Edge(edge.getLabel(), edge.getHeadLabel(), edge.getHeadWord(), edge.getHeadPOS(), edge.getStart(),
 				edge.getEnd(), edge.getLc(), edge.getRc(), true, pro, edge.getChildren());
@@ -600,7 +610,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 		// 动词集合
 		HashSet<String> verbs = getVerbs();
 
-		double pro = e1.getPro() * e2.getPro();
+		double pro = e1.getPro() +e2.getPro();
 
 		// 若添加的是head右侧的孩子
 		if (direction == 2)
@@ -625,7 +635,13 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 				rsg = new OccurenceSides(e1.getHeadLabel(), e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(),
 						direction, e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(), false, false, e1.getRc());
 			}
-			pro = pro * lexpcfg.getGeneratePro(rsg, "sides");
+			
+			double sidesPro=lexpcfg.getProForGenerateSides(rsg);
+			if (sidesPro == 0.0)
+			{
+				return;
+			}
+			pro = pro +Math.log(sidesPro);
 
 			// 并列结构处理
 			if (coorAndPc)
@@ -661,15 +677,15 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 				rsg = new OccurenceSides(e2.getHeadLabel(), e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(),
 						direction, e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(), false, false, e2.getLc());
 			}
-			pro = pro * lexpcfg.getGeneratePro(rsg, "sides");
+			double sidesPro=lexpcfg.getProForGenerateSides(rsg);
+			if (sidesPro == 0.0)
+			{
+				return;
+			}
+			pro = pro +Math.log(sidesPro) ;
 
 			edge = new Edge(e2.getLabel(), e2.getHeadLabel(), e2.getHeadWord(), e2.getHeadPOS(), e1.getStart(),
 					e2.getEnd(), lc, rc, false, pro, children);
-		}
-
-		if (pro == 0.0)
-		{
-			return;
 		}
 		addEdge(edge, edge.getStart(), edge.getEnd(), tempEdgeList);
 	}
@@ -738,11 +754,13 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 			rsg = new OccurenceSides(lastChild.getLabel(), e1.getLabel(), lastChild.getHeadPOS(),
 					lastChild.getHeadWord(), direction, e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(), true, false,
 					e1.getRc());
+			
 			OccurenceSpecialCase sg = new OccurenceSpecialCase(e1.getLabel(), lastChild.getHeadPOS(), lastChild.getHeadWord(),
 					e1.getChildLabel(e1.getChildNum() - 2), e2.getLabel(),
 					e1.getChild(e1.getChildNum() - 2).getHeadWord(), e2.getHeadWord(),
 					e1.getChild(e1.getChildNum() - 2).getHeadPOS(), e2.getHeadPOS());
-			pro = pro * lexpcfg.getGeneratePro(rsg, "sides") * lexpcfg.getGeneratePro(sg, "special");
+			
+			pro = pro * lexpcfg.getProForGenerateSides(rsg) * lexpcfg.getProForSpecialCase(sg);
 		}
 		return pro;
 	}

@@ -156,9 +156,19 @@ public class LexGrammarExtractor
 		addGenerateRule(hcgr4, hcgr5, headGenMap);
 
 		// 在解析中需要用此得到候选的父节点，以免遍历不需要的非终结符
+		OccurenceHeadChild rhcg0 = new OccurenceHeadChild(headLabel, null, headpos, headword);
+		addParents(rhcg0, parentLabel);
 		OccurenceHeadChild rhcg = new OccurenceHeadChild(headLabel, null, headpos, null);
-		// RuleHeadChildGenerate rhcg = new RuleHeadChildGenerate(headLabel, null, null,
-		// null);
+		addParents(rhcg, parentLabel);
+		OccurenceHeadChild rhcg1 = new OccurenceHeadChild(headLabel, null, null,null);
+		addParents(rhcg1, parentLabel);
+	}
+
+	/**
+	 * 添加向上延伸的规则
+	 * @param rhcg
+	 */
+	private void addParents(OccurenceHeadChild rhcg,String parentLabel) {
 		if (!parentList.containsKey(rhcg))
 		{
 			HashSet<String> labelSet = new HashSet<String>();
@@ -170,7 +180,6 @@ public class LexGrammarExtractor
 			parentList.get(rhcg).add(parentLabel);
 		}
 	}
-
 	/**
 	 * 统计在已有中心Child的基础上生成两侧孩子的数据
 	 * 

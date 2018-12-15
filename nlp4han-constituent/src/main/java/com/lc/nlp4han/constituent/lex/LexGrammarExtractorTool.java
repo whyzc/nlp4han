@@ -1,9 +1,6 @@
 package com.lc.nlp4han.constituent.lex;
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 
 public class LexGrammarExtractorTool
 {
@@ -52,8 +49,6 @@ public class LexGrammarExtractorTool
 	private static void ExtractLexGrammarToFile(String fromPath, String toPath, String inCoding)
 			throws IOException
 	{
-		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(toPath), inCoding));
-		bw.append(new LexGrammarExtractor().extractGrammar(fromPath, inCoding).toString());
-		bw.close();
+		LexPCFGModelIOUtil.writeModel(new LexGrammarExtractor().extractGrammar(fromPath, inCoding), toPath);
 	}
 }
