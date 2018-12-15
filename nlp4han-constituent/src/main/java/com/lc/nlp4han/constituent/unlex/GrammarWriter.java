@@ -169,7 +169,7 @@ public class GrammarWriter
 				}
 			}
 		}
-		rulesWriter.write("--预终结符规则--" + "\n");
+		rulesWriter.write("--预终结符规则集--" + "\n");
 		for (Map.Entry<String, Map<String, Double>[]> entry : allPreRules.entrySet())
 		{
 			for (Map<String, Double> innerEntry : entry.getValue())

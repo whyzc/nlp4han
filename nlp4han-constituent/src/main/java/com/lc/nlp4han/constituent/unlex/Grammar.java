@@ -1,17 +1,29 @@
 package com.lc.nlp4han.constituent.unlex;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.function.BiFunction;
 
+import com.lc.nlp4han.constituent.GrammarWritable;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.pcfg.PCFG;
 import com.lc.nlp4han.constituent.pcfg.PRule;
+import com.lc.nlp4han.ml.util.FileInputStreamFactory;
+import com.lc.nlp4han.ml.util.PlainTextByLineStream;
 
 /**
  * 表示由树库得到的语法
@@ -19,7 +31,7 @@ import com.lc.nlp4han.constituent.pcfg.PRule;
  * @author 王宁
  * 
  */
-public class Grammar
+public class Grammar implements GrammarWritable
 {
 	public static Random random = new Random(0);
 	private String StartSymbol = "ROOT";
@@ -67,6 +79,16 @@ public class Grammar
 		this.bRuleBySameHead = new HashMap<Short, HashMap<BinaryRule, BinaryRule>>();
 		this.uRuleBySameHead = new HashMap<Short, HashMap<UnaryRule, UnaryRule>>();
 		this.preRuleBySameHead = new HashMap<Short, HashMap<PreterminalRule, PreterminalRule>>();
+	}
+
+	public Grammar(String modelPath, String encoding) throws FileNotFoundException, IOException
+	{
+		this(new PlainTextByLineStream(new FileInputStreamFactory(new File(modelPath)), encoding));
+	}
+
+	public Grammar(PlainTextByLineStream stream) throws IOException
+	{
+		read(stream);
 	}
 
 	/**
@@ -374,122 +396,6 @@ public class Grammar
 		preRuleBySameChildren.get(wordIntVal).put(preRule, preRule);
 	}
 
-	public BinaryRule readBRule(String[] rule)
-	{
-
-		String parent = rule[0].split("_")[0];
-		String lChild = rule[2].split("_")[0];
-		String rChild = rule[3].split("_")[0];
-		double score = Double.parseDouble(rule[4]);
-		short index_pSubSym;
-		short index_lCSubSym;
-		short index_rCSubSym;
-		short numSymP = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(parent));
-		short numSymLC = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(lChild));
-		short numSymRC = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(rChild));
-		if (numSymP == 1)
-			index_pSubSym = 0;
-		else
-			index_pSubSym = Short.parseShort(rule[0].split("_")[1]);
-		if (numSymLC == 1)
-			index_lCSubSym = 0;
-		else
-			index_lCSubSym = Short.parseShort(rule[2].split("_")[1]);
-		if (numSymRC == 1)
-			index_rCSubSym = 0;
-		else
-			index_rCSubSym = Short.parseShort(rule[3].split("_")[1]);
-		BinaryRule bRule = new BinaryRule(symbolIntValue(parent), symbolIntValue(lChild), symbolIntValue(rChild));
-		if (bRules.contains(bRule))
-		{
-			for (BinaryRule theRule : bRules)
-			{
-				if (bRule.equals(theRule))
-				{
-					bRule = theRule;
-					break;
-				}
-			}
-		}
-		else
-		{
-			bRule.initScores(numSymP, numSymLC, numSymRC);
-			bRules.add(bRule);
-		}
-		bRule.setScore(index_pSubSym, index_lCSubSym, index_rCSubSym, score);
-		return bRule;
-	}
-
-	public UnaryRule readURule(String[] rule)
-	{
-		String parent = rule[0].split("_")[0];
-		String child = rule[2].split("_")[0];
-		double score = Double.parseDouble(rule[3]);
-		short index_pSubSym;
-		short index_cSubSym;
-		short numSymP = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(parent));
-		short numSymC = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(child));
-		if (numSymP == 1)
-			index_pSubSym = 0;
-		else
-			index_pSubSym = Short.parseShort(rule[0].split("_")[1]);
-		if (numSymC == 1)
-			index_cSubSym = 0;
-		else
-			index_cSubSym = Short.parseShort(rule[2].split("_")[1]);
-		UnaryRule uRule = new UnaryRule(symbolIntValue(parent), symbolIntValue(child));
-		if (uRules.contains(uRule))
-		{
-			for (UnaryRule theRule : uRules)
-			{
-				if (uRule.equals(theRule))
-				{
-					uRule = theRule;
-					break;
-				}
-			}
-		}
-		else
-		{
-			uRule.initScores(numSymP, numSymC);
-			uRules.add(uRule);
-		}
-		uRule.setScore(index_pSubSym, index_cSubSym, score);
-		return uRule;
-	}
-
-	public PreterminalRule readPreRule(String[] rule)
-	{
-		String parent = rule[0].split("_")[0];
-		String word = rule[2];
-		double score = Double.parseDouble(rule[3]);
-		short index_pSubSym;
-		short numSymP = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(parent));
-		if (numSymP == 1)
-			index_pSubSym = 0;
-		else
-			index_pSubSym = Short.parseShort(rule[0].split("_")[1]);
-		PreterminalRule preRule = new PreterminalRule(symbolIntValue(parent), word);
-		if (lexicon.getPreRules().contains(preRule))
-		{
-			for (PreterminalRule theRule : lexicon.getPreRules())
-			{
-				if (preRule.equals(theRule))
-				{
-					preRule = theRule;
-					break;
-				}
-			}
-		}
-		else
-		{
-			preRule.initScores(numSymP);
-			add(preRule);
-		}
-		preRule.setScore(index_pSubSym, score);
-		return preRule;
-	}
-
 	public void printRules()
 	{
 		for (BinaryRule rule : this.getbRules())
@@ -743,5 +649,529 @@ public class Grammar
 	public AnnotationTreeNode convert2AnnotationTreeNode(TreeNode tree)
 	{
 		return AnnotationTreeNode.getInstance(tree, nonterminalTable);
+	}
+
+	private TreeMap<String, Map<String, Double>[]> getSortedPreRules()
+	{
+		TreeMap<String, Map<String, Double>[]> allPreRules = new TreeMap<>();
+		for (Short symbol : this.allNonterminalIntValArr())
+		{
+			if (this.hasPreterminalSymbol(symbol))
+			{
+				@SuppressWarnings("unchecked")
+				Map<String, Double>[] preRulesBySameSubHead = new HashMap[this.getNumSubSymbol(symbol)];
+				String symbolStr = this.symbolStrValue(symbol);
+				short numSubSymbol = this.getNumSubSymbol(symbol);
+				for (int i = 0; i < preRulesBySameSubHead.length; i++)
+				{
+					preRulesBySameSubHead[i] = new HashMap<String, Double>();
+				}
+				for (PreterminalRule preRule : this.getPreRuleSetBySameHead(symbol))
+				{
+					String[] subRuleOfpreRule = preRule.toStringRules(this);
+					int c = subRuleOfpreRule.length / numSubSymbol;
+					int index = -1;
+					for (int j = 0; j < subRuleOfpreRule.length; j++)
+					{
+						if (j % c == 0)
+							index++;
+						preRulesBySameSubHead[index].put(subRuleOfpreRule[j], Double
+								.parseDouble(subRuleOfpreRule[j].substring(subRuleOfpreRule[j].lastIndexOf(" "))));
+					}
+				}
+				allPreRules.put(symbolStr, preRulesBySameSubHead);
+			}
+		}
+		return allPreRules;
+	}
+
+	private TreeMap<String, Map<String, Double>[]> getSortedBAndURules()
+	{
+		TreeMap<String, Map<String, Double>[]> allBAndURules = new TreeMap<>();
+		for (Short symbol : this.allNonterminalIntValArr())
+		{
+			if (!this.hasPreterminalSymbol(symbol))
+			{
+				String symbolStr = this.symbolStrValue(symbol);
+				short numSubSymbol = this.getNumSubSymbol(symbol);
+				@SuppressWarnings("unchecked")
+				Map<String, Double>[] bAndURulesBySameSubHead = new HashMap[numSubSymbol];
+				for (int i = 0; i < bAndURulesBySameSubHead.length; i++)
+				{
+					bAndURulesBySameSubHead[i] = new HashMap<String, Double>();
+				}
+
+				if (this.getbRuleSetBySameHead(symbol) != null)
+				{
+					for (BinaryRule bRule : this.getbRuleSetBySameHead(symbol))
+					{
+						String[] subRulesOfbRule = bRule.toStringRules(this);
+						int c = subRulesOfbRule.length / numSubSymbol;
+						int index = -1;
+						for (int j = 0; j < subRulesOfbRule.length; j++)
+						{
+							if (j % c == 0)
+								index++;
+							bAndURulesBySameSubHead[index].put(subRulesOfbRule[j], Double.parseDouble(
+									subRulesOfbRule[j].substring(subRulesOfbRule[j].lastIndexOf(" ") + 1)));
+						}
+					}
+				}
+
+				if (this.getuRuleSetBySameHead(symbol) != null)
+				{
+					for (UnaryRule uRule : this.getuRuleSetBySameHead(symbol))
+					{
+						String[] subRuleOfuRule = uRule.toStringRules(this);
+						int c = subRuleOfuRule.length / numSubSymbol;
+						int index = -1;
+						for (int j = 0; j < subRuleOfuRule.length; j++)
+						{
+							if (j % c == 0)
+								index++;
+							bAndURulesBySameSubHead[index].put(subRuleOfuRule[j], Double
+									.parseDouble(subRuleOfuRule[j].substring(subRuleOfuRule[j].lastIndexOf(" "))));
+						}
+					}
+				}
+				allBAndURules.put(symbolStr, bAndURulesBySameSubHead);
+			}
+		}
+		return allBAndURules;
+	}
+
+	/*
+	 * 讲语法规则转化为一条条的派生的规则，并且规则左侧是相同的派生符号的规则按照概率大小排序
+	 */
+	public String toString()
+	{
+		StringBuilder grammarStr = new StringBuilder();
+
+		TreeMap<String, Map<String, Double>[]> allBAndURules = this.getSortedBAndURules();
+		TreeMap<String, Map<String, Double>[]> allPreRules = this.getSortedPreRules();
+
+		grammarStr.append("--起始符--" + "\n");
+		grammarStr.append(this.getStartSymbol() + "\n");
+		grammarStr.append("--非终结符集--" + "\n");
+		for (int symbol = 0; symbol < this.getNumSymbol(); symbol++)
+		{
+			String sym = this.symbolStrValue((short) symbol);
+			if (symbol != this.getNumSymbol() - 1)
+			{
+				sym += " ";
+			}
+			grammarStr.append(sym);
+		}
+		grammarStr.append("\n");
+		for (int symbol = 0; symbol < this.getNumSymbol(); symbol++)
+		{
+			short numSubSymbol = this.getNumSubSymbol((short) symbol);
+			String numStr = String.valueOf(numSubSymbol);
+			if (symbol != this.getNumSymbol() - 1)
+			{
+				numStr += " ";
+			}
+			grammarStr.append(numStr);
+		}
+		grammarStr.append("\n");
+		for (int i = 0; i < this.allPreterminal().size(); i++)
+		{
+			short preterminal = this.allPreterminal().get(i);
+			String pretermianlStr = String.valueOf(preterminal);
+			if (i != this.allPreterminal().size() - 1)
+			{
+				pretermianlStr += " ";
+			}
+			grammarStr.append(pretermianlStr);
+		}
+		grammarStr.append("\r");
+		grammarStr.append("--一元二元规则集--" + "\n");
+		for (Map.Entry<String, Map<String, Double>[]> entry : allBAndURules.entrySet())
+		{
+			for (Map<String, Double> innerEntry : entry.getValue())
+			{
+				ArrayList<Map.Entry<String, Double>> list = new ArrayList<>(innerEntry.entrySet());
+				sortList(list);
+				for (Map.Entry<String, Double> subRule : list)
+				{
+					grammarStr.append(subRule.getKey() + "\n");
+				}
+			}
+		}
+		grammarStr.append("--预终结符规则集--" + "\n");
+		for (Map.Entry<String, Map<String, Double>[]> entry : allPreRules.entrySet())
+		{
+			for (Map<String, Double> innerEntry : entry.getValue())
+			{
+				ArrayList<Map.Entry<String, Double>> list = new ArrayList<>(innerEntry.entrySet());
+				sortList(list);
+				for (Map.Entry<String, Double> subRule : list)
+				{
+					grammarStr.append(subRule.getKey() + "\n");
+				}
+			}
+		}
+
+		return grammarStr.toString();
+	}
+
+	private void sortList(ArrayList<Map.Entry<String, Double>> list)
+	{
+		Collections.sort(list, new Comparator<Map.Entry<String, Double>>()
+		{
+			@Override
+			public int compare(Entry<String, Double> o1, Entry<String, Double> o2)
+			{
+				return -o1.getValue().compareTo(o2.getValue());
+			}
+		});
+	}
+
+	public Grammar read(PlainTextByLineStream stream) throws IOException
+	{
+		Grammar g = new Grammar();
+		String str = stream.read();
+		if (str != null)
+			str = str.trim();
+		String[] allSymbols = null;// ROOT、......
+		Short[] numNonterminal = null;// ROOT 1
+		Short[] preSymbolIndex = null;
+
+		if (str.equals("--起始符--"))
+		{
+			g.setStartSymbol(stream.read().trim());
+		}
+		str = stream.read().trim();
+		if (str.equals("--非终结符集--"))
+		{
+			if ((str = stream.read()) != null)
+			{
+				allSymbols = str.trim().split(" ");
+			}
+			if ((str = stream.read()) != null)
+			{
+				String[] numNonArr = str.trim().split(" ");
+				numNonterminal = new Short[numNonArr.length];
+				for (int i = 0; i < numNonArr.length; i++)
+				{
+					numNonterminal[i] = Short.parseShort(numNonArr[i]);
+				}
+			}
+			if ((str = stream.read()) != null)
+			{
+				String indexArr[] = str.trim().split(" ");
+				preSymbolIndex = new Short[indexArr.length];
+				for (int i = 0; i < indexArr.length; i++)
+				{
+					preSymbolIndex[i] = Short.parseShort(indexArr[i]);
+				}
+			}
+		}
+		NonterminalTable nonterminalTable = new NonterminalTable();
+		for (String symbol : allSymbols)
+		{
+			nonterminalTable.putSymbol(symbol);
+		}
+		nonterminalTable.setIntValueOfPreterminalArr(new ArrayList<Short>(Arrays.asList(preSymbolIndex)));
+		nonterminalTable.setNumSubsymbolArr(new ArrayList<Short>(Arrays.asList(numNonterminal)));
+		g.setNontermianalTable(nonterminalTable);
+		str = stream.read();
+		if (str != null)
+			str = str.trim();
+		String[] rule = null;
+		if (str.equals("--一元二元规则集--"))
+		{
+			while ((str = stream.read()) != null && !str.equals("--预终结符规则集--"))
+			{
+				str = str.trim();
+				rule = str.split(" ");
+				if (rule.length == 4)
+					g.readURule(rule);
+				else if (rule.length == 5)
+					g.readBRule(rule);
+			}
+		}
+
+		if (str.equals("--预终结符规则集--"))
+		{
+			while ((str = stream.read()) != null)
+			{
+				str = str.trim();
+				rule = str.split(" ");
+				if (rule.length == 4)
+					g.readPreRule(rule);
+			}
+		}
+		stream.close();
+		return g;
+	}
+
+	public BinaryRule readBRule(String[] rule)
+	{
+
+		String parent = rule[0].split("_")[0];
+		String lChild = rule[2].split("_")[0];
+		String rChild = rule[3].split("_")[0];
+		double score = Double.parseDouble(rule[4]);
+		short index_pSubSym;
+		short index_lCSubSym;
+		short index_rCSubSym;
+		short numSymP = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(parent));
+		short numSymLC = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(lChild));
+		short numSymRC = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(rChild));
+		if (numSymP == 1)
+			index_pSubSym = 0;
+		else
+			index_pSubSym = Short.parseShort(rule[0].split("_")[1]);
+		if (numSymLC == 1)
+			index_lCSubSym = 0;
+		else
+			index_lCSubSym = Short.parseShort(rule[2].split("_")[1]);
+		if (numSymRC == 1)
+			index_rCSubSym = 0;
+		else
+			index_rCSubSym = Short.parseShort(rule[3].split("_")[1]);
+		BinaryRule bRule = new BinaryRule(symbolIntValue(parent), symbolIntValue(lChild), symbolIntValue(rChild));
+		if (bRules.contains(bRule))
+		{
+			for (BinaryRule theRule : bRules)
+			{
+				if (bRule.equals(theRule))
+				{
+					bRule = theRule;
+					break;
+				}
+			}
+		}
+		else
+		{
+			bRule.initScores(numSymP, numSymLC, numSymRC);
+			this.add(bRule);
+		}
+		bRule.setScore(index_pSubSym, index_lCSubSym, index_rCSubSym, score);
+		return bRule;
+	}
+
+	public UnaryRule readURule(String[] rule)
+	{
+		String parent = rule[0].split("_")[0];
+		String child = rule[2].split("_")[0];
+		double score = Double.parseDouble(rule[3]);
+		short index_pSubSym;
+		short index_cSubSym;
+		short numSymP = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(parent));
+		short numSymC = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(child));
+		if (numSymP == 1)
+			index_pSubSym = 0;
+		else
+			index_pSubSym = Short.parseShort(rule[0].split("_")[1]);
+		if (numSymC == 1)
+			index_cSubSym = 0;
+		else
+			index_cSubSym = Short.parseShort(rule[2].split("_")[1]);
+		UnaryRule uRule = new UnaryRule(symbolIntValue(parent), symbolIntValue(child));
+		if (uRules.contains(uRule))
+		{
+			for (UnaryRule theRule : uRules)
+			{
+				if (uRule.equals(theRule))
+				{
+					uRule = theRule;
+					break;
+				}
+			}
+		}
+		else
+		{
+			uRule.initScores(numSymP, numSymC);
+			this.add(uRule);
+		}
+		uRule.setScore(index_pSubSym, index_cSubSym, score);
+		return uRule;
+	}
+
+	public PreterminalRule readPreRule(String[] rule)
+	{
+		String parent = rule[0].split("_")[0];
+		String word = rule[2];
+		double score = Double.parseDouble(rule[3]);
+		short index_pSubSym;
+		short numSymP = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(parent));
+		if (numSymP == 1)
+			index_pSubSym = 0;
+		else
+			index_pSubSym = Short.parseShort(rule[0].split("_")[1]);
+		PreterminalRule preRule = new PreterminalRule(symbolIntValue(parent), word);
+		if (lexicon.getPreRules().contains(preRule))
+		{
+			for (PreterminalRule theRule : lexicon.getPreRules())
+			{
+				if (preRule.equals(theRule))
+				{
+					preRule = theRule;
+					break;
+				}
+			}
+		}
+		else
+		{
+			preRule.initScores(numSymP);
+			this.add(preRule);
+		}
+		preRule.setScore(index_pSubSym, score);
+		return preRule;
+	}
+
+	@Override
+	public void write(DataOutput out) throws IOException
+	{
+		TreeMap<String, Map<String, Double>[]> allBAndURules = this.getSortedBAndURules();
+		TreeMap<String, Map<String, Double>[]> allPreRules = this.getSortedPreRules();
+
+		out.writeUTF("--起始符--" + "\n");
+		out.writeUTF(this.getStartSymbol() + "\n");
+		out.writeUTF("--非终结符集--" + "\n");
+		StringBuilder sym = new StringBuilder();
+		for (int symbol = 0; symbol < this.getNumSymbol(); symbol++)
+		{
+			sym.append(this.symbolStrValue((short) symbol));
+			if (symbol != this.getNumSymbol() - 1)
+			{
+				sym.append(" ");
+			}
+		}
+		out.writeUTF(sym.toString() + "\n");
+		StringBuilder numSubStr = new StringBuilder();
+		for (int symbol = 0; symbol < this.getNumSymbol(); symbol++)
+		{
+			short numSubSymbol = this.getNumSubSymbol((short) symbol);
+			numSubStr.append(String.valueOf(numSubSymbol));
+			if (symbol != this.getNumSymbol() - 1)
+			{
+				numSubStr.append(" ");
+			}
+		}
+		out.writeUTF(numSubStr.toString() + "\n");
+		StringBuilder pretermianlStr = new StringBuilder();
+		for (int i = 0; i < this.allPreterminal().size(); i++)
+		{
+			short preterminal = this.allPreterminal().get(i);
+			pretermianlStr.append(String.valueOf(preterminal));
+			if (i != this.allPreterminal().size() - 1)
+			{
+				pretermianlStr.append(" ");
+			}
+
+		}
+		out.writeUTF(pretermianlStr.toString() + "\n");
+		out.writeUTF("--一元二元规则集--" + "\n");
+		for (Map.Entry<String, Map<String, Double>[]> entry : allBAndURules.entrySet())
+		{
+			for (Map<String, Double> innerEntry : entry.getValue())
+			{
+				ArrayList<Map.Entry<String, Double>> list = new ArrayList<>(innerEntry.entrySet());
+				sortList(list);
+				for (Map.Entry<String, Double> subRule : list)
+				{
+					out.writeUTF(subRule.getKey() + "\n");
+				}
+			}
+		}
+		out.writeUTF("--预终结符规则集--" + "\n");
+		for (Map.Entry<String, Map<String, Double>[]> entry : allPreRules.entrySet())
+		{
+			for (Map<String, Double> innerEntry : entry.getValue())
+			{
+				ArrayList<Map.Entry<String, Double>> list = new ArrayList<>(innerEntry.entrySet());
+				sortList(list);
+				for (Map.Entry<String, Double> subRule : list)
+				{
+					out.writeUTF(subRule.getKey() + "\n");
+				}
+			}
+		}
+	}
+
+	@Override
+	public void read(DataInput in) throws IOException
+	{
+		Grammar g = new Grammar();
+		String str = in.readUTF();
+		String[] allSymbols = null;// ROOT、......
+		Short[] numNonterminal = null;// ROOT 1
+		Short[] preSymbolIndex = null;
+
+		if (str != null)
+			str = str.trim();
+		if (str.equals("--起始符--"))
+		{
+			g.setStartSymbol(in.readUTF().trim());
+		}
+
+		str = in.readUTF().trim();
+		if (str.equals("--非终结符集--"))
+		{
+			if ((str = in.readUTF()) != null)
+			{
+				allSymbols = str.trim().split(" ");
+			}
+			if ((str = in.readUTF()) != null)
+			{
+				String[] numNonArr = str.trim().split(" ");
+				numNonterminal = new Short[numNonArr.length];
+				for (int i = 0; i < numNonArr.length; i++)
+				{
+					numNonterminal[i] = Short.parseShort(numNonArr[i]);
+				}
+			}
+			if ((str = in.readUTF()) != null)
+			{
+				String indexArr[] = str.trim().split(" ");
+				preSymbolIndex = new Short[indexArr.length];
+				for (int i = 0; i < indexArr.length; i++)
+				{
+					preSymbolIndex[i] = Short.parseShort(indexArr[i]);
+				}
+			}
+		}
+
+		NonterminalTable nonterminalTable = new NonterminalTable();
+		for (String symbol : allSymbols)
+		{
+			nonterminalTable.putSymbol(symbol);
+		}
+		nonterminalTable.setIntValueOfPreterminalArr(new ArrayList<Short>(Arrays.asList(preSymbolIndex)));
+		nonterminalTable.setNumSubsymbolArr(new ArrayList<Short>(Arrays.asList(numNonterminal)));
+		g.setNontermianalTable(nonterminalTable);
+
+		str = in.readUTF();
+		if (str != null)
+			str = str.trim();
+		String[] rule = null;
+		if (str.equals("--一元二元规则集--"))
+		{
+			while ((str = in.readUTF()) != null)
+			{
+				str = str.trim();
+				if (str.equals("--预终结符规则集--"))
+					break;
+				rule = str.split(" ");
+				if (rule.length == 4)
+					g.readURule(rule);
+				else if (rule.length == 5)
+					g.readBRule(rule);
+			}
+		}
+
+		if (str.equals("--预终结符规则集--"))
+		{
+			while ((str = in.readUTF()) != null)
+			{
+				str = str.trim();
+				rule = str.split(" ");
+				if (rule.length == 4)
+					g.readPreRule(rule);
+			}
+		}
 	}
 }

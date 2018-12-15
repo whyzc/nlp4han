@@ -72,7 +72,7 @@ public class GrammarReader
 		String[] rule = null;
 		if (str.equals("--一元二元规则集--"))
 		{
-			while ((str = stream.read()) != null && !str.equals("--预终结符规则--"))
+			while ((str = stream.read()) != null && !str.equals("--预终结符规则集--"))
 			{
 				str = str.trim();
 				rule = str.split(" ");
@@ -83,7 +83,7 @@ public class GrammarReader
 			}
 		}
 
-		if (str.equals("--预终结符规则--"))
+		if (str.equals("--预终结符规则集--"))
 		{
 			while ((str = stream.read()) != null)
 			{
