@@ -396,6 +396,123 @@ public class Grammar implements GrammarWritable
 		preRuleBySameChildren.get(wordIntVal).put(preRule, preRule);
 	}
 
+	public BinaryRule readBRule(String[] rule)
+	{
+
+		String parent = rule[0].split("_")[0];
+		String lChild = rule[2].split("_")[0];
+		String rChild = rule[3].split("_")[0];
+		double score = Double.parseDouble(rule[4]);
+		short index_pSubSym;
+		short index_lCSubSym;
+		short index_rCSubSym;
+		short numSymP = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(parent));
+		short numSymLC = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(lChild));
+		short numSymRC = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(rChild));
+		if (numSymP == 1)
+			index_pSubSym = 0;
+		else
+			index_pSubSym = Short.parseShort(rule[0].split("_")[1]);
+		if (numSymLC == 1)
+			index_lCSubSym = 0;
+		else
+			index_lCSubSym = Short.parseShort(rule[2].split("_")[1]);
+		if (numSymRC == 1)
+			index_rCSubSym = 0;
+		else
+			index_rCSubSym = Short.parseShort(rule[3].split("_")[1]);
+		BinaryRule bRule = new BinaryRule(symbolIntValue(parent), symbolIntValue(lChild), symbolIntValue(rChild));
+		if (bRules.contains(bRule))
+		{
+			for (BinaryRule theRule : bRules)
+			{
+				if (bRule.equals(theRule))
+				{
+					bRule = theRule;
+					break;
+				}
+			}
+		}
+		else
+		{
+			bRule.initScores(numSymP, numSymLC, numSymRC);
+			this.add(bRule);
+		}
+		bRule.setScore(index_pSubSym, index_lCSubSym, index_rCSubSym, score);
+		return bRule;
+	}
+
+	public UnaryRule readURule(String[] rule)
+	{
+		String parent = rule[0].split("_")[0];
+		String child = rule[2].split("_")[0];
+		double score = Double.parseDouble(rule[3]);
+		short index_pSubSym;
+		short index_cSubSym;
+		short numSymP = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(parent));
+		short numSymC = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(child));
+		if (numSymP == 1)
+			index_pSubSym = 0;
+		else
+			index_pSubSym = Short.parseShort(rule[0].split("_")[1]);
+		if (numSymC == 1)
+			index_cSubSym = 0;
+		else
+			index_cSubSym = Short.parseShort(rule[2].split("_")[1]);
+		UnaryRule uRule = new UnaryRule(symbolIntValue(parent), symbolIntValue(child));
+		if (uRules.contains(uRule))
+		{
+			for (UnaryRule theRule : uRules)
+			{
+				if (uRule.equals(theRule))
+				{
+					uRule = theRule;
+					break;
+				}
+			}
+		}
+		else
+		{
+			uRule.initScores(numSymP, numSymC);
+			this.add(uRule);
+		}
+		uRule.setScore(index_pSubSym, index_cSubSym, score);
+		return uRule;
+	}
+
+	public PreterminalRule readPreRule(String[] rule)
+	{
+		String parent = rule[0].split("_")[0];
+		String word = rule[2];
+		double score = Double.parseDouble(rule[3]);
+		short index_pSubSym;
+		short numSymP = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(parent));
+		if (numSymP == 1)
+			index_pSubSym = 0;
+		else
+			index_pSubSym = Short.parseShort(rule[0].split("_")[1]);
+		PreterminalRule preRule = new PreterminalRule(symbolIntValue(parent), word);
+		if (lexicon.getPreRules().contains(preRule))
+		{
+			for (PreterminalRule theRule : lexicon.getPreRules())
+			{
+				if (preRule.equals(theRule))
+				{
+					preRule = theRule;
+					break;
+				}
+			}
+		}
+		else
+		{
+			preRule.initScores(numSymP);
+			this.add(preRule);
+		}
+		preRule.setScore(index_pSubSym, score);
+		return preRule;
+	}
+
+	
 	public void printRules()
 	{
 		for (BinaryRule rule : this.getbRules())
@@ -906,122 +1023,7 @@ public class Grammar implements GrammarWritable
 		return g;
 	}
 
-	public BinaryRule readBRule(String[] rule)
-	{
-
-		String parent = rule[0].split("_")[0];
-		String lChild = rule[2].split("_")[0];
-		String rChild = rule[3].split("_")[0];
-		double score = Double.parseDouble(rule[4]);
-		short index_pSubSym;
-		short index_lCSubSym;
-		short index_rCSubSym;
-		short numSymP = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(parent));
-		short numSymLC = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(lChild));
-		short numSymRC = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(rChild));
-		if (numSymP == 1)
-			index_pSubSym = 0;
-		else
-			index_pSubSym = Short.parseShort(rule[0].split("_")[1]);
-		if (numSymLC == 1)
-			index_lCSubSym = 0;
-		else
-			index_lCSubSym = Short.parseShort(rule[2].split("_")[1]);
-		if (numSymRC == 1)
-			index_rCSubSym = 0;
-		else
-			index_rCSubSym = Short.parseShort(rule[3].split("_")[1]);
-		BinaryRule bRule = new BinaryRule(symbolIntValue(parent), symbolIntValue(lChild), symbolIntValue(rChild));
-		if (bRules.contains(bRule))
-		{
-			for (BinaryRule theRule : bRules)
-			{
-				if (bRule.equals(theRule))
-				{
-					bRule = theRule;
-					break;
-				}
-			}
-		}
-		else
-		{
-			bRule.initScores(numSymP, numSymLC, numSymRC);
-			this.add(bRule);
-		}
-		bRule.setScore(index_pSubSym, index_lCSubSym, index_rCSubSym, score);
-		return bRule;
-	}
-
-	public UnaryRule readURule(String[] rule)
-	{
-		String parent = rule[0].split("_")[0];
-		String child = rule[2].split("_")[0];
-		double score = Double.parseDouble(rule[3]);
-		short index_pSubSym;
-		short index_cSubSym;
-		short numSymP = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(parent));
-		short numSymC = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(child));
-		if (numSymP == 1)
-			index_pSubSym = 0;
-		else
-			index_pSubSym = Short.parseShort(rule[0].split("_")[1]);
-		if (numSymC == 1)
-			index_cSubSym = 0;
-		else
-			index_cSubSym = Short.parseShort(rule[2].split("_")[1]);
-		UnaryRule uRule = new UnaryRule(symbolIntValue(parent), symbolIntValue(child));
-		if (uRules.contains(uRule))
-		{
-			for (UnaryRule theRule : uRules)
-			{
-				if (uRule.equals(theRule))
-				{
-					uRule = theRule;
-					break;
-				}
-			}
-		}
-		else
-		{
-			uRule.initScores(numSymP, numSymC);
-			this.add(uRule);
-		}
-		uRule.setScore(index_pSubSym, index_cSubSym, score);
-		return uRule;
-	}
-
-	public PreterminalRule readPreRule(String[] rule)
-	{
-		String parent = rule[0].split("_")[0];
-		String word = rule[2];
-		double score = Double.parseDouble(rule[3]);
-		short index_pSubSym;
-		short numSymP = nonterminalTable.getNumSubsymbolArr().get(symbolIntValue(parent));
-		if (numSymP == 1)
-			index_pSubSym = 0;
-		else
-			index_pSubSym = Short.parseShort(rule[0].split("_")[1]);
-		PreterminalRule preRule = new PreterminalRule(symbolIntValue(parent), word);
-		if (lexicon.getPreRules().contains(preRule))
-		{
-			for (PreterminalRule theRule : lexicon.getPreRules())
-			{
-				if (preRule.equals(theRule))
-				{
-					preRule = theRule;
-					break;
-				}
-			}
-		}
-		else
-		{
-			preRule.initScores(numSymP);
-			this.add(preRule);
-		}
-		preRule.setScore(index_pSubSym, score);
-		return preRule;
-	}
-
+	
 	@Override
 	public void write(DataOutput out) throws IOException
 	{
