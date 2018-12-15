@@ -295,7 +295,7 @@ public class GrammarExtractor
 		System.out.println("startSymbol:" + g.getStartSymbol());
 		for (int i = 0; i < SMCycle; i++)
 		{
-			System.out.println("->SMCycle: #" + (i + 1));
+			System.out.println("->SMCycle: #" + i);
 			
 			System.err.println("开始分裂。");
 			GrammarSpliter.splitGrammar(g, treeBank);
