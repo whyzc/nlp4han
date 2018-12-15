@@ -91,7 +91,8 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 		int i = 0;
 		for (String bracketString : bracketList)
 		{
-			TreeNode rootNode = BracketExpUtil.generateTree(bracketString);
+			//System.out.println(bracketString.toString());
+			TreeNode rootNode = RestoreTree.restoreTree(BracketExpUtil.generateTree(bracketString));
 			treeArray[i++] = new ConstituentTree(rootNode);
 		}
 		return treeArray;
@@ -135,7 +136,6 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 				{
 					prunEdge(i, j);
 				}
-
 			}
 		}
 		// 回溯并生成括号表达式列表
@@ -367,114 +367,41 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 		}
 
 		StringBuilder strBuilder = new StringBuilder();
-		getParseResult(0, n, resultRule, strBuilder);// 从最后一个节点[0,n]开始回溯
+		CreateStringBuilder(0, n, resultRule, strBuilder);// 从最后一个节点[0,n]开始回溯
 
 		resultList.add(strBuilder.toString());
 
 		return resultList;
 	}
+ 
+	/**
+	 * 递归table和back生成二叉树形式的括号表达式
+	 * @param i
+	 * @param j
+	 * @param prule
+	 * @param strBuilder
+	 */
+	private void CreateStringBuilder(int i, int j, CKYPRule prule, StringBuilder strBuilder) {
+		strBuilder.append("(");
 
-	// 递归table和back生成StringBuilder
-	private void getParseResult(int i, int j, CKYPRule prule, StringBuilder strBuilder)
-	{
-		int count = 1;
-		String lhs = prule.getLhs();
-		if (prule.getLhs().contains("@"))
-		{// 存在单位产品则恢复
-			strBuilder.append("(");
-			String[] strArray = lhs.split("@");
-			count += strArray.length;
-			for (String lhs1 : strArray)
-			{
-				// 含有为伪词性标注则跳过
-				if (lhs1.contains("$"))
-				{
-					count--;
-					continue;
-				}
-				strBuilder.append("(");
-				strBuilder.append(lhs1);
-			}
-		} // * 当含有&符号时，则为两个非终结符在中间过程合成的，故不处理此非终结符，直接跳过
-		else if (prule.getLhs().contains("&"))
-		{
-			backTrack(i, prule.getK(), prule, 0, strBuilder);
-			backTrack(prule.getK(), j, prule, 1, strBuilder);
-			return;
-		}
-		else
-		{
-			strBuilder.append("(");
-			strBuilder.append(lhs);
-		}
-
-		if (table[i][j].isFlag())
-		{
+		strBuilder.append(prule.getLhs());
+		if (i == j - 1)
+		{// 对角线存储词性规则
 			strBuilder.append(" ");
 			strBuilder.append(prule.getRhs().get(0));
-		}
-		else
-		{
-			backTrack(i, prule.getK(), prule, 0, strBuilder);
-			backTrack(prule.getK(), j, prule, 1, strBuilder);
-		}
-
-		while (count > 0)
-		{
 			strBuilder.append(")");
-			count--;
+			return;
 		}
+		// 第一个孩子
+		CKYPRule lPrule = table[i][prule.getK()].getPruleMap().get(prule.getRhs().get(0));
+		CreateStringBuilder(i, prule.getK(), lPrule, strBuilder);
+		// 第二个孩子
+		CKYPRule rPrule = table[prule.getK()][j].getPruleMap().get(prule.getRhs().get(1));
+		CreateStringBuilder(prule.getK(), j, rPrule, strBuilder);
+
+		strBuilder.append(")");
 	}
-
-	/**
-	 * 添加左右括号和终结符与非终结符，i记录prule右侧的非终结符序号
-	 */
-	private void backTrack(int n, int m, CKYPRule prule, int i, StringBuilder strBuilder)
-	{
-		CKYPRule prule1;
-		String DuPos = prule.getRhs().get(i);
-		prule1 = table[n][m].getPruleMap().get(DuPos);// 获取对应的规则
-		if (table[n][m].isFlag())
-		{// 叶子结点
-			int count = 1;
-			String pos;
-			pos = prule1.getLhs();
-			strBuilder.append("(");
-			// 为终结符，类似"$中国$"，直接跳过
-			if (pos.contains("$"))
-			{
-
-			}
-			// 恢复单位产品
-			else if (pos.contains("@"))
-			{
-				String[] strArray = pos.split("@");
-				count += strArray.length;
-				for (String pos1 : strArray)
-				{
-					strBuilder.append("(");// 此处多打一个括号没有关系，因为在生成树的时候会格式化，去掉空的括号表达式
-					strBuilder.append(pos1);
-				}
-			}
-			else
-			{
-				strBuilder.append(pos);// 词性标注
-			}
-
-			strBuilder.append(" ");
-			strBuilder.append(prule1.getRhs().get(0));// 词
-			while (count > 0)
-			{
-				strBuilder.append(")");
-				count--;
-			}
-		}
-		else
-		{
-			getParseResult(n, m, prule1, strBuilder);
-		}
-	}
-
+	
 	/**
 	 * 内部类,table存储类,记录在table[i][j]点中的映射规则表，以及用于判断是否为对角线上点的flag
 	 */
