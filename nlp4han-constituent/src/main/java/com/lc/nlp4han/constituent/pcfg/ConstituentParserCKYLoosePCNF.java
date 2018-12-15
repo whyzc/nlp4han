@@ -557,7 +557,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 	
 	public static void main(String[] args) throws IOException, ClassNotFoundException
 	{
-		PCFG p2nf = (PCFG) CFGModelIOUtil.loadModel(args[0]); 
+		PCFG p2nf=CFGModelIOUtil.loadPCFGModel(args[0]); 
 		
 		double pruneThreshold = 0.0001;//Double.parseDouble(args[2]);
 		boolean secondPrune = false;//Boolean.getBoolean(args[3]);

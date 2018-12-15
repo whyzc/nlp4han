@@ -67,7 +67,8 @@ public class CKYEvalTool
 
 	public static void eval(String trainFile, String goldFile, String encoding,double pruneThreshold,boolean secondPrune,boolean prior,boolean segmentPrune) throws IOException, ClassNotFoundException
 	{
-		PCFG pcnf =(PCFG) CFGModelIOUtil.loadModel(trainFile); 
+		PCFG pcnf=CFGModelIOUtil.loadPCFGModel(trainFile); 
+        
 		CKYParserEvaluator evaluator = new CKYParserEvaluator(pcnf,"pcnf",pruneThreshold,secondPrune,prior,segmentPrune);
 		
 		ConstituentMeasure measure = new ConstituentMeasure();

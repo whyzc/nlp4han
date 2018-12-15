@@ -12,7 +12,7 @@ public class BracketListToTree
 
 		// 查找概率最大的可行结果
 		Edge edge = getBestTop(chart[0][n]);
-		if (edge.getPro() == -1)
+		if (edge.getLabel()==null)
 		{// 如果没有Parse结果则直接返回
 			return resultList;
 		}
@@ -78,6 +78,7 @@ public class BracketListToTree
 	{
 		Edge bestEdge = new Edge();
 		Distance distance = new Distance(true, false);
+
 		for (Edge edge : node.getEdgeMap().keySet())
 		{
 			if (edge.getLabel().equals("ROOT") && edge.isStop() && edge.getLc().equals(distance)
