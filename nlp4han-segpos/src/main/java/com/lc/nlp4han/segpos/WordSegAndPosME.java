@@ -167,11 +167,11 @@ public class WordSegAndPosME implements WordSegAndPos{
 	
 	/**
 	 * 得到最好的numTaggings个标记序列
-	 * @param numTaggings 个数
 	 * @param characters 一个个字
+	 * @param numTaggings 个数
 	 * @return 分词加词性标注的序列
 	 */
-	public String[][] tag(int numTaggings, String[] characters) {
+	public String[][] tag(String[] characters, int numTaggings) {
         Sequence[] bestSequences = model.bestSequences(numTaggings, characters, null,
         		contextGenerator, sequenceValidator);
         String[][] tagsandposes = new String[bestSequences.length][];
