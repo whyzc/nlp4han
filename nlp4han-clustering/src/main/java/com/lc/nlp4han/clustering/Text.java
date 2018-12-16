@@ -40,11 +40,24 @@ public class Text
 		defaultName++;
 	}
 
+	/**
+	 * 从磁盘路径中加载Text
+	 * @param folderPath 文件路径
+	 * @param useDefaultName 是否使用默认名作为Text名，若为false，会将文件的文件名作为Text.name
+	 * @return Text的列表
+	 */
 	public static List<Text> getTexts(String folderPath, boolean useDefaultName)
 	{
 		return getTexts(folderPath, useDefaultName, "UTF-8");
 	}
 	
+	/**
+	 从磁盘路径中加载Text
+	 * @param folderPath 文件路径
+	 * @param useDefaultName 是否使用默认名作为Text名，若为false，会将文件的文件名作为Text.name
+	 * @param encoding 文件的编码方式
+	 * @return Text的列表
+	 */
 	public static List<Text> getTexts(String folderPath, boolean useDefaultName, String encoding)
 	{
 		List<Text> result = new ArrayList<Text>();
@@ -224,6 +237,4 @@ public class Text
 		return true;
 	}
 	
-	
-
 }

@@ -16,8 +16,9 @@ public class KMeans
 		List<Group> groups = new ArrayList<Group>();
 		
 		
-		FeatureGenerator fg = new WordBasedFeatureGenerator();
-		fg.init(texts);
+		FeatureGenerator fg = new WordBasedZeroOneFeatureGenerator();
+		if (!fg.isInitialized())
+			fg.init(texts);
 		
 		DistanceCalculator distance = new JaccardCoefficientBasedDistanceCalculator();
 		
