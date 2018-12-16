@@ -19,6 +19,7 @@ public class GrammarInducerlTool
 		{
 			return;
 		}
+
 		String corpusFile = null;
 		String encoding = "UTF-8";
 		String modelFile = null;
@@ -40,23 +41,24 @@ public class GrammarInducerlTool
 				i++;
 			}
 		}
-		
-		ExtractAndWriteLoosePCNFModel(corpusFile, encoding, modelFile);
+
+		extractAndWriteLoosePCNFModel(corpusFile, encoding, modelFile);
 	}
 
-	private static void ExtractAndWriteLoosePCNFModel(String corpusFile, String encoding, String modelFile) throws IOException
+	private static void extractAndWriteLoosePCNFModel(String corpusFile, String encoding, String modelFile)
+			throws IOException
 	{
 		PCFG pcfg = GrammarExtractor.getPCFG(corpusFile, encoding);
 
 		PCFG loosePCNF = GrammarConvertor.PCFG2LoosePCNF(pcfg);
-		
+
 		if (modelFile == null)
 		{
 			System.out.println(loosePCNF.toString());
 		}
 		else
 		{
-            CFGModelIOUtil.writeModel(loosePCNF,modelFile);
+			CFGModelIOUtil.writeModel(loosePCNF, modelFile);
 		}
 	}
 }
