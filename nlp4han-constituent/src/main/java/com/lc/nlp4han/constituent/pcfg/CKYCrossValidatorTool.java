@@ -1,10 +1,7 @@
 package com.lc.nlp4han.constituent.pcfg;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 import com.lc.nlp4han.constituent.ConstituentMeasure;
