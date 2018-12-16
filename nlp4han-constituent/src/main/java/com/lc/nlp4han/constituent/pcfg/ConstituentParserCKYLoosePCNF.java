@@ -27,8 +27,11 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 	private boolean secondPrune;// 是否进行二次解析
 	private boolean prior;//是否在解析中
 
-	public ConstituentParserCKYLoosePCNF(PCFG pcnf, double pruneThreshold, boolean secondPrune,boolean prior)
+	public ConstituentParserCKYLoosePCNF(PCFG pcnf, double pruneThreshold, boolean secondPrune,boolean prior) throws UncompatibleGrammar
 	{
+		if(!pcnf.isLooseCNF())
+			throw new UncompatibleGrammar();
+		
 		this.pruneThreshold = pruneThreshold;
 		this.secondPrune = secondPrune;
 		this.pcnf = pcnf;

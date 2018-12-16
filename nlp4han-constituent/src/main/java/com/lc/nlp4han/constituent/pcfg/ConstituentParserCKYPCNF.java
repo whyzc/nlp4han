@@ -21,8 +21,11 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 	private boolean secondPrune;// 是否进行二次解析
 	private boolean prior;// 进行剪枝时是否添加先验概率
 
-	public ConstituentParserCKYPCNF(PCFG pcnf, double pruneThreshold, boolean secondPrune, boolean prior)
+	public ConstituentParserCKYPCNF(PCFG pcnf, double pruneThreshold, boolean secondPrune, boolean prior) throws UncompatibleGrammar
 	{
+		if(!pcnf.IsCNF())
+			throw new UncompatibleGrammar();
+		
 		this.pruneThreshold = pruneThreshold;
 		this.secondPrune = secondPrune;
 		this.pcnf = pcnf;

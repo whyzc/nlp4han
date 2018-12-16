@@ -24,7 +24,7 @@ public class CKYCrossValidatorTool
 {
 
 	private static ConstituentParser getParser(TrainingSampleStream<ConstituentTree> trainingSampleStream,
-			double pruneThreshold, boolean secondPrune,boolean prior,boolean segmentPrune) throws IOException
+			double pruneThreshold, boolean secondPrune, boolean prior, boolean segmentPrune) throws IOException
 	{
 		ArrayList<String> bracketList = new ArrayList<String>();
 		ConstituentTree tree = trainingSampleStream.read();
@@ -33,20 +33,14 @@ public class CKYCrossValidatorTool
 			bracketList.add(tree.getRoot().toString());
 			tree = trainingSampleStream.read();
 		}
-		
+
 		System.out.println("从树库提取文法...");
 		PCFG pcfg = GrammarExtractor.getPCFG(bracketList);
-		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("D:\\NLP\\TESTpcfg.txt"), "utf-8"));	
-		bw.append(pcfg.toString());
-		bw.close();
 
 		System.out.println("对文法进行转换...");
 		PCFG pcnf = GrammarConvertor.PCFG2PCNF(pcfg);
-		BufferedWriter bw1 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("D:\\NLP\\TESTpcnf.txt"), "utf-8"));	
-		bw1.append(pcnf.toString());
-		bw1.close();
-		
-		return new ConstituentParserCKYPCNF(pcnf, pruneThreshold, secondPrune,prior);
+
+		return new ConstituentParserCKYPCNF(pcnf, pruneThreshold, secondPrune, prior);
 	}
 
 	/**
@@ -61,7 +55,7 @@ public class CKYCrossValidatorTool
 	 * @throws IOException
 	 */
 	public void evaluate(ObjectStream<ConstituentTree> sampleStream, int nFolds, ConstituentMeasure measure,
-			double pruneThreshold, boolean secondPrune,boolean prior,boolean segmentPrune) throws IOException
+			double pruneThreshold, boolean secondPrune, boolean prior, boolean segmentPrune) throws IOException
 	{
 		CrossValidationPartitioner<ConstituentTree> partitioner = new CrossValidationPartitioner<ConstituentTree>(
 				sampleStream, nFolds);
@@ -73,7 +67,8 @@ public class CKYCrossValidatorTool
 
 			long start = System.currentTimeMillis();
 			CrossValidationPartitioner.TrainingSampleStream<ConstituentTree> trainingSampleStream = partitioner.next();
-			ConstituentParser parser = getParser(trainingSampleStream, pruneThreshold, secondPrune,prior,segmentPrune);
+			ConstituentParser parser = getParser(trainingSampleStream, pruneThreshold, secondPrune, prior,
+					segmentPrune);
 			System.out.println("训练学习时间：" + (System.currentTimeMillis() - start) + "ms");
 
 			CKYParserEvaluator evaluator = new CKYParserEvaluator(parser);
@@ -106,7 +101,7 @@ public class CKYCrossValidatorTool
 		double pruneThreshold = 0.0001;
 		boolean secondPrune = false;
 		boolean prior = false;
-		boolean segmentPrune=false;//分段剪枝，即根据句子长度确定剪枝阈值
+		boolean segmentPrune = false;// 分段剪枝，即根据句子长度确定剪枝阈值
 		for (int i = 0; i < args.length; i++)
 		{
 			if (args[i].equals("-data"))
@@ -150,7 +145,7 @@ public class CKYCrossValidatorTool
 		ObjectStream<ConstituentTree> sampleStream = new ConstituentTreeStream(treeStream);
 		CKYCrossValidatorTool run = new CKYCrossValidatorTool();
 		ConstituentMeasure measure = new ConstituentMeasure();
-	
-		run.evaluate(sampleStream, folds, measure, pruneThreshold, secondPrune,prior,segmentPrune);
+
+		run.evaluate(sampleStream, folds, measure, pruneThreshold, secondPrune, prior, segmentPrune);
 	}
 }

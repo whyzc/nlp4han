@@ -41,7 +41,7 @@ public class CKYParserEvaluator extends Evaluator<ConstituentTree>
 		this.cky = cky;
 	}
 
-	public CKYParserEvaluator(PCFG pcnf, String type,double pruneThreshold, boolean secondPrune,boolean prior,boolean segmentPrune)
+	public CKYParserEvaluator(PCFG pcnf, String type,double pruneThreshold, boolean secondPrune,boolean prior,boolean segmentPrune) throws UncompatibleGrammar
 	{
 		if(type.equals("pcnf")) {
 			this.cky = new ConstituentParserCKYPCNF(pcnf, pruneThreshold, secondPrune,prior);			
