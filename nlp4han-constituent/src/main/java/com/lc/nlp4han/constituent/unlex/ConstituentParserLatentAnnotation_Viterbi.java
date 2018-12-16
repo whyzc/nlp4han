@@ -1,7 +1,6 @@
 package com.lc.nlp4han.constituent.unlex;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
@@ -17,6 +16,7 @@ import com.lc.nlp4han.constituent.pcfg.UncompatibleGrammar;
  */
 public class ConstituentParserLatentAnnotation_Viterbi implements ConstituentParserLatentAnnotation
 {
+	// TODO:使用ConstituentParserCKYPCNF
 	private ConstituentParserCKYLoosePCNF p2nf;
 
 	public ConstituentParserLatentAnnotation_Viterbi(Grammar gLatent) throws UncompatibleGrammar
@@ -28,23 +28,24 @@ public class ConstituentParserLatentAnnotation_Viterbi implements ConstituentPar
 			boolean prior) throws UncompatibleGrammar
 	{
 		PCFG pcfg = gLatent.getPCFG();
-		HashMap<String, Double> posMap = new HashMap<>();
+		// HashMap<String, Double> posMap = new HashMap<>();
 		for (short preterminal : gLatent.allPreterminal())
 		{
 			String originalPre = gLatent.symbolStrValue(preterminal);
-			posMap.put(originalPre, 1.0);
+			// posMap.put(originalPre, 1.0);
 			for (short subPreterminal = 0; subPreterminal < gLatent.getNumSubSymbol(preterminal); subPreterminal++)
 			{
 				String subPre;
 				if (gLatent.getNumSubSymbol(preterminal) == 1)
 					subPre = originalPre;
-				subPre = originalPre + "_" + subPreterminal;
+				else// 新添加的，以往没有else时对于句子包含没有被分裂的tag时会直接导致该句子解析不了。
+					subPre = originalPre + "_" + subPreterminal;
+				pcfg.addNonTerminal(subPre);
 				PRule pRule = new PRule(1.0, subPre, originalPre);
 				pcfg.add(pRule);
 			}
 		}
-
-		pcfg.setPosMap(posMap);
+		// pcfg.setPosMap(posMap);
 		p2nf = new ConstituentParserCKYLoosePCNF(pcfg, pruneThreshold, secondPrune, prior);
 
 	}
@@ -78,7 +79,6 @@ public class ConstituentParserLatentAnnotation_Viterbi implements ConstituentPar
 			return null;
 	}
 
-	
 	/**
 	 * 去掉为了viterbi解析特意添加的额外的规则
 	 * 

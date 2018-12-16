@@ -99,6 +99,7 @@ public class Grammar implements GrammarWritable
 	public PCFG getPCFG()
 	{
 		PCFG pcfg = new PCFG();
+		Set<String> nonTerminalSet = this.getAllSubNonterminalSym();
 		for (UnaryRule uRule : uRules)
 		{
 			for (String aRule : uRule.toStringRules(this))
@@ -112,7 +113,7 @@ public class Grammar implements GrammarWritable
 				}
 			}
 		}
-		
+
 		for (BinaryRule bRule : bRules)
 		{
 			for (String aRule : bRule.toStringRules(this))
@@ -127,7 +128,7 @@ public class Grammar implements GrammarWritable
 			}
 
 		}
-		
+
 		for (PreterminalRule preRule : lexicon.getPreRules())
 		{
 			for (String aRule : preRule.toStringRules(this))
@@ -141,9 +142,30 @@ public class Grammar implements GrammarWritable
 				}
 			}
 		}
-		
+		pcfg.setNonTerminalSet(nonTerminalSet);
 		pcfg.setStartSymbol("ROOT");
 		return pcfg;
+	}
+
+	private HashSet<String> getAllSubNonterminalSym()
+	{
+		HashSet<String> nonTerminalSet = new HashSet<String>();
+		for (short symbol = 0; symbol < this.getNumSymbol(); symbol++)
+		{
+			String symStr = this.symbolStrValue(symbol);
+			for (short subSym = 0; subSym < this.getNumSubSymbol(symbol); subSym++)
+			{
+				if (subSym == 0 && this.getNumSubSymbol(symbol) == 1)
+				{
+					nonTerminalSet.add(symStr);
+				}
+				else
+				{
+					nonTerminalSet.add(symStr + "_" + subSym);
+				}
+			}
+		}
+		return nonTerminalSet;
 	}
 
 	private void init()
@@ -155,7 +177,7 @@ public class Grammar implements GrammarWritable
 			{
 				bRuleBySameHead.put(bRule.parent, new HashMap<BinaryRule, BinaryRule>());
 			}
-			
+
 			bRuleBySameHead.get(bRule.parent).put(bRule, bRule);
 
 			if (!bRuleBySameChildren.containsKey(bRule.getLeftChild()))
@@ -163,13 +185,13 @@ public class Grammar implements GrammarWritable
 
 				bRuleBySameChildren.put(bRule.getLeftChild(), new HashMap<Short, HashMap<BinaryRule, BinaryRule>>());
 			}
-			
+
 			if (!bRuleBySameChildren.get(bRule.getLeftChild()).containsKey(bRule.getRightChild()))
 			{
 				bRuleBySameChildren.get(bRule.getLeftChild()).put(bRule.getRightChild(),
 						new HashMap<BinaryRule, BinaryRule>());
 			}
-			
+
 			bRuleBySameChildren.get(bRule.getLeftChild()).get(bRule.getRightChild()).put(bRule, bRule);
 		}
 
@@ -228,7 +250,7 @@ public class Grammar implements GrammarWritable
 					}
 				}
 			}
-			
+
 			if (this.uRuleBySameHead.containsKey(symbol))
 			{
 				for (UnaryRule uRule : this.uRuleBySameHead.get(symbol).keySet())
@@ -253,7 +275,7 @@ public class Grammar implements GrammarWritable
 				}
 			}
 		}
-		
+
 		return sameParentRuleScoreSum;
 	}
 
@@ -272,14 +294,14 @@ public class Grammar implements GrammarWritable
 				berrcount++;
 				System.err.println(false + "********************二元规则集bRuleBySameHead" + berrcount);
 			}
-			
+
 			if (bRule != bRuleBySameChildren.get(bRule.getLeftChild()).get(bRule.getRightChild()).get(bRule))
 			{
 				berrcount1++;
 				System.err.println(false + "********************二元规则集bRuleBySameChildren" + berrcount1);
 			}
 		}
-		
+
 		for (UnaryRule uRule : uRules)
 		{
 			if (uRule == uRuleBySameHead.get(uRule.parent).get(uRule))
@@ -291,14 +313,14 @@ public class Grammar implements GrammarWritable
 				uerrcount++;
 				System.err.println(false + "********************一元规则uRuleBySameHead" + uerrcount);
 			}
-			
+
 			if (uRule != uRuleBySameChildren.get(uRule.getChild()).get(uRule))
 			{
 				uerrcount1++;
 				System.err.println(false + "********************一元规则uRuleBySameChildren" + uerrcount1);
 			}
 		}
-		
+
 		for (PreterminalRule preRule : lexicon.getPreRules())
 		{
 			if (preRule == preRuleBySameHead.get(preRule.parent).get(preRule))
@@ -310,7 +332,7 @@ public class Grammar implements GrammarWritable
 				perrcount++;
 				System.err.println(false + "********************预终结符号规则preRuleBySameHead" + perrcount);
 			}
-			
+
 			if (preRule != preRuleBySameChildren.get(lexicon.getDictionary().get(preRule.getWord())).get(preRule))
 			{
 				perrcount1++;
@@ -360,14 +382,14 @@ public class Grammar implements GrammarWritable
 		{
 			bRuleBySameChildren.put(lc, new HashMap<Short, HashMap<BinaryRule, BinaryRule>>());
 		}
-		
+
 		middleMap = bRuleBySameChildren.get(lc);
 		HashMap<BinaryRule, BinaryRule> innerMap;
 		if (!middleMap.containsKey(rc))
 		{
 			middleMap.put(rc, new HashMap<BinaryRule, BinaryRule>());
 		}
-		
+
 		innerMap = middleMap.get(rc);
 		innerMap.put(bRule, bRule);
 	}
@@ -428,12 +450,12 @@ public class Grammar implements GrammarWritable
 			index_pSubSym = 0;
 		else
 			index_pSubSym = Short.parseShort(rule[0].split("_")[1]);
-		
+
 		if (numSymLC == 1)
 			index_lCSubSym = 0;
 		else
 			index_lCSubSym = Short.parseShort(rule[2].split("_")[1]);
-		
+
 		if (numSymRC == 1)
 			index_rCSubSym = 0;
 		else
@@ -455,7 +477,7 @@ public class Grammar implements GrammarWritable
 			bRule.initScores(numSymP, numSymLC, numSymRC);
 			this.add(bRule);
 		}
-		
+
 		bRule.setScore(index_pSubSym, index_lCSubSym, index_rCSubSym, score);
 		return bRule;
 	}
@@ -530,7 +552,6 @@ public class Grammar implements GrammarWritable
 		return preRule;
 	}
 
-	
 	public void printRules()
 	{
 		for (BinaryRule rule : this.getbRules())
@@ -540,7 +561,7 @@ public class Grammar implements GrammarWritable
 				System.out.println(str);
 			}
 		}
-		
+
 		for (UnaryRule rule : this.getuRules())
 		{
 			for (String str : rule.toStringRules(this))
@@ -548,7 +569,7 @@ public class Grammar implements GrammarWritable
 				System.out.println(str);
 			}
 		}
-		
+
 		for (PreterminalRule rule : this.getLexicon().getPreRules())
 		{
 			for (String str : rule.toStringRules(this))
@@ -1043,7 +1064,6 @@ public class Grammar implements GrammarWritable
 		return g;
 	}
 
-	
 	@Override
 	public void write(DataOutput out) throws IOException
 	{
