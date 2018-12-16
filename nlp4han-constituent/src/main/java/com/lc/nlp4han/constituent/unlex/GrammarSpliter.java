@@ -17,10 +17,13 @@ public class GrammarSpliter
 		splitRule(oldG.getbRules());
 		splitRule(oldG.getuRules());
 		splitRule(oldG.getLexicon().getPreRules());
+		
 		oldG.getNumSubsymbolArr().replaceAll(e -> Short.valueOf((short) (e * 2)));
 		oldG.getNumSubsymbolArr().set(oldG.symbolIntValue(oldG.getStartSymbol()), (short) 1);
+		
 		// 让PreterminalRule概率归一化
 		GrammarExtractor.normalizedPreTermianlRules(oldG);
+		
 		for (AnnotationTreeNode tree : treeBank.getTreeBank())
 		{
 			splitTreeAnnotation(tree, oldG);

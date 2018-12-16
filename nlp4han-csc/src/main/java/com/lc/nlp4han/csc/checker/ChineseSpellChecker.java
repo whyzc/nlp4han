@@ -2,7 +2,7 @@ package com.lc.nlp4han.csc.checker;
 
 import java.util.ArrayList;
 
-import com.lc.nlp4han.csc.correct.ChineseSpellErrorCorrector;
+import com.lc.nlp4han.csc.correct.CorrectorNCM;
 import com.lc.nlp4han.csc.correct.CorrectResult;
 import com.lc.nlp4han.csc.detecet.DetectorNCM;
 import com.lc.nlp4han.csc.detecet.DetectResult;
@@ -24,12 +24,12 @@ public class ChineseSpellChecker {
 	
 	private DetectorNCM detector;
 	
-	private ChineseSpellErrorCorrector corrector;
+	private CorrectorNCM corrector;
 	
 	public ChineseSpellChecker(NoisyChannelModel noisyChannelModel) {
 		this.noisyChannelModel = noisyChannelModel;
 		detector = new DetectorNCM(noisyChannelModel);
-		corrector = new ChineseSpellErrorCorrector(noisyChannelModel);
+		corrector = new CorrectorNCM(noisyChannelModel);
 	}
 	
 	/**

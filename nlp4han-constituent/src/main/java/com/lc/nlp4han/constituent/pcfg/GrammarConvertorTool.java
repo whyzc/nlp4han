@@ -45,20 +45,25 @@ public class GrammarConvertorTool
 	private static void GrammarConvertor(String corpusFile, String type, String encoding, String topath)
 			throws IOException, ClassNotFoundException
 	{
-		CFG cfg, cnf;
-		cfg = CFGModelIOUtil.loadModel(corpusFile);
+		CFG cnf;
 
 		if (type.equals("CNF"))
 		{
+			CFG cfg=CFGModelIOUtil.loadCFGModel(corpusFile);	
+			
 			cnf = GrammarConvertor.CFG2CNF(cfg);
 		}
 		else if (type.equals("P2NF"))
 		{
-			cnf = GrammarConvertor.PCFG2LoosePCNF((PCFG) cfg);
+			PCFG p2nf=CFGModelIOUtil.loadPCFGModel(corpusFile);
+			
+			cnf = GrammarConvertor.PCFG2LoosePCNF(p2nf);
 		}
 		else
 		{
-			cnf = GrammarConvertor.PCFG2PCNF((PCFG) cfg);
+			PCFG pcnf=CFGModelIOUtil.loadPCFGModel(corpusFile);
+			
+			cnf = GrammarConvertor.PCFG2PCNF(pcnf);
 		}
 		
 		if (topath == null)
@@ -67,7 +72,7 @@ public class GrammarConvertorTool
 		}
 		else
 		{
-			CFGModelIOUtil.writeModel(cnf, topath);
+           CFGModelIOUtil.writeModel(cnf, topath);
 		}
 	}
 }

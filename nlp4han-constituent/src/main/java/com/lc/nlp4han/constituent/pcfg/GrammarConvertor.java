@@ -37,7 +37,7 @@ public class GrammarConvertor
 	 * 
 	 * @param pcfg
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public static PCFG PCFG2PCNF(PCFG pcfg) throws IOException
 	{
@@ -72,7 +72,7 @@ public class GrammarConvertor
 		{
 			map.put(pos, pcfg.getPosPro(pos));
 		}
-		
+
 		cnf.setPosMap(map);
 	}
 
@@ -199,14 +199,17 @@ public class GrammarConvertor
 
 	/**
 	 * 由宽松PCNF转换为PCNF
+	 * 
 	 * @param cnf
 	 * @return
 	 */
-	public static PCFG loosePCNF2PCNF(CFG cnf) {
-		HashSet<String> posSet=cnf.getPosSet();
-		removeUnitProduction("PCNF",posSet,cnf);
-		return (PCFG)cnf;
+	public static PCFG loosePCNF2PCNF(CFG cnf)
+	{
+		HashSet<String> posSet = cnf.getPosSet();
+		removeUnitProduction("PCNF", posSet, cnf);
+		return (PCFG) cnf;
 	}
+
 	/**
 	 * 消除单元规则
 	 */
@@ -214,7 +217,7 @@ public class GrammarConvertor
 	{
 		HashSet<RewriteRule> deletePRuleSet = new HashSet<RewriteRule>();
 		Set<String> nonterSet = cnf.getNonTerminalSet();
-		
+
 		for (String nonTer : cnf.getNonTerminalSet())
 		{
 			for (RewriteRule rule : cnf.getRuleBylhs(nonTer))
@@ -226,6 +229,7 @@ public class GrammarConvertor
 					{// 消除单元规则终止于POS层次
 						continue;
 					}
+					
 					if (nonterSet.contains(rhs))
 					{
 						deletePRuleSet.add(rule);
@@ -234,7 +238,8 @@ public class GrammarConvertor
 				}
 			}
 		}
-		DeletePRuleSet(deletePRuleSet, cnf);
+		
+		deletePRuleSet(deletePRuleSet, cnf);
 	}
 
 	private static void removeUPAndAddNewRule(RewriteRule rule, String type, HashSet<String> posSet, CFG cnf)
@@ -247,11 +252,13 @@ public class GrammarConvertor
 		{
 			return;// 如果单元规则迭代有3次以上，则返回
 		}
+		
 		if (posSet.contains(rule.getRhs().get(0)))
 		{
 			cnf.add(rule);// 若该规则右侧为词性标注则直接添加
 			return;
 		}
+		
 		for (String lhs2 : lhs1)
 		{
 			if (lhs2.equals(rhs))
@@ -259,6 +266,7 @@ public class GrammarConvertor
 				return;// 如果出现循环非终结符则返回
 			}
 		}
+		
 		for (RewriteRule rule1 : cnf.getRuleBylhs(rule.getRhs().get(0)))
 		{
 			RewriteRule rule2;
@@ -274,6 +282,7 @@ public class GrammarConvertor
 			{
 				rule2 = new RewriteRule(rule.getLhs() + "@" + rule1.getLhs(), rule1.getRhs());
 			}
+			
 			if (rule1.getRhs().size() == 2 || !cnf.getNonTerminalSet().contains(rule1.getRhs().get(0)))
 			{
 				cnf.add(rule2);
@@ -285,7 +294,7 @@ public class GrammarConvertor
 		}
 	}
 
-	private static void DeletePRuleSet(HashSet<RewriteRule> deletePRuleSet, CFG cnf)
+	private static void deletePRuleSet(HashSet<RewriteRule> deletePRuleSet, CFG cnf)
 	{
 		for (RewriteRule rule : deletePRuleSet)
 		{

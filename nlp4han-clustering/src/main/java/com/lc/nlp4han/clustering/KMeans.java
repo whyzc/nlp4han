@@ -15,13 +15,14 @@ public class KMeans
  
 		List<Group> groups = new ArrayList<Group>();
 		
-		boolean exitFlag = true;
 		
-		FeatureGenerator fg = new WordBasedFeatureGenerator();
-		fg.init(texts);
-		
+		FeatureGenerator fg = new WordBasedZeroOneFeatureGenerator();
+		if (!fg.isInitialized())
+			fg.init(texts);
 		
 		DistanceCalculator distance = new JaccardCoefficientBasedDistanceCalculator();
+		
+		UpdateGroupCenter ugc = new PAMUpateGroupCenter(distance);
 		
 		for (int i=0 ; i<texts.size() ; i++)
 		{
@@ -66,16 +67,10 @@ public class KMeans
 				groups.get(index).addMember(texts.get(j));
 			}
 			
-			for (int j=0 ; j<k ; j++)
-			{
-				if (groups.get(j).updateCenter())
-					exitFlag = false;
-			}
 			
-			if (exitFlag)
+			if (!ugc.updateCenter(groups))
 				break;
-			else
-				exitFlag = true;
+			
 		}
 		
 		if (iterationTimes > TIMES)
@@ -87,15 +82,22 @@ public class KMeans
 	
 	private static int minDistanceGroup(Text t, List<Group> grps, DistanceCalculator d)
 	{
-		double min = -1;
+		double min = Double.POSITIVE_INFINITY;
 		int index = -1;
 		for (int i=0 ; i<grps.size() ; i++)
 		{
 			double distance = d.getDistance(t, grps.get(i));
-			if (distance > min)
+			if (distance < min)
 			{
 				min = distance;
 				index = i;
+			}
+			else if (distance == 0)
+			{
+				if (grps.get(i).getMembersNumber() < grps.get(index).getMembersNumber())
+				{
+					index = i;
+				}
 			}
 		}
 		return index;

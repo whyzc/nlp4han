@@ -1,8 +1,11 @@
 package com.lc.nlp4han.clustering;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class Group
 {
@@ -27,72 +30,6 @@ public class Group
 			members = new LinkedList<Text>();
 		members.addAll(texts);
 	}
-
-	public static Double getDistance(Group g1, Group g2, DistanceCalculator d)
-	{
-		return d.getDistance(g1, g2);
-	}
-
-	public static Group getNearestGroup(Group g, List<Group> grps, DistanceCalculator d)
-	{
-		double minDistance = Double.POSITIVE_INFINITY;
-		int index = -1;
-		for (int i=0 ; i<grps.size() ; i++)
-		{
-			double distance = d.getDistance(g, grps.get(i));
-			if (distance < minDistance)
-			{
-				minDistance = distance;
-				index = i;
-			}
-		}
-		return grps.get(index);
-	}
-
-	public boolean updateCenter()
-	{
-		if (members==null || members.size()<1)
-			return false;
-			
-		
-		List<Feature> newCenter = new ArrayList<Feature>();
-		
-		for (int i=0 ; i<members.size() ; i++)  // 将members每个成员的Sample中vector的每位对应相加
-		{
-			List<Feature> fs = members.get(i).getSample().getFeatures();
-			
-			for (int j=0 ; j<fs.size() ; j++)
-			{
-				int index;
-				if ((index=newCenter.indexOf(fs.get(j))) == -1)
-				{
-					newCenter.add(fs.get(j).clone());
-				}
-//				else
-//				{
-//					Feature tmp = newCenter.get(index);
-//					tmp.setValue(tmp.getValue()+fs.get(j).getValue());
-//				}
-			}
-			
-			
-		}
-		
-//		for (int i=0 ; i<newCenter.size() ; i++)
-//		{
-//			Feature tmp = newCenter.get(i);
-//			tmp.setValue(tmp.getValue()/members.size());
-//		}
-		
-		if (newCenter.equals(center.getFeatures()))
-			return false;
-		else
-		{
-			center.setFeatures(newCenter);
-			return true;
-		}
-	}
-	
 
 	public void addMember(Text t)
 	{

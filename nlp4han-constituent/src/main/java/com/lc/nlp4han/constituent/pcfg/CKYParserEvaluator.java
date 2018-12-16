@@ -41,16 +41,6 @@ public class CKYParserEvaluator extends Evaluator<ConstituentTree>
 		this.cky = cky;
 	}
 
-	public CKYParserEvaluator(PCFG pcnf, String type,double pruneThreshold, boolean secondPrune,boolean prior,boolean segmentPrune)
-	{
-		if(type.equals("pcnf")) {
-			this.cky = new ConstituentParserCKYPCNF(pcnf, pruneThreshold, secondPrune,prior);			
-		}else {
-			this.cky = new ConstituentParserCKYLoosePCNF(pcnf, pruneThreshold, secondPrune,prior);
-		}
-
-	}
-
 	public CKYParserEvaluator(LexPCFG lexpcfg, double pruneThreshold, boolean secondPrune,boolean prior)
 	{
 		this.cky = new ConstituentParseLexPCFG(lexpcfg,pruneThreshold,secondPrune,prior);

@@ -8,6 +8,7 @@ import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYLoosePCNF;
 import com.lc.nlp4han.constituent.pcfg.PCFG;
 import com.lc.nlp4han.constituent.pcfg.PRule;
+import com.lc.nlp4han.constituent.pcfg.UncompatibleGrammar;
 
 /**
  * 将带有隐藏符号的语法当作PCFG直接解析，解析得到派生树当作最终的不带隐藏符号的结构树。
@@ -18,13 +19,13 @@ public class ConstituentParserLatentAnnotation_Viterbi implements ConstituentPar
 {
 	private ConstituentParserCKYLoosePCNF p2nf;
 
-	public ConstituentParserLatentAnnotation_Viterbi(Grammar gLatent)
+	public ConstituentParserLatentAnnotation_Viterbi(Grammar gLatent) throws UncompatibleGrammar
 	{
 		this(gLatent, 0.0001, false, false);
 	}
 
 	public ConstituentParserLatentAnnotation_Viterbi(Grammar gLatent, double pruneThreshold, boolean secondPrune,
-			boolean prior)
+			boolean prior) throws UncompatibleGrammar
 	{
 		PCFG pcfg = gLatent.getPCFG();
 		HashMap<String, Double> posMap = new HashMap<>();

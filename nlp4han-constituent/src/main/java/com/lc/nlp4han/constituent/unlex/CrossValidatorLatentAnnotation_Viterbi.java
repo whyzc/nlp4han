@@ -20,7 +20,6 @@ public class CrossValidatorLatentAnnotation_Viterbi
 			double mergeRate, int EMIterations, double smooth, double pruneThreshold, boolean secondPrune,
 			boolean prior) throws IOException
 	{
-
 		CrossValidationPartitioner<String> partitioner = new CrossValidationPartitioner<String>(sentenceStream, nFolds);
 		int run = 1;
 		double totalTime = 0;
@@ -28,6 +27,7 @@ public class CrossValidatorLatentAnnotation_Viterbi
 		{
 			System.out.println("Run" + run + "...");
 			long start = System.currentTimeMillis();
+			
 			CrossValidationPartitioner.TrainingSampleStream<String> trainingSampleStream = partitioner.next();
 			TreeBank treeBank = new TreeBank();
 			String expression;
@@ -35,10 +35,13 @@ public class CrossValidatorLatentAnnotation_Viterbi
 			{
 				treeBank.addTree(expression, false);
 			}
+			
 			GrammarExtractor gExtractor = new GrammarExtractor();
 			Grammar gLatent = gExtractor.extractGrammarLatentAnnotation(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD,
 					SMCycle, EMIterations, mergeRate, smooth);
+			
 			System.out.println("训练学习时间：" + (System.currentTimeMillis() - start) + "ms");
+			
 			long start2 = System.currentTimeMillis();
 			ConstituentParserLatentAnnotation_Viterbi parser = new ConstituentParserLatentAnnotation_Viterbi(gLatent,
 					pruneThreshold, secondPrune, prior);
@@ -47,7 +50,9 @@ public class CrossValidatorLatentAnnotation_Viterbi
 			ObjectStream<ConstituentTree> sampleStream = new ConstituentTreeStream(
 					trainingSampleStream.getTestSampleStream());
 			evaluator.evaluate(sampleStream);
+			
 			System.out.println("解析评价时间：" + (System.currentTimeMillis() - start2) + "ms");
+			
 			totalTime += (System.currentTimeMillis() - start);
 
 			System.out.println(measure);
@@ -56,6 +61,7 @@ public class CrossValidatorLatentAnnotation_Viterbi
 			gExtractor = null;
 			run++;
 		}
+		
 		System.out.println("总体时间： " + totalTime + "ms");
 	}
 
@@ -119,12 +125,16 @@ public class CrossValidatorLatentAnnotation_Viterbi
 				mergeRate = Double.parseDouble(args[i + 1]);
 			}
 		}
+		
 		try
 		{
 			ObjectStream<String> sentenceStream = new PlainTextByTreeStream(
 					new FileInputStreamFactory(new File(corpusFile)), encoding);
+			
 			ConstituentMeasure measure = new ConstituentMeasure();
+			
 			CrossValidatorLatentAnnotation_Viterbi crossValidator = new CrossValidatorLatentAnnotation_Viterbi();
+			
 			crossValidator.evaluate(sentenceStream, folds, measure, SMCycle, mergeRate, EMIterations, smoothRate,
 					pruneThreshold, secondPrune, prior);
 		}
