@@ -1,6 +1,7 @@
 package com.lc.nlp4han.constituent.unlex;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
@@ -26,9 +27,11 @@ public class ConstituentParserLatentAnnotation_Viterbi implements ConstituentPar
 			boolean prior)
 	{
 		PCFG pcfg = gLatent.getPCFG();
+		HashMap<String, Double> posMap = new HashMap<>();
 		for (short preterminal : gLatent.allPreterminal())
 		{
 			String originalPre = gLatent.symbolStrValue(preterminal);
+			posMap.put(originalPre, 1.0);
 			for (short subPreterminal = 0; subPreterminal < gLatent.getNumSubSymbol(preterminal); subPreterminal++)
 			{
 				String subPre;
@@ -39,7 +42,10 @@ public class ConstituentParserLatentAnnotation_Viterbi implements ConstituentPar
 				pcfg.add(pRule);
 			}
 		}
+
+		pcfg.setPosMap(posMap);
 		p2nf = new ConstituentParserCKYLoosePCNF(pcfg, pruneThreshold, secondPrune, prior);
+
 	}
 
 	@Override
