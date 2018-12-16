@@ -313,6 +313,11 @@ public class CFG implements GrammarWritable
 	{
 		this.ruleSet = ruleSet;
 	}
+	
+	public boolean containsRule(RewriteRule r)
+	{
+		return this.ruleSet.contains(r);
+	}
 
 	/**
 	 * CFG专用，从规则集中得到词性标注集
