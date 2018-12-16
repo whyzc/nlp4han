@@ -1,8 +1,8 @@
 package com.lc.nlp4han.clustering;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,7 +15,7 @@ public class Sample
 		
 	}
 	
-	public Sample(List<Feature> fs)
+	public Sample(Collection<Feature> fs)
 	{
 		setFeatures(fs);
 	}
@@ -30,9 +30,9 @@ public class Sample
 	 * 获取所有特征
 	 * @return 所有特征
 	 */
-	public List<Feature> getFeatures()
+	public Set<Feature> getFeatures()
 	{
-		List<Feature> result = new ArrayList<Feature>();
+		Set<Feature> result = new HashSet<Feature>();
 		
 		Set<String> keys = features.keySet();
 		for (String key : keys)
@@ -48,8 +48,9 @@ public class Sample
 	 * 设置特征
 	 * @param fs 被指定的特征列表
 	 */
-	public void setFeatures(List<Feature> fs)
+	public void setFeatures(Collection<Feature> fs)
 	{
+		
 		clear();
 		add(fs);
 	}
@@ -58,7 +59,7 @@ public class Sample
 	 * 添加特征
 	 * @param fs
 	 */
-	public void add(List<Feature> fs)
+	public void add(Collection<Feature> fs)
 	{
 		if (features == null)
 			features = new HashMap<String, Feature>();
@@ -129,5 +130,32 @@ public class Sample
 			return 0;
 	}
 
-	
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((features == null) ? 0 : features.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Sample other = (Sample) obj;
+		if (features == null)
+		{
+			if (other.features != null)
+				return false;
+		}
+		else if (!features.equals(other.features))
+			return false;
+		return true;
+	}
 }

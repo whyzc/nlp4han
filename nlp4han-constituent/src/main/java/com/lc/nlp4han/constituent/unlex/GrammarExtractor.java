@@ -313,33 +313,38 @@ public class GrammarExtractor
 		System.out.println("训练前树库似然值：" + totalLSS);
 		
 		System.out.println("SMCycle: " + SMCycle);
+		System.out.println("startSymbol:" + g.getStartSymbol());
 		for (int i = 0; i < SMCycle; i++)
 		{
 			System.out.println("->SMCycle: #" + i);
 			
 			System.err.println("开始分裂。");
 			GrammarSpliter.splitGrammar(g, treeBank);
+			System.out.println("分裂后：\n" + g.toStringAllSymbol());
 			EM(g, treeBank, EMIterations);
-			System.err.println("分裂完成。");
+			System.err.println("分裂、EM完成。");
 
 			System.err.println("开始合并。");
 			GrammarMerger.mergeGrammar(g, treeBank, mergeRate, ruleCounter);
+			System.out.println("合并后：\n" + g.toStringAllSymbol());
 			EM(g, treeBank, EMIterations / 2);
-			System.err.println("合并完成。");
+			System.err.println("合并、EM完成。");
 
 			SmoothByRuleOfSameChild smoother = new SmoothByRuleOfSameChild(smooth);
 			System.err.println("开始平滑规则。");
 			smoother.smooth(g);
 			normalizeBAndURule(g);
 			normalizedPreTermianlRules(g);
+			System.out.println("平滑后：\n" + g.toStringAllSymbol());
 			EM(g, treeBank, EMIterations / 2);
-			System.err.println("平滑规则完成。");
+			System.err.println("平滑、EM完成。");
 		}
 		// if (SMCycle != 0)
 		// {
 		// double[][] subTag2UNKScores = calTag2UNKScores(g);
 		// g.setSubTag2UNKScores(subTag2UNKScores);
 		// }
+		System.out.println("经" + SMCycle + "次SM周期后：\n" + g.toStringAllSymbol());
 		return g;
 	}
 

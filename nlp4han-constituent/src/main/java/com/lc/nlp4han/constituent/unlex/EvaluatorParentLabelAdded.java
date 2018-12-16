@@ -12,6 +12,7 @@ import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYLoosePCNF;
 import com.lc.nlp4han.constituent.pcfg.ConstituentTreeStream;
 import com.lc.nlp4han.constituent.pcfg.PCFG;
+import com.lc.nlp4han.constituent.pcfg.UncompatibleGrammar;
 import com.lc.nlp4han.constituent.TreeNodeUtil;
 import com.lc.nlp4han.ml.util.Evaluator;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
@@ -51,7 +52,7 @@ public class EvaluatorParentLabelAdded extends Evaluator<ConstituentTree>
 		this.cky = cky;
 	}
 
-	public EvaluatorParentLabelAdded(PCFG p2nf, double pruneThreshold, boolean secondPrune, boolean prior)
+	public EvaluatorParentLabelAdded(PCFG p2nf, double pruneThreshold, boolean secondPrune, boolean prior) throws UncompatibleGrammar
 	{
 		this.cky = new ConstituentParserCKYLoosePCNF(p2nf, pruneThreshold, secondPrune, prior);
 	}

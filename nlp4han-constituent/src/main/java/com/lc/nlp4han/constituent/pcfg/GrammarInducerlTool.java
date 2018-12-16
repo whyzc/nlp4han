@@ -1,5 +1,8 @@
 package com.lc.nlp4han.constituent.pcfg;
 
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
@@ -19,6 +22,7 @@ public class GrammarInducerlTool
 		{
 			return;
 		}
+
 		String corpusFile = null;
 		String encoding = "UTF-8";
 		String modelFile = null;
@@ -40,23 +44,26 @@ public class GrammarInducerlTool
 				i++;
 			}
 		}
-		
-		ExtractAndWriteLoosePCNFModel(corpusFile, encoding, modelFile);
+
+		extractAndWriteLoosePCNFModel(corpusFile, encoding, modelFile);
 	}
 
-	private static void ExtractAndWriteLoosePCNFModel(String corpusFile, String encoding, String modelFile) throws IOException
+	private static void extractAndWriteLoosePCNFModel(String corpusFile, String encoding, String modelFile)
+			throws IOException
 	{
 		PCFG pcfg = GrammarExtractor.getPCFG(corpusFile, encoding);
 
-		PCFG loosePCNF = GrammarConvertor.PCFG2LoosePCNF(pcfg);
-		
+		PCFG pcnf = GrammarConvertor.PCFG2PCNF(pcfg);
+
 		if (modelFile == null)
 		{
-			System.out.println(loosePCNF.toString());
+			System.out.println(pcnf.toString());
 		}
 		else
 		{
-            CFGModelIOUtil.writeModel(loosePCNF,modelFile);
+//			CFGModelIOUtil.writeModel(loosePCNF, modelFile);
+			DataOutput out = new DataOutputStream(new FileOutputStream(modelFile));
+			pcnf.write(out);
 		}
 	}
 }

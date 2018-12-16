@@ -1,7 +1,7 @@
 package com.lc.nlp4han.clustering;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -10,7 +10,7 @@ public class SpaceVectorBasedDistanceCalculator extends DistanceCalculator
 {
 	private Map<String, Integer> vectorInfo = null;
 
-	private double[] getSample(List<Feature> features)
+	private double[] getSample(Collection<Feature> features)
 	{
 		if (vectorInfo == null)
 			throw new RuntimeException("未初始化！");
@@ -44,7 +44,7 @@ public class SpaceVectorBasedDistanceCalculator extends DistanceCalculator
 		}
 	}
 	
-	public void init(List<Feature> features)
+	public void init(Collection<Feature> features)
 	{
 		if (vectorInfo == null)
 			vectorInfo = new HashMap<String, Integer>();

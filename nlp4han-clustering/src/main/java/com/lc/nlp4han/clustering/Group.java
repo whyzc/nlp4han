@@ -1,8 +1,11 @@
 package com.lc.nlp4han.clustering;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class Group
 {
@@ -55,34 +58,22 @@ public class Group
 			return false;
 			
 		
-		List<Feature> newCenter = new ArrayList<Feature>();
+		Set<Feature> newCenter = new HashSet<Feature>();
 		
-		for (int i=0 ; i<members.size() ; i++)  // 将members每个成员的Sample中vector的每位对应相加
+		for (int i=0 ; i<members.size() ; i++)
 		{
-			List<Feature> fs = members.get(i).getSample().getFeatures();
+			Set<Feature> fs = members.get(i).getSample().getFeatures();
 			
-			for (int j=0 ; j<fs.size() ; j++)
+			Iterator<Feature> it = fs.iterator();
+			
+			while (it.hasNext())
 			{
-				int index;
-				if ((index=newCenter.indexOf(fs.get(j))) == -1)
-				{
-					newCenter.add(fs.get(j).clone());
-				}
-//				else
-//				{
-//					Feature tmp = newCenter.get(index);
-//					tmp.setValue(tmp.getValue()+fs.get(j).getValue());
-//				}
+				Feature f = it.next();
+				newCenter.add(f);
 			}
 			
 			
 		}
-		
-//		for (int i=0 ; i<newCenter.size() ; i++)
-//		{
-//			Feature tmp = newCenter.get(i);
-//			tmp.setValue(tmp.getValue()/members.size());
-//		}
 		
 		if (newCenter.equals(center.getFeatures()))
 			return false;
@@ -93,7 +84,6 @@ public class Group
 		}
 	}
 	
-
 	public void addMember(Text t)
 	{
 		this.members.add(t);
