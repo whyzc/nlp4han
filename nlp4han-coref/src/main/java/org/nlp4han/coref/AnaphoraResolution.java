@@ -16,7 +16,7 @@ public interface AnaphoraResolution
 	/**
 	 * 代词消解
 	 * @param sentences 需要进行消解的句子
-	 * @return 返回代词消解的结果
+	 * @return 返回代词消解的结果，从代词到先行词
 	 */
 	public Map<TreeNode, TreeNode> resolve(List<TreeNode> sentences);
 	

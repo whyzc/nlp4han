@@ -13,6 +13,7 @@ import org.nlp4han.coref.hobbs.Hobbs;
 
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.TreeNode;
+import com.lc.nlp4han.constituent.TreeNodeUtil;
 
 public class TestHobbs
 {
@@ -112,6 +113,14 @@ public class TestHobbs
 		constituentTrees.add(s1);
 
 		Map<TreeNode, TreeNode> result = hobbs.resolve(constituentTrees);
+		
+		assertEquals(1, result.size());
+		
+		TreeNode pron = result.keySet().iterator().next();
+		assertEquals("他", TreeNodeUtil.getetWordString(pron));
+		
+		TreeNode antecedent = result.get(pron);
+		assertEquals("李明", TreeNodeUtil.getetWordString(antecedent));
 	}
 	
 }

@@ -14,6 +14,8 @@ import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.TreeNodeUtil;
 
 /**
+ * 基于Hobbs算法的指代消解
+ * 
  * @author 杨智超
  *
  */
