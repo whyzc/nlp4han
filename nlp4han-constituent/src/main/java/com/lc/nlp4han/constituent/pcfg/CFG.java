@@ -31,6 +31,14 @@ public class CFG implements GrammarWritable
 	private HashMap<ArrayList<String>, HashSet<RewriteRule>> RHS2Rules = new HashMap<ArrayList<String>, HashSet<RewriteRule>>();// 以规则右部为key值的规则集map
 	
 	/**
+	 * 通过一步一步添加rule来实现规则集，终结符/非终结符的更新
+	 */
+	public CFG()
+	{
+
+	}
+
+	/**
 	 * 构造函数,一步创建
 	 */
 	public CFG(String startSymbol, Set<String> nonTerminalSet, Set<String> terminalSet, HashMap<String, Double> posMap,
@@ -49,9 +57,9 @@ public class CFG implements GrammarWritable
 		{
 			ruleSet.addAll(ruleMapStartWithlhs.get(lhs));
 		}
-		this.posMap=getPosSet(ruleSet);
+		this.posMap = getPosSet(ruleSet);
 	}
-	
+
 	public CFG(String startSymbol, HashMap<String, Double> posMap, Set<String> nonTerminalSet, Set<String> terminalSet,
 			Set<RewriteRule> ruleSet, HashMap<String, HashSet<RewriteRule>> lHS2Rules,
 			HashMap<ArrayList<String>, HashSet<RewriteRule>> rHS2Rules)
@@ -64,16 +72,16 @@ public class CFG implements GrammarWritable
 		LHS2Rules = lHS2Rules;
 		RHS2Rules = rHS2Rules;
 	}
-    
-	
-    /**
-     * 构造时缺少LHS2Rules，RHS2Rules，并通过遍历ruleSet进行添加 
-     * @param startSymbol
-     * @param posMap
-     * @param nonTerminalSet
-     * @param terminalSet
-     * @param ruleSet
-     */
+
+	/**
+	 * 构造时缺少LHS2Rules，RHS2Rules，并通过遍历ruleSet进行添加
+	 * 
+	 * @param startSymbol
+	 * @param posMap
+	 * @param nonTerminalSet
+	 * @param terminalSet
+	 * @param ruleSet
+	 */
 	public CFG(String startSymbol, HashMap<String, Double> posMap, Set<String> nonTerminalSet, Set<String> terminalSet,
 			Set<RewriteRule> ruleSet)
 	{
@@ -81,7 +89,7 @@ public class CFG implements GrammarWritable
 		this.posMap = posMap;
 		this.nonTerminalSet = nonTerminalSet;
 		this.terminalSet = terminalSet;
-		for(RewriteRule rule : ruleSet)
+		for (RewriteRule rule : ruleSet)
 			add(rule);
 	}
 
@@ -105,9 +113,9 @@ public class CFG implements GrammarWritable
 	}
 
 	/**
-	 * 从流中加载CFG文法，此接口可以完成从资源流和文件流中获得CFG文法
+	 * 从文本流中加载CFG文法，此接口可以完成从资源文本流和文件文本流中获得CFG文法
 	 * 
-	 * @param in
+	 * @param in 文本流
 	 * @param encoding
 	 * @throws IOException
 	 */
@@ -117,7 +125,7 @@ public class CFG implements GrammarWritable
 	}
 
 	/**
-	 * 从流中加载CFG/PCFG文法，此接口可以完成从资源流和文件流中获得CFG/PCFG文法
+	 * 从文本流中加载CFG/PCFG文法，此接口可以完成从资源文本流和文件文本流中获得CFG/PCFG文法
 	 * 
 	 * @param in
 	 * @param encoding
@@ -173,13 +181,6 @@ public class CFG implements GrammarWritable
 	}
 
 	/**
-	 * 通过一步一步添加rule来实现规则集，终结符/非终结符的更新
-	 */
-	public CFG()
-	{
-
-	}
-	/**
 	 * 判断是否为CNF,将词性标注作为解析规则的最底层
 	 */
 	public boolean IsCNF()
@@ -226,7 +227,7 @@ public class CFG implements GrammarWritable
 	 * 
 	 * 宽松CNF文法允许A->B
 	 */
-	public boolean isLosseCNF()
+	public boolean isLooseCNF()
 	{
 		boolean isLosseCNF = true;
 		for (RewriteRule rule : ruleSet)
@@ -312,24 +313,31 @@ public class CFG implements GrammarWritable
 	{
 		this.ruleSet = ruleSet;
 	}
-   /**
-    * CFG专用，从规则集中得到词性标注集
-    * @param ruleSet
-    * @return
-    */
-	private HashMap<String,Double> getPosSet(Set<RewriteRule> ruleSet) {
-		HashMap<String,Double> posMap1=new HashMap<String,Double>();
-		HashSet<String> posSet=new HashSet<String>();
-		for(RewriteRule rule:ruleSet) {
-			if(rule.getRhs().size()==1&&terminalSet.contains(rule.getRhs().get(0))) {
+
+	/**
+	 * CFG专用，从规则集中得到词性标注集
+	 * 
+	 * @param ruleSet
+	 * @return
+	 */
+	private HashMap<String, Double> getPosSet(Set<RewriteRule> ruleSet)
+	{
+		HashMap<String, Double> posMap1 = new HashMap<String, Double>();
+		HashSet<String> posSet = new HashSet<String>();
+		for (RewriteRule rule : ruleSet)
+		{
+			if (rule.getRhs().size() == 1 && terminalSet.contains(rule.getRhs().get(0)))
+			{
 				posSet.add(rule.getLhs());
 			}
 		}
-		for(String pos:posSet) {
+		for (String pos : posSet)
+		{
 			posMap1.put(pos, 0.0);
 		}
 		return posMap1;
 	}
+
 	/**
 	 * 添加单个规则
 	 */
@@ -592,32 +600,32 @@ public class CFG implements GrammarWritable
 		{
 			out.writeUTF(rule.toString());
 		}
-		
+
 		out.writeUTF("完");
 	}
 
 	/**
-	 * 从out中读入文法模型内容	
+	 * 从out中读入文法模型内容
 	 */
 	@Override
 	public void read(DataInput in) throws IOException
-	{	
+	{
 
 		String str = in.readUTF();
 		if (str.equals("--起始符--"))
 		{
-			startSymbol=in.readUTF();
+			startSymbol = in.readUTF();
 		}
-		in.readUTF();//此行为"--非终结符--"，不处理
-		
+		in.readUTF();// 此行为"--非终结符--"，不处理
+
 		str = in.readUTF();
 		while (!str.equals("--终结符集--"))
 		{
 			nonTerminalSet.add(str);
-			str =in.readUTF();
+			str = in.readUTF();
 		}
 
-		str =in.readUTF();
+		str = in.readUTF();
 		while (!str.equals("--词性标注映射--"))
 		{
 			terminalSet.add(str);
@@ -627,13 +635,13 @@ public class CFG implements GrammarWritable
 		str = in.readUTF();
 		while (!str.equals("--规则集--"))
 		{
-			String[] strs=str.split("=");
-			posMap.put(strs[0],Double.parseDouble(strs[1]) );
+			String[] strs = str.split("=");
+			posMap.put(strs[0], Double.parseDouble(strs[1]));
 			str = in.readUTF();
 		}
-		
+
 		str = in.readUTF();
-		while (!str.equals("完")&&str!=null)
+		while (!str.equals("完") && str != null)
 		{
 			add(readRule(str));
 			str = in.readUTF();
