@@ -25,7 +25,10 @@ public class Hobbs implements AnaphoraResolution
 
 	public Hobbs()
 	{
-
+		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter()); // 组合过滤器
+		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
+		
+		this.filter = attributeFilter;
 	}
 
 	public Hobbs(CandidateFilter filter)

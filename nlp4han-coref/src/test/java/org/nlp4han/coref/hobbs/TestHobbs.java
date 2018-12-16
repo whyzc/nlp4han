@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +16,7 @@ import com.lc.nlp4han.constituent.TreeNode;
 
 public class TestHobbs
 {
+	private Hobbs hobbs = new Hobbs();
 
 	@Test
 	public void testHobbs_1()
@@ -33,10 +33,10 @@ public class TestHobbs
 		constituentTrees.add(s1);
 		constituentTrees.add(s2);
 		
-		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter()); // 组合过滤器
-		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
+//		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter()); // 组合过滤器
+//		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		
-		Hobbs hobbs = new Hobbs(attributeFilter);
+//		Hobbs hobbs = new Hobbs();
 		Map<TreeNode, TreeNode> result = hobbs.resolve(constituentTrees);
 		
 		List<String> resultStr = EvaluationBFP.toStringFormat(result, constituentTrees);
@@ -62,10 +62,10 @@ public class TestHobbs
 		constituentTrees.add(s1);
 		constituentTrees.add(s2);
 
-		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter()); // 组合过滤器
-		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
+//		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter()); // 组合过滤器
+//		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		
-		Hobbs hobbs = new Hobbs(attributeFilter);
+//		Hobbs hobbs = new Hobbs();
 		Map<TreeNode, TreeNode> result = hobbs.resolve(constituentTrees);
 		List<String> resultStr = EvaluationBFP.toStringFormat(result, constituentTrees);
 		
@@ -88,10 +88,10 @@ public class TestHobbs
 		List<TreeNode> constituentTrees = new ArrayList<TreeNode>();
 		constituentTrees.add(s1);
 
-		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter()); // 组合过滤器
-		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
+//		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter()); // 组合过滤器
+//		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		
-		Hobbs hobbs = new Hobbs(attributeFilter);
+//		Hobbs hobbs = new Hobbs();
 		Map<TreeNode, TreeNode> result = hobbs.resolve(constituentTrees);
 		List<String> resultStr = EvaluationBFP.toStringFormat(result, constituentTrees);
 		
@@ -99,6 +99,19 @@ public class TestHobbs
 		goal.add("她(1-7)->黄秋雅(1-1)");
 		
 		assertEquals(goal, resultStr);
+	}
+	
+	@Test
+	public void testHobbs_4()
+	{
+		String str;
+		str = "(IP (NP (NR 李明)) (VP (VV 喜欢) (NP(NP (PN 他))(NP (NN 爷爷))))(PU 。))";
+		TreeNode s1 = BracketExpUtil.generateTree(str);
+
+		List<TreeNode> constituentTrees = new ArrayList<TreeNode>();
+		constituentTrees.add(s1);
+
+		Map<TreeNode, TreeNode> result = hobbs.resolve(constituentTrees);
 	}
 	
 }
