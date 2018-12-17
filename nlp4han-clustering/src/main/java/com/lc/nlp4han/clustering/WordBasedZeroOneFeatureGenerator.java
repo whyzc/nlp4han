@@ -5,12 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import com.lc.nlp4han.segment.WordSegFactory;
 import com.lc.nlp4han.segment.WordSegmenter;
@@ -137,7 +135,7 @@ public class WordBasedZeroOneFeatureGenerator implements FeatureGenerator
 	}
 
 	@Override
-	public Map<String, Count> getWordInfo()
+	public Map<String, Count> getTextsInfo()
 	{
 		return null;
 	}

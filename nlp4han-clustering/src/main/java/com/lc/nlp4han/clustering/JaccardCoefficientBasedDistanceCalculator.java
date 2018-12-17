@@ -36,7 +36,7 @@ public class JaccardCoefficientBasedDistanceCalculator extends DistanceCalculato
 				n++;
 		}
 		n += s2.size();
-		return 1 - m*1.0/n;
+		return 1 - m*1.0/n;  // 距离 = 1 - Jaccard系数
 	}
 
 }
