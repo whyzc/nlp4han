@@ -38,7 +38,7 @@ public class TestSpaceVectorBasedDistanceCalculator
 		
 		DistanceCalculator dis = new SpaceVectorBasedDistanceCalculator();
 		dis.init(fg);
-		double d = dis.getDistance(s1, s2);  // 距离 = 1-Jaccard系数
+		double d = dis.getDistance(s1, s2);
 		
 		assertEquals(2.236, d, 0.001);
 	}
@@ -73,7 +73,7 @@ public class TestSpaceVectorBasedDistanceCalculator
 		
 		DistanceCalculator dis = new SpaceVectorBasedDistanceCalculator();
 		dis.init(fg);
-		double d = dis.getDistance(s1, s2);  // 距离 = 1-Jaccard系数
+		double d = dis.getDistance(s1, s2);
 		
 		assertEquals(2.0, d, 0.001);
 	}
