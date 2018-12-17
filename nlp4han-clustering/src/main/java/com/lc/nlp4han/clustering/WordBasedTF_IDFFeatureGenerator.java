@@ -16,7 +16,12 @@ import com.lc.nlp4han.segment.WordSegFactory;
 import com.lc.nlp4han.segment.WordSegmenter;
 import com.lc.nlp4han.util.CharTypeUtil;
 
-public class WordBasedFeatureGenerator implements FeatureGenerator
+/**
+ * 该特征生成器是基于分词的，用于生成key为词，value为tf-idf权重的特征
+ * @author 杨智超
+ *
+ */
+public class WordBasedTF_IDFFeatureGenerator implements FeatureGenerator
 {
 	private Map<String, Count> wordInfo = new HashMap<String, Count>();
 	private int totalDocumentNumber = 0;
@@ -26,18 +31,34 @@ public class WordBasedFeatureGenerator implements FeatureGenerator
 	public List<Feature> getFeatures(Text text)
 	{
 		List<Feature> result = new ArrayList<Feature>();
+		
 		Map<String, Integer> words = getWords(text);
 		words = pruning(words);
+		
+		int totalTremNum = countNum(words);
+		
 		Set<Entry<String, Integer>> es = words.entrySet();
 		
 		for (Entry<String, Integer> e : es)
 		{
-			Feature f = getFeature(e.getKey(), e.getValue());
+			Feature f = getFeature(e.getKey(), e.getValue(), totalTremNum);
 			result.add(f);
 		}
 		return result;
 	}
 	
+	private int countNum(Map<String, Integer> words)
+	{
+		int result = 0;
+		Set<Entry<String, Integer>> es = words.entrySet();
+		
+		for (Entry<String, Integer> e : es)
+		{
+			result += e.getValue();
+		}
+		return result;
+	}
+
 	/**
 	 * 对文本进行分词
 	 * @param text 待分词的文本
@@ -75,18 +96,16 @@ public class WordBasedFeatureGenerator implements FeatureGenerator
 		return fm;
 	}
 	
-	private Feature getFeature(String word, int tn)
+	private Feature getFeature(String word, int tn, int textTermNum)
 	{
 		Feature result = new Feature();
 		result.setKey(word);
 		if (wordInfo.containsKey(word))
 		{
-//			Count c = wordInfo.get(word);
-//			double tf = tn*1.0 / c.tn;
-//			double idf = Math.log(totalDocumentNumber*1.0/(c.dn+1));
-//			result.setValue(tf*idf);
-			
-			result.setValue(1);
+			Count c = wordInfo.get(word);
+			double tf = tn*1.0 / textTermNum;
+			double idf = Math.log(totalDocumentNumber*1.0/(c.dn+1));
+			result.setValue(tf*idf);
 		}
 		else
 			result.setValue(0);
@@ -257,7 +276,7 @@ public class WordBasedFeatureGenerator implements FeatureGenerator
 
 	private void loadStopWordList(String fileName, String encoding)
 	{
-		InputStream is = WordBasedFeatureGenerator.class.getClassLoader().getResourceAsStream("停用词.txt");
+		InputStream is = WordBasedTF_IDFFeatureGenerator.class.getClassLoader().getResourceAsStream(fileName);
 		BufferedReader br = null;
 		try
 		{

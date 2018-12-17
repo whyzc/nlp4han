@@ -31,59 +31,6 @@ public class Group
 		members.addAll(texts);
 	}
 
-	public static Double getDistance(Group g1, Group g2, DistanceCalculator d)
-	{
-		return d.getDistance(g1, g2);
-	}
-
-	public static Group getNearestGroup(Group g, List<Group> grps, DistanceCalculator d)
-	{
-		double minDistance = Double.POSITIVE_INFINITY;
-		int index = -1;
-		for (int i=0 ; i<grps.size() ; i++)
-		{
-			double distance = d.getDistance(g, grps.get(i));
-			if (distance < minDistance)
-			{
-				minDistance = distance;
-				index = i;
-			}
-		}
-		return grps.get(index);
-	}
-
-	public boolean updateCenter()
-	{
-		if (members==null || members.size()<1)
-			return false;
-			
-		
-		Set<Feature> newCenter = new HashSet<Feature>();
-		
-		for (int i=0 ; i<members.size() ; i++)
-		{
-			Set<Feature> fs = members.get(i).getSample().getFeatures();
-			
-			Iterator<Feature> it = fs.iterator();
-			
-			while (it.hasNext())
-			{
-				Feature f = it.next();
-				newCenter.add(f);
-			}
-			
-			
-		}
-		
-		if (newCenter.equals(center.getFeatures()))
-			return false;
-		else
-		{
-			center.setFeatures(newCenter);
-			return true;
-		}
-	}
-	
 	public void addMember(Text t)
 	{
 		this.members.add(t);
