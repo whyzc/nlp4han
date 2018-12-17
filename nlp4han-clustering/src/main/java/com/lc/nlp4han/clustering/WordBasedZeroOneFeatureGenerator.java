@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import com.lc.nlp4han.segment.WordSegFactory;
 import com.lc.nlp4han.segment.WordSegmenter;
@@ -22,11 +24,86 @@ import com.lc.nlp4han.util.CharTypeUtil;
 public class WordBasedZeroOneFeatureGenerator implements FeatureGenerator
 {
 	private Set<String> stopWords = new HashSet<String>();
+	private Map<String, Count> textsInfo = new HashMap<String, Count>();
 	
 	@Override
 	public void init(List<Text> texts)
 	{
-
+		for (int i=0 ; i<texts.size() ; i++)
+		{
+			Text t = texts.get(i);
+			Map<String, Integer> m = getWords(t);
+			Set<Entry<String, Integer>> es = m.entrySet();
+			for (Entry<String, Integer> e : es)
+			{
+				String key = e.getKey();
+				if (textsInfo.containsKey(key))
+				{
+					Count c = textsInfo.get(key);
+					c.tn += e.getValue();
+					c.dn++;
+				}
+				else
+				{
+					Count c= new Count(e.getValue(), 1);
+					textsInfo.put(key, c);
+				}
+			}
+		}
+		textsInfo = pruning(textsInfo);
+	}
+	
+	private <T> Map<String, T> pruning(Map<String, T> words)
+	{
+		Map<String, T> result = new HashMap<String, T>();
+		Set<Entry<String, T>> es = words.entrySet();
+		
+		for (Entry<String, T> e : es)
+		{
+			if (isPruned(e.getKey()))
+				continue;
+			else
+				result.put(e.getKey(), e.getValue());
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * 对文本进行分词
+	 * @param text 待分词的文本
+	 * @return 所有词条及其个数
+	 */
+	private Map<String, Integer> getWords(Text text)
+	{
+		Map<String, Integer> fm = new HashMap<String, Integer>();
+		WordSegmenter segmenter;
+		String[] words;
+		try
+		{
+			segmenter = WordSegFactory.getWordSegmenter();
+			words = segmenter.segment(text.getContent());  //分词
+			
+			for (int i=0 ; i<words.length ; i++)  //统计各词的个数
+			{
+				if (fm.containsKey(words[i]))
+				{
+					int v = fm.get(words[i]);
+					v++;
+					fm.put(words[i], v);
+				}
+				else
+				{
+					fm.put(words[i], 1);
+				}
+			}
+			
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		
+		return fm;
 	}
 
 	@Override
@@ -131,13 +208,16 @@ public class WordBasedZeroOneFeatureGenerator implements FeatureGenerator
 	@Override
 	public boolean isInitialized()
 	{
-		return true;
+		if (textsInfo == null || textsInfo.size()<1)
+			return false;
+		else
+			return true;
 	}
 
 	@Override
 	public Map<String, Count> getTextsInfo()
 	{
-		return null;
+		return textsInfo;
 	}
 
 }
