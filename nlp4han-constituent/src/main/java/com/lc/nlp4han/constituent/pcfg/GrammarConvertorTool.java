@@ -1,16 +1,11 @@
 package com.lc.nlp4han.constituent.pcfg;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 
 public class GrammarConvertorTool
 {
 
-	public static void main(String[] args) throws IOException
+	public static void main(String[] args) throws IOException, ClassNotFoundException
 	{
 		if (args.length < 1)
 		{
@@ -48,39 +43,36 @@ public class GrammarConvertorTool
 	}
 
 	private static void GrammarConvertor(String corpusFile, String type, String encoding, String topath)
-			throws IOException
+			throws IOException, ClassNotFoundException
 	{
-		CFG cfg, cnf;
-		if (type.contains("P"))
-		{
-			cfg = new PCFG(new FileInputStream(new File(corpusFile)), encoding);
-		}
-		else
-		{
-			cfg = new CFG(new FileInputStream(new File(corpusFile)), encoding);
-		}
+		CFG cnf;
 
 		if (type.equals("CNF"))
 		{
+			CFG cfg=CFGModelIOUtil.loadCFGModel(corpusFile);	
+			
 			cnf = GrammarConvertor.CFG2CNF(cfg);
 		}
 		else if (type.equals("P2NF"))
 		{
-			cnf = GrammarConvertor.PCFG2LoosePCNF((PCFG) cfg);
+			PCFG p2nf=CFGModelIOUtil.loadPCFGModel(corpusFile);
+			
+			cnf = GrammarConvertor.PCFG2LoosePCNF(p2nf);
 		}
 		else
 		{
-			cnf = GrammarConvertor.PCFG2PCNF((PCFG) cfg);
+			PCFG pcnf=CFGModelIOUtil.loadPCFGModel(corpusFile);
+			
+			cnf = GrammarConvertor.PCFG2PCNF(pcnf);
 		}
+		
 		if (topath == null)
 		{
 			System.out.println(cnf.toString());
 		}
 		else
 		{
-			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(topath), encoding));
-			bw.append(cnf.toString());
-			bw.close();
+           CFGModelIOUtil.writeModel(cnf, topath);
 		}
 	}
 }

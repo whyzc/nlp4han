@@ -1,9 +1,8 @@
 package com.lc.nlp4han.constituent.pcfg;
 
-import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 
 /**
  * 文法提取应用
@@ -75,18 +74,20 @@ public class GrammarExractorTool
 	private static void ExtractGrammarToFile(String fromPath, String toPath, String inCoding, String type)
 			throws IOException
 	{
-		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(toPath), inCoding));
+		DataOutputStream out=new DataOutputStream(new FileOutputStream(toPath));
+		
 		if (type.equals("PCFG"))
 		{
-			bw.append(GrammarExtractor.getPCFG(fromPath, inCoding).toString());
+			PCFG pcfg=GrammarExtractor.getPCFG(fromPath, inCoding);
+			pcfg.write(out);
 		}
 		else if(type.equals("CFG"))
 		{
-			bw.append(GrammarExtractor.getCFG(fromPath, inCoding).toString());
+			CFG cfg=GrammarExtractor.getCFG(fromPath, inCoding);
+			cfg.write(out);
 		}
-		else
+		else {
 			System.out.println("抽取文法类型不对: " + type);
-		
-		bw.close();
+		}
 	}
 }

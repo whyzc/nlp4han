@@ -7,6 +7,7 @@ import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYLoosePCNF;
 import com.lc.nlp4han.constituent.pcfg.PCFG;
 import com.lc.nlp4han.constituent.pcfg.PRule;
+import com.lc.nlp4han.constituent.pcfg.UncompatibleGrammar;
 
 /**
  * 将带有隐藏符号的语法当作PCFG直接解析，解析得到派生树当作最终的不带隐藏符号的结构树。
@@ -15,31 +16,38 @@ import com.lc.nlp4han.constituent.pcfg.PRule;
  */
 public class ConstituentParserLatentAnnotation_Viterbi implements ConstituentParserLatentAnnotation
 {
+	// TODO:使用ConstituentParserCKYPCNF
 	private ConstituentParserCKYLoosePCNF p2nf;
 
-	public ConstituentParserLatentAnnotation_Viterbi(Grammar gLatent)
+	public ConstituentParserLatentAnnotation_Viterbi(Grammar gLatent) throws UncompatibleGrammar
 	{
 		this(gLatent, 0.0001, false, false);
 	}
 
 	public ConstituentParserLatentAnnotation_Viterbi(Grammar gLatent, double pruneThreshold, boolean secondPrune,
-			boolean prior)
+			boolean prior) throws UncompatibleGrammar
 	{
 		PCFG pcfg = gLatent.getPCFG();
+		// HashMap<String, Double> posMap = new HashMap<>();
 		for (short preterminal : gLatent.allPreterminal())
 		{
 			String originalPre = gLatent.symbolStrValue(preterminal);
+			// posMap.put(originalPre, 1.0);
 			for (short subPreterminal = 0; subPreterminal < gLatent.getNumSubSymbol(preterminal); subPreterminal++)
 			{
 				String subPre;
 				if (gLatent.getNumSubSymbol(preterminal) == 1)
 					subPre = originalPre;
-				subPre = originalPre + "_" + subPreterminal;
+				else// 新添加的，以往没有else时对于句子包含没有被分裂的tag时会直接导致该句子解析不了。
+					subPre = originalPre + "_" + subPreterminal;
+				pcfg.addNonTerminal(subPre);
 				PRule pRule = new PRule(1.0, subPre, originalPre);
 				pcfg.add(pRule);
 			}
 		}
+		// pcfg.setPosMap(posMap);
 		p2nf = new ConstituentParserCKYLoosePCNF(pcfg, pruneThreshold, secondPrune, prior);
+
 	}
 
 	@Override
@@ -71,6 +79,12 @@ public class ConstituentParserLatentAnnotation_Viterbi implements ConstituentPar
 			return null;
 	}
 
+	/**
+	 * 去掉为了viterbi解析特意添加的额外的规则
+	 * 
+	 * @param tree
+	 * @return
+	 */
 	private TreeNode removeOriginalTag(TreeNode tree)
 	{
 		if (tree.getChildren().size() == 1 && tree.getNodeName().split("_")[0].equals(tree.getChild(0).getNodeName())

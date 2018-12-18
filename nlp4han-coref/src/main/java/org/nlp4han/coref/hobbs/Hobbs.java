@@ -14,6 +14,8 @@ import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.TreeNodeUtil;
 
 /**
+ * 基于Hobbs算法的指代消解
+ * 
  * @author 杨智超
  *
  */
@@ -25,7 +27,10 @@ public class Hobbs implements AnaphoraResolution
 
 	public Hobbs()
 	{
-
+		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter()); // 组合过滤器
+		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
+		
+		this.filter = attributeFilter;
 	}
 
 	public Hobbs(CandidateFilter filter)

@@ -32,7 +32,7 @@ public class Edge implements Comparable<Edge>
   
     //边是否接受stop概率
 	private boolean stop = false;
-	private double pro = -1;
+	private double pro =-Double.MAX_VALUE;
   
 	private ArrayList<Edge> children = null;
 

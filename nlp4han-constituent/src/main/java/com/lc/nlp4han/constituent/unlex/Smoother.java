@@ -24,14 +24,17 @@ abstract class Smoother
 			smoothBRule(bRule, g.getNumSubSymbol(bRule.getParent()), g.getNumSubSymbol(bRule.getLeftChild()),
 					g.getNumSubSymbol(bRule.getRightChild()));
 		}
+		
 		for (UnaryRule uRule : g.getuRules())
 		{
 			smoothURule(uRule, g.getNumSubSymbol(uRule.getParent()), g.getNumSubSymbol(uRule.getChild()));
 		}
+		
 		for (PreterminalRule preRule : g.getLexicon().getPreRules())
 		{
 			smoothPreRule(preRule, g.getNumSubSymbol(preRule.getParent()));
 		}
+		
 		return g;
 	}
 

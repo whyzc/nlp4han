@@ -1,10 +1,9 @@
 package com.lc.nlp4han.constituent.pcfg;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Scanner;
 import java.util.Set;
@@ -22,8 +21,11 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 	private boolean secondPrune;// 是否进行二次解析
 	private boolean prior;// 进行剪枝时是否添加先验概率
 
-	public ConstituentParserCKYPCNF(PCFG pcnf, double pruneThreshold, boolean secondPrune, boolean prior)
+	public ConstituentParserCKYPCNF(PCFG pcnf, double pruneThreshold, boolean secondPrune, boolean prior) throws UncompatibleGrammar
 	{
+		if(!pcnf.IsCNF())
+			throw new UncompatibleGrammar();
+		
 		this.pruneThreshold = pruneThreshold;
 		this.secondPrune = secondPrune;
 		this.pcnf = pcnf;
@@ -82,19 +84,24 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 	 * @return
 	 */
 	public ConstituentTree[] parse(String[] words, String[] poses, int k)
-	{
-		ConstituentTree[] treeArray = new ConstituentTree[k];
+	{		
 		ArrayList<String> bracketList = parseCKY(words, poses, k, true);
-		if (secondPrune && bracketList.size() == 0 && words.length <= 70)
-		{
-			bracketList = parseCKY(words, poses, k, false);
-		}
+		
+//		if (secondPrune && bracketList.size() == 0 && words.length <= 70)
+//		{
+//			bracketList = parseCKY(words, poses, k, false);
+//		}
+		
 		int i = 0;
+		ConstituentTree[] treeArray = new ConstituentTree[k];
 		for (String bracketString : bracketList)
 		{
-			TreeNode rootNode = BracketExpUtil.generateTree(bracketString);
+			//System.out.println(bracketString.toString());
+			TreeNode rootNode = RestoreTree.restoreTree(BracketExpUtil.generateTree(bracketString));
+			
 			treeArray[i++] = new ConstituentTree(rootNode);
 		}
+		
 		return treeArray;
 	}
 
@@ -114,7 +121,7 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 	 * 
 	 * @return 输出k个句子解析结果
 	 */
-	private ArrayList<String> parseCKY(String[] words, String[] pos, Integer numOfResulets, boolean prun)
+	private ArrayList<String> parseCKY(String[] words, String[] pos, Integer numOfResulets, boolean prune)
 	{
 		int n = words.length;
 
@@ -131,14 +138,15 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 				{// 遍历table[i][k]和table[k][j]中的映射表，更新table[i][j]和back[i][j]
 					updateTable(i, k, j, n, numOfResulets);
 				}
+				
 				// 剪枝
-				if (prun)
+				if (prune)
 				{
 					prunEdge(i, j);
 				}
-
 			}
 		}
+		
 		// 回溯并生成括号表达式列表
 		ArrayList<String> resultList = creatBracketStringList(n, numOfResulets);
 
@@ -164,18 +172,18 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 			// 添加先验概率
 			if (prior)
 			{
-				PCFGPrior pcp = (PCFGPrior) pcnf;
-				HashMap<String, Double> map1 = pcp.getPriorMap();
+				//HashMap<String, Double> map1 = pcnf.getPosMap();
+				HashSet<String> posSet=new HashSet<String>();
 				if (str.contains("@"))
 				{
 					String strs[] = str.split("@");
 					for (String str0 : strs)
 					{
-						if (!map1.keySet().contains(str0))
+						if (!posSet.contains(str0))
 						{
 							break;
 						}
-						pro *= map1.get(str0);
+						pro *= pcnf.getPosPro(str0);
 					}
 				}
 				else if (str.contains("&"))
@@ -183,11 +191,11 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 					String strs[] = str.split("&");
 					for (String str0 : strs)
 					{
-						if (!map1.keySet().contains(str0))
+						if (!posSet.contains(str0))
 						{
 							break;
 						}
-						pro *= map1.get(str0);
+						pro *= pcnf.getPosPro(str0);
 					}
 				}
 			}
@@ -198,6 +206,7 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 				bestPro = map.get(str).getProb();
 			}
 		}
+		
 		for (String str : map.keySet())
 		{
 			if (map.get(str).getProb() * map2.get(str) < bestPro * pruneThreshold)
@@ -205,6 +214,7 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 				deleteList.add(str);
 			}
 		}
+		
 		for (String str : deleteList)
 		{
 			map.remove(str);
@@ -229,6 +239,7 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 				{// 只有矩阵的上三角存储数据
 					table[i][j] = new CKYCell(new HashMap<String, CKYPRule>(), false);
 				}
+				
 				if (j == i + 1)
 				{
 					table[i][j].setFlag(true);
@@ -272,6 +283,7 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 	{
 		HashMap<String, CKYPRule> ikRuleMap = table[i][k].getPruleMap();
 		HashMap<String, CKYPRule> kjRuleMap = table[k][j].getPruleMap();
+		
 		if (ikRuleMap.size() != 0 && kjRuleMap.size() != 0)
 		{// 如果在ik点和kj点的映射表不为空
 			Iterator<String> itrIk = ikRuleMap.keySet().iterator();
@@ -283,6 +295,7 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 				{
 					String kjStr = itrKj.next();
 					double pro = ikRuleMap.get(ikStr).getProb() * kjRuleMap.get(kjStr).getProb();
+					
 					updateCellRules(pro, table[i][j].getPruleMap(), null, ikStr, kjStr, k);
 				}
 			}
@@ -368,114 +381,43 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 		}
 
 		StringBuilder strBuilder = new StringBuilder();
-		getParseResult(0, n, resultRule, strBuilder);// 从最后一个节点[0,n]开始回溯
+		createBracket(0, n, resultRule, strBuilder);// 从最后一个节点[0,n]开始回溯
 
 		resultList.add(strBuilder.toString());
 
 		return resultList;
 	}
+ 
+	/**
+	 * 递归table和back生成二叉树形式的括号表达式
+	 * @param i
+	 * @param j
+	 * @param prule
+	 * @param strBuilder
+	 */
+	private void createBracket(int i, int j, CKYPRule prule, StringBuilder strBuilder) {
+		strBuilder.append("(");
 
-	// 递归table和back生成StringBuilder
-	private void getParseResult(int i, int j, CKYPRule prule, StringBuilder strBuilder)
-	{
-		int count = 1;
-		String lhs = prule.getLhs();
-		if (prule.getLhs().contains("@"))
-		{// 存在单位产品则恢复
-			strBuilder.append("(");
-			String[] strArray = lhs.split("@");
-			count += strArray.length;
-			for (String lhs1 : strArray)
-			{
-				// 含有为伪词性标注则跳过
-				if (lhs1.contains("$"))
-				{
-					count--;
-					continue;
-				}
-				strBuilder.append("(");
-				strBuilder.append(lhs1);
-			}
-		} // * 当含有&符号时，则为两个非终结符在中间过程合成的，故不处理此非终结符，直接跳过
-		else if (prule.getLhs().contains("&"))
-		{
-			backTrack(i, prule.getK(), prule, 0, strBuilder);
-			backTrack(prule.getK(), j, prule, 1, strBuilder);
-			return;
-		}
-		else
-		{
-			strBuilder.append("(");
-			strBuilder.append(lhs);
-		}
-
-		if (table[i][j].isFlag())
-		{
+		strBuilder.append(prule.getLhs());
+		if (i == j - 1)
+		{// 对角线存储词性规则
 			strBuilder.append(" ");
 			strBuilder.append(prule.getRhs().get(0));
-		}
-		else
-		{
-			backTrack(i, prule.getK(), prule, 0, strBuilder);
-			backTrack(prule.getK(), j, prule, 1, strBuilder);
-		}
-
-		while (count > 0)
-		{
 			strBuilder.append(")");
-			count--;
+			return;
 		}
+		
+		// 第一个孩子
+		CKYPRule lPrule = table[i][prule.getK()].getPruleMap().get(prule.getRhs().get(0));
+		createBracket(i, prule.getK(), lPrule, strBuilder);
+		
+		// 第二个孩子
+		CKYPRule rPrule = table[prule.getK()][j].getPruleMap().get(prule.getRhs().get(1));
+		createBracket(prule.getK(), j, rPrule, strBuilder);
+
+		strBuilder.append(")");
 	}
-
-	/**
-	 * 添加左右括号和终结符与非终结符，i记录prule右侧的非终结符序号
-	 */
-	private void backTrack(int n, int m, CKYPRule prule, int i, StringBuilder strBuilder)
-	{
-		CKYPRule prule1;
-		String DuPos = prule.getRhs().get(i);
-		prule1 = table[n][m].getPruleMap().get(DuPos);// 获取对应的规则
-		if (table[n][m].isFlag())
-		{// 叶子结点
-			int count = 1;
-			String pos;
-			pos = prule1.getLhs();
-			strBuilder.append("(");
-			// 为终结符，类似"$中国$"，直接跳过
-			if (pos.contains("$"))
-			{
-
-			}
-			// 恢复单位产品
-			else if (pos.contains("@"))
-			{
-				String[] strArray = pos.split("@");
-				count += strArray.length;
-				for (String pos1 : strArray)
-				{
-					strBuilder.append("(");// 此处多打一个括号没有关系，因为在生成树的时候会格式化，去掉空的括号表达式
-					strBuilder.append(pos1);
-				}
-			}
-			else
-			{
-				strBuilder.append(pos);// 词性标注
-			}
-
-			strBuilder.append(" ");
-			strBuilder.append(prule1.getRhs().get(0));// 词
-			while (count > 0)
-			{
-				strBuilder.append(")");
-				count--;
-			}
-		}
-		else
-		{
-			getParseResult(n, m, prule1, strBuilder);
-		}
-	}
-
+	
 	/**
 	 * 内部类,table存储类,记录在table[i][j]点中的映射规则表，以及用于判断是否为对角线上点的flag
 	 */
@@ -512,13 +454,13 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 		}
 	}
 
-	public static void main(String[] args) throws IOException
+	public static void main(String[] args) throws IOException, ClassNotFoundException
 	{
-		PCFG pcnf = new PCFG(new FileInputStream(new File(args[0])), args[1]);
+		PCFG pcnf=CFGModelIOUtil.loadPCFGModel(args[0]); 
 		
-		double pruneThreshold = 0.0001;//Double.parseDouble(args[2]);
-		boolean secondPrune = false;//Boolean.getBoolean(args[3]);
-		boolean prior = false;//Boolean.getBoolean(args[4]);
+		double pruneThreshold = 0.0001;
+		boolean secondPrune = false;
+		boolean prior = false;
 
 		ConstituentParserCKYPCNF parser = new ConstituentParserCKYPCNF(pcnf, pruneThreshold, secondPrune, prior);
 

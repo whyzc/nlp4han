@@ -74,8 +74,7 @@ public class ConstituentParserLatentAnnotation_foolish implements ConstituentPar
 		{
 			if (trees[i] != null)
 			{
-				AnnotationTreeNode annotationTree = AnnotationTreeNode.getInstance(trees[i].getRoot(),
-						grammarLatentLabel.getNonterminalTable());
+				AnnotationTreeNode annotationTree = grammarLatentLabel.convert2AnnotationTreeNode(trees[i].getRoot());
 				double logScore = BracketExpScoreComputerTool.comperter(grammarLatentLabel, annotationTree);
 				if (logScore != Double.NEGATIVE_INFINITY)
 				{

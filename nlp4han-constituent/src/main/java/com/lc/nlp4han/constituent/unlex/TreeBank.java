@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.PlainTextByTreeStream;
@@ -139,27 +138,33 @@ public class TreeBank
 
 		if (tree.isPreterminal())
 		{
-			final PreterminalRule tempPreRule = new PreterminalRule(tree.getLabel().getSymbol(),
+			PreterminalRule tempPreRule = new PreterminalRule(tree.getLabel().getSymbol(),
 					tree.getChildren().get(0).getLabel().getWord());
 			int length = g.getNumSubSymbol(tree.getLabel().getSymbol());
-			Double[] newScores;
+			Double[] innerScores = new Double[length];
 			if (g.getLexicon().getPreRules().contains(tempPreRule))
 			{
-
-				PreterminalRule realRule = g.getPreRuleBySameHead().get(tree.getLabel().getSymbol()).get(tempPreRule);
-				newScores = realRule.getScores().toArray(new Double[length]);
-			}
-			else// for parse
-			{// UNK
-				newScores = new Double[length];
-				double[] tag2UNKScores = g.getTag2UNKScores(tree.getLabel().getSymbol());
-				for (int i = 0; i < newScores.length; i++)
+				tempPreRule = g.getRule(tempPreRule);
+				for (short i = 0; i < innerScores.length; i++)
 				{
-					newScores[i] = tag2UNKScores[i];
+					innerScores[i] = tempPreRule.getScore(i);
 				}
 			}
+			else
+			{
+				throw new Error("不包含该preRule");
+			}
+			// else// for parse
+			// {// UNK
+			// System.out.println("解析是遇到UNK");
+			// double[] tag2UNKScores = g.getTag2UNKScores(tree.getLabel().getSymbol());
+			// for (int i = 0; i < innerScores.length; i++)
+			// {
+			// innerScores[i] = tag2UNKScores[i];
+			// }
+			// }
 			// 预终结符号的内向概率不用缩放，最小为e^-30
-			tree.getLabel().setInnerScores(newScores);
+			tree.getLabel().setInnerScores(innerScores);
 			tree.getLabel().setInnerScale(0);
 		}
 		else
@@ -169,20 +174,19 @@ public class TreeBank
 			switch (tree.getChildren().size())
 			{
 			case 1:
-				final UnaryRule tempUnaryRule = new UnaryRule(tree.getLabel().getSymbol(),
+				UnaryRule tempUnaryRule = new UnaryRule(tree.getLabel().getSymbol(),
 						tree.getChildren().get(0).getLabel().getSymbol());
 				if (g.getuRules().contains(tempUnaryRule))
 				{
-					LinkedList<LinkedList<Double>> uRuleScores = g.getuRuleBySameHead().get(tree.getLabel().getSymbol())
-							.get(tempUnaryRule).getScores();
+					tempUnaryRule = g.getRule(tempUnaryRule);
 					innerScores = new Double[length];
 					int childInnerScale = tree.getChildren().get(0).getLabel().getInnerScale();
-					for (int i = 0; i < innerScores.length; i++)
+					for (short i = 0; i < innerScores.length; i++)
 					{
 						double innerScores_Ai = 0.0;
-						for (int j = 0; j < g.getNumSubSymbol(tree.getChildren().get(0).getLabel().getSymbol()); j++)
+						for (short j = 0; j < g.getNumSubSymbol(tree.getChildren().get(0).getLabel().getSymbol()); j++)
 						{ // 规则A_i -> B_j的概率
-							double A_i2B_j = uRuleScores.get(i).get(j);
+							double A_i2B_j = tempUnaryRule.getScore(i, j);
 							double B_jInnerScore = tree.getChildren().get(0).getLabel().getInnerScores()[j];
 							innerScores_Ai = innerScores_Ai + (A_i2B_j * B_jInnerScore);
 						}
@@ -194,37 +198,36 @@ public class TreeBank
 				}
 				else
 				{
-					innerScores = new Double[length];
-					for (int i = 0; i < innerScores.length; i++)
-					{
-						innerScores[i] = 0.0;
-					}
-					tree.getLabel().setInnerScores(innerScores);
-					tree.getLabel().setInnerScale(0);
-					System.err.println("Attention:grammar don't contains  uRule :" + tempUnaryRule.toString());
+					// innerScores = new Double[length];
+					// for (int i = 0; i < innerScores.length; i++)
+					// {
+					// innerScores[i] = 0.0;
+					// }
+					// tree.getLabel().setInnerScores(innerScores);
+					// tree.getLabel().setInnerScale(0);
+					System.err.println("Attention:grammar don't contains  uRule ");
 				}
 				break;
 			case 2:
-				final BinaryRule tempBRule = new BinaryRule(tree.getLabel().getSymbol(),
+				BinaryRule tempBRule = new BinaryRule(tree.getLabel().getSymbol(),
 						tree.getChildren().get(0).getLabel().getSymbol(),
 						tree.getChildren().get(1).getLabel().getSymbol());
 				if (g.getbRules().contains(tempBRule))
 				{
-					LinkedList<LinkedList<LinkedList<Double>>> bRuleScores = g.getbRuleBySameHead()
-							.get(tree.getLabel().getSymbol()).get(tempBRule).getScores();
+					tempBRule = g.getRule(tempBRule);
 					innerScores = new Double[length];
 					int leftChildInnerScale = tree.getChildren().get(0).getLabel().getInnerScale();
 					int rightChildInnerScale = tree.getChildren().get(1).getLabel().getInnerScale();
-					for (int i = 0; i < innerScores.length; i++)
+					for (short i = 0; i < innerScores.length; i++)
 					{
 						double innerScores_Ai = 0.0;
-						for (int j = 0; j < g.getNumSubSymbol(tree.getChildren().get(0).getLabel().getSymbol()); j++)
+						for (short j = 0; j < g.getNumSubSymbol(tree.getChildren().get(0).getLabel().getSymbol()); j++)
 						{
-							for (int k = 0; k < g
+							for (short k = 0; k < g
 									.getNumSubSymbol(tree.getChildren().get(1).getLabel().getSymbol()); k++)
 							{
 								// 规则A_i -> B_j C_k的概率
-								double A_i2B_jC_k = bRuleScores.get(i).get(j).get(k);
+								double A_i2B_jC_k = tempBRule.getScore(i, j, k);
 								double B_jInnerScore = tree.getChildren().get(0).getLabel().getInnerScores()[j];
 								double C_kInnerScore = tree.getChildren().get(1).getLabel().getInnerScores()[k];
 								innerScores_Ai = innerScores_Ai + (A_i2B_jC_k * B_jInnerScore * C_kInnerScore);
@@ -238,14 +241,14 @@ public class TreeBank
 				}
 				else
 				{
-					innerScores = new Double[length];
-					for (int i = 0; i < innerScores.length; i++)
-					{
-						innerScores[i] = 0.0;
-					}
-					tree.getLabel().setInnerScores(innerScores);
-					tree.getLabel().setInnerScale(0);
-					System.err.println("Attention :grammar don't contains  bRule :" + tempBRule.toString());
+					// innerScores = new Double[length];
+					// for (int i = 0; i < innerScores.length; i++)
+					// {
+					// innerScores[i] = 0.0;
+					// }
+					// tree.getLabel().setInnerScores(innerScores);
+					// tree.getLabel().setInnerScale(0);
+					throw new Error("Attention :grammar don't contains the bRule ");
 				}
 				break;
 			default:
@@ -287,20 +290,18 @@ public class TreeBank
 			switch (parent.getChildren().size())
 			{
 			case 1:
-				final UnaryRule tempUnaryRule = new UnaryRule(parent.getLabel().getSymbol(),
-						treeNode.getLabel().getSymbol());
+				UnaryRule tempUnaryRule = new UnaryRule(parent.getLabel().getSymbol(), treeNode.getLabel().getSymbol());
 				if (g.getuRules().contains(tempUnaryRule))
 				{
-					LinkedList<LinkedList<Double>> uRuleScores = g.getuRuleBySameHead()
-							.get(parent.getLabel().getSymbol()).get(tempUnaryRule).getScores();
+					tempUnaryRule = g.getRule(tempUnaryRule);
 					Double[] outerScores = new Double[g.getNumSubSymbol(treeNode.getLabel().getSymbol())];
 					int parentOuterScale = parent.getLabel().getOuterScale();
-					for (int j = 0; j < outerScores.length; j++)
+					for (short j = 0; j < outerScores.length; j++)
 					{
 						double outerScores_Bj = 0.0;
-						for (int i = 0; i < g.getNumSubSymbol(parent.getLabel().getSymbol()); i++)
+						for (short i = 0; i < g.getNumSubSymbol(parent.getLabel().getSymbol()); i++)
 						{
-							double A_i2B_j = uRuleScores.get(i).get(j);
+							double A_i2B_j = tempUnaryRule.getScore(i, j);
 							double A_iOuterScore = parent.getLabel().getOuterScores()[i];
 							outerScores_Bj = outerScores_Bj + (A_i2B_j * A_iOuterScore);
 						}
@@ -319,7 +320,7 @@ public class TreeBank
 			case 2:
 				// 获取兄弟节点的内向概率
 				Double[] siblingNode_InScore;
-				final BinaryRule tempBRule;
+				BinaryRule tempBRule;
 				int siblingInnerScale;
 				int parentOuterScale = parent.getLabel().getOuterScale();
 				if (parent.getChildren().get(0) == treeNode)
@@ -339,28 +340,27 @@ public class TreeBank
 
 				if (g.getbRules().contains(tempBRule))
 				{
-					LinkedList<LinkedList<LinkedList<Double>>> bRuleScores = g.getbRuleBySameHead()
-							.get(parent.getLabel().getSymbol()).get(tempBRule).getScores();
+					tempBRule = g.getRule(tempBRule);
 					Double[] outerScores = new Double[g.getNumSubSymbol(treeNode.getLabel().getSymbol())];
-					for (int i = 0; i < outerScores.length; i++)
+					for (short i = 0; i < outerScores.length; i++)
 					{
 						double outerScoreB_i = 0.0;
-						for (int j = 0; j < g.getNumSubSymbol(parent.getLabel().getSymbol()); j++)
+						for (short j = 0; j < g.getNumSubSymbol(parent.getLabel().getSymbol()); j++)
 						{
 							double A_jOuterscore = parent.getLabel().getOuterScores()[j];
-							for (int k = 0; k < siblingNode_InScore.length; k++)
+							for (short k = 0; k < siblingNode_InScore.length; k++)
 							{
 								double C_kInnerScore = siblingNode_InScore[k];
 								if (parent.getChildren().get(0) == treeNode)
 								{
 
-									double A_j2B_iC_k = bRuleScores.get(j).get(i).get(k);
+									double A_j2B_iC_k = tempBRule.getScore(j, i, k);
 									outerScoreB_i = outerScoreB_i + (A_j2B_iC_k * A_jOuterscore * C_kInnerScore);
 
 								}
 								else
 								{
-									double A_j2C_kB_i = bRuleScores.get(j).get(k).get(i);
+									double A_j2C_kB_i = tempBRule.getScore(j, k, i);
 									outerScoreB_i = outerScoreB_i + (A_j2C_kB_i * A_jOuterscore * C_kInnerScore);
 								}
 

@@ -1,6 +1,8 @@
 package com.lc.nlp4han.constituent.pcfg;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,10 +37,11 @@ public class GrammarConvertor
 	 * 
 	 * @param pcfg
 	 * @return
+	 * @throws IOException
 	 */
-	public static PCFG PCFG2PCNF(PCFG pcfg)
+	public static PCFG PCFG2PCNF(PCFG pcfg) throws IOException
 	{
-		return (PCFG)convertGrammar("PCNF", pcfg, new PCFG());
+		return (PCFG) convertGrammar("PCNF", pcfg, new PCFG());
 	}
 
 	/**
@@ -49,16 +52,28 @@ public class GrammarConvertor
 	 */
 	private static CFG convertGrammar(String type, CFG cfg, CFG cnf)
 	{
+		convertPostMap(cfg, cnf);
 		toLooseCNF(cfg, type, cnf);
 
 		if (!type.contains("2"))
 		{// P2NF不需要消除单元规则
-			HashSet<String> posSet = getPOSSet(cnf);
-			
-			removeUnitProduction(type, posSet, cnf);
+			removeUnitProduction(type, cnf.getPosSet(), cnf);
 		}
-		
+
 		return cnf;
+	}
+
+	private static void convertPostMap(CFG cfg, CFG cnf)
+	{
+		HashMap<String, Double> map = new HashMap<String, Double>();
+		PCFG pcfg = (PCFG) cfg;
+		// 即使它是0.0,也可以用pcfg取了之后存入
+		for (String pos : pcfg.getPosSet())
+		{
+			map.put(pos, pcfg.getPosPro(pos));
+		}
+
+		cnf.setPosMap(map);
 	}
 
 	/**
@@ -183,12 +198,26 @@ public class GrammarConvertor
 	}
 
 	/**
+	 * 由宽松PCNF转换为PCNF
+	 * 
+	 * @param cnf
+	 * @return
+	 */
+	public static PCFG loosePCNF2PCNF(CFG cnf)
+	{
+		HashSet<String> posSet = cnf.getPosSet();
+		removeUnitProduction("PCNF", posSet, cnf);
+		return (PCFG) cnf;
+	}
+
+	/**
 	 * 消除单元规则
 	 */
 	private static void removeUnitProduction(String type, HashSet<String> posSet, CFG cnf)
 	{
 		HashSet<RewriteRule> deletePRuleSet = new HashSet<RewriteRule>();
 		Set<String> nonterSet = cnf.getNonTerminalSet();
+
 		for (String nonTer : cnf.getNonTerminalSet())
 		{
 			for (RewriteRule rule : cnf.getRuleBylhs(nonTer))
@@ -197,9 +226,10 @@ public class GrammarConvertor
 				{
 					String rhs = rule.getRhs().get(0);
 					if (posSet.contains(rhs)) // 右部是词性
-					{// 消除单元规则终止与POS层次
+					{// 消除单元规则终止于POS层次
 						continue;
 					}
+					
 					if (nonterSet.contains(rhs))
 					{
 						deletePRuleSet.add(rule);
@@ -208,7 +238,8 @@ public class GrammarConvertor
 				}
 			}
 		}
-		DeletePRuleSet(deletePRuleSet, cnf);
+		
+		deletePRuleSet(deletePRuleSet, cnf);
 	}
 
 	private static void removeUPAndAddNewRule(RewriteRule rule, String type, HashSet<String> posSet, CFG cnf)
@@ -221,11 +252,13 @@ public class GrammarConvertor
 		{
 			return;// 如果单元规则迭代有3次以上，则返回
 		}
+		
 		if (posSet.contains(rule.getRhs().get(0)))
 		{
 			cnf.add(rule);// 若该规则右侧为词性标注则直接添加
 			return;
 		}
+		
 		for (String lhs2 : lhs1)
 		{
 			if (lhs2.equals(rhs))
@@ -233,6 +266,7 @@ public class GrammarConvertor
 				return;// 如果出现循环非终结符则返回
 			}
 		}
+		
 		for (RewriteRule rule1 : cnf.getRuleBylhs(rule.getRhs().get(0)))
 		{
 			RewriteRule rule2;
@@ -248,6 +282,7 @@ public class GrammarConvertor
 			{
 				rule2 = new RewriteRule(rule.getLhs() + "@" + rule1.getLhs(), rule1.getRhs());
 			}
+			
 			if (rule1.getRhs().size() == 2 || !cnf.getNonTerminalSet().contains(rule1.getRhs().get(0)))
 			{
 				cnf.add(rule2);
@@ -259,7 +294,7 @@ public class GrammarConvertor
 		}
 	}
 
-	private static void DeletePRuleSet(HashSet<RewriteRule> deletePRuleSet, CFG cnf)
+	private static void deletePRuleSet(HashSet<RewriteRule> deletePRuleSet, CFG cnf)
 	{
 		for (RewriteRule rule : deletePRuleSet)
 		{
@@ -267,23 +302,5 @@ public class GrammarConvertor
 			cnf.getRuleBylhs(rule.getLhs()).remove(rule);
 			cnf.getRuleByrhs(rule.getRhs()).remove(rule);
 		}
-	}
-
-	/**
-	 * 得到词性标注
-	 */
-	private static HashSet<String> getPOSSet(CFG cnf)
-	{
-		HashSet<String> posSet = new HashSet<String>();
-
-		for (RewriteRule rule : cnf.getRuleSet())
-		{
-			if (rule.getRhs().size() == 1 && cnf.isTerminal(rule.getRhs().get(0)))
-			{
-				posSet.add(rule.getLhs());
-			}
-		}
-		
-		return posSet;
 	}
 }

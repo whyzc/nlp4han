@@ -12,6 +12,7 @@ import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYLoosePCNF;
 import com.lc.nlp4han.constituent.pcfg.ConstituentTreeStream;
 import com.lc.nlp4han.constituent.pcfg.PCFG;
+import com.lc.nlp4han.constituent.pcfg.UncompatibleGrammar;
 import com.lc.nlp4han.constituent.TreeNodeUtil;
 import com.lc.nlp4han.ml.util.Evaluator;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
@@ -51,7 +52,7 @@ public class EvaluatorParentLabelAdded extends Evaluator<ConstituentTree>
 		this.cky = cky;
 	}
 
-	public EvaluatorParentLabelAdded(PCFG p2nf, double pruneThreshold, boolean secondPrune, boolean prior)
+	public EvaluatorParentLabelAdded(PCFG p2nf, double pruneThreshold, boolean secondPrune, boolean prior) throws UncompatibleGrammar
 	{
 		this.cky = new ConstituentParserCKYLoosePCNF(p2nf, pruneThreshold, secondPrune, prior);
 	}
@@ -115,7 +116,7 @@ public class EvaluatorParentLabelAdded extends Evaluator<ConstituentTree>
 			double pruneThreshold, boolean secondPrune, boolean prior) throws IOException
 	{
 		long start = System.currentTimeMillis();
-		Grammar g = GrammarExtractorToolPLabelAdded.getGrammar(Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF, trainEn);
+		Grammar g = GrammarExtractorToolPLabelAdded.getGrammar(trainF, trainEn, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
 		long end = System.currentTimeMillis();
 		EvaluatorParentLabelAdded evaluator = new EvaluatorParentLabelAdded(g.getPCFG(), pruneThreshold, secondPrune,
 				prior);
@@ -166,7 +167,6 @@ public class EvaluatorParentLabelAdded extends Evaluator<ConstituentTree>
 			if (args[i].equals("-em"))
 			{
 				iterations = Integer.parseInt(args[i + 1]);
-				GrammarTrainer.EMIterations = iterations;
 				i++;
 			}
 			if (args[i].equals("-pruneThreshold"))

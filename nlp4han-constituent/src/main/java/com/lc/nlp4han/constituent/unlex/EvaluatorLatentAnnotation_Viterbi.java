@@ -86,9 +86,10 @@ public class EvaluatorLatentAnnotation_Viterbi extends Evaluator<ConstituentTree
 		Grammar gLatentAnntation = GrammarExtractorToolLatentAnnotation.getGrammar(SMCycle, mergeRate, iterations,
 				smoothRate, Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF, trainEn);
 
-		long end = System.currentTimeMillis();
 		ConstituentParserLatentAnnotation_Viterbi parser = new ConstituentParserLatentAnnotation_Viterbi(
 				gLatentAnntation, pruneThreshold, secondPrune, prior);
+		long end = System.currentTimeMillis();
+		System.out.println("语法训练时间：" + (end - start) + "ms");
 		EvaluatorLatentAnnotation_Viterbi evaluator = new EvaluatorLatentAnnotation_Viterbi(parser);
 		ConstituentMeasure measure = new ConstituentMeasure();
 		evaluator.setMeasure(measure);
@@ -96,9 +97,7 @@ public class EvaluatorLatentAnnotation_Viterbi extends Evaluator<ConstituentTree
 				goldEn);
 		ObjectStream<ConstituentTree> sampleStream = new ConstituentTreeStream(treeStream);
 		evaluator.evaluate(sampleStream);
-
 		ConstituentMeasure measureRes = evaluator.getMeasure();
-		System.out.println(end - start);
 		System.out.println(measureRes);
 	}
 
@@ -146,7 +145,6 @@ public class EvaluatorLatentAnnotation_Viterbi extends Evaluator<ConstituentTree
 			if (args[i].equals("-em"))
 			{
 				iterations = Integer.parseInt(args[i + 1]);
-				GrammarTrainer.EMIterations = iterations;
 				i++;
 			}
 			if (args[i].equals("-pruneThreshold"))

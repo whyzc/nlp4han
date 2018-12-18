@@ -19,14 +19,27 @@ public class PCFG extends CFG
 	{
 
 	}
-
-	public PCFG(String startSymbol, Set<String> nonTerminalSet, Set<String> terminalSet,
+   
+	public PCFG(String startSymbol, Set<String> nonTerminalSet, Set<String> terminalSet,HashMap<String,Double> posMap,
 			HashMap<String, HashSet<RewriteRule>> ruleMapStartWithlhs,
 			HashMap<ArrayList<String>, HashSet<RewriteRule>> ruleMapStartWithrhs)
 	{
-		super(startSymbol,nonTerminalSet,terminalSet,ruleMapStartWithlhs,ruleMapStartWithrhs);
+		super(startSymbol,nonTerminalSet,terminalSet,posMap,ruleMapStartWithlhs,ruleMapStartWithrhs);
 	}
-
+	
+	public PCFG(String startSymbol, HashMap<String, Double> posMap, Set<String> nonTerminalSet, Set<String> terminalSet,
+			Set<RewriteRule> ruleSet)
+	{
+		super(startSymbol, posMap,nonTerminalSet, terminalSet,ruleSet);
+	}
+	
+	/**
+	 * 从文本流中加载CFG文法
+	 * 
+	 * @param in
+	 * @param encoding
+	 * @throws IOException
+	 */
 	public PCFG(InputStream in, String encoding) throws IOException
 	{
 		super.readGrammar(in, encoding);
@@ -36,11 +49,15 @@ public class PCFG extends CFG
 	{
 		return new PRule(ruleStr);
 	}
+	
+	public double getPosPro(String pos) {
+		return super.posMap.get(pos);
+	}
 
 	/**
 	 * 获取PCFG中所有非终结符扩展出的规则概率之和与1.0的误差，取其中最大的值返回
 	 */
-	public double getProMaxErrorOfNonTer()
+	private double getProMaxErrorOfNonTer()
 	{
 		double MaxErrorOfPCNF = 0;
 		for (String string : super.getNonTerminalSet())
@@ -67,7 +84,7 @@ public class PCFG extends CFG
 	 * @param ruleSet
 	 * @return
 	 */
-	public PRule getHighestProRule(Set<RewriteRule> ruleSet)
+	private static PRule getHighestProRule(Set<RewriteRule> ruleSet)
 	{
 		Iterator<RewriteRule> itr = ruleSet.iterator();
 		return getHighestProRuleByItr(itr, 1).get(0);
@@ -80,7 +97,7 @@ public class PCFG extends CFG
 	 * @param k
 	 * @return
 	 */
-	public ArrayList<PRule> getHighestProRule(HashMap<RewriteRule, Integer> ruleMap, int k)
+	private static ArrayList<PRule> getHighestProRule(HashMap<RewriteRule, Integer> ruleMap, int k)
 	{
 		Iterator<RewriteRule> itr = ruleMap.keySet().iterator();
 		return getHighestProRuleByItr(itr, k);
@@ -93,7 +110,7 @@ public class PCFG extends CFG
 	 * @param k
 	 * @return
 	 */
-	public ArrayList<PRule> getHighestProRuleByItr(Iterator<RewriteRule> itr, int k)
+	private static ArrayList<PRule> getHighestProRuleByItr(Iterator<RewriteRule> itr, int k)
 	{
 		PRule bestPRule = new PRule(-1.0, "FSA", "FDS");
 		ArrayList<PRule> pruleList = new ArrayList<PRule>();
