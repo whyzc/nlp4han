@@ -1,6 +1,5 @@
 package com.lc.nlp4han.clustering;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class KMeans
@@ -18,14 +17,16 @@ public class KMeans
 		
 		DistanceCalculator distance = new JaccardCoefficientBasedDistanceCalculator();
 		
-		UpdateGroupCenter ugc = new PAMUpateGroupCenter(distance);
-		
 		for (int i=0 ; i<texts.size() ; i++)
 		{
 			Text t = texts.get(i);
 			Sample s = new Sample(fg.getFeatures(t));
 			t.setSample(s);
 		}
+		
+		DistanceRecode dr = new DistanceRecode(texts, distance);
+		
+		UpdateGroupCenter ugc = new PAMUpateGroupCenter(dr);
 		
 		
 		Initialization init = new RandomInitialization();
