@@ -36,7 +36,7 @@ public class SpaceVectorBasedDistanceCalculator extends DistanceCalculator
 	{
 		if (vectorInfo == null)
 			vectorInfo = new HashMap<String, Integer>();
-		Map<String, Count> wordInfo = fg.getWordInfo();
+		Map<String, Count> wordInfo = fg.getTextsInfo();
 		Set<Entry<String, Count>> es = wordInfo.entrySet();
 		for (Entry<String, Count> e : es)
 		{
