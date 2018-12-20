@@ -2,7 +2,6 @@ package com.lc.nlp4han.clustering;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class KMeans
 {
@@ -13,9 +12,6 @@ public class KMeans
 		if (texts==null || k<1 || texts.size()<k)
 			throw new RuntimeException("参数错误！");
  
-		List<Group> groups = new ArrayList<Group>();
-		
-		
 		FeatureGenerator fg = new WordBasedZeroOneFeatureGenerator();
 		if (!fg.isInitialized())
 			fg.init(texts);
@@ -31,27 +27,10 @@ public class KMeans
 			t.setSample(s);
 		}
 		
-		// 随机初始化
-		Random random = new Random();
-		List<Integer> randomValues = new ArrayList<Integer>();
 		
-		for (int i=0 ; i<k ; i++)
-		{
-			int r = random.nextInt(texts.size());
-			if (randomValues.contains(r) || r<0)
-			{
-				i--;
-				continue;
-			}
-			randomValues.add(r);
-		}
+		Initialization init = new RandomInitialization();
+		List<Group> groups = init.initialize(texts, k);
 		
-		for (int i=0 ; i<k ; i++)
-		{
-			Group g = new Group();
-			g.setCenter(texts.get(randomValues.get(i)).getSample().clone());
-			groups.add(g);
-		}
 		
 		int iterationTimes = 0;
 		for (; iterationTimes<TIMES ; iterationTimes++)
