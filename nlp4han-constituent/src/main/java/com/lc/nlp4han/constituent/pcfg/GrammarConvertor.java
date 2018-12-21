@@ -130,6 +130,10 @@ public class GrammarConvertor
 
 	/**
 	 * 将右侧全部转换为非终结符，并添加新的非终结符，新的规则
+	 * 
+	 * 	A->B a变成
+	 * $a$->a  
+	 * A->B $a$
 	 */
 	private static void convertToNonTerRHS(RewriteRule rule, CFG cnf)
 	{
@@ -156,7 +160,11 @@ public class GrammarConvertor
 	}
 
 	/**
-	 * 每次选择最右侧字符串的两个为新的规则的右侧字符串，以&联接两个非终结符，如此，方便在P2NF转回为CFG
+	 * 每次选择最右侧字符串的两个为新的规则的右侧字符串，以&联接两个非终结符
+	 * 
+	 * A->B C D变成
+	 * C&D->C D
+	 * A->B C&D
 	 */
 	private static void reduceRHSNum(RewriteRule rule, CFG cnf)
 	{
