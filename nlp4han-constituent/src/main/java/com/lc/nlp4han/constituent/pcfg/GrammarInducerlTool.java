@@ -61,7 +61,6 @@ public class GrammarInducerlTool
 		}
 		else
 		{
-//			CFGModelIOUtil.writeModel(loosePCNF, modelFile);
 			DataOutput out = new DataOutputStream(new FileOutputStream(modelFile));
 			pcnf.write(out);
 		}
