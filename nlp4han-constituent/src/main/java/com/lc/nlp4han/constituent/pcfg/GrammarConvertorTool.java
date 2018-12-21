@@ -47,13 +47,7 @@ public class GrammarConvertorTool
 	{
 		CFG cnf;
 
-		if (type.equals("CNF"))
-		{
-			CFG cfg=CFGModelIOUtil.loadCFGModel(corpusFile);	
-			
-			cnf = GrammarConvertor.CFG2CNF(cfg);
-		}
-		else if (type.equals("P2NF"))
+		if (type.equals("P2NF"))
 		{
 			PCFG p2nf=CFGModelIOUtil.loadPCFGModel(corpusFile);
 			

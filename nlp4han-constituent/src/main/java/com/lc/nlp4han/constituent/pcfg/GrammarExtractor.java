@@ -32,7 +32,7 @@ public class GrammarExtractor
 	{
 		PCFG grammar = brackets2PCFG(bracketStrList);
 
-		return (PCFG) grammar;
+		return grammar;
 	}
 
 	private static PCFG extractGrammar(String fileName, String enCoding) throws IOException

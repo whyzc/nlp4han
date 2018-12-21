@@ -14,10 +14,10 @@ import java.util.Set;
 public class GrammarConvertor
 {
 
-	public static CFG CFG2CNF(CFG cfg)
-	{
-		return convertGrammar("CNF", cfg, new CFG());
-	}
+//	public static CFG CFG2CNF(CFG cfg)
+//	{
+//		return convertGrammar("CNF", cfg, new CFG());
+//	}
 
 	/**
 	 * 包含单元规则的CNF文法
@@ -50,9 +50,9 @@ public class GrammarConvertor
 	 * @param type
 	 * @param cfg
 	 */
-	private static CFG convertGrammar(String type, CFG cfg, CFG cnf)
+	private static CFG convertGrammar(String type, PCFG cfg, PCFG cnf)
 	{
-		convertPostMap(cfg, cnf);
+		addPosProb(cfg, cnf);
 		toLooseCNF(cfg, type, cnf);
 
 		if (!type.contains("2"))
@@ -63,17 +63,16 @@ public class GrammarConvertor
 		return cnf;
 	}
 
-	private static void convertPostMap(CFG cfg, CFG cnf)
+	private static void addPosProb(PCFG pcfg, PCFG pcnf)
 	{
-		HashMap<String, Double> map = new HashMap<String, Double>();
-		PCFG pcfg = (PCFG) cfg;
-		// 即使它是0.0,也可以用pcfg取了之后存入
+		HashMap<String, Double> posProb = new HashMap<String, Double>();
+
 		for (String pos : pcfg.getPosSet())
 		{
-			map.put(pos, pcfg.getPosPro(pos));
+			posProb.put(pos, pcfg.getPosPro(pos));
 		}
 
-		cnf.setPosProb(map);
+		pcnf.setPosProb(posProb);
 	}
 
 	/**
