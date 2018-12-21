@@ -15,28 +15,32 @@ import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 /**
  * 文法抽取工具类
  * 
- * 从树库中抽取CFG或PCFG文法
+ * 从树库中抽取PCFG文法
  * 
  */
 public class GrammarExtractor
 {
-	public static CFG getCFG(String fileName, String enCoding) throws IOException
-	{
-		return extractGrammar(fileName, enCoding, "CFG");
-	}
-
 	public static PCFG getPCFG(String fileName, String enCoding) throws IOException
 	{
-
-		return (PCFG) extractGrammar(fileName, enCoding, "PCFG");
+		return extractGrammar(fileName, enCoding);
 	}
 
-	private static CFG extractGrammar(String fileName, String enCoding, String type) throws IOException
+	/**
+	 * 由括号表达式列表直接得到PCFG
+	 */
+	public static PCFG getPCFG(ArrayList<String> bracketStrList) throws IOException
+	{
+		PCFG grammar = brackets2PCFG(bracketStrList);
+
+		return (PCFG) grammar;
+	}
+
+	private static PCFG extractGrammar(String fileName, String enCoding) throws IOException
 	{
 		ArrayList<String> bracketStrList = getBrackets(fileName, enCoding);
 
 		// 括号表达式生成文法
-		CFG grammar = brackets2Grammar(bracketStrList, type);
+		PCFG grammar = brackets2PCFG(bracketStrList);
 
 		return grammar;
 
@@ -60,20 +64,11 @@ public class GrammarExtractor
 	}
 
 	// 由括号表达式的list得到对应的文法集合
-	private static CFG brackets2Grammar(ArrayList<String> bracketStrList, String type) throws IOException
+	private static PCFG brackets2PCFG(ArrayList<String> bracketStrList) throws IOException
 	{
-		HashMap<PRule, Integer> ruleCounter = null;
 		HashMap<String, Integer> posMap = new HashMap<String, Integer>();
-		CFG grammar = null;
-		if (type.contains("P"))
-		{
-			grammar = new PCFG();
-			ruleCounter = new HashMap<PRule, Integer>();
-		}
-		else
-		{
-			grammar = new CFG();
-		}
+		PCFG grammar = new PCFG();
+		HashMap<PRule, Integer> ruleCounter = new HashMap<PRule, Integer>();
 
 		for (String bracketStr : bracketStrList)
 		{
@@ -81,20 +76,17 @@ public class GrammarExtractor
 			traverse(rootNode1, grammar, ruleCounter, posMap);
 		}
 
-		if (type.contains("P"))
-		{
-			ComputeProOfRule(grammar, ruleCounter);
-		}
-		
-		grammar.setPosMap(getProMap(posMap, type));
-		
+		computeProOfRule(grammar, ruleCounter);
+
+		grammar.setPosMap(getPOSProb(posMap));
+
 		return grammar;
 	}
 
 	/**
 	 * 遍历树得到基本文法
 	 */
-	private static void traverse(TreeNode node, CFG grammar, HashMap<PRule, Integer> ruleCounter,
+	private static void traverse(TreeNode node, PCFG grammar, HashMap<PRule, Integer> ruleCounter,
 			HashMap<String, Integer> posMap)
 	{
 		if (grammar.getStartSymbol() == null)
@@ -124,12 +116,10 @@ public class GrammarExtractor
 
 		if (node.getChildren() != null && node.getChildren().size() > 0)
 		{
-			RewriteRule rule = new RewriteRule(node.getNodeName(), node.getChildren());
-			if (grammar instanceof PCFG)
-			{
-				rule = new PRule(rule, 0);
-				addRuleCount((PRule) rule, ruleCounter);
-			}
+			RewriteRule R = new RewriteRule(node.getNodeName(), node.getChildren());
+			PRule rule = new PRule(R, 0);
+
+			addRuleCount(rule, ruleCounter);
 
 			grammar.add(rule);// 添加规则
 
@@ -152,19 +142,19 @@ public class GrammarExtractor
 		}
 	}
 
-	private static void ComputeProOfRule(CFG grammar, HashMap<PRule, Integer> ruleCounter)
+	private static void computeProOfRule(PCFG grammar, HashMap<PRule, Integer> ruleCounter)
 	{
 		for (String nonTer : grammar.getNonTerminalSet())
 		{
-			Set<RewriteRule> set = grammar.getRuleBylhs(nonTer);
+			Set<RewriteRule> ruleSet = grammar.getRuleBylhs(nonTer);
 			int allNum = 0;
-			for (RewriteRule rule : set)
+			for (RewriteRule rule : ruleSet)
 			{
 				PRule pr = (PRule) rule;
 				allNum += ruleCounter.get(pr);
 			}
 
-			for (RewriteRule rule : set)
+			for (RewriteRule rule : ruleSet)
 			{
 				PRule pr = (PRule) rule;
 				pr.setProb(1.0 * ruleCounter.get(rule) / allNum);
@@ -178,7 +168,7 @@ public class GrammarExtractor
 	 * @param map
 	 * @return
 	 */
-	private static HashMap<String, Double> getProMap(HashMap<String, Integer> map, String type)
+	private static HashMap<String, Double> getPOSProb(HashMap<String, Integer> map)
 	{
 		int sum = 0;
 		HashMap<String, Double> map1 = new HashMap<String, Double>();
@@ -186,28 +176,15 @@ public class GrammarExtractor
 		{
 			sum += map.get(str);
 		}
+
 		for (String str : map.keySet())
 		{
-			if (!type.contains("P"))
-			{
-				map1.put(str, 0.0);
-			}
-			else
-			{
-				double pro = 1.0 * map.get(str) / sum;
-				map1.put(str, pro);
-			}
+
+			double pro = 1.0 * map.get(str) / sum;
+			map1.put(str, pro);
 		}
+
 		return map1;
 	}
 
-	/**
-	 * 由括号表达式列表直接得到PCFG
-	 */
-	public static PCFG getPCFG(ArrayList<String> bracketStrList) throws IOException
-	{
-		CFG grammar = brackets2Grammar(bracketStrList, "PCFG");
-
-		return (PCFG) grammar;
-	}
 }
