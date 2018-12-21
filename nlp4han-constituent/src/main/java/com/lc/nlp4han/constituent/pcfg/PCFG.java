@@ -51,7 +51,7 @@ public class PCFG extends CFG
 	}
 	
 	public double getPosPro(String pos) {
-		return super.posMap.get(pos);
+		return super.posProb.get(pos);
 	}
 
 	/**

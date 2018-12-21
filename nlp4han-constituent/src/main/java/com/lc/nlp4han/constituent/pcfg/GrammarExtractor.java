@@ -76,9 +76,9 @@ public class GrammarExtractor
 			traverse(rootNode1, grammar, ruleCounter, posMap);
 		}
 
-		computeProOfRule(grammar, ruleCounter);
+		computeProbOfRule(grammar, ruleCounter);
 
-		grammar.setPosMap(getPOSProb(posMap));
+		grammar.setPosProb(getPOSProb(posMap));
 
 		return grammar;
 	}
@@ -87,7 +87,7 @@ public class GrammarExtractor
 	 * 遍历树得到基本文法
 	 */
 	private static void traverse(TreeNode node, PCFG grammar, HashMap<PRule, Integer> ruleCounter,
-			HashMap<String, Integer> posMap)
+			HashMap<String, Integer> posCount)
 	{
 		if (grammar.getStartSymbol() == null)
 		{// 起始符提取
@@ -103,13 +103,13 @@ public class GrammarExtractor
 		if (node.getChildren().size() == 1 && node.getChild(0).isLeaf()) // 词性标注提取
 		{
 			String string = node.getNodeName();
-			if (posMap.keySet().contains(string))
+			if (posCount.keySet().contains(string))
 			{
-				posMap.put(string, posMap.get(string) + 1);
+				posCount.put(string, posCount.get(string) + 1);
 			}
 			else
 			{
-				posMap.put(string, 1);
+				posCount.put(string, 1);
 			}
 		}
 		grammar.addNonTerminal(node.getNodeName());// 非终结符提取
@@ -125,7 +125,7 @@ public class GrammarExtractor
 
 			for (TreeNode node1 : node.getChildren())
 			{// 深度优先遍历
-				traverse(node1, grammar, ruleCounter, posMap);
+				traverse(node1, grammar, ruleCounter, posCount);
 			}
 		}
 	}
@@ -142,7 +142,7 @@ public class GrammarExtractor
 		}
 	}
 
-	private static void computeProOfRule(PCFG grammar, HashMap<PRule, Integer> ruleCounter)
+	private static void computeProbOfRule(PCFG grammar, HashMap<PRule, Integer> ruleCounter)
 	{
 		for (String nonTer : grammar.getNonTerminalSet())
 		{
@@ -165,22 +165,22 @@ public class GrammarExtractor
 	/**
 	 * 由词性标注计数器得到词性标注概率
 	 * 
-	 * @param map
+	 * @param posCount
 	 * @return
 	 */
-	private static HashMap<String, Double> getPOSProb(HashMap<String, Integer> map)
+	private static HashMap<String, Double> getPOSProb(HashMap<String, Integer> posCount)
 	{
 		int sum = 0;
 		HashMap<String, Double> map1 = new HashMap<String, Double>();
-		for (String str : map.keySet())
+		for (String str : posCount.keySet())
 		{
-			sum += map.get(str);
+			sum += posCount.get(str);
 		}
 
-		for (String str : map.keySet())
+		for (String str : posCount.keySet())
 		{
 
-			double pro = 1.0 * map.get(str) / sum;
+			double pro = 1.0 * posCount.get(str) / sum;
 			map1.put(str, pro);
 		}
 

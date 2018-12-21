@@ -22,7 +22,7 @@ import com.lc.nlp4han.constituent.GrammarWritable;
 public class CFG implements GrammarWritable
 {
 	private String startSymbol = null;
-	protected HashMap<String, Double> posMap = new HashMap<String, Double>();// 词性标注-概率映射
+	protected HashMap<String, Double> posProb = new HashMap<String, Double>();// 词性标注-概率映射
 	private Set<String> nonTerminalSet = new HashSet<String>();// 非终结符集
 	private Set<String> terminalSet = new HashSet<String>();// 终结符集
 	private Set<RewriteRule> ruleSet = new HashSet<RewriteRule>();// 规则集
@@ -48,7 +48,7 @@ public class CFG implements GrammarWritable
 		this.startSymbol = startSymbol;
 		this.nonTerminalSet = nonTerminalSet;
 		this.terminalSet = terminalSet;
-		this.posMap = posMap;
+		this.posProb = posMap;
 
 		this.LHS2Rules = ruleMapStartWithlhs;
 		this.RHS2Rules = ruleMapStartWithrhs;
@@ -57,7 +57,7 @@ public class CFG implements GrammarWritable
 		{
 			ruleSet.addAll(ruleMapStartWithlhs.get(lhs));
 		}
-		this.posMap = getPosSet(ruleSet);
+		this.posProb = getPosSet(ruleSet);
 	}
 
 	public CFG(String startSymbol, HashMap<String, Double> posMap, Set<String> nonTerminalSet, Set<String> terminalSet,
@@ -65,7 +65,7 @@ public class CFG implements GrammarWritable
 			HashMap<ArrayList<String>, HashSet<RewriteRule>> rHS2Rules)
 	{
 		this.startSymbol = startSymbol;
-		this.posMap = posMap;
+		this.posProb = posMap;
 		this.nonTerminalSet = nonTerminalSet;
 		this.terminalSet = terminalSet;
 		this.ruleSet = ruleSet;
@@ -86,7 +86,7 @@ public class CFG implements GrammarWritable
 			Set<RewriteRule> ruleSet)
 	{
 		this.startSymbol = startSymbol;
-		this.posMap = posMap;
+		this.posProb = posMap;
 		this.nonTerminalSet = nonTerminalSet;
 		this.terminalSet = terminalSet;
 		for (RewriteRule rule : ruleSet)
@@ -159,7 +159,7 @@ public class CFG implements GrammarWritable
 		while (!str.equals("--规则集--"))
 		{
 			String[] pos = str.split("=");
-			posMap.put(pos[0], Double.parseDouble(pos[1]));
+			posProb.put(pos[0], Double.parseDouble(pos[1]));
 			str = buffer.readLine().trim();
 		}
 
@@ -185,7 +185,7 @@ public class CFG implements GrammarWritable
 	 */
 	public boolean IsCNF()
 	{
-		Set<String> set = posMap.keySet();
+		Set<String> set = posProb.keySet();
 		boolean isCNF = true;
 		for (RewriteRule rule : ruleSet)
 		{
@@ -447,15 +447,15 @@ public class CFG implements GrammarWritable
 	 */
 	public HashSet<String> getPosSet()
 	{
-		return new HashSet<String>(posMap.keySet());
+		return new HashSet<String>(posProb.keySet());
 	}
 
 	/**
 	 * 设置词性标注的集合及对应的概率
 	 */
-	public void setPosMap(HashMap<String, Double> posMap)
+	public void setPosProb(HashMap<String, Double> posMap)
 	{
-		this.posMap = posMap;
+		this.posProb = posMap;
 	}
 
 	@Override
@@ -539,9 +539,9 @@ public class CFG implements GrammarWritable
 		}
 
 		stb.append("--词性标注映射--" + '\n');
-		for (String string : posMap.keySet())
+		for (String string : posProb.keySet())
 		{
-			stb.append(string + "=" + posMap.get(string) + '\n');
+			stb.append(string + "=" + posProb.get(string) + '\n');
 		}
 
 		stb.append("--规则集--" + '\n');
@@ -592,9 +592,9 @@ public class CFG implements GrammarWritable
 		 * 写入词性标注映射
 		 */
 		out.writeUTF("--词性标注映射--");
-		for (String pos : posMap.keySet())
+		for (String pos : posProb.keySet())
 		{
-			out.writeUTF(pos + "=" + posMap.get(pos));
+			out.writeUTF(pos + "=" + posProb.get(pos));
 		}
 
 		/**
@@ -641,7 +641,7 @@ public class CFG implements GrammarWritable
 		while (!str.equals("--规则集--"))
 		{
 			String[] strs = str.split("=");
-			posMap.put(strs[0], Double.parseDouble(strs[1]));
+			posProb.put(strs[0], Double.parseDouble(strs[1]));
 			str = in.readUTF();
 		}
 

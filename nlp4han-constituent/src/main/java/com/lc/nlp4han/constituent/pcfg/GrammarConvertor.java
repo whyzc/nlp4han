@@ -73,7 +73,7 @@ public class GrammarConvertor
 			map.put(pos, pcfg.getPosPro(pos));
 		}
 
-		cnf.setPosMap(map);
+		cnf.setPosProb(map);
 	}
 
 	/**
