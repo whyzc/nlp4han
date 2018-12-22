@@ -108,19 +108,23 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 	 * @return
 	 */
 	private ConstituentTree[] getParseResult(String[] words, String[] poses, int k)
-	{
-		int i = 0;
-		ConstituentTree[] treeArray = new ConstituentTree[k];
+	{	
 		ArrayList<String> bracketList = parseCKY(words, poses, k, true);
+		
 		if (secondPrune && bracketList.size() == 0 && words.length <= 50)
 		{
 			bracketList = parseCKY(words, poses, k, false);
 		}
+		
+		int i = 0;
+		ConstituentTree[] treeArray = new ConstituentTree[k];
 		for (String bracketString : bracketList)
 		{
-			TreeNode rootNode = RestoreTree.restoreTree(BracketExpUtil.generateTree(bracketString));
+			TreeNode rootNode = TreeRestorer.restoreTree(BracketExpUtil.generateTree(bracketString));
+			
 			treeArray[i++] = new ConstituentTree(rootNode);
 		}
+		
 		return treeArray;
 	}
 
@@ -140,10 +144,10 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 	 */
 	private ArrayList<String> parseCKY(String[] words, String[] pos, int numOfResulets, boolean prune)
 	{
-		int n = words.length;
 		// 初始化
 		initializeChart(words, pos, numOfResulets);
 
+		int n = words.length;
 		// 填充chart图中的边
 		for (int span = 2; span <= n; span++)
 		{
@@ -251,15 +255,18 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 				{// 只有矩阵的上三角存储数据
 					table[i][j] = new CKYTreeNode(new HashMap<String, ArrayList<CKYPRule>>(), false);
 				}
+				
 				if (j == i + 1)
 				{
 					table[i][j].setFlag(true);
-					// 由分词结果反推得到规则，并进行table表对角线的初始化
+					
 					HashMap<String, ArrayList<CKYPRule>> ruleMap = table[j - 1][j].getPruleMap();
+					
 					if (poses == null)
 					{
 						ArrayList<String> rhs = new ArrayList<String>();
 						rhs.add(words[j - 1]);
+						
 						for (RewriteRule rule0 : pcnf.getRuleByrhs(rhs))
 						{
 							PRule rule = (PRule) rule0;
@@ -267,6 +274,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 							// 此处延迟概率初始化至updateRuleMapOfTable
 							ckyPRulList.add(new CKYPRule(1.0, rule.getLhs(), rule.getRhs(), 0, 0, 0));
 							HashMap<String, Double> lhsAndProMap = new HashMap<String, Double>();
+							
 							updateRuleMapOfTable(rule, ruleMap, rule.getLhs(), ckyPRulList, numOfResulets,
 									lhsAndProMap);
 						}
@@ -276,8 +284,10 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 						// 根据分词和词性标注的结果进行table表对角线的j初始化
 						ArrayList<CKYPRule> ckyPRulList = new ArrayList<CKYPRule>();
 						ckyPRulList.add(new CKYPRule(1.0, poses[j - 1], words[j - 1], 0, 0, 0));
+						
 						PRule rule = new PRule(1.0, poses[j - 1], words[j - 1]);
 						HashMap<String, Double> lhsAndProMap = new HashMap<String, Double>();
+						
 						updateRuleMapOfTable(rule, ruleMap, rule.getLhs(), ckyPRulList, numOfResulets, lhsAndProMap);
 					}
 				}
@@ -371,6 +381,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 				{
 					subList.add(tempList.get(i));
 				}
+				
 				ruleMap.put(lhs, subList);
 			}
 			else
@@ -378,6 +389,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 				ruleMap.put(lhs, tempList);
 			}
 		}
+		
 		int size = ruleMap.get(lhs).size();
 		lhsAndProMap.put(lhs, ruleMap.get(lhs).get(size - 1).getProb());
 		Set<RewriteRule> ruleSet = pcnf.getRuleByrhs(lhs);
@@ -395,8 +407,10 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 						continue;
 					}
 				}
+				
 				PRule prule1 = new PRule(prule.getProb() * rule.getProb(), prule.getLhs() + "@" + rule.getLhs(),
 						rule.getRhs());
+				
 				updateRuleMapOfTable(prule1, ruleMap, prule.getLhs(), ckyPRuleList, numOfResulets, lhsAndProMap);
 			}
 		}
@@ -527,7 +541,9 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 	 */
 	class CKYTreeNode
 	{
+		// 子树根节点非终结符为键
 		private HashMap<String, ArrayList<CKYPRule>> pruleMap;
+		
 		// flag用来判断是否为对角线上的点
 		private boolean flag;
 

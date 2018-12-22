@@ -97,7 +97,7 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 		for (String bracketString : bracketList)
 		{
 			//System.out.println(bracketString.toString());
-			TreeNode rootNode = RestoreTree.restoreTree(BracketExpUtil.generateTree(bracketString));
+			TreeNode rootNode = TreeRestorer.restoreTree(BracketExpUtil.generateTree(bracketString));
 			
 			treeArray[i++] = new ConstituentTree(rootNode);
 		}
