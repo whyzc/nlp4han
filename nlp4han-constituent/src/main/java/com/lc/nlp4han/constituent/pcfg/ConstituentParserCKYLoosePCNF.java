@@ -21,8 +21,10 @@ import com.lc.nlp4han.constituent.TreeNode;
  */
 public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 {
-	private CKYTreeNode[][] table;// 存储在该点的映射表
+	private ChartEntry[][] chart;// 存储在该点的映射表
+	
 	private PCFG pcnf;
+	
 	private double pruneThreshold;// 剪枝阈值
 	private boolean secondPrune;// 是否进行二次解析
 	private boolean prior;//是否在解析中
@@ -161,15 +163,13 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 				
 				// 剪枝
 				if (prune)
-				{
 					pruneEdge(i, j);
-				}
 
 			}
 		}
 
 		// 回溯并生成括号表达式列表,此刻的树并未还原为宾州树库的形式
-		return getBracketList(n, numOfResulets, table, pcnf);
+		return getBracketList(n, numOfResulets, chart, pcnf);
 	}
 
 	/**
@@ -180,7 +180,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 	 */
 	private void pruneEdge(int i, int j)
 	{
-		HashMap<String, ArrayList<CKYPRule>> map = table[i][j].getPruleMap();
+		HashMap<String, ArrayList<CKYPRule>> map = chart[i][j].getPruleMap();
 		ArrayList<String> deleteList = new ArrayList<String>();
 		HashMap<String, Double> map2 = new HashMap<String, Double>();
 		
@@ -198,9 +198,8 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 					for (String str0 : strs)
 					{
 						if (!posSet.contains(str0))
-						{
 							break;
-						}
+
 						pro *= pcnf.getPosPro(str0);
 					}
 				}
@@ -210,33 +209,27 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 					for (String str0 : strs)
 					{
 						if (!posSet.contains(str0))
-						{
 							break;
-						}
+						
 						pro *= pcnf.getPosPro(str0);
 					}
 				}
 			}
+			
 			map2.put(str, pro);
 			
 			if (map.get(str).get(0).getProb()*pro> bestPro)
-			{
 				bestPro = map.get(str).get(0).getProb();
-			}
 		}
 		
 		for (String str : map.keySet())
 		{
 			if (map.get(str).get(0).getProb()* map2.get(str) < bestPro * pruneThreshold)
-			{
 				deleteList.add(str);
-			}
 		}
 		
 		for (String str : deleteList)
-		{
 			map.remove(str);
-		}
 	}
 
 	/**
@@ -249,21 +242,21 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 	private void initializeChart(String[] words, String[] poses, int numOfResulets)
 	{
 		int n = words.length;
-		table = new CKYTreeNode[n + 1][n + 1];
+		chart = new ChartEntry[n + 1][n + 1];
 		for (int i = 0; i < n; i++)
 		{
 			for (int j = 1; j <= n; j++)
 			{
 				if (j >= i + 1)
 				{// 只有矩阵的上三角存储数据
-					table[i][j] = new CKYTreeNode(new HashMap<String, ArrayList<CKYPRule>>(), false);
+					chart[i][j] = new ChartEntry(new HashMap<String, ArrayList<CKYPRule>>(), false);
 				}
 				
 				if (j == i + 1)
 				{
-					table[i][j].setFlag(true);
+					chart[i][j].setFlag(true);
 					
-					HashMap<String, ArrayList<CKYPRule>> ruleMap = table[j - 1][j].getPruleMap();
+					HashMap<String, ArrayList<CKYPRule>> ruleMap = chart[j - 1][j].getPruleMap();
 					
 					if (poses == null)
 					{
@@ -312,8 +305,8 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 	 */
 	private void updateTable(int i, int k, int j, int n, int numOfResulets)
 	{
-		HashMap<String, ArrayList<CKYPRule>> ikRuleMap = table[i][k].getPruleMap();
-		HashMap<String, ArrayList<CKYPRule>> kjRuleMap = table[k][j].getPruleMap();
+		HashMap<String, ArrayList<CKYPRule>> ikRuleMap = chart[i][k].getPruleMap();
+		HashMap<String, ArrayList<CKYPRule>> kjRuleMap = chart[k][j].getPruleMap();
 		
 		if (ikRuleMap.size() != 0 && kjRuleMap.size() != 0)
 		{// 如果在ik点和kj点的映射表不为空
@@ -338,7 +331,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 						ArrayList<CKYPRule> ckyPRuleList = getKCKYPRuleFromTable(k, numOfResulets, ikRuleMap.get(ikStr),
 								kjRuleMap.get(kjStr), prule);
 						HashMap<String, Double> lhsAndProMap = new HashMap<String, Double>();
-						HashMap<String, ArrayList<CKYPRule>> ruleMap = table[i][j].getPruleMap();
+						HashMap<String, ArrayList<CKYPRule>> ruleMap = chart[i][j].getPruleMap();
 						updateRuleMapOfTable(prule, ruleMap, prule.getLhs(), ckyPRuleList, numOfResulets, lhsAndProMap);
 					}
 				}
@@ -383,16 +376,12 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 			{
 				ArrayList<CKYPRule> subList = new ArrayList<CKYPRule>();
 				for (int i = 0; i < numOfResulets; i++)
-				{
 					subList.add(tempList.get(i));
-				}
 				
 				ruleMap.put(lhs, subList);
 			}
 			else
-			{
 				ruleMap.put(lhs, tempList);
-			}
 		}
 		
 		int size = ruleMap.get(lhs).size();
@@ -408,9 +397,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 				if (lhsAndProMap.containsKey(prule.getLhs()))
 				{
 					if (lhsAndProMap.get(prule.getLhs()) >= pro1)
-					{
 						continue;
-					}
 				}
 				
 				PRule prule1 = new PRule(prule.getProb() * rule.getProb(), prule.getLhs() + "@" + rule.getLhs(),
@@ -450,7 +437,9 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 				tempList.add(new CKYPRule(ikCKYPRule.getProb() * kjCKYPRule.getProb(), lhs, prule.getRhs(), k, i, j));
 			}
 		}
+		
 		Collections.sort(tempList);
+		
 		/*
 		 * 若结果集中多余k个，则截取其中的前k个
 		 */
@@ -458,11 +447,11 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 		{
 			ArrayList<CKYPRule> subList = new ArrayList<CKYPRule>();
 			for (int i = 0; i < numOfResulets; i++)
-			{
 				subList.add(tempList.get(i));
-			}
+
 			return subList;
 		}
+		
 		return tempList;
 
 	}
@@ -476,6 +465,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 			tempList.add(new CKYPRule(rule.getProb() * ckyprule.getProb(), rule.getLhs(), ckyprule.getRhs(),
 					ckyprule.getK(), ckyprule.getI(), ckyprule.getJ()));
 		}
+		
 		return tempList;
 	}
 
@@ -488,7 +478,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 	 * @param pcnf
 	 * @return
 	 */
-	public static ArrayList<String> getBracketList(int n, int numOfResulets, CKYTreeNode[][] table,
+	public static ArrayList<String> getBracketList(int n, int numOfResulets, ChartEntry[][] table,
 			PCFG pcnf)
 	{
 		// 查找概率最大的n个结果
@@ -496,9 +486,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 		ArrayList<String> resultList = new ArrayList<String>();
 
 		if (resultRuleList == null)
-		{
 			return resultList;
-		}
 		
 		for (CKYPRule prule : resultRuleList)
 		{
@@ -523,7 +511,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 	 * @param table
 	 */
 	private static void createBracket(int i, int j, CKYPRule prule, StringBuilder strBuilder,
-			CKYTreeNode[][] table)
+			ChartEntry[][] table)
 	{
 		strBuilder.append("(");
 
@@ -550,7 +538,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 	/**
 	 * 内部类,table存储类,记录在table[i][j]点中的映射规则表，以及用于判断是否为对角线上点的flag
 	 */
-	class CKYTreeNode
+	class ChartEntry
 	{
 		// 子树根节点非终结符为键
 		private HashMap<String, ArrayList<CKYPRule>> pruleMap;
@@ -558,7 +546,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 		// flag用来判断是否为对角线上的点
 		private boolean flag;
 
-		public CKYTreeNode(HashMap<String, ArrayList<CKYPRule>> pruleMap, boolean flag)
+		public ChartEntry(HashMap<String, ArrayList<CKYPRule>> pruleMap, boolean flag)
 		{
 			this.pruleMap = pruleMap;
 			this.flag = flag;
