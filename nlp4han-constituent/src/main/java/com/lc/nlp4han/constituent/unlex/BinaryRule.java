@@ -379,17 +379,17 @@ public class BinaryRule extends Rule
 		return parentStr + " -> " + lChildStr + " " + rChildStr;
 	}
 
-	public String toStringRule(NonterminalTable nonterminalTable, short... labels)
-	{
-		if (labels.length != 3)
-			throw new Error("参数错误。");
-		String parentStr = nonterminalTable.stringValue(parent);
-		String lChildStr = nonterminalTable.stringValue(leftChild);
-		String rChildStr = nonterminalTable.stringValue(rightChild);
-		String str = parentStr + "_" + labels[0] + "->" + lChildStr + "_" + labels[1] + " " + rChildStr + "_"
-				+ labels[2] + " " + scores.get(labels[0]).get(labels[1]).get(labels[2]);
-		return str;
-	}
+//	public String toStringRule(NonterminalTable nonterminalTable, short... labels)
+//	{
+//		if (labels.length != 3)
+//			throw new Error("参数错误。");
+//		String parentStr = nonterminalTable.stringValue(parent);
+//		String lChildStr = nonterminalTable.stringValue(leftChild);
+//		String rChildStr = nonterminalTable.stringValue(rightChild);
+//		String str = parentStr + "_" + labels[0] + "->" + lChildStr + "_" + labels[1] + " " + rChildStr + "_"
+//				+ labels[2] + " " + scores.get(labels[0]).get(labels[1]).get(labels[2]);
+//		return str;
+//	}
 
 	public TreeMap<String, Double> getParent_i_ScoceSum(Grammar g)
 	{
