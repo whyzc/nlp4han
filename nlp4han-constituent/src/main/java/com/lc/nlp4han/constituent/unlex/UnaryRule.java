@@ -215,13 +215,13 @@ public class UnaryRule extends Rule
 		this.scores = score;
 	}
 
-	public boolean isSameRule(short parent, short child)
-	{
-		if (this.parent == parent && this.child == child)
-			return true;
-		else
-			return false;
-	}
+//	public boolean isSameRule(short parent, short child)
+//	{
+//		if (this.parent == parent && this.child == child)
+//			return true;
+//		else
+//			return false;
+//	}
 
 	@Override
 	boolean withIn(HashSet<? extends Rule> rules)
