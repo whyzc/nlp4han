@@ -36,7 +36,7 @@ public class Feature
 	@Override
 	public String toString()
 	{
-		return "key=" + key + ", value=" + value;
+		return "(key=" + key + ", value=" + value + ")";
 	}
 
 	@Override
