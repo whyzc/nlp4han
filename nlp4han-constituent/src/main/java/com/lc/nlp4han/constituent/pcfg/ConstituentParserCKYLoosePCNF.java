@@ -269,6 +269,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 							ArrayList<CKYPRule> ckyPRulList = new ArrayList<CKYPRule>();
 							// 此处延迟概率初始化至updateRuleMapOfTable
 							ckyPRulList.add(new CKYPRule(1.0, rule.getLhs(), rule.getRhs(), 0, 0, 0));
+							
 							HashMap<String, Double> lhsAndProMap = new HashMap<String, Double>();
 							
 							updateRuleMapOfTable(rule, ruleMap, rule.getLhs(), ckyPRulList, numOfResulets,
@@ -340,8 +341,8 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 	}
 
 	/**
-	 * 更新table表中ruleMap,其中每个终结符对应的ArrayList中个最多有numOfResulets个 遇到单位产品时，比如S->A->B
-	 * D新建规则，pro=P(S->A)*P(A->B D),LHS=S+ "@" +A ，RHS=B D。并在Map中以S作为key值
+	 * 更新table表中ruleMap,其中每个终结符对应的ArrayList中个最多有numOfResulets个 遇到单位产品时，
+	 * 比如S->A->B D新建规则，pro=P(S->A)*P(A->B D),LHS=S+ "@" +A ，RHS=B D。并在Map中以S作为key值
 	 * 
 	 * @param rule
 	 * @param ruleMap
