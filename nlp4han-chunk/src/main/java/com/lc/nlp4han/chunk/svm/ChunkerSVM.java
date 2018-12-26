@@ -186,7 +186,7 @@ public abstract class ChunkerSVM implements Chunker
 	 * @return 分类结果，数字类型
 	 * @throws IOException
 	 */
-	public abstract double predictOneLine(String line, Object model) throws IOException;
+	protected abstract double predictOneLine(String line, Object model) throws IOException;
 
 	/**
 	 * 将libsvm预测的结果（数字）转换成组块标注
