@@ -8,7 +8,7 @@ import java.util.Set;
 
 public class Sample
 {
-	private Map<String, Feature> features = null;
+	private Map<String, Feature> features = new HashMap<String, Feature>();
 
 	public Sample()
 	{
@@ -38,7 +38,7 @@ public class Sample
 		for (String key : keys)
 		{
 			Feature f = features.get(key);
-			result.add(f.clone());
+			result.add(f);
 		}
 		
 		return result;
@@ -86,6 +86,11 @@ public class Sample
 	{
 		if (features != null)
 			this.features.clear();
+	}
+	
+	public double getValue(String key)
+	{
+		return features.get(key).getValue();
 	}
 
 	public Set<String> getKeySet()
@@ -154,8 +159,20 @@ public class Sample
 			if (other.features != null)
 				return false;
 		}
-		else if (!features.equals(other.features))
+		else if (features.size() != other.features.size())
 			return false;
+		else 
+		{
+			Set<String> keys = features.keySet();
+			
+			for (String key : keys)
+			{
+				if (!other.containsKey(key))
+					return false;
+				else if (!features.get(key).equals(other.features.get(key)))
+					return false;
+			}
+		}
 		return true;
 	}
 }

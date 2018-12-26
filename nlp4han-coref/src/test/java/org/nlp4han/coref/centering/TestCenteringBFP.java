@@ -4,16 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
+import org.nlp4han.coref.AnaphoraResult;
 import org.nlp4han.coref.hobbs.AttributeFilter;
 import org.nlp4han.coref.hobbs.AttributeGeneratorByDic;
-import org.nlp4han.coref.hobbs.EvaluationHobbs;
-import org.nlp4han.coref.hobbs.Hobbs;
-import org.nlp4han.coref.hobbs.NodeNameFilter;
 import org.nlp4han.coref.hobbs.PNFilter;
 
 import com.lc.nlp4han.constituent.BracketExpUtil;
@@ -42,10 +38,11 @@ public class TestCenteringBFP
 		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		bfp.setAttributeFilter(attributeFilter);	//设置属性过滤器，此过滤器为缺省值
 		
-		Map<TreeNode, TreeNode> result = bfp.resolve(ss);
+		List<AnaphoraResult> result = bfp.resolve(ss);
 		
-		Map<TreeNode, TreeNode> goal = new HashMap<TreeNode, TreeNode>();
-		goal.put(TreeNodeUtil.getAllLeafNodes(s2).get(0), TreeNodeUtil.getAllLeafNodes(s1).get(9));
+		List<AnaphoraResult> goal = new ArrayList<AnaphoraResult>();
+		AnaphoraResult tmp = new AnaphoraResult(TreeNodeUtil.getAllLeafNodes(s2).get(0), TreeNodeUtil.getAllLeafNodes(s1).get(9));
+		goal.add(tmp);
 
 		assertEquals(goal, result);
 
@@ -73,10 +70,11 @@ public class TestCenteringBFP
 		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		bfp.setAttributeFilter(attributeFilter);	//设置属性过滤器，此过滤器为缺省值
 
-		Map<TreeNode, TreeNode> result = bfp.resolve(ss);
+		List<AnaphoraResult> result = bfp.resolve(ss);
 
-		Map<TreeNode, TreeNode> goal = new HashMap<TreeNode, TreeNode>();
-		goal.put(TreeNodeUtil.getAllLeafNodes(s2).get(4), TreeNodeUtil.getAllLeafNodes(s1).get(2));
+		List<AnaphoraResult> goal = new ArrayList<AnaphoraResult>();
+		AnaphoraResult tmp = new AnaphoraResult(TreeNodeUtil.getAllLeafNodes(s2).get(4), TreeNodeUtil.getAllLeafNodes(s1).get(2));
+		goal.add(tmp);
 
 		assertNotEquals(goal, result);
 	}
@@ -107,13 +105,17 @@ public class TestCenteringBFP
 		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		bfp.setAttributeFilter(attributeFilter);	//设置属性过滤器，此过滤器为缺省值
 		
-		Map<TreeNode, TreeNode> result = bfp.resolve(ss);
+		List<AnaphoraResult> result = bfp.resolve(ss);
 		
-		Map<TreeNode, TreeNode> goal = new HashMap<TreeNode, TreeNode>();
-		goal.put(TreeNodeUtil.getAllLeafNodes(s2).get(0), TreeNodeUtil.getAllLeafNodes(s1).get(0));
-		goal.put(TreeNodeUtil.getAllLeafNodes(s2).get(5), TreeNodeUtil.getAllLeafNodes(s1).get(5));
-		goal.put(TreeNodeUtil.getAllLeafNodes(s3).get(0), TreeNodeUtil.getAllLeafNodes(s1).get(0));
-		goal.put(TreeNodeUtil.getAllLeafNodes(s3).get(3), TreeNodeUtil.getAllLeafNodes(s1).get(5));
+		List<AnaphoraResult> goal = new ArrayList<AnaphoraResult>();
+		AnaphoraResult tmp = new AnaphoraResult(TreeNodeUtil.getAllLeafNodes(s2).get(0), TreeNodeUtil.getAllLeafNodes(s1).get(0));
+		goal.add(tmp);
+		tmp = new AnaphoraResult(TreeNodeUtil.getAllLeafNodes(s2).get(5), TreeNodeUtil.getAllLeafNodes(s1).get(5));
+		goal.add(tmp);
+		tmp = new AnaphoraResult(TreeNodeUtil.getAllLeafNodes(s3).get(0), TreeNodeUtil.getAllLeafNodes(s1).get(0));
+		goal.add(tmp);
+		tmp = new AnaphoraResult(TreeNodeUtil.getAllLeafNodes(s3).get(3), TreeNodeUtil.getAllLeafNodes(s1).get(5));
+		goal.add(tmp);
 		
 		assertEquals(goal, result);
 	}
@@ -144,9 +146,9 @@ public class TestCenteringBFP
 		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
 		bfp.setAttributeFilter(attributeFilter);	//设置属性过滤器，此过滤器为缺省值
 		
-		TreeNode result = bfp.resolve(ss, TreeNodeUtil.getAllLeafNodes(s2).get(5));
+		AnaphoraResult result = bfp.resolve(ss, TreeNodeUtil.getAllLeafNodes(s2).get(5));
 		
-		TreeNode goal = TreeNodeUtil.getAllLeafNodes(s1).get(5);
+		AnaphoraResult goal = new AnaphoraResult(TreeNodeUtil.getAllLeafNodes(s2).get(5), TreeNodeUtil.getAllLeafNodes(s1).get(5));
 		
 		assertEquals(goal, result);
 	}

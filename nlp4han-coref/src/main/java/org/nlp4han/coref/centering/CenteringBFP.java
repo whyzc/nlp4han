@@ -4,15 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.nlp4han.coref.AnaphoraResolution;
+import org.nlp4han.coref.AnaphoraResult;
 import org.nlp4han.coref.hobbs.AttributeFilter;
 import org.nlp4han.coref.hobbs.AttributeGeneratorByDic;
 import org.nlp4han.coref.hobbs.CandidateFilter;
-import org.nlp4han.coref.hobbs.NodeNameFilter;
 import org.nlp4han.coref.hobbs.PNFilter;
 
 import com.lc.nlp4han.constituent.TreeNode;
@@ -464,14 +461,14 @@ public class CenteringBFP implements AnaphoraResolution
 		return result;
 	}
 
-	public static Map<TreeNode, TreeNode> analysisResult(List<List<Entity>> oldEntitiesSet,
+	public static List<AnaphoraResult> analysisResult(List<List<Entity>> oldEntitiesSet,
 			List<List<Entity>> newEntitiesSet, List<TreeNode> rootNodesOfUtterances)
 	{
 		if (newEntitiesSet == null || oldEntitiesSet == null || newEntitiesSet.size() != oldEntitiesSet.size())
 			throw new RuntimeException("输入错误");
 		if (newEntitiesSet.size() < 2)
-			return new HashMap<TreeNode, TreeNode>();
-		Map<TreeNode, TreeNode> result = new HashMap<TreeNode, TreeNode>();
+			return new ArrayList<AnaphoraResult>();
+		List<AnaphoraResult> result = new ArrayList<AnaphoraResult>();
 		for (int i = 1; i < newEntitiesSet.size(); i++)
 		{
 			for (int j = 0; j < newEntitiesSet.get(i).size(); j++)
@@ -497,8 +494,8 @@ public class CenteringBFP implements AnaphoraResolution
 							k--;
 						}
 					}
-
-					result.put(ponoun, antecedent);
+					AnaphoraResult tmp = new AnaphoraResult(ponoun, antecedent);
+					result.add(tmp);
 				}
 			}
 		}
@@ -506,7 +503,7 @@ public class CenteringBFP implements AnaphoraResolution
 	}
 
 	@Override
-	public Map<TreeNode, TreeNode> resolve(List<TreeNode> sentences)
+	public List<AnaphoraResult> resolve(List<TreeNode> sentences)
 	{
 		List<List<Entity>> eou = new ArrayList<List<Entity>>();
 
@@ -524,19 +521,19 @@ public class CenteringBFP implements AnaphoraResolution
 		}
 
 		List<List<Entity>> newEntities = run(eou, sentences);
-		Map<TreeNode, TreeNode> result = analysisResult(eou, newEntities, sentences);
+		List<AnaphoraResult> result = analysisResult(eou, newEntities, sentences);
 		return result;
 	}
 
 	@Override
-	public TreeNode resolve(List<TreeNode> sentences, TreeNode pronoun)
+	public AnaphoraResult resolve(List<TreeNode> sentences, TreeNode pronoun)
 	{
-		Map<TreeNode, TreeNode> allResults = resolve(sentences);
-		Set<Entry<TreeNode, TreeNode>> enteries = allResults.entrySet();
-		for (Entry<TreeNode, TreeNode> e : enteries)
+		List<AnaphoraResult> allResults = resolve(sentences);
+		
+		for (AnaphoraResult ar : allResults)
 		{
-			if (e.getKey().equals(TreeNodeUtil.getAllLeafNodes(pronoun).get(0)))
-				return e.getValue();
+			if (ar.getPronNode().equals(TreeNodeUtil.getAllLeafNodes(pronoun).get(0)))
+				return ar;
 		}
 		return null;
 	}

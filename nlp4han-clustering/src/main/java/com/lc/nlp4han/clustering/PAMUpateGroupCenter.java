@@ -1,11 +1,7 @@
 package com.lc.nlp4han.clustering;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -15,29 +11,25 @@ import java.util.Set;
  */
 public class PAMUpateGroupCenter implements UpdateGroupCenter
 {
-	private DistanceCalculator dc = null;
-	private List<List<Double>> doubleDimensionalArray = null;  // 二维数组，记录每两个Text间的距离
-	private Map<Text, Integer> allTexts = null;  //  记录所有的Text，每个Text对应的vaule为doubleDimensionalArray中的索引号
+	DistanceRecode dr = null;
 	
 	public PAMUpateGroupCenter()
 	{
 	}
 	
-	public PAMUpateGroupCenter(DistanceCalculator dc)
+	public PAMUpateGroupCenter(DistanceRecode dr)
 	{
-		this.dc = dc;
+		this.dr = dr;
 	}
 	
-	public void setDistanceCalculator(DistanceCalculator dc)
+	public void setDistanceRecode(DistanceRecode dr)
 	{
-		this.dc = dc;
+		this.dr = dr;
 	}
 	
 	@Override
 	public boolean updateCenter(List<Group> grps)
 	{
-		if (allTexts == null || doubleDimensionalArray == null)
-			init(grps);
 		boolean result = false;
 		List<Text> centers = getCenters(grps);
 		double oldLossVaule = getTotalLossVaule(centers);
@@ -75,7 +67,7 @@ public class PAMUpateGroupCenter implements UpdateGroupCenter
 	private double getTotalLossVaule(List<Text> centers)
 	{
 		double lossVaule = 0.0;
-		Set<Text> texts = allTexts.keySet();
+		Set<Text> texts = dr.textSet();
 		for (Text t : texts)
 		{
 			lossVaule += getMinLossValue(t, centers);
@@ -85,26 +77,14 @@ public class PAMUpateGroupCenter implements UpdateGroupCenter
 	
 	private double getMinLossValue(Text text, List<Text> texts)
 	{
-		int index1 = allTexts.get(text);
 		double min = Double.POSITIVE_INFINITY;
 		
 		for (Text t : texts)
 		{
-			int index2 = allTexts.get(t);
-			if (index1 == index2)
-				return 0;
-			else if (index1 > index2)
-			{
-				List<Double> temp = doubleDimensionalArray.get(index1);
-				if (temp.get(index2) < min)
-					min = temp.get(index2);
-			}
-			else
-			{
-				List<Double> temp = doubleDimensionalArray.get(index2);
-				if (temp.get(index1) < min)
-					min = temp.get(index1);
-			}
+			double tmp = dr.getDistance(text, t);
+			
+			if (tmp < min)
+				min = tmp;
 		}
 		return min;
 	}
@@ -113,7 +93,7 @@ public class PAMUpateGroupCenter implements UpdateGroupCenter
 	{
 		List<Text> result = new ArrayList<Text>();
 		
-		Set<Text> ts = allTexts.keySet();
+		Set<Text> ts = dr.textSet();
 		
 		for (Group g : grps)
 		{
@@ -129,50 +109,6 @@ public class PAMUpateGroupCenter implements UpdateGroupCenter
 			}
 		}
 		return result;
-	}
-
-	private void init(List<Group> grps)
-	{
-		doubleDimensionalArray = new ArrayList<List<Double>>();
-		allTexts = new HashMap<Text, Integer>(); 
-		for (int i=0 ; i<grps.size() ; i++)  // allTexts中存入所有Text
-		{
-			List<Text> tempTexts = grps.get(i).getMembers();
-			for (int j=0 ; j<tempTexts.size() ; j++)
-			{
-				allTexts.put(tempTexts.get(j), allTexts.size());
-			}
-		}
-		
-		for (int i=0 ; i<allTexts.size() ; i++)  // 初始化doubleDimensionalArray
-		{
-			List<Double> tmp = new ArrayList<Double>();
-			for (int j=0 ; j<=i ; j++)
-			{
-				tmp.add(0.0);
-			}
-			doubleDimensionalArray.add(tmp);
-		}
-		
-		Set<Entry<Text, Integer>> texts = allTexts.entrySet();
-		Iterator<Entry<Text, Integer>> it1 = texts.iterator();
-		
-		while (it1.hasNext())
-		{
-			Entry<Text, Integer> e1 = it1.next();
-			
-			Iterator<Entry<Text, Integer>> it2 = texts.iterator();
-			while (it2.hasNext())
-			{
-				Entry<Text, Integer> e2 = it2.next();
-				
-				if (e1.getValue()-e2.getValue() > 0)
-				{
-					double distance = dc.getDistance(e1.getKey(), e2.getKey());
-					doubleDimensionalArray.get(e1.getValue()).set(e2.getValue(), distance);
-				}
-			}
-		}
 	}
 
 }
