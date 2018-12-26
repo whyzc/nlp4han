@@ -407,7 +407,10 @@ public class CFG implements GrammarWritable
 	 */
 	public Set<RewriteRule> getRuleBylhs(String lhs)
 	{
-		return LHS2Rules.get(lhs);
+		if(LHS2Rules.containsKey(lhs))
+			return LHS2Rules.get(lhs);
+		else
+			return new HashSet<RewriteRule>();
 	}
 
 	/**
@@ -419,7 +422,10 @@ public class CFG implements GrammarWritable
 	 */
 	public Set<RewriteRule> getRuleByrhs(ArrayList<String> rhsList)
 	{
-		return RHS2Rules.get(rhsList);
+		if(RHS2Rules.containsKey(rhsList))
+			return RHS2Rules.get(rhsList);
+		else
+			return new HashSet<RewriteRule>();
 	}
 
 	/**
