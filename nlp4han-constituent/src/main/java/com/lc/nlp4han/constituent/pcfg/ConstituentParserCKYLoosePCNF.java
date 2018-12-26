@@ -1,5 +1,8 @@
 package com.lc.nlp4han.constituent.pcfg;
 
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -576,13 +579,17 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 	
 	public static void main(String[] args) throws IOException, ClassNotFoundException
 	{
-		PCFG p2nf=CFGModelIOUtil.loadPCFGModel(args[0]); 
+//		PCFG p2nf=CFGModelIOUtil.loadPCFGModel(args[0]); 
+		
+		DataInput in = new DataInputStream(new FileInputStream((args[0])));
+		PCFG loosePCNF = new PCFG();
+		loosePCNF.read(in);
 		
 		double pruneThreshold = 0.0001;//Double.parseDouble(args[2]);
 		boolean secondPrune = false;//Boolean.getBoolean(args[3]);
 		boolean prior = false;//Boolean.getBoolean(args[4]);
 
-		ConstituentParserCKYLoosePCNF parser = new ConstituentParserCKYLoosePCNF(p2nf, pruneThreshold, secondPrune, prior);
+		ConstituentParserCKYLoosePCNF parser = new ConstituentParserCKYLoosePCNF(loosePCNF, pruneThreshold, secondPrune, prior);
 
 		Scanner input = new Scanner(System.in);
 		String text = "";

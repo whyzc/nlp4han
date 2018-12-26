@@ -66,7 +66,6 @@ public class Hobbs implements AnaphoraResolution
 		{
 			Path path = new Path(x, tmp);
 			candidateNodes = TreeNodeUtil.getNPNodeOnLeftOfPath(x, path);
-//			filter.setFilteredNodes(candidateNodes);
 			filter.filter(candidateNodes);
 
 			if (!candidateNodes.isEmpty())
@@ -94,7 +93,6 @@ public class Hobbs implements AnaphoraResolution
 					break;
 				x = constituentTrees.get(index);
 				candidateNodes = TreeNodeUtil.getNPNodes(x);
-//				filter.setFilteredNodes(candidateNodes);
 				filter.filter(candidateNodes);
 				if (!candidateNodes.isEmpty())
 				{
@@ -116,7 +114,6 @@ public class Hobbs implements AnaphoraResolution
 				}
 				
 				candidateNodes = TreeNodeUtil.getNPNodeOnLeftOfPath(x, path);
-//				filter.setFilteredNodes(candidateNodes);
 				filter.filter(candidateNodes);
 				if (!candidateNodes.isEmpty())
 				{
@@ -130,7 +127,6 @@ public class Hobbs implements AnaphoraResolution
 				if (TreeNodeUtil.isIPNode(x))
 				{
 					candidateNodes = getNPNodeOnRightOfPath(x, path);
-//					filter.setFilteredNodes(candidateNodes);
 					filter.filter(candidateNodes);
 					if (!candidateNodes.isEmpty())
 					{
