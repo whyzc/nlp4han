@@ -146,7 +146,7 @@ public class GrammarExtractor
 	{
 		for (String nonTer : grammar.getNonTerminalSet())
 		{
-			Set<RewriteRule> ruleSet = grammar.getRuleBylhs(nonTer);
+			Set<RewriteRule> ruleSet = grammar.getRuleByLHS(nonTer);
 			int allNum = 0;
 			for (RewriteRule rule : ruleSet)
 			{

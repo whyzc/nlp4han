@@ -63,7 +63,7 @@ public class PCFG extends CFG
 		for (String string : super.getNonTerminalSet())
 		{
 			double pro = 0;
-			for (RewriteRule rule : getRuleBylhs(string))
+			for (RewriteRule rule : getRuleByLHS(string))
 			{
 				PRule prule = (PRule) rule;
 				pro += prule.getProb();

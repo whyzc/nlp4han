@@ -97,10 +97,10 @@ public class GrammarConvertor
 	{
 		for (RewriteRule rule : cfg.getRuleSet())
 		{
-			if (rule.getRhs().size() >= 3)
+			if (rule.getRHS().size() >= 3)
 			{
 				// 如果右侧中有终结符，则转换为伪非终结符
-				if (!cnf.getNonTerminalSet().containsAll(rule.getRhs()))
+				if (!cnf.getNonTerminalSet().containsAll(rule.getRHS()))
 				{
 					convertToNonTerRHS(rule, cnf);
 				}
@@ -109,10 +109,10 @@ public class GrammarConvertor
 			}
 
 			// 先检测右侧有两个字符串的规则是否为终结符和非终结符混合，若混合则先将终结符转换为非终结符
-			if (rule.getRhs().size() == 2)
+			if (rule.getRHS().size() == 2)
 			{
 				// 如果右侧中有终结符，则转换为伪非终结符
-				if (!cnf.getNonTerminalSet().containsAll(rule.getRhs()))
+				if (!cnf.getNonTerminalSet().containsAll(rule.getRHS()))
 				{
 					convertToNonTerRHS(rule, cnf);
 				}
@@ -121,7 +121,7 @@ public class GrammarConvertor
 			}
 
 			// 先添加进cnf随后处理
-			if (rule.getRhs().size() == 1)
+			if (rule.getRHS().size() == 1)
 			{
 				cnf.add(rule);
 			}
@@ -138,7 +138,7 @@ public class GrammarConvertor
 	private static void convertToNonTerRHS(RewriteRule rule, CFG cnf)
 	{
 		ArrayList<String> rhs = new ArrayList<String>();
-		for (String string : rule.getRhs())
+		for (String string : rule.getRHS())
 		{
 			if (cnf.isTerminal(string))
 			{
@@ -156,7 +156,7 @@ public class GrammarConvertor
 			}
 		}
 
-		rule.setRhs(rhs);
+		rule.setRHS(rhs);
 	}
 
 	/**
@@ -168,13 +168,13 @@ public class GrammarConvertor
 	 */
 	private static void reduceRHSNum(RewriteRule rule, CFG cnf)
 	{
-		if (rule.getRhs().size() == 2)
+		if (rule.getRHS().size() == 2)
 		{
 			cnf.add(rule);
 			return;
 		}
 
-		List<String> list = rule.getRhs();
+		List<String> list = rule.getRHS();
 		int size = list.size();
 		String str = list.get(size - 2) + "&" + list.get(size - 1);// 新规则的左侧
 
@@ -184,9 +184,9 @@ public class GrammarConvertor
 		cnf.addNonTerminal(str);// 添加新的合成非终结符
 
 		ArrayList<String> rhsList = new ArrayList<String>();
-		rhsList.addAll(rule.getRhs().subList(0, rule.getRhs().size() - 2));
+		rhsList.addAll(rule.getRHS().subList(0, rule.getRHS().size() - 2));
 		rhsList.add(str);
-		rule.setRhs(rhsList);
+		rule.setRHS(rhsList);
 
 		// 递归，直到rhs的个数为2时
 		reduceRHSNum(rule, cnf);
@@ -202,11 +202,11 @@ public class GrammarConvertor
 
 		for (String nonTer : cnf.getNonTerminalSet())
 		{
-			for (RewriteRule rule : cnf.getRuleBylhs(nonTer))
+			for (RewriteRule rule : cnf.getRuleByLHS(nonTer))
 			{
-				if (rule.getRhs().size() == 1) // 单元规则
+				if (rule.getRHS().size() == 1) // 单元规则
 				{
-					String rhs = rule.getRhs().get(0);
+					String rhs = rule.getRHS().get(0);
 					if (posSet.contains(rhs)) // 右部是词性
 					{// 消除单元规则终止于POS层次
 						continue;
@@ -226,8 +226,8 @@ public class GrammarConvertor
 
 	private static void removeUPAndAddNewRule(RewriteRule rule, HashSet<String> posSet, CFG cnf)
 	{
-		String lhs = rule.getLhs();
-		String rhs = rule.getRhs().get(0);
+		String lhs = rule.getLHS();
+		String rhs = rule.getRHS().get(0);
 
 		String[] lhs1 = lhs.split("@");
 		if (lhs1.length >= 3)
@@ -235,7 +235,7 @@ public class GrammarConvertor
 			return;// 如果单元规则迭代有3次以上，则返回
 		}
 
-		if (posSet.contains(rule.getRhs().get(0)))
+		if (posSet.contains(rule.getRHS().get(0)))
 		{
 			cnf.add(rule);// 若该规则右侧为词性标注则直接添加
 			return;
@@ -249,17 +249,17 @@ public class GrammarConvertor
 			}
 		}
 
-		for (RewriteRule rule1 : cnf.getRuleBylhs(rule.getRhs().get(0)))
+		for (RewriteRule rule1 : cnf.getRuleByLHS(rule.getRHS().get(0)))
 		{
 			RewriteRule rule2;
 
 			PRule prule1 = (PRule) rule1;
 			PRule prule = (PRule) rule;
 
-			rule2 = new PRule(prule.getProb() * prule1.getProb(), prule.getLhs() + "@" + prule1.getLhs(),
-					prule1.getRhs());
+			rule2 = new PRule(prule.getProb() * prule1.getProb(), prule.getLHS() + "@" + prule1.getLHS(),
+					prule1.getRHS());
 
-			if (rule1.getRhs().size() == 2 || !cnf.getNonTerminalSet().contains(rule1.getRhs().get(0)))
+			if (rule1.getRHS().size() == 2 || !cnf.getNonTerminalSet().contains(rule1.getRHS().get(0)))
 			{
 				cnf.add(rule2);
 			}
@@ -275,8 +275,8 @@ public class GrammarConvertor
 		for (RewriteRule rule : deletePRuleSet)
 		{
 			cnf.getRuleSet().remove(rule);
-			cnf.getRuleBylhs(rule.getLhs()).remove(rule);
-			cnf.getRuleByrhs(rule.getRhs()).remove(rule);
+			cnf.getRuleByLHS(rule.getLHS()).remove(rule);
+			cnf.getRuleByRHS(rule.getRHS()).remove(rule);
 		}
 	}
 }

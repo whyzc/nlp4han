@@ -284,16 +284,16 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 						ArrayList<String> rhs = new ArrayList<String>();
 						rhs.add(words[j - 1]);
 
-						for (RewriteRule rule0 : pcnf.getRuleByrhs(rhs))
+						for (RewriteRule rule0 : pcnf.getRuleByRHS(rhs))
 						{
 							PRule rule = (PRule) rule0;
 							ArrayList<CKYPRule> ckyPRulList = new ArrayList<CKYPRule>();
 							// 此处延迟概率初始化至updateRuleMapOfTable
-							ckyPRulList.add(new CKYPRule(1.0, rule.getLhs(), rule.getRhs(), 0, 0, 0));
+							ckyPRulList.add(new CKYPRule(1.0, rule.getLHS(), rule.getRHS(), 0, 0, 0));
 
 							HashMap<String, Double> lhsAndProMap = new HashMap<String, Double>();
 
-							updateRuleMapOfTable(rule, ruleMap, rule.getLhs(), ckyPRulList, numOfResulets,
+							updateRuleMapOfTable(rule, ruleMap, rule.getLHS(), ckyPRulList, numOfResulets,
 									lhsAndProMap);
 						}
 					}
@@ -306,7 +306,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 						PRule rule = new PRule(1.0, poses[j - 1], words[j - 1]);
 						HashMap<String, Double> lhsAndProMap = new HashMap<String, Double>();
 
-						updateRuleMapOfTable(rule, ruleMap, rule.getLhs(), ckyPRulList, numOfResulets, lhsAndProMap);
+						updateRuleMapOfTable(rule, ruleMap, rule.getLHS(), ckyPRulList, numOfResulets, lhsAndProMap);
 					}
 				}
 			}
@@ -340,7 +340,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 				while (itrKj.hasNext())
 				{
 					String kjStr = itrKj.next();
-					Set<RewriteRule> ruleSet = pcnf.getRuleByrhs(ikStr, kjStr);
+					Set<RewriteRule> ruleSet = pcnf.getRuleByRHS(ikStr, kjStr);
 					if (ruleSet == null)
 					{// 若ruleSet为空，则遍历下一个kjStr
 						continue;
@@ -352,9 +352,10 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 						PRule prule = (PRule) itr.next();
 						ArrayList<CKYPRule> ckyPRuleList = getKCKYPRuleFromTable(k, numOfResulets, ikRuleMap.get(ikStr),
 								kjRuleMap.get(kjStr), prule);
+						
 						HashMap<String, Double> lhsAndProMap = new HashMap<String, Double>();
 						HashMap<String, ArrayList<CKYPRule>> ruleMap = chart[i][j].getPruleMap();
-						updateRuleMapOfTable(prule, ruleMap, prule.getLhs(), ckyPRuleList, numOfResulets, lhsAndProMap);
+						updateRuleMapOfTable(prule, ruleMap, prule.getLHS(), ckyPRuleList, numOfResulets, lhsAndProMap);
 					}
 				}
 			}
@@ -367,29 +368,29 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 	 * 
 	 * @param rule
 	 * @param ruleMap
-	 * @param lhs
+	 * @param symbol
 	 * @param ckyPRuleList
 	 * @param numOfResulets
 	 * @param lhsAndProMap
 	 */
-	private void updateRuleMapOfTable(PRule rule, HashMap<String, ArrayList<CKYPRule>> ruleMap, String lhs,
+	private void updateRuleMapOfTable(PRule rule, HashMap<String, ArrayList<CKYPRule>> ruleMap, String symbol,
 			ArrayList<CKYPRule> ckyPRuleList, int numOfResulets, HashMap<String, Double> lhsAndProMap)
 	{
 		// 该非终结符对应的映射表不存在，直接添加
-		if (!ruleMap.keySet().contains(lhs))
+		if (!ruleMap.keySet().contains(symbol))
 		{
 			ArrayList<CKYPRule> tempList = makeNewArrayList(ckyPRuleList, rule);
-			ruleMap.put(lhs, tempList);
+			ruleMap.put(symbol, tempList);
 		} // 若该非终结符对应的映射表已满，而且其中概率最小的比ckyPRuleList中最大的还要大则不处理
-		else if (ruleMap.get(lhs).size() == numOfResulets
-				&& ruleMap.get(lhs).get(numOfResulets - 1).getProb() >= ckyPRuleList.get(0).getProb() * rule.getProb())
+		else if (ruleMap.get(symbol).size() == numOfResulets
+				&& ruleMap.get(symbol).get(numOfResulets - 1).getProb() >= ckyPRuleList.get(0).getProb() * rule.getProb())
 		{
 
 		} // 将ckyPRuleList和ruleMap中该非终结符对应的规则表联合再排序
 		else
 		{
 			ArrayList<CKYPRule> tempList = makeNewArrayList(ckyPRuleList, rule);
-			tempList.addAll(ruleMap.get(lhs));
+			tempList.addAll(ruleMap.get(symbol));
 			Collections.sort(tempList);
 			/*
 			 * 若结果集中多余k个，则截取其中的前k个
@@ -400,32 +401,32 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 				for (int i = 0; i < numOfResulets; i++)
 					subList.add(tempList.get(i));
 
-				ruleMap.put(lhs, subList);
+				ruleMap.put(symbol, subList);
 			}
 			else
-				ruleMap.put(lhs, tempList);
+				ruleMap.put(symbol, tempList);
 		}
 
-		int size = ruleMap.get(lhs).size();
-		lhsAndProMap.put(lhs, ruleMap.get(lhs).get(size - 1).getProb());
-		Set<RewriteRule> ruleSet = pcnf.getRuleByrhs(lhs);
-
+		int size = ruleMap.get(symbol).size();
+		lhsAndProMap.put(symbol, ruleMap.get(symbol).get(size - 1).getProb());
+		
+		Set<RewriteRule> ruleSet = pcnf.getRuleByRHS(symbol);
 		if (ruleSet != null)
 		{
 			for (RewriteRule rule0 : ruleSet)
 			{
 				PRule prule = (PRule) rule0;
-				double pro1 = prule.getProb() * rule.getProb() * ckyPRuleList.get(0).getProb();
-				if (lhsAndProMap.containsKey(prule.getLhs()))
+				double pro1 = prule.getProb() * rule.getProb() * ckyPRuleList.get(0).getProb(); 
+				if (lhsAndProMap.containsKey(prule.getLHS()))
 				{
-					if (lhsAndProMap.get(prule.getLhs()) >= pro1)
+					if (lhsAndProMap.get(prule.getLHS()) >= pro1)
 						continue;
 				}
 
-				PRule prule1 = new PRule(prule.getProb() * rule.getProb(), prule.getLhs() + "@" + rule.getLhs(),
-						rule.getRhs());
+				PRule prule1 = new PRule(prule.getProb() * rule.getProb(), prule.getLHS() + "@" + rule.getLHS(),
+						rule.getRHS());
 
-				updateRuleMapOfTable(prule1, ruleMap, prule.getLhs(), ckyPRuleList, numOfResulets, lhsAndProMap);
+				updateRuleMapOfTable(prule1, ruleMap, prule.getLHS(), ckyPRuleList, numOfResulets, lhsAndProMap);
 			}
 		}
 	}
@@ -448,7 +449,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 	private ArrayList<CKYPRule> getKCKYPRuleFromTable(int k, int numOfResulets, ArrayList<CKYPRule> ikCKYPRuleList,
 			ArrayList<CKYPRule> kjCKYPRuleList, PRule prule)
 	{
-		String lhs = prule.getLhs();
+		String lhs = prule.getLHS();
 		ArrayList<CKYPRule> tempList = new ArrayList<CKYPRule>();
 		for (int i = 0; i < ikCKYPRuleList.size(); i++)
 		{
@@ -456,7 +457,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 			for (int j = 0; j < kjCKYPRuleList.size(); j++)
 			{
 				CKYPRule kjCKYPRule = kjCKYPRuleList.get(j);
-				tempList.add(new CKYPRule(ikCKYPRule.getProb() * kjCKYPRule.getProb(), lhs, prule.getRhs(), k, i, j));
+				tempList.add(new CKYPRule(ikCKYPRule.getProb() * kjCKYPRule.getProb(), lhs, prule.getRHS(), k, i, j));
 			}
 		}
 
@@ -484,7 +485,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 		for (int i = 0; i < ckyPRuleList.size(); i++)
 		{
 			CKYPRule ckyprule = ckyPRuleList.get(i);
-			tempList.add(new CKYPRule(rule.getProb() * ckyprule.getProb(), rule.getLhs(), ckyprule.getRhs(),
+			tempList.add(new CKYPRule(rule.getProb() * ckyprule.getProb(), rule.getLHS(), ckyprule.getRHS(),
 					ckyprule.getK(), ckyprule.getI(), ckyprule.getJ()));
 		}
 
@@ -535,21 +536,21 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 	{
 		strBuilder.append("(");
 
-		strBuilder.append(prule.getLhs());
+		strBuilder.append(prule.getLHS());
 		if (i == j - 1)
 		{// 对角线存储词性规则
 			strBuilder.append(" ");
-			strBuilder.append(prule.getRhs().get(0));
+			strBuilder.append(prule.getRHS().get(0));
 			strBuilder.append(")");
 			return;
 		}
 
 		// 第一个孩子
-		CKYPRule lPrule = table[i][prule.getK()].getPruleMap().get(prule.getRhs().get(0)).get(prule.getI());
+		CKYPRule lPrule = table[i][prule.getK()].getPruleMap().get(prule.getRHS().get(0)).get(prule.getI());
 		createBracket(i, prule.getK(), lPrule, strBuilder, table);
 
 		// 第二个孩子
-		CKYPRule rPrule = table[prule.getK()][j].getPruleMap().get(prule.getRhs().get(1)).get(prule.getJ());
+		CKYPRule rPrule = table[prule.getK()][j].getPruleMap().get(prule.getRHS().get(1)).get(prule.getJ());
 		createBracket(prule.getK(), j, rPrule, strBuilder, table);
 
 		strBuilder.append(")");

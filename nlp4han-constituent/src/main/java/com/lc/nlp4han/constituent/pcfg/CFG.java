@@ -189,7 +189,7 @@ public class CFG implements GrammarWritable
 		boolean isCNF = true;
 		for (RewriteRule rule : ruleSet)
 		{
-			ArrayList<String> list = rule.getRhs();
+			ArrayList<String> list = rule.getRHS();
 			if (list.size() >= 3)
 			{
 				isCNF = false;
@@ -232,7 +232,7 @@ public class CFG implements GrammarWritable
 		boolean isLosseCNF = true;
 		for (RewriteRule rule : ruleSet)
 		{
-			ArrayList<String> list = rule.getRhs();
+			ArrayList<String> list = rule.getRHS();
 			if (list.size() >= 3)
 			{
 				isLosseCNF = false;
@@ -331,9 +331,9 @@ public class CFG implements GrammarWritable
 		HashSet<String> posSet = new HashSet<String>();
 		for (RewriteRule rule : ruleSet)
 		{
-			if (rule.getRhs().size() == 1 && terminalSet.contains(rule.getRhs().get(0)))
+			if (rule.getRHS().size() == 1 && terminalSet.contains(rule.getRHS().get(0)))
 			{
-				posSet.add(rule.getLhs());
+				posSet.add(rule.getLHS());
 			}
 		}
 		for (String pos : posSet)
@@ -349,26 +349,26 @@ public class CFG implements GrammarWritable
 	public void add(RewriteRule rule)
 	{
 		ruleSet.add(rule);
-		if (LHS2Rules.get(rule.getLhs()) != null)
+		if (LHS2Rules.get(rule.getLHS()) != null)
 		{
-			LHS2Rules.get(rule.getLhs()).add(rule);
+			LHS2Rules.get(rule.getLHS()).add(rule);
 		}
 		else
 		{
 			HashSet<RewriteRule> set = new HashSet<RewriteRule>();
 			set.add(rule);
-			LHS2Rules.put(rule.getLhs(), set);
+			LHS2Rules.put(rule.getLHS(), set);
 		}
 
-		if (RHS2Rules.keySet().contains(rule.getRhs()))
+		if (RHS2Rules.keySet().contains(rule.getRHS()))
 		{
-			RHS2Rules.get(rule.getRhs()).add(rule);
+			RHS2Rules.get(rule.getRHS()).add(rule);
 		}
 		else
 		{
 			HashSet<RewriteRule> set = new HashSet<RewriteRule>();
 			set.add(rule);
-			RHS2Rules.put(rule.getRhs(), set);
+			RHS2Rules.put(rule.getRHS(), set);
 		}
 	}
 
@@ -405,7 +405,7 @@ public class CFG implements GrammarWritable
 	 * @param lhs
 	 *            左侧字符串
 	 */
-	public Set<RewriteRule> getRuleBylhs(String lhs)
+	public Set<RewriteRule> getRuleByLHS(String lhs)
 	{
 		if(LHS2Rules.containsKey(lhs))
 			return LHS2Rules.get(lhs);
@@ -420,7 +420,7 @@ public class CFG implements GrammarWritable
 	 *            右部字符串列表
 	 * @return 字符串集合
 	 */
-	public Set<RewriteRule> getRuleByrhs(ArrayList<String> rhsList)
+	public Set<RewriteRule> getRuleByRHS(ArrayList<String> rhsList)
 	{
 		if(RHS2Rules.containsKey(rhsList))
 			return RHS2Rules.get(rhsList);
@@ -435,7 +435,7 @@ public class CFG implements GrammarWritable
 	 *            右部字符串
 	 * @return 字符串集合
 	 */
-	public Set<RewriteRule> getRuleByrhs(String... args)
+	public Set<RewriteRule> getRuleByRHS(String... args)
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		for (String string : args)
