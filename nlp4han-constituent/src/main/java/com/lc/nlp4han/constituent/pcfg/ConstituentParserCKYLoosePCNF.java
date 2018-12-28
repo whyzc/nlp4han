@@ -379,7 +379,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 		// 该非终结符对应的映射表不存在，直接添加
 		if (!ruleMap.keySet().contains(symbol))
 		{
-			ArrayList<CKYPRule> tempList = makeNewArrayList(ckyPRuleList, rule);
+			ArrayList<CKYPRule> tempList = addCKYPRule(ckyPRuleList, rule);
 			ruleMap.put(symbol, tempList);
 		} // 若该非终结符对应的映射表已满，而且其中概率最小的比ckyPRuleList中最大的还要大则不处理
 		else if (ruleMap.get(symbol).size() == numOfResulets
@@ -389,7 +389,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 		} // 将ckyPRuleList和ruleMap中该非终结符对应的规则表联合再排序
 		else
 		{
-			ArrayList<CKYPRule> tempList = makeNewArrayList(ckyPRuleList, rule);
+			ArrayList<CKYPRule> tempList = addCKYPRule(ckyPRuleList, rule);
 			tempList.addAll(ruleMap.get(symbol));
 			Collections.sort(tempList);
 			/*
@@ -479,7 +479,7 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 
 	}
 
-	private ArrayList<CKYPRule> makeNewArrayList(ArrayList<CKYPRule> ckyPRuleList, PRule rule)
+	private ArrayList<CKYPRule> addCKYPRule(ArrayList<CKYPRule> ckyPRuleList, PRule rule)
 	{
 		ArrayList<CKYPRule> tempList = new ArrayList<CKYPRule>();
 		for (int i = 0; i < ckyPRuleList.size(); i++)
