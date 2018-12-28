@@ -596,8 +596,6 @@ public class ConstituentParserCKYLoosePCNF implements ConstituentParser
 
 	public static void main(String[] args) throws IOException, ClassNotFoundException
 	{
-		// PCFG p2nf=CFGModelIOUtil.loadPCFGModel(args[0]);
-
 		DataInput in = new DataInputStream(new FileInputStream((args[0])));
 		PCFG loosePCNF = new PCFG();
 		loosePCNF.read(in);
