@@ -1,5 +1,8 @@
 package com.lc.nlp4han.constituent.pcfg;
 
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -456,7 +459,9 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 
 	public static void main(String[] args) throws IOException, ClassNotFoundException
 	{
-		PCFG pcnf=CFGModelIOUtil.loadPCFGModel(args[0]); 
+		DataInput in = new DataInputStream(new FileInputStream((args[0])));
+		PCFG pcnf = new PCFG();
+		pcnf.read(in);
 		
 		double pruneThreshold = 0.0001;
 		boolean secondPrune = false;

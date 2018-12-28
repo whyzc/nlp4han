@@ -3,11 +3,9 @@ package com.lc.nlp4han.constituent.pcfg;
 import java.io.BufferedWriter;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 
 /**
  * 语法归纳应用
