@@ -224,13 +224,13 @@ public class BinaryRule extends Rule
 		}
 	}
 
-	public boolean isSameRule(short parent, short lChild, short rChild)
-	{
-		if (this.parent == parent && this.leftChild == lChild && this.rightChild == rChild)
-			return true;
-		else
-			return false;
-	}
+//	public boolean isSameRule(short parent, short lChild, short rChild)
+//	{
+//		if (this.parent == parent && this.leftChild == lChild && this.rightChild == rChild)
+//			return true;
+//		else
+//			return false;
+//	}
 
 	public int hashCode()
 	{
