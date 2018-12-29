@@ -17,6 +17,6 @@ public interface WordSegAndPos extends WordSegmenter, POSTagger {
 	 * @param words 未切分的句子
 	 * @return word/tag序列
 	 */
-	public String[] segmentAndTag(String words);
+	public String[] segmentAndTag(String sentence);
 	
 }
