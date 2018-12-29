@@ -152,14 +152,15 @@ public class WordSegAndPosME implements WordSegAndPos
 	 *            一句完整的话
 	 * @return
 	 */
-	public String[] segmentAndTag(String sentence)
+	@Override
+	public String[] segmentAndTag(String sentence, char wordPosSepChar)
 	{
 		String[] characters = new String[sentence.length()];
 		for (int i = 0; i < sentence.length(); i++)
 		{
 			characters[i] = sentence.charAt(i) + "";
 		}
-		return wordsegandpos(characters);
+		return wordsegandpos(characters, wordPosSepChar);
 	}
 
 	/**
@@ -169,7 +170,7 @@ public class WordSegAndPosME implements WordSegAndPos
 	 *            生语料切成的一个个字
 	 * @return 得到分词加词性标记的结果
 	 */
-	public String[] wordsegandpos(String[] characters)
+	public String[] wordsegandpos(String[] characters, char wordPosSepChar)
 	{
 		String[] characterandpos = tagAll(characters);
 		String[] poses = WordSegAndPosSample.toPos(characterandpos);
@@ -177,7 +178,7 @@ public class WordSegAndPosME implements WordSegAndPos
 		String[] res = new String[words.length];
 		for (int i = 0; i < words.length && i < poses.length; i++)
 		{
-			res[i] = words[i] + "/" + poses[i];
+			res[i] = words[i] + wordPosSepChar + poses[i];
 		}
 		return res;
 	}
