@@ -26,18 +26,12 @@ import com.lc.nlp4han.ml.util.PlainTextByLineStream;
 public class ChunkerSVMCrossValidatorTool
 {
 	private static final String USAGE = "Usage: ChunkAnalysisSVMCrossValidatorTool [options] -data training_set_file\n"
-			+ "options:\n" + "-encoding encoding : set encoding\n" 
-			+ "-label label : such as BIOE, BIOES\n"
-			+ "-v n : n-fold cross validation mode(default 10)\n" 
-			+ "-s svm_type : set type of SVM (default 0)\n"
-			+ "	0 -- C-SVC		(multi-class classification)\n" 
-			+ "	1 -- nu-SVC		(multi-class classification)\n"
-			+ "	2 -- one-class SVM\n" + "	3 -- epsilon-SVR	(regression)\n" 
-			+ "	4 -- nu-SVR		(regression)\n"
-			+ "-t kernel_type : set type of kernel function (default 2)\n" 
-			+ "	0 -- linear: u'*v\n"
-			+ "	1 -- polynomial: (gamma*u'*v + coef0)^degree\n" 
-			+ "	2 -- radial basis function: exp(-gamma*|u-v|^2)\n"
+			+ "options:\n" + "-encoding encoding : set encoding\n" + "-label label : such as BIOE, BIOES\n"
+			+ "-v n : n-fold cross validation mode(default 10)\n" + "-s svm_type : set type of SVM (default 0)\n"
+			+ "	0 -- C-SVC		(multi-class classification)\n" + "	1 -- nu-SVC		(multi-class classification)\n"
+			+ "	2 -- one-class SVM\n" + "	3 -- epsilon-SVR	(regression)\n" + "	4 -- nu-SVR		(regression)\n"
+			+ "-t kernel_type : set type of kernel function (default 2)\n" + "	0 -- linear: u'*v\n"
+			+ "	1 -- polynomial: (gamma*u'*v + coef0)^degree\n" + "	2 -- radial basis function: exp(-gamma*|u-v|^2)\n"
 			+ "	3 -- sigmoid: tanh(gamma*u'*v + coef0)\n"
 			+ "	4 -- precomputed kernel (kernel values in training_set_file)\n"
 			+ "-d degree : set degree in kernel function (default 3)\n"
@@ -52,7 +46,6 @@ public class ChunkerSVMCrossValidatorTool
 			+ "-b probability_estimates : whether to train a SVC or SVR model for probability estimates, 0 or 1 (default 0)\n"
 			+ "-wi weight : set the parameter C of class i to weight*C, for C-SVC (default 1)\n"
 			+ "-q : quiet mode (no outputs)\n";
-
 
 	public static void main(String[] args) throws IOException, InvalidInputDataException
 	{
@@ -190,7 +183,7 @@ public class ChunkerSVMCrossValidatorTool
 					+ "' does not exist or is not readable, please check the path");
 			System.exit(1);
 		}
-		
+
 		trainArgsList.add(corpusFile + ".svm.cv");
 		trainArgsList.add(corpusFile + ".model.cv");
 

@@ -14,24 +14,24 @@ import com.lc.nlp4han.ml.util.ObjectStream;
 public class TestSVMSampleUtil
 {
 	private static ConversionInformation tfi = null;
-	
+
 	@BeforeClass
 	public static void before()
 	{
 		String contents;
 		contents = "[上海/NR 浦东/NR]NP [开发/NN 与/CC 法制/NN 建设/NN]NP [同步/VV]VP ";
-		
+
 		Properties properties = new Properties();
 		properties.setProperty("feature.w_2", "false");
 		properties.setProperty("feature.w_1", "false");
-		properties.setProperty("feature.w0", "true");  // true
+		properties.setProperty("feature.w0", "true"); // true
 		properties.setProperty("feature.w1", "false");
 		properties.setProperty("feature.w2", "false");
 		properties.setProperty("feature.af0", "false");
 		properties.setProperty("feature.pf0", "false");
 		properties.setProperty("feature.p_2", "false");
 		properties.setProperty("feature.p_1", "false");
-		properties.setProperty("feature.p0", "true");  // true
+		properties.setProperty("feature.p0", "true"); // true
 		properties.setProperty("feature.p1", "false");
 		properties.setProperty("feature.p2", "false");
 		properties.setProperty("feature.c_1", "false");
@@ -106,7 +106,7 @@ public class TestSVMSampleUtil
 		properties.setProperty("feature.w0w1p1", "false");
 		properties.setProperty("feature.w0w2p2", "false");
 		properties.setProperty("feature.w_1w0p_1", "false");
-		
+
 		ObjectStream<Event> es = null;
 		try
 		{
@@ -116,22 +116,22 @@ public class TestSVMSampleUtil
 		{
 			e.printStackTrace();
 		}
-		
+
 		tfi = new ConversionInformation(es);
 	}
-	
+
 	@Test
 	public void testOneSample()
 	{
 		String[] context = new String[2];
 		context[0] = "w0=浦东";
 		context[1] = "p0=NR";
-		
+
 		String actual = SVMSampleUtil.oneSample(context, tfi);
-		
+
 		assertEquals("2:1 3:1", actual);
 	}
-	
+
 	@Test
 	public void testOneSample_2()
 	{
@@ -139,9 +139,9 @@ public class TestSVMSampleUtil
 		context[0] = "w0=浦东";
 		context[1] = "p0=NR";
 		Event event = new Event("NP_E", context);
-		
+
 		String actual = SVMSampleUtil.oneSample(event, tfi);
-		
-		assertEquals("2 2:1 3:1", actual); 
+
+		assertEquals("2 2:1 3:1", actual);
 	}
 }

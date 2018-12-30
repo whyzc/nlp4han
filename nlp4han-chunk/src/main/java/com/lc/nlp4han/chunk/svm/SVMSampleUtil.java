@@ -44,51 +44,60 @@ public class SVMSampleUtil
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public static ObjectStream<Event> getEventStream(String path, String encoding, String scheme, Properties properties) throws FileNotFoundException, IOException
+	public static ObjectStream<Event> getEventStream(String path, String encoding, String scheme, Properties properties)
+			throws FileNotFoundException, IOException
 	{
 		ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(new File(path)),
 				encoding);
-		
+
 		return getEventStream(lineStream, scheme, properties);
 	}
-	
+
 	/**
 	 * 获取事件流
-	 * @param content 字符串内容
-	 * @param scheme 组块标记格式，BIEO，BIEOS等
-	 * @param properties 特征配置文件
+	 * 
+	 * @param content
+	 *            字符串内容
+	 * @param scheme
+	 *            组块标记格式，BIEO，BIEOS等
+	 * @param properties
+	 *            特征配置文件
 	 * @return 事件流
 	 * @throws IOException
 	 */
-	public static ObjectStream<Event> getEventStream(String content, String scheme, Properties properties) throws IOException
+	public static ObjectStream<Event> getEventStream(String content, String scheme, Properties properties)
+			throws IOException
 	{
 		ObjectStream<String> lineStream = new PlainTextByLineStream(new StringInputStreamFactory(content), "UTF8");
-		
+
 		return getEventStream(lineStream, scheme, properties);
 	}
-	
-	private static ObjectStream<Event> getEventStream(ObjectStream<String> os, String scheme, Properties properties) throws IOException
+
+	private static ObjectStream<Event> getEventStream(ObjectStream<String> os, String scheme, Properties properties)
+			throws IOException
 	{
 		AbstractChunkSampleParser parse = null;
-		
+
 		if (scheme.equals("BIEOS"))
 			parse = new ChunkerWordPosParserBIEOS();
 		else if (scheme.equals("BIEO"))
 			parse = new ChunkerWordPosParserBIEO();
 		else
 			parse = new ChunkerWordPosParserBIO();
-		
-		ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkerWordPosSampleStream(os, parse,
-				scheme);
+
+		ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkerWordPosSampleStream(os, parse, scheme);
 		ChunkAnalysisContextGenerator contextGen = new ChunkerWordPosContextGeneratorConf(properties);
 		ObjectStream<Event> es = new ChunkerWordPosSampleEvent(sampleStream, contextGen);
 		return es;
 	}
 
 	/**
-	 * 将多个特征转换成一条SVM的输入样本，无label值。转成数据格式如："index1:value1 index2:value2..."; 
-	 * @param features 特征
-	 * @param ci 转换信息
+	 * 将多个特征转换成一条SVM的输入样本，无label值。转成数据格式如："index1:value1 index2:value2...";
+	 * 
+	 * @param features
+	 *            特征
+	 * @param ci
+	 *            转换信息
 	 * @return SVM样本
 	 */
 	public static String oneSample(String[] features, ConversionInformation ci)
@@ -117,8 +126,11 @@ public class SVMSampleUtil
 
 	/**
 	 * 将一个Event转换成一条SVM的输入样本。转成数据格式如："label1 index1:value1 index2:value2...";
-	 * @param event 事件
-	 * @param ci 转换信息
+	 * 
+	 * @param event
+	 *            事件
+	 * @param ci
+	 *            转换信息
 	 * @return SVM样本
 	 */
 	public static String oneSample(Event event, ConversionInformation ci)
@@ -135,11 +147,14 @@ public class SVMSampleUtil
 		}
 		return result.toString();
 	}
-	
+
 	/**
 	 * 将事件流转换成SVM输入样本。转成数据格式如："label1 index1:value1 index2:value2...";
-	 * @param es 事件流
-	 * @param ci 转换信息
+	 * 
+	 * @param es
+	 *            事件流
+	 * @param ci
+	 *            转换信息
 	 * @return SVM输入样本
 	 */
 	public static String[] samples(ObjectStream<Event> es, ConversionInformation ci)
@@ -167,7 +182,7 @@ public class SVMSampleUtil
 
 		return input;
 	}
-	
+
 	/**
 	 * 获取默认的特征配置文件
 	 */
@@ -179,25 +194,32 @@ public class SVMSampleUtil
 		featureConf.load(featureStream);
 		return featureConf;
 	}
-	
+
 	/**
 	 * 读取语料，转换成SVM标准输入格式并保存，同时生成转换信息类并序列化，返回转换信息类ConversionInformation
-	 * @param filePath 组块语料文件路径
-	 * @param encoding 语料文件编码格式
-	 * @param scheme 组块标记格式，BIEO，BIEOS等
-	 * @param properties 特征配置文件
-	 * @param saveFilePath SVM输入样本数据存储路径，注意：转换信息序列化的文件路径为saveFilePath + ".info"
+	 * 
+	 * @param filePath
+	 *            组块语料文件路径
+	 * @param encoding
+	 *            语料文件编码格式
+	 * @param scheme
+	 *            组块标记格式，BIEO，BIEOS等
+	 * @param properties
+	 *            特征配置文件
+	 * @param saveFilePath
+	 *            SVM输入样本数据存储路径，注意：转换信息序列化的文件路径为saveFilePath + ".info"
 	 * @return 转换信息类
 	 * @throws IOException
 	 */
-	public static ConversionInformation conversion(String filePath, String encoding, String scheme,  Properties properties, String saveFilePath) throws IOException
+	public static ConversionInformation conversion(String filePath, String encoding, String scheme,
+			Properties properties, String saveFilePath) throws IOException
 	{
 		ObjectStream<Event> es = getEventStream(filePath, encoding, scheme, properties);
 
 		ConversionInformation tfi = new ConversionInformation(es);
 
 		es.reset();
-		
+
 		String[] input = samples(es, tfi);
 
 		es.close();
@@ -208,25 +230,33 @@ public class SVMSampleUtil
 
 		return tfi;
 	}
-	
+
 	/**
 	 * 读取语料，转换成SVM标准输入格式并保存，同时生成转换信息类并序列化，返回转换信息类ConversionInformation。此方法使用默认特征配置文件。
-	 * @param filePath 组块语料文件路径
-	 * @param encoding 语料文件编码格式
-	 * @param scheme 组块标记格式，BIEO，BIEOS等
-	 * @param saveFilePath SVM输入样本数据存储路径，注意：转换信息序列化的文件路径为saveFilePath + ".info"
+	 * 
+	 * @param filePath
+	 *            组块语料文件路径
+	 * @param encoding
+	 *            语料文件编码格式
+	 * @param scheme
+	 *            组块标记格式，BIEO，BIEOS等
+	 * @param saveFilePath
+	 *            SVM输入样本数据存储路径，注意：转换信息序列化的文件路径为saveFilePath + ".info"
 	 * @return 转换信息类
 	 * @throws IOException
 	 */
-	public static ConversionInformation conversion(String filePath, String encoding, String scheme, String saveFilePath) throws IOException
+	public static ConversionInformation conversion(String filePath, String encoding, String scheme, String saveFilePath)
+			throws IOException
 	{
 		Properties properties = getDefaultConf();
 		return conversion(filePath, encoding, scheme, properties, saveFilePath);
 	}
-	
+
 	/**
 	 * 根据参数，读取语料，转换成SVM标准输入格式并保存，同时生成转换信息类并序列化，返回转换信息类ConversionInformation。此方法使用默认特征配置文件。
-	 * @param args 参数
+	 * 
+	 * @param args
+	 *            参数
 	 * @return 转换信息类
 	 * @throws IOException
 	 */
@@ -237,18 +267,15 @@ public class SVMSampleUtil
 		ConversionInformation ci = conversion(params[0], params[1], params[2], featureConf, params[3]);
 		return ci;
 	}
-	
+
 	/**
 	 * 解析输入命令行
 	 */
 	private static String[] parseArgs(String[] args)
 	{
-		String usage = "Usage: SVMStandardInput [options] -data data_file\n"
-				+ "options:\n" 
-				+ "-label label : such as BIOE, BIOES\n"
-				+ "-encoding encoding : set encoding form\n" 
-				+ "-save save_file : set save file path\n"
-				;
+		String usage = "Usage: SVMStandardInput [options] -data data_file\n" + "options:\n"
+				+ "-label label : such as BIOE, BIOES\n" + "-encoding encoding : set encoding form\n"
+				+ "-save save_file : set save file path\n";
 
 		String encoding = "utf-8";
 
@@ -316,7 +343,7 @@ public class SVMSampleUtil
 
 		return result;
 	}
-	
+
 	private static void saveFile(String saveFilePath, String[] datum, String encoding)
 	{
 		BufferedWriter bw = null;

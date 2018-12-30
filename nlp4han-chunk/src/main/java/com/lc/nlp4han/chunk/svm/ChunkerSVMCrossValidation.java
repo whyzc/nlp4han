@@ -46,10 +46,10 @@ public class ChunkerSVMCrossValidation
 	 * @param measure
 	 *            组块分析评价器
 	 * @throws IOException
-	 * @throws InvalidInputDataException 
+	 * @throws InvalidInputDataException
 	 */
-	public void evaluate(ObjectStream<AbstractChunkAnalysisSample> sampleStream, int nFolds,
-			ChunkerSVM me, ChunkAnalysisContextGenerator contextGenerator, AbstractChunkAnalysisMeasure measure, Properties properties)
+	public void evaluate(ObjectStream<AbstractChunkAnalysisSample> sampleStream, int nFolds, ChunkerSVM me,
+			ChunkAnalysisContextGenerator contextGenerator, AbstractChunkAnalysisMeasure measure, Properties properties)
 			throws IOException, InvalidInputDataException
 	{
 		CrossValidationPartitioner<AbstractChunkAnalysisSample> partitioner = new CrossValidationPartitioner<AbstractChunkAnalysisSample>(
