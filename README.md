@@ -1,5 +1,5 @@
 # nlp4han
-中文自然语言处理工具集。更多信息常见[Wiki](https://github.com/kidden/nlp4han/wiki)
+中文自然语言处理工具集。更多信息参见[Wiki](https://github.com/kidden/nlp4han/wiki)
 ## 功能特性
 * 断句
 	* 基于规则的中文断句器
