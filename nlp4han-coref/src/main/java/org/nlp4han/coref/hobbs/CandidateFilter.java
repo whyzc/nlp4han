@@ -19,13 +19,6 @@ public abstract class CandidateFilter
 	 */
 	public abstract List<TreeNode> filter(List<TreeNode> treeNodes);
 
-//	/**
-//	 * 设置待过滤结点
-//	 * 
-//	 * @param treeNodes 待过滤结点
-//	 */
-//	public abstract void setFilteredNodes(List<TreeNode> treeNodes);
-
 	/**
 	 * 设置过滤的参考条件
 	 * 

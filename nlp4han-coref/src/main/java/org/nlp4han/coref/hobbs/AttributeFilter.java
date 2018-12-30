@@ -136,12 +136,6 @@ public class AttributeFilter extends FilterWrapper
 		return treeNodes;
 	}
 
-//	@Override
-//	public void setFilteredNodes(List<TreeNode> treeNodes)
-//	{
-//		filter.setFilteredNodes(treeNodes);
-//	}
-
 	@Override
 	public void setReferenceConditions(Object obj)
 	{

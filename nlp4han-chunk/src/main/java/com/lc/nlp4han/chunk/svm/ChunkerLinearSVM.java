@@ -14,7 +14,7 @@ public class ChunkerLinearSVM extends ChunkerSVM
 	Model model = null;
 	
 	@Override
-	public double predictOneLine(String line, Object model) throws IOException
+	protected double predictOneLine(String line, Object model) throws IOException
 	{
 		Model modelLinear = (Model)model;
 		return PredictLinear.doPredict(line, modelLinear);

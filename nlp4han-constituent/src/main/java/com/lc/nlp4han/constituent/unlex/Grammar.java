@@ -44,6 +44,7 @@ public class Grammar implements GrammarWritable
 	private HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>> preRuleBySameChildren; // 外层map<word在字典中的索引,内map>
 	private HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>> bRuleBySameChildren;
 	private HashMap<Short, HashMap<UnaryRule, UnaryRule>> uRuleBySameChildren;
+	
 	// 相同父节点的规则放在一个map中
 	private HashMap<Short, HashMap<PreterminalRule, PreterminalRule>> preRuleBySameHead; // 内map<ruleHashcode/rule>
 	private HashMap<Short, HashMap<BinaryRule, BinaryRule>> bRuleBySameHead;
@@ -227,57 +228,57 @@ public class Grammar implements GrammarWritable
 		}
 	}
 
-	public TreeMap<String, Double> calculateSameParentRuleScoreSum()
-	{
-		TreeMap<String, Double> sameParentRuleScoreSum = new TreeMap<>();
-		for (short symbol : this.nonterminalTable.getInt_strMap().keySet())
-		{
-			if (this.bRuleBySameHead.containsKey(symbol))
-			{
-				for (BinaryRule bRule : this.bRuleBySameHead.get(symbol).keySet())
-				{
-					for (Map.Entry<String, Double> entry : bRule.getParent_i_ScoceSum(this).entrySet())
-					{
-						sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(),
-								new BiFunction<Double, Double, Double>()
-								{
-									@Override
-									public Double apply(Double t, Double u)
-									{
-										return t + u;
-									}
-								});
-					}
-				}
-			}
-
-			if (this.uRuleBySameHead.containsKey(symbol))
-			{
-				for (UnaryRule uRule : this.uRuleBySameHead.get(symbol).keySet())
-				{
-					for (Map.Entry<String, Double> entry : uRule.getParent_i_ScoceSum(this).entrySet())
-					{
-						sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(),
-								(score, newScore) -> score + newScore);
-					}
-				}
-			}
-
-			if (this.preRuleBySameHead.containsKey(symbol))
-			{
-				for (PreterminalRule preRule : this.preRuleBySameHead.get(symbol).keySet())
-				{
-					for (Map.Entry<String, Double> entry : preRule.getParent_i_ScoceSum(this).entrySet())
-					{
-						sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(),
-								(score, newScore) -> score + newScore);
-					}
-				}
-			}
-		}
-
-		return sameParentRuleScoreSum;
-	}
+//	public TreeMap<String, Double> calculateSameParentRuleScoreSum()
+//	{
+//		TreeMap<String, Double> sameParentRuleScoreSum = new TreeMap<>();
+//		for (short symbol : this.nonterminalTable.getInt_strMap().keySet())
+//		{
+//			if (this.bRuleBySameHead.containsKey(symbol))
+//			{
+//				for (BinaryRule bRule : this.bRuleBySameHead.get(symbol).keySet())
+//				{
+//					for (Map.Entry<String, Double> entry : bRule.getParent_i_ScoceSum(this).entrySet())
+//					{
+//						sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(),
+//								new BiFunction<Double, Double, Double>()
+//								{
+//									@Override
+//									public Double apply(Double t, Double u)
+//									{
+//										return t + u;
+//									}
+//								});
+//					}
+//				}
+//			}
+//
+//			if (this.uRuleBySameHead.containsKey(symbol))
+//			{
+//				for (UnaryRule uRule : this.uRuleBySameHead.get(symbol).keySet())
+//				{
+//					for (Map.Entry<String, Double> entry : uRule.getParent_i_ScoceSum(this).entrySet())
+//					{
+//						sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(),
+//								(score, newScore) -> score + newScore);
+//					}
+//				}
+//			}
+//
+//			if (this.preRuleBySameHead.containsKey(symbol))
+//			{
+//				for (PreterminalRule preRule : this.preRuleBySameHead.get(symbol).keySet())
+//				{
+//					for (Map.Entry<String, Double> entry : preRule.getParent_i_ScoceSum(this).entrySet())
+//					{
+//						sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(),
+//								(score, newScore) -> score + newScore);
+//					}
+//				}
+//			}
+//		}
+//
+//		return sameParentRuleScoreSum;
+//	}
 
 	public void grammarExam()
 	{

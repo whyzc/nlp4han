@@ -215,13 +215,13 @@ public class UnaryRule extends Rule
 		this.scores = score;
 	}
 
-	public boolean isSameRule(short parent, short child)
-	{
-		if (this.parent == parent && this.child == child)
-			return true;
-		else
-			return false;
-	}
+//	public boolean isSameRule(short parent, short child)
+//	{
+//		if (this.parent == parent && this.child == child)
+//			return true;
+//		else
+//			return false;
+//	}
 
 	@Override
 	boolean withIn(HashSet<? extends Rule> rules)
@@ -266,17 +266,17 @@ public class UnaryRule extends Rule
 		return strs;
 	}
 
-	@Override
-	public String toStringRule(NonterminalTable nonterminalTable, short... labels)
-	{
-		if (labels.length != 2)
-			throw new Error("参数错误。");
-		String parentStr = nonterminalTable.stringValue(parent);
-		String childStr = nonterminalTable.stringValue(child);
-		String str = parentStr + "_" + labels[0] + "->" + childStr + "_" + labels[1] + " "
-				+ scores.get(labels[0]).get(labels[1]);
-		return str;
-	}
+//	@Override
+//	public String toStringRule(NonterminalTable nonterminalTable, short... labels)
+//	{
+//		if (labels.length != 2)
+//			throw new Error("参数错误。");
+//		String parentStr = nonterminalTable.stringValue(parent);
+//		String childStr = nonterminalTable.stringValue(child);
+//		String str = parentStr + "_" + labels[0] + "->" + childStr + "_" + labels[1] + " "
+//				+ scores.get(labels[0]).get(labels[1]);
+//		return str;
+//	}
 
 	public TreeMap<String, Double> getParent_i_ScoceSum(Grammar g)
 	{

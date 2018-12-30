@@ -130,13 +130,13 @@ public class FileUtils
 	}
 
 	/**
-	 * 读取SIGHAN2015拼写纠错测试语料（SIGHAN15_CSC_TestInput.txt）
+	 * 读取文件中的非空行
 	 * 
 	 * @param path
 	 *            语料路径
 	 * @param encoding
 	 *            语料格式
-	 * @return 句子pid与句子内容的映射
+	 * @return 文本文件中行的序列
 	 * @throws IOException
 	 */
 	public static List<String> readSGMLFile(String path, String encoding) throws IOException

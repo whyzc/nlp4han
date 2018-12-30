@@ -1,9 +1,11 @@
 package com.lc.nlp4han.constituent.pcfg;
 
+import java.io.BufferedWriter;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 
 /**
  * 语法归纳应用
@@ -53,17 +55,25 @@ public class GrammarInducerlTool
 	{
 		PCFG pcfg = GrammarExtractor.getPCFG(corpusFile, encoding);
 
-		PCFG pcnf = GrammarConvertor.PCFG2PCNF(pcfg);
+		PCFG loosePCNF = GrammarConvertor.PCFG2LoosePCNF(pcfg);
 
 		if (modelFile == null)
 		{
-			System.out.println(pcnf.toString());
+			printForDebug(loosePCNF, encoding);
 		}
 		else
 		{
-//			CFGModelIOUtil.writeModel(loosePCNF, modelFile);
 			DataOutput out = new DataOutputStream(new FileOutputStream(modelFile));
-			pcnf.write(out);
+			loosePCNF.write(out);
 		}
+	}
+	
+	private static void printForDebug(PCFG pcfg, String encoding) throws IOException
+	{
+		BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("pcfg.txt"), encoding));
+		
+		out.write(pcfg.toString());
+		
+		out.close();
 	}
 }

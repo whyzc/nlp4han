@@ -1,7 +1,6 @@
 package com.lc.nlp4han.chunk.svm;
 
 import java.io.IOException;
-import com.lc.nlp4han.chunk.Chunk;
 import com.lc.nlp4han.chunk.svm.libsvm.svm;
 import com.lc.nlp4han.chunk.svm.libsvm.svm_model;
 
@@ -10,7 +9,7 @@ public class ChunkerLibSVM extends ChunkerSVM
 	private svm_model model = null;
 	
 	@Override
-	public double predictOneLine(String line, Object model) throws IOException
+	protected double predictOneLine(String line, Object model) throws IOException
 	{
 		svm_model svmModel = (svm_model)model;
 		return SVMPredict.predict(line, svmModel, 0);
