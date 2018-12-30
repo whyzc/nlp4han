@@ -1,7 +1,6 @@
 package com.lc.nlp4han.chunk.svm;
 
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -55,7 +54,7 @@ public class SVMSampleUtil
 	
 	/**
 	 * 获取事件流
-	 * @param bais 字节数组流
+	 * @param content 字符串内容
 	 * @param scheme 组块标记格式，BIEO，BIEOS等
 	 * @param properties 特征配置文件
 	 * @return 事件流
