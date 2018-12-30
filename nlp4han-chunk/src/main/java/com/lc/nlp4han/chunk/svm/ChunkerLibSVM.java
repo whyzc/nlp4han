@@ -9,7 +9,7 @@ public class ChunkerLibSVM extends ChunkerSVM
 	private svm_model model = null;
 	
 	@Override
-	protected double predictOneLine(String line, Object model) throws IOException
+	public double predictOneLine(String line, Object model) throws IOException
 	{
 		svm_model svmModel = (svm_model)model;
 		return SVMPredict.predict(line, svmModel, 0);

@@ -6,7 +6,7 @@ import java.util.*;
 import com.lc.nlp4han.chunk.svm.libsvm.*;
 
 /**
- * 预测类，此类不属于非原框架
+ * 预测类，此类不属于原框架
  * @author 杨智超
  */
 class SVMPredict extends svm_predict

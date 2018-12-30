@@ -193,7 +193,7 @@ public class ChunkerLinearSVMCrossValidatorTool
 
 		ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkerWordPosSampleStream(lineStream, parse,
 				scheme);
-		Properties p = SVMStandardInput.getDefaultConf();
+		Properties p = SVMSampleUtil.getDefaultConf();
 		ChunkAnalysisContextGenerator contextGen = new ChunkerWordPosContextGeneratorConf(p);
 		ChunkerSVMCrossValidation crossValidator = new ChunkerSVMCrossValidation(trainArgs);
 		ChunkerLinearSVM me = new ChunkerLinearSVM();
