@@ -24,15 +24,14 @@ import com.lc.nlp4han.ml.util.PlainTextByLineStream;
 public class ChunkerSVMEvalTool
 {
 	private static final String USAGE = "Usage: ChunkAnalysisSVMEvalTool [options] -goal predicting_set_file\n"
-			+ "options:\n" 
-			+ "-label label : such as BIOE, BIOES\n"
-			+ "-encoding encoding : set encoding form\n" 
+			+ "options:\n" + "-label label : such as BIOE, BIOES\n" + "-encoding encoding : set encoding form\n"
 			+ "-model model_file : set model path\n"
 			+ "-transform transformation_file : set transformation file, end with '.info' \n"
 			+ "-error error_messages_file : output error messages\n";
 
 	public static void eval(String modelFile, String goldFile, String path, String encoding, File errorFile,
-			ChunkerSVM tagger, AbstractChunkSampleParser parse, AbstractChunkAnalysisMeasure measure, String label) throws IOException
+			ChunkerSVM tagger, AbstractChunkSampleParser parse, AbstractChunkAnalysisMeasure measure, String label)
+			throws IOException
 	{
 		long start = System.currentTimeMillis();
 
@@ -55,8 +54,7 @@ public class ChunkerSVMEvalTool
 
 		ObjectStream<String> goldStream = new PlainTextByLineStream(
 				new MarkableFileInputStreamFactory(new File(goldFile)), encoding);
-		ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkerWordPosSampleStream(goldStream, parse,
-				label);
+		ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkerWordPosSampleStream(goldStream, parse, label);
 
 		start = System.currentTimeMillis();
 		evaluator.evaluate(testStream);
@@ -150,7 +148,8 @@ public class ChunkerSVMEvalTool
 		}
 
 		if (errorFile != null)
-			eval(modelpath, goldFile, transformationFile, encoding, new File(errorFile), tagger, parse, measure, scheme);
+			eval(modelpath, goldFile, transformationFile, encoding, new File(errorFile), tagger, parse, measure,
+					scheme);
 		else
 			eval(modelpath, goldFile, transformationFile, encoding, null, tagger, parse, measure, scheme);
 

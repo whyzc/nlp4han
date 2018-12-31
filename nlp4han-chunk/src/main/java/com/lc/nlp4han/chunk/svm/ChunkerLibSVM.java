@@ -7,11 +7,11 @@ import com.lc.nlp4han.chunk.svm.libsvm.svm_model;
 public class ChunkerLibSVM extends ChunkerSVM
 {
 	private svm_model model = null;
-	
+
 	@Override
-	protected double predictOneLine(String line, Object model) throws IOException
+	public double predictOneLine(String line, Object model) throws IOException
 	{
-		svm_model svmModel = (svm_model)model;
+		svm_model svmModel = (svm_model) model;
 		return SVMPredict.predict(line, svmModel, 0);
 	}
 
@@ -40,13 +40,13 @@ public class ChunkerLibSVM extends ChunkerSVM
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void setModel(Object model)
 	{
-		this.model = (svm_model)model;
+		this.model = (svm_model) model;
 	}
-	
+
 	@Override
 	public Object getModel()
 	{

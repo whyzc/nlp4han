@@ -1,6 +1,10 @@
 package com.lc.nlp4han.chunk.svm;
 
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +26,7 @@ import com.lc.nlp4han.ml.util.ObjectStream;
  */
 public abstract class ChunkerSVM implements Chunker
 {
-	private SVMStandardInput ssi = null;
+	private ConversionInformation ci = null;
 	private ChunkAnalysisContextGenerator contextgenerator;
 	private Object model;
 	private String label;
@@ -34,16 +38,16 @@ public abstract class ChunkerSVM implements Chunker
 
 	public ChunkerSVM(ChunkAnalysisContextGenerator contextgenerator, String label)
 	{
+		super();
 		this.contextgenerator = contextgenerator;
 		this.label = label;
 	}
 
-	public ChunkerSVM(ChunkAnalysisContextGenerator contextgenerator, String filePath, String encoding, String label) throws IOException
+	public ChunkerSVM(ChunkAnalysisContextGenerator contextgenerator, String filePath, String encoding, String label)
 	{
 		this(contextgenerator, label);
 
-		ssi = new SVMStandardInput();
-		ssi.readConversionInfo(filePath, encoding);
+		ci = new ConversionInformation(filePath, encoding);
 
 	}
 
@@ -62,9 +66,9 @@ public abstract class ChunkerSVM implements Chunker
 	 * 
 	 * @param ssi
 	 */
-	public void setSVMStandardInput(SVMStandardInput ssi)
+	public void setSVMStandardInput(ConversionInformation ci)
 	{
-		this.ssi = ssi;
+		this.ci = ci;
 	}
 
 	/**
@@ -74,15 +78,9 @@ public abstract class ChunkerSVM implements Chunker
 	 */
 	public void setSVMStandardInput(String filePath)
 	{
-		try
-		{
-			this.ssi = new SVMStandardInput();
-			this.ssi.readConversionInfo(filePath, "utf-8");
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+
+		this.ci = new ConversionInformation(filePath, "utf-8");
+
 	}
 
 	public void setContextgenerator(ChunkAnalysisContextGenerator contextgenerator)
@@ -156,9 +154,9 @@ public abstract class ChunkerSVM implements Chunker
 		{
 			String[] context = contextgenerator.getContext(i, words, chunkTags, poses);
 
-			line = "1 " + SVMStandardInput.getSVMStandardFeaturesInput(context, ssi); // <label> <index1>:<value1>
-																						// <index2>:<value2> ...
-																						// 预测时，label可以为任意值
+			line = "1 " + SVMSampleUtil.oneSample(context, ci); // <label> <index1>:<value1> <index2>:<value2>
+																// ...；预测时，label可以为任意值
+
 			String tag = predict(line, getModel());
 			chunkTags[i] = tag;
 
@@ -186,7 +184,7 @@ public abstract class ChunkerSVM implements Chunker
 	 * @return 分类结果，数字类型
 	 * @throws IOException
 	 */
-	protected abstract double predictOneLine(String line, Object model) throws IOException;
+	public abstract double predictOneLine(String line, Object model) throws IOException;
 
 	/**
 	 * 将libsvm预测的结果（数字）转换成组块标注
@@ -194,7 +192,7 @@ public abstract class ChunkerSVM implements Chunker
 	private String transform(String v)
 	{
 		int t = str2int(v);
-		String result = ssi.getClassificationResults().get(t - 1);
+		String result = ci.getClassificationLabel(t);
 		return result;
 	}
 
@@ -228,8 +226,8 @@ public abstract class ChunkerSVM implements Chunker
 		ObjectStream<Event> es = new ChunkerWordPosSampleEvent(sampleStream, contextGen);
 		init(es);
 		es.reset();
-		String[] input = SVMStandardInput.standardInput(es, ssi);
-		SVMStandardInput.writeToFile(arg[arg.length - 2], input, "utf-8");
+		String[] input = SVMSampleUtil.samples(es, ci);
+		saveFile(arg[arg.length - 2], input, "utf-8");
 	}
 
 	/**
@@ -246,14 +244,45 @@ public abstract class ChunkerSVM implements Chunker
 	 */
 	private void init(ObjectStream<Event> es)
 	{
-		this.ssi = new SVMStandardInput();
+		this.ci = new ConversionInformation(es);
+	}
+
+	private void saveFile(String saveFilePath, String[] datum, String encoding)
+	{
+		BufferedWriter bw = null;
 		try
 		{
-			ssi.init(es);
+			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(saveFilePath), encoding));
+			for (int i = 0; i < datum.length; i++)
+			{
+				bw.write(datum[i]);
+				bw.write("\n");
+			}
+
+			bw.flush();
+			bw.close();
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
 		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
+		}
+		finally
+		{
+			try
+			{
+				if (null != bw)
+				{
+					bw.close();
+				}
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 }
