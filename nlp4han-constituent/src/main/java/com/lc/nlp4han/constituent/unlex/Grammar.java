@@ -100,7 +100,7 @@ public class Grammar implements GrammarWritable
 	public PCFG getPCFG()
 	{
 		PCFG pcfg = new PCFG();
-		Set<String> nonTerminalSet = this.getAllSubNonterminalSym();
+		
 		for (UnaryRule uRule : uRules)
 		{
 			for (String aRule : uRule.toStringRules(this))
@@ -143,8 +143,11 @@ public class Grammar implements GrammarWritable
 				}
 			}
 		}
+		
+		Set<String> nonTerminalSet = this.getAllSubNonterminalSym();
 		pcfg.setNonTerminalSet(nonTerminalSet);
 		pcfg.setStartSymbol("ROOT");
+		
 		return pcfg;
 	}
 
@@ -1073,6 +1076,7 @@ public class Grammar implements GrammarWritable
 
 		out.writeUTF("--起始符--" + "\n");
 		out.writeUTF(this.getStartSymbol() + "\n");
+		
 		out.writeUTF("--非终结符集--" + "\n");
 		StringBuilder sym = new StringBuilder();
 		for (int symbol = 0; symbol < this.getNumSymbol(); symbol++)
@@ -1084,6 +1088,7 @@ public class Grammar implements GrammarWritable
 			}
 		}
 		out.writeUTF(sym.toString() + "\n");
+		
 		StringBuilder numSubStr = new StringBuilder();
 		for (int symbol = 0; symbol < this.getNumSymbol(); symbol++)
 		{
@@ -1095,6 +1100,7 @@ public class Grammar implements GrammarWritable
 			}
 		}
 		out.writeUTF(numSubStr.toString() + "\n");
+		
 		StringBuilder pretermianlStr = new StringBuilder();
 		for (int i = 0; i < this.allPreterminal().size(); i++)
 		{
@@ -1107,6 +1113,7 @@ public class Grammar implements GrammarWritable
 
 		}
 		out.writeUTF(pretermianlStr.toString() + "\n");
+		
 		out.writeUTF("--一元二元规则集--" + "\n");
 		for (Map.Entry<String, Map<String, Double>[]> entry : allBAndURules.entrySet())
 		{
@@ -1120,6 +1127,7 @@ public class Grammar implements GrammarWritable
 				}
 			}
 		}
+		
 		out.writeUTF("--预终结符规则集--" + "\n");
 		for (Map.Entry<String, Map<String, Double>[]> entry : allPreRules.entrySet())
 		{

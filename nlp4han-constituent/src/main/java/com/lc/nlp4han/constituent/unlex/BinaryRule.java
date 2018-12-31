@@ -224,14 +224,6 @@ public class BinaryRule extends Rule
 		}
 	}
 
-//	public boolean isSameRule(short parent, short lChild, short rChild)
-//	{
-//		if (this.parent == parent && this.leftChild == lChild && this.rightChild == rChild)
-//			return true;
-//		else
-//			return false;
-//	}
-
 	public int hashCode()
 	{
 		final int prime = 31;
@@ -240,14 +232,6 @@ public class BinaryRule extends Rule
 		result = prime * result + rightChild;
 		return result;
 	}
-
-	// public int chidrenHashcode()
-	// {
-	// final int prime = 31;
-	// int result = leftChild;
-	// result = result * prime + rightChild;
-	// return result;
-	// }
 
 	public boolean equals(Object obj)
 	{
@@ -284,11 +268,6 @@ public class BinaryRule extends Rule
 	{
 		this.rightChild = rightChild;
 	}
-
-//	public ArrayList<ArrayList<ArrayList<Double>>> getScores()
-//	{
-//		return scores;
-//	}
 
 	public void setScores(ArrayList<ArrayList<ArrayList<Double>>> scores)
 	{
@@ -378,18 +357,6 @@ public class BinaryRule extends Rule
 		String rChildStr = g.symbolStrValue(rightChild);
 		return parentStr + " -> " + lChildStr + " " + rChildStr;
 	}
-
-//	public String toStringRule(NonterminalTable nonterminalTable, short... labels)
-//	{
-//		if (labels.length != 3)
-//			throw new Error("参数错误。");
-//		String parentStr = nonterminalTable.stringValue(parent);
-//		String lChildStr = nonterminalTable.stringValue(leftChild);
-//		String rChildStr = nonterminalTable.stringValue(rightChild);
-//		String str = parentStr + "_" + labels[0] + "->" + lChildStr + "_" + labels[1] + " " + rChildStr + "_"
-//				+ labels[2] + " " + scores.get(labels[0]).get(labels[1]).get(labels[2]);
-//		return str;
-//	}
 
 	public TreeMap<String, Double> getParent_i_ScoceSum(Grammar g)
 	{
