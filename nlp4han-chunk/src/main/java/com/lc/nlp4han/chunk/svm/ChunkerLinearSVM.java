@@ -12,13 +12,13 @@ import com.lc.nlp4han.chunk.svm.liblinear.Train;
 public class ChunkerLinearSVM extends ChunkerSVM
 {
 	Model model = null;
-	
+
 	@Override
-	protected double predictOneLine(String line, Object model) throws IOException
+	public double predictOneLine(String line, Object model) throws IOException
 	{
-		Model modelLinear = (Model)model;
+		Model modelLinear = (Model) model;
 		return PredictLinear.doPredict(line, modelLinear);
-		
+
 	}
 
 	@Override
@@ -34,7 +34,6 @@ public class ChunkerLinearSVM extends ChunkerSVM
 		}
 	}
 
-
 	@Override
 	public void setModel(String modelPath)
 	{
@@ -47,13 +46,13 @@ public class ChunkerLinearSVM extends ChunkerSVM
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void setModel(Object model)
 	{
-		this.model = (Model)model;
+		this.model = (Model) model;
 	}
-	
+
 	@Override
 	public Object getModel()
 	{

@@ -15,12 +15,11 @@ import com.lc.nlp4han.chunk.wordpos.ChunkerWordPosParserBIO;
 public class ChunkerLinearSVMEvalTool
 {
 	private static final String USAGE = "Usage: ChunkAnalysisLinearSVMEvalTool [options] -model model_file -transform transformation_information_file -goal predicting_set_file\n"
-			+ "options:\n" 
-			+ "-label label : such as BIOE, BIOES\n"
-			+ "-encoding encoding : set encoding form\n" 
+			+ "options:\n" + "-label label : such as BIOE, BIOES\n" + "-encoding encoding : set encoding form\n"
 			+ "-model model_file : set model path\n"
 			+ "-transform transformation_file : set transformation file, end with '.info' \n"
 			+ "-error error_messages_file : output error messages\n";
+
 	public static void main(String[] args) throws IOException
 	{
 		String usage = USAGE;
@@ -106,11 +105,11 @@ public class ChunkerLinearSVMEvalTool
 		}
 
 		if (errorFile != null)
-			ChunkerSVMEvalTool.eval(modelpath, goldFile, transformationFile, encoding, new File(errorFile),
-					tagger, parse, measure, scheme);
+			ChunkerSVMEvalTool.eval(modelpath, goldFile, transformationFile, encoding, new File(errorFile), tagger,
+					parse, measure, scheme);
 		else
-			ChunkerSVMEvalTool.eval(modelpath, goldFile, transformationFile, encoding, null, tagger, parse,
-					measure, scheme);
+			ChunkerSVMEvalTool.eval(modelpath, goldFile, transformationFile, encoding, null, tagger, parse, measure,
+					scheme);
 
 	}
 }
