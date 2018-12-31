@@ -17,7 +17,7 @@ import com.lc.nlp4han.constituent.pcfg.UncompatibleGrammar;
 public class ConstituentParserLatentAnnotation_Viterbi implements ConstituentParserLatentAnnotation
 {
 	// TODO:使用ConstituentParserCKYPCNF
-	private ConstituentParserCKYLoosePCNF p2nf;
+	private ConstituentParserCKYLoosePCNF parserLoosePCNF;
 
 	public ConstituentParserLatentAnnotation_Viterbi(Grammar gLatent) throws UncompatibleGrammar
 	{
@@ -46,7 +46,7 @@ public class ConstituentParserLatentAnnotation_Viterbi implements ConstituentPar
 			}
 		}
 		// pcfg.setPosMap(posMap);
-		p2nf = new ConstituentParserCKYLoosePCNF(pcfg, pruneThreshold, secondPrune, prior);
+		parserLoosePCNF = new ConstituentParserCKYLoosePCNF(pcfg, pruneThreshold, secondPrune, prior);
 
 	}
 
@@ -62,7 +62,7 @@ public class ConstituentParserLatentAnnotation_Viterbi implements ConstituentPar
 	@Override
 	public ConstituentTree[] parse(String[] words, String[] poses, int k)
 	{
-		ConstituentTree[] result = p2nf.parse(words, poses, k);
+		ConstituentTree[] result = parserLoosePCNF.parse(words, poses, k);
 		if(result ==null)
 			return null;
 		

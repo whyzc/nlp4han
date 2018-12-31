@@ -16,7 +16,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
-import java.util.function.BiFunction;
 
 import com.lc.nlp4han.constituent.GrammarWritable;
 import com.lc.nlp4han.constituent.TreeNode;
