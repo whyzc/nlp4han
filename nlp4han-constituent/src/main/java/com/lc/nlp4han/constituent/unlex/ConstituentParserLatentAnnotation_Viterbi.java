@@ -62,8 +62,12 @@ public class ConstituentParserLatentAnnotation_Viterbi implements ConstituentPar
 	@Override
 	public ConstituentTree[] parse(String[] words, String[] poses, int k)
 	{
+		ConstituentTree[] result = p2nf.parse(words, poses, k);
+		if(result ==null)
+			return null;
+		
 		ArrayList<ConstituentTree> trees = new ArrayList<>();
-		for (ConstituentTree tree : p2nf.parse(words, poses, k))
+		for (ConstituentTree tree : result)
 		{
 			if (tree != null)
 			{
