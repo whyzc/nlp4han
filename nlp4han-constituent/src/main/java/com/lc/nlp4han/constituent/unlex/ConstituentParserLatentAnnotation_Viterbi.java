@@ -1,7 +1,13 @@
 package com.lc.nlp4han.constituent.unlex;
 
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Scanner;
 
+import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYLoosePCNF;
@@ -109,5 +115,50 @@ public class ConstituentParserLatentAnnotation_Viterbi implements ConstituentPar
 			}
 		}
 		return tree;
+	}
+	
+	public static void main(String[] args) throws IOException, ClassNotFoundException
+	{
+		DataInput in = new DataInputStream(new FileInputStream((args[0])));
+		Grammar g = new Grammar();
+		g.read(in);
+
+		ConstituentParser parser = new ConstituentParserLatentAnnotation_Viterbi(g);
+
+		Scanner input = new Scanner(System.in);
+		String text = "";
+		while (true)
+		{
+			System.out.println("请输入待分析的文本：");
+			text = input.nextLine();
+
+			if (text.equals(""))
+			{
+				System.out.println("内容为空，请重新输入！");
+			}
+			else if (text.equals("exit"))
+			{
+				break;
+			}
+			else
+			{
+				String[] wps = text.split("\\s+");
+				String[] words = new String[wps.length];
+				String[] poses = new String[wps.length];
+				for(int i=0; i<wps.length; i++)
+				{
+					String[] wp = wps[i].split("_");
+					words[i] = wp[0];
+					poses[i] = wp[1];
+				}
+				ConstituentTree tree = parser.parse(words, poses);
+				if (tree != null)
+					System.out.println(tree.toPrettyString());
+				else
+					System.out.println("Can't parse.");
+			}
+		}
+
+		input.close();
 	}
 }
