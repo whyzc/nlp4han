@@ -28,7 +28,7 @@ public class LexPCFG implements GrammarWritable
 	private HashSet<String> posSet = new HashSet<String>();
 
 	// 词性标注和词，以及数目
-	private HashMap<pos2Word, Integer> wordMap = new HashMap<pos2Word, Integer>();
+	private HashMap<WordPOS, Integer> wordMap = new HashMap<WordPOS, Integer>();
 	// 词在训练集中的pos集合
 	private HashMap<String, HashSet<String>> posesOfWord = new HashMap<String, HashSet<String>>();
 
@@ -49,7 +49,7 @@ public class LexPCFG implements GrammarWritable
 	{
 	}
 
-	public LexPCFG(String startSymbol, HashSet<String> posSet, HashMap<pos2Word, Integer> wordMap,
+	public LexPCFG(String startSymbol, HashSet<String> posSet, HashMap<WordPOS, Integer> wordMap,
 			HashMap<String, HashSet<String>> posesOfWord, HashMap<OccurenceCollins, RuleAmountsInfo> headGenMap,
 			HashMap<OccurenceCollins, HashSet<String>> parentList,
 			HashMap<OccurenceCollins, RuleAmountsInfo> sidesGenMap,
@@ -93,7 +93,7 @@ public class LexPCFG implements GrammarWritable
 		while (!str.equals("--生成头结点的规则集--"))
 		{// POS-Word集
 			String[] strs = str.split(" ");
-			wordMap.put(new pos2Word(strs[0], strs[1]), Integer.parseInt(strs[2]));
+			wordMap.put(new WordPOS(strs[0], strs[1]), Integer.parseInt(strs[2]));
 			str = buffer.readLine().trim();	
 		}
 
@@ -308,14 +308,14 @@ public class LexPCFG implements GrammarWritable
 	private double getProForWord(OccurenceSides rs, double count)
 	{
 		double e3 = 0;
-		pos2Word wop = new pos2Word(rs.getSideHeadWord(), rs.getSideHeadPOS());
+		WordPOS wop = new WordPOS(rs.getSideHeadWord(), rs.getSideHeadPOS());
 		if (wordMap.keySet().contains(wop))
 		{
 			count = wordMap.get(wop);
 		}
-		if (wordMap.containsKey(new pos2Word(null, rs.getSideHeadPOS())))
+		if (wordMap.containsKey(new WordPOS(null, rs.getSideHeadPOS())))
 		{
-			e3 = count / wordMap.get(new pos2Word(null, rs.getSideHeadPOS()));
+			e3 = count / wordMap.get(new WordPOS(null, rs.getSideHeadPOS()));
 		}
 		return e3;
 	}
@@ -416,12 +416,12 @@ public class LexPCFG implements GrammarWritable
 		StartSymbol = startSymbol;
 	}
 
-	public int getPOS2WordAmount(pos2Word pw)
+	public int getPOS2WordAmount(WordPOS pw)
 	{
 		return wordMap.get(pw);
 	}
 
-	public void setWordMap(HashMap<pos2Word, Integer> wordMap)
+	public void setWordMap(HashMap<WordPOS, Integer> wordMap)
 	{
 		this.wordMap = wordMap;
 	}
@@ -505,9 +505,9 @@ public class LexPCFG implements GrammarWritable
 			stb.append(itr1.next() + '\n');
 		}
 
-		Set<pos2Word> wap = wordMap.keySet();
+		Set<WordPOS> wap = wordMap.keySet();
 		stb.append("--POS-Word集--" + '\n');
-		for (pos2Word wap1 : wap)
+		for (WordPOS wap1 : wap)
 		{
 			stb.append(wap1.toString() + " " + wordMap.get(wap1) + '\n');
 		}
@@ -669,9 +669,9 @@ public class LexPCFG implements GrammarWritable
 			out.writeUTF(itr1.next());
 		}
 
-		Set<pos2Word> wap = wordMap.keySet();
+		Set<WordPOS> wap = wordMap.keySet();
 		out.writeUTF("--POS-Word集--");
-		for (pos2Word wap1 : wap)
+		for (WordPOS wap1 : wap)
 		{
 			out.writeUTF(wap1.toString() + " " + wordMap.get(wap1));
 		}
@@ -749,7 +749,7 @@ public class LexPCFG implements GrammarWritable
 		while (!str.equals("--生成头结点的规则集--"))
 		{// POS-Word集
 			String[] strs = str.split(" ");
-			wordMap.put(new pos2Word(strs[0], strs[1]), Integer.parseInt(strs[2]));
+			wordMap.put(new WordPOS(strs[0], strs[1]), Integer.parseInt(strs[2]));
 
 			str = in.readUTF().trim();
 		}

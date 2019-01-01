@@ -19,13 +19,13 @@ public class LexGrammarExtractor
 {
 	// 是否收集并列结构和标点符号信息
 	boolean processCoorPU = false;
-	
+
 	// 起始符
 	private String startSymbol = null;
 	// 词性标注集
 	private HashSet<String> posSet = new HashSet<String>();
 	// 词性标注和词，以及数目
-	private HashMap<pos2Word, Integer> wordMap = new HashMap<pos2Word, Integer>();
+	private HashMap<WordPOS, Integer> wordMap = new HashMap<WordPOS, Integer>();
 
 	// P(H|P,t,w)）相关的统计数据
 	private HashMap<OccurenceCollins, RuleAmountsInfo> headGenMap = new HashMap<OccurenceCollins, RuleAmountsInfo>();
@@ -39,10 +39,6 @@ public class LexGrammarExtractor
 
 	// 用于生成并列结构连词（如CC或者逗号和冒号,为简略，我将生成修饰符pos和生成修饰符word都放入此规则
 	private HashMap<OccurenceCollins, RuleAmountsInfo> specialGenMap = new HashMap<OccurenceCollins, RuleAmountsInfo>();
-
-	public LexGrammarExtractor()
-	{
-	}
 
 	public LexPCFG extractGrammar(String fileName, String enCoding) throws IOException
 	{
@@ -78,8 +74,8 @@ public class LexGrammarExtractor
 		{
 			posSet.add(node.getNodeName());
 
-			pos2Word wap = new pos2Word(node.getFirstChildName(), node.getNodeName());
-			pos2Word pos = new pos2Word(null, node.getNodeName());
+			WordPOS wap = new WordPOS(node.getFirstChildName(), node.getNodeName());
+			WordPOS pos = new WordPOS(null, node.getNodeName());
 			if (!wordMap.containsKey(pos))
 			{
 				wordMap.put(pos, 1);
@@ -104,6 +100,7 @@ public class LexGrammarExtractor
 		{
 			extractRule(node);
 		}
+		
 		for (HeadTreeNode node1 : node.getChildren())
 		{
 			traverseTree((HeadTreeNodeForCollins) node1);
@@ -160,15 +157,17 @@ public class LexGrammarExtractor
 		addParents(rhcg0, parentLabel);
 		OccurenceHeadChild rhcg = new OccurenceHeadChild(headLabel, null, headpos, null);
 		addParents(rhcg, parentLabel);
-		OccurenceHeadChild rhcg1 = new OccurenceHeadChild(headLabel, null, null,null);
+		OccurenceHeadChild rhcg1 = new OccurenceHeadChild(headLabel, null, null, null);
 		addParents(rhcg1, parentLabel);
 	}
 
 	/**
 	 * 添加向上延伸的规则
+	 * 
 	 * @param rhcg
 	 */
-	private void addParents(OccurenceHeadChild rhcg,String parentLabel) {
+	private void addParents(OccurenceHeadChild rhcg, String parentLabel)
+	{
 		if (!parentList.containsKey(rhcg))
 		{
 			HashSet<String> labelSet = new HashSet<String>();
@@ -180,6 +179,7 @@ public class LexGrammarExtractor
 			parentList.get(rhcg).add(parentLabel);
 		}
 	}
+
 	/**
 	 * 统计在已有中心Child的基础上生成两侧孩子的数据
 	 * 
@@ -511,16 +511,19 @@ public class LexGrammarExtractor
 	private LexPCFG brackets2Grammar(ArrayList<String> bracketStrList)
 	{
 		AbstractHeadGenerator headGen = new HeadGeneratorCollins(new HeadRuleSetCTB());
+		
 		for (String bracketStr : bracketStrList)
 		{
 			TreeNode rootNode = BracketExpUtil.generateTree(bracketStr);
+
 			HeadTreeNodeForCollins headNode = TreeToHeadTreeForCollins.treeToHeadTree(rootNode, headGen);
+
 			if (startSymbol == null)
-			{// 起始符提取
-				startSymbol=headNode.getNodeName();
-			}
+				startSymbol = headNode.getNodeName();
+
 			traverseTree(headNode);
 		}
+
 		return new LexPCFG(startSymbol, posSet, wordMap, null, headGenMap, parentList, sidesGenMap, stopGenMap,
 				specialGenMap);
 	}
