@@ -333,16 +333,20 @@ public class BinaryRule extends Rule
 						parentStr = g.symbolStrValue(parent);
 					else
 						parentStr = g.symbolStrValue(parent) + "_" + i;
+					
 					if (g.getNumSubSymbol(leftChild) == 1)
 						lChildStr = g.symbolStrValue(leftChild);
 					else
 						lChildStr = g.symbolStrValue(leftChild) + "_" + j;
+					
 					if (g.getNumSubSymbol(rightChild) == 1)
 						rChildStr = g.symbolStrValue(rightChild);
 					else
 						rChildStr = g.symbolStrValue(rightChild) + "_" + k;
+					
 					String str = parentStr + " -> " + lChildStr + " " + rChildStr + " " + scores.get(i).get(j).get(k);
 					strs[count] = str;
+					
 					count++;
 				}
 			}

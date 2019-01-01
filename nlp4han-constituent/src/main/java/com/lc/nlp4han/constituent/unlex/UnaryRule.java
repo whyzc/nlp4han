@@ -242,12 +242,15 @@ public class UnaryRule extends Rule
 					parentStr = g.symbolStrValue(parent);
 				else
 					parentStr = g.symbolStrValue(parent) + "_" + i;
+				
 				if (g.getNumSubSymbol(child) == 1)
 					childStr = g.symbolStrValue(child);
 				else
 					childStr = g.symbolStrValue(child) + "_" + j;
+				
 				String str = parentStr + " -> " + childStr + " " + scores.get(i).get(j);
 				strs[count] = str;
+				
 				count++;
 			}
 		}

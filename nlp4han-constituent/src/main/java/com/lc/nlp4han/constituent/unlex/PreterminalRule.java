@@ -177,8 +177,10 @@ public class PreterminalRule extends Rule
 				parentStr = g.symbolStrValue(parent);
 			else
 				parentStr = g.symbolStrValue(parent) + "_" + i;
+			
 			String childStr = word;
 			String str = parentStr + " -> " + childStr + " " + scores.get(i);
+			
 			strs[i] = str;
 		}
 		return strs;

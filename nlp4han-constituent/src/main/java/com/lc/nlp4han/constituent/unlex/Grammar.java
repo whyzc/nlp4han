@@ -789,6 +789,7 @@ public class Grammar implements GrammarWritable
 					"[" + this.symbolStrValue(preterminalSym) + "," + this.getNumSubSymbol(preterminalSym) + "]" + " ");
 		}
 		str1.append("\n");
+		
 		str1.append("非预终结，其他符号：");
 		for (short nonterminalSym : this.allNonterminalIntValArr())
 		{
@@ -798,6 +799,7 @@ public class Grammar implements GrammarWritable
 						+ " ");
 			}
 		}
+		
 		return str1.toString();
 	}
 
@@ -827,6 +829,7 @@ public class Grammar implements GrammarWritable
 				{
 					preRulesBySameSubHead[i] = new HashMap<String, Double>();
 				}
+				
 				for (PreterminalRule preRule : this.getPreRuleSetBySameHead(symbol))
 				{
 					String[] subRuleOfpreRule = preRule.toStringRules(this);
@@ -840,9 +843,11 @@ public class Grammar implements GrammarWritable
 								.parseDouble(subRuleOfpreRule[j].substring(subRuleOfpreRule[j].lastIndexOf(" "))));
 					}
 				}
+				
 				allPreRules.put(symbolStr, preRulesBySameSubHead);
 			}
 		}
+		
 		return allPreRules;
 	}
 
@@ -908,11 +913,9 @@ public class Grammar implements GrammarWritable
 	{
 		StringBuilder grammarStr = new StringBuilder();
 
-		TreeMap<String, Map<String, Double>[]> allBAndURules = this.getSortedBAndURules();
-		TreeMap<String, Map<String, Double>[]> allPreRules = this.getSortedPreRules();
-
 		grammarStr.append("--起始符--" + "\n");
 		grammarStr.append(this.getStartSymbol() + "\n");
+		
 		grammarStr.append("--非终结符集--" + "\n");
 		for (int symbol = 0; symbol < this.getNumSymbol(); symbol++)
 		{
@@ -924,6 +927,7 @@ public class Grammar implements GrammarWritable
 			grammarStr.append(sym);
 		}
 		grammarStr.append("\n");
+		
 		for (int symbol = 0; symbol < this.getNumSymbol(); symbol++)
 		{
 			short numSubSymbol = this.getNumSubSymbol((short) symbol);
@@ -935,6 +939,7 @@ public class Grammar implements GrammarWritable
 			grammarStr.append(numStr);
 		}
 		grammarStr.append("\n");
+		
 		for (int i = 0; i < this.allPreterminal().size(); i++)
 		{
 			short preterminal = this.allPreterminal().get(i);
@@ -946,6 +951,8 @@ public class Grammar implements GrammarWritable
 			grammarStr.append(pretermianlStr);
 		}
 		grammarStr.append("\r");
+		
+		TreeMap<String, Map<String, Double>[]> allBAndURules = this.getSortedBAndURules();	
 		grammarStr.append("--一元二元规则集--" + "\n");
 		for (Map.Entry<String, Map<String, Double>[]> entry : allBAndURules.entrySet())
 		{
@@ -959,6 +966,8 @@ public class Grammar implements GrammarWritable
 				}
 			}
 		}
+		
+		TreeMap<String, Map<String, Double>[]> allPreRules = this.getSortedPreRules();
 		grammarStr.append("--预终结符规则集--" + "\n");
 		for (Map.Entry<String, Map<String, Double>[]> entry : allPreRules.entrySet())
 		{
