@@ -1,5 +1,8 @@
 package com.lc.nlp4han.constituent.unlex;
 
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
@@ -8,7 +11,7 @@ import java.io.IOException;
  * @author 王宁
  * 
  */
-public class GrammarExtractorToolLatentAnnotation
+public class LatentGrammarExtractorTool
 {
 	public static Grammar getGrammar(int SMCycle, double mergeRate, int EMIterations, double smooth,
 			int rareWordThreshold, String treeBankPath, String encoding) throws IOException
@@ -36,7 +39,7 @@ public class GrammarExtractorToolLatentAnnotation
 		double smooth = 0.01;
 		for (int i = 0; i < args.length; i++)
 		{
-			if (args[i].equals("-train"))
+			if (args[i].equals("-data"))
 			{
 				trainFilePath = args[i + 1];
 				i++;
@@ -72,19 +75,27 @@ public class GrammarExtractorToolLatentAnnotation
 				mergeRate = Double.parseDouble(args[i + 1]);
 			}
 		}
+		
 		if (trainFilePath == null || outputFilePath == null)
 		{
 			usage();
 			System.exit(0);
 		}
+		
 		try
 		{
 			long start = System.currentTimeMillis();
 			System.out.println("开始提取初始文法");
-			Grammar g = GrammarExtractorToolLatentAnnotation.getGrammar(SMCycle, mergeRate, iterations, smooth,
+			
+			Grammar g = LatentGrammarExtractorTool.getGrammar(SMCycle, mergeRate, iterations, smooth,
 					Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainFilePath, encoding);
-			GrammarWriter.writeToFileStandard(g, outputFilePath, true);
+			
+//			GrammarWriter.writeToFileStandard(g, outputFilePath, true);
+			DataOutput out = new DataOutputStream(new FileOutputStream(outputFilePath));
+			g.write(out);
+			
 			System.out.println("提取初始文法完毕");
+			
 			long end = System.currentTimeMillis();
 			long time = end - start;
 			System.out.println("提取语法消耗时间：" + time);
@@ -98,7 +109,7 @@ public class GrammarExtractorToolLatentAnnotation
 
 	private static void usage()
 	{
-		System.out.println(GrammarExtractorToolLatentAnnotation.class.getName() + "\n"
+		System.out.println(LatentGrammarExtractorTool.class.getName() + "\n"
 				+ " -train <trainFile> -out <outFile> [-sm <SMCycle>] [-em <EMIterations>] [-merge <mergeRate>] [-smooth <smoothRate>]");
 	}
 }
