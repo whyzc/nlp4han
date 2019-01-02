@@ -158,12 +158,15 @@ public class LexGrammarExtractor
 		{// 出现错误标注节点
 			return;
 		}
+		
 		// 统计生成中心child的数据
-		getHeadGR(node);
+		countHeadGR(node);
+		
 		// 统计生成中心Child两侧的数据,以及统计两侧不生成Stop的数据
-		getSidesGR(node);
+		countSidesGR(node);
+		
 		// 统计生成中心Stop的数据,此处是指统计两侧为Stop的数据
-		getStopGR(node);
+		countStopGR(node);
 	}
 
 	/**
@@ -171,12 +174,13 @@ public class LexGrammarExtractor
 	 * 
 	 * @param node
 	 */
-	private void getHeadGR(HeadTreeNodeForCollins node)
+	private void countHeadGR(HeadTreeNodeForCollins node)
 	{
 		String headLabel = node.getChild(node.getHeadChildIndex()).getNodeName();
 		String parentLabel = node.getNodeName();
 		String headword = node.getHeadWord();
 		String headpos = node.getHeadPos();
+		
 		// 回退模型1
 		OccurenceHeadChild hcgr0 = new OccurenceHeadChild(headLabel, parentLabel, headpos, headword);
 		OccurenceHeadChild hcgr1 = new OccurenceHeadChild(null, parentLabel, headpos, headword);
@@ -225,7 +229,7 @@ public class LexGrammarExtractor
 	 * 
 	 * @param node
 	 */
-	private void getSidesGR(HeadTreeNodeForCollins node)
+	private void countSidesGR(HeadTreeNodeForCollins node)
 	{
 		int headIndex = node.getHeadChildIndex();// 中心节点标记
 		String parentLabel = node.getNodeName();// 父节点的非终结符标记
@@ -251,7 +255,7 @@ public class LexGrammarExtractor
 	 * 
 	 * @param node
 	 */
-	private void getStopGR(HeadTreeNodeForCollins node)
+	private void countStopGR(HeadTreeNodeForCollins node)
 	{
 		int headIndex = node.getHeadChildIndex();
 		String headLabel = node.getChild(headIndex).getNodeName();
