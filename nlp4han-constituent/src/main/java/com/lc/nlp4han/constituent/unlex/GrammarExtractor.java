@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -18,6 +19,7 @@ import java.util.Set;
  */
 public class GrammarExtractor
 {
+	public static Random random = new Random(0);
 	public TreeBank treeBank;
 	public HashSet<String> dictionary;
 	public List<Short> preterminal;// 词性标注对应的整数

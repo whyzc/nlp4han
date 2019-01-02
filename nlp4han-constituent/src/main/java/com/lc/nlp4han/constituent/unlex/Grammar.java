@@ -32,7 +32,6 @@ import com.lc.nlp4han.ml.util.PlainTextByLineStream;
  */
 public class Grammar implements GrammarWritable
 {
-	public static Random random = new Random(0);
 	private String StartSymbol = "ROOT";
 
 	private HashSet<BinaryRule> bRules;
@@ -682,10 +681,6 @@ public class Grammar implements GrammarWritable
 		this.lexicon = lexicon;
 	}
 
-	public static Random getRandom()
-	{
-		return random;
-	}
 	// 暂时不用
 	// public HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>>
 	// getPreRuleBySameChildren()
@@ -982,6 +977,8 @@ public class Grammar implements GrammarWritable
 			}
 		}
 
+		grammarStr.append("--end--");
+		
 		return grammarStr.toString();
 	}
 
@@ -997,9 +994,8 @@ public class Grammar implements GrammarWritable
 		});
 	}
 
-	public Grammar read(PlainTextByLineStream stream) throws IOException
+	public void read(PlainTextByLineStream stream) throws IOException
 	{
-		Grammar g = new Grammar();
 		String str = stream.read();
 		if (str != null)
 			str = str.trim();
@@ -1009,7 +1005,7 @@ public class Grammar implements GrammarWritable
 
 		if (str.equals("--起始符--"))
 		{
-			g.setStartSymbol(stream.read().trim());
+			this.setStartSymbol(stream.read().trim());
 		}
 		str = stream.read().trim();
 		if (str.equals("--非终结符集--"))
@@ -1044,7 +1040,7 @@ public class Grammar implements GrammarWritable
 		}
 		nonterminalTable.setIntValueOfPreterminalArr(new ArrayList<Short>(Arrays.asList(preSymbolIndex)));
 		nonterminalTable.setNumSubsymbolArr(new ArrayList<Short>(Arrays.asList(numNonterminal)));
-		g.setNontermianalTable(nonterminalTable);
+		this.setNontermianalTable(nonterminalTable);
 		str = stream.read();
 		if (str != null)
 			str = str.trim();
@@ -1056,9 +1052,9 @@ public class Grammar implements GrammarWritable
 				str = str.trim();
 				rule = str.split(" ");
 				if (rule.length == 4)
-					g.readURule(rule);
+					this.readURule(rule);
 				else if (rule.length == 5)
-					g.readBRule(rule);
+					this.readBRule(rule);
 			}
 		}
 
@@ -1067,13 +1063,15 @@ public class Grammar implements GrammarWritable
 			while ((str = stream.read()) != null)
 			{
 				str = str.trim();
+				if(str.equals("--end--")) {
+					break;
+				}
 				rule = str.split(" ");
 				if (rule.length == 4)
-					g.readPreRule(rule);
+					this.readPreRule(rule);
 			}
 		}
 		stream.close();
-		return g;
 	}
 
 	@Override
@@ -1149,12 +1147,12 @@ public class Grammar implements GrammarWritable
 				}
 			}
 		}
+		out.writeUTF("--end--");
 	}
 
 	@Override
 	public void read(DataInput in) throws IOException
 	{
-		Grammar g = new Grammar();
 		String str = in.readUTF();
 		String[] allSymbols = null;// ROOT、......
 		Short[] numNonterminal = null;// ROOT 1
@@ -1164,7 +1162,7 @@ public class Grammar implements GrammarWritable
 			str = str.trim();
 		if (str.equals("--起始符--"))
 		{
-			g.setStartSymbol(in.readUTF().trim());
+			this.setStartSymbol(in.readUTF().trim());
 		}
 
 		str = in.readUTF().trim();
@@ -1201,7 +1199,7 @@ public class Grammar implements GrammarWritable
 		}
 		nonterminalTable.setIntValueOfPreterminalArr(new ArrayList<Short>(Arrays.asList(preSymbolIndex)));
 		nonterminalTable.setNumSubsymbolArr(new ArrayList<Short>(Arrays.asList(numNonterminal)));
-		g.setNontermianalTable(nonterminalTable);
+		this.setNontermianalTable(nonterminalTable);
 
 		str = in.readUTF();
 		if (str != null)
@@ -1216,9 +1214,9 @@ public class Grammar implements GrammarWritable
 					break;
 				rule = str.split(" ");
 				if (rule.length == 4)
-					g.readURule(rule);
+					this.readURule(rule);
 				else if (rule.length == 5)
-					g.readBRule(rule);
+					this.readBRule(rule);
 			}
 		}
 
@@ -1227,9 +1225,12 @@ public class Grammar implements GrammarWritable
 			while ((str = in.readUTF()) != null)
 			{
 				str = str.trim();
+				if(str.equals("--end--")) {
+					break;
+				}
 				rule = str.split(" ");
 				if (rule.length == 4)
-					g.readPreRule(rule);
+					this.readPreRule(rule);
 			}
 		}
 	}

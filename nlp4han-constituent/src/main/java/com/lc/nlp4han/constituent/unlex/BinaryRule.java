@@ -57,7 +57,7 @@ public class BinaryRule extends Rule
 	@Override
 	public void split()
 	{
-		Random random = Grammar.random;
+		Random random = GrammarExtractor.random;
 		boolean randomPerturbation = true;
 		// split rightChild
 		int pNumSubSymbol = scores.size();

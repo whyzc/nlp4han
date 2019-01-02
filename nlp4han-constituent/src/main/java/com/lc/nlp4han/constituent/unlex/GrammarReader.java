@@ -88,6 +88,9 @@ public class GrammarReader
 			while ((str = stream.read()) != null)
 			{
 				str = str.trim();
+				if(str.equals("--end--")) {
+					break;
+				}
 				rule = str.split(" ");
 				if (rule.length == 4)
 					g.readPreRule(rule);
