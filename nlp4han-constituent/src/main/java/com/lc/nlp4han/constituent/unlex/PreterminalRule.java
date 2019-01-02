@@ -152,11 +152,6 @@ public class PreterminalRule extends Rule
 		scores.set(subP, score);
 	}
 
-	public void setScores(ArrayList<Double> scores)
-	{
-		this.scores = scores;
-	}
-
 	@Override
 	boolean withIn(HashSet<? extends Rule> rules)
 	{

@@ -206,11 +206,6 @@ public class UnaryRule extends Rule
 		}
 	}
 
-	public void setScores(ArrayList<ArrayList<Double>> score)
-	{
-		this.scores = score;
-	}
-
 	@Override
 	boolean withIn(HashSet<? extends Rule> rules)
 	{

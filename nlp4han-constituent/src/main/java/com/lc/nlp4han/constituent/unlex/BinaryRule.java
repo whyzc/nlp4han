@@ -269,11 +269,6 @@ public class BinaryRule extends Rule
 		this.rightChild = rightChild;
 	}
 
-	public void setScores(ArrayList<ArrayList<ArrayList<Double>>> scores)
-	{
-		this.scores = scores;
-	}
-
 	public double getScore(short subP, short subLC, short subRC)
 	{
 		return scores.get(subP).get(subLC).get(subRC);
