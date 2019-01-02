@@ -45,20 +45,62 @@ public class LexGrammarExtractor
 		// 括号表达式树拼接成括号表达式String数组
 		PlainTextByTreeStream ptbt = new PlainTextByTreeStream(new FileInputStreamFactory(new File(fileName)),
 				enCoding);
-		AbstractHeadGenerator headGen = new HeadGeneratorCollins(new HeadRuleSetCTB());
+//		AbstractHeadGenerator headGen = new HeadGeneratorCollins(new HeadRuleSetCTB());
 		String bracketStr = ptbt.read();
+		ArrayList<String> bracketList = new ArrayList<String>();
 		while (bracketStr != null)
 		{
-			TreeNode rootNode = BracketExpUtil.generateTree(bracketStr);
-			HeadTreeNodeForCollins headNode = TreeToHeadTreeForCollins.treeToHeadTree(rootNode, headGen);
-			if (startSymbol == null)
-			{// 起始符提取
-				startSymbol = headNode.getNodeName();
-			}
-			traverseTree(headNode);
+//			TreeNode rootNode = BracketExpUtil.generateTree(bracketStr);
+//			HeadTreeNodeForCollins headNode = TreeToHeadTreeForCollins.treeToHeadTree(rootNode, headGen);
+//			if (startSymbol == null)
+//			{// 起始符提取
+//				startSymbol = headNode.getNodeName();
+//			}
+//			traverseTree(headNode);
+			bracketList.add(bracketStr);
+			
 			bracketStr = ptbt.read();
 		}
 		ptbt.close();
+		
+		return brackets2Grammar(bracketList);
+		
+//		return new LexPCFG(startSymbol, posSet, wordMap, null, headGenMap, parentList, sidesGenMap, stopGenMap,
+//				specialGenMap);
+	}
+
+	/**
+	 * 由括号表达式列表直接得到LexPCFG
+	 */
+	public static LexPCFG getLexPCFG(ArrayList<String> bracketStrList) throws IOException
+	{
+		LexPCFG grammar = new LexGrammarExtractor().brackets2Grammar(bracketStrList);
+
+		return grammar;
+	}
+	
+	/**
+	 * 括号表达式生成文法
+	 * 
+	 * @param bracketStrList
+	 * @return
+	 */
+	private LexPCFG brackets2Grammar(ArrayList<String> bracketStrList)
+	{
+		AbstractHeadGenerator headGen = new HeadGeneratorCollins(new HeadRuleSetCTB());
+
+		for (String bracketStr : bracketStrList)
+		{
+			TreeNode rootNode = BracketExpUtil.generateTree(bracketStr);
+
+			HeadTreeNodeForCollins headNode = TreeToHeadTreeForCollins.treeToHeadTree(rootNode, headGen);
+
+			if (startSymbol == null)
+				startSymbol = headNode.getNodeName();
+
+			traverseTree(headNode);
+		}
+
 		return new LexPCFG(startSymbol, posSet, wordMap, null, headGenMap, parentList, sidesGenMap, stopGenMap,
 				specialGenMap);
 	}
@@ -70,7 +112,7 @@ public class LexGrammarExtractor
 	 */
 	private void traverseTree(HeadTreeNodeForCollins node)
 	{
-		if (node.getChildrenNum() == 1 && node.getChild(0).getChildrenNum() == 0)
+		if (node.getChildrenNum() == 1 && node.getChild(0).getChildrenNum() == 0) // 预终结符
 		{
 			posSet.add(node.getNodeName());
 
@@ -84,15 +126,13 @@ public class LexGrammarExtractor
 			else
 			{
 				if (!wordMap.containsKey(wap))
-				{
 					wordMap.put(wap, 1);
-				}
 				else
-				{
 					wordMap.put(wap, wordMap.get(wap) + 1);
-				}
+				
 				wordMap.put(pos, wordMap.get(pos) + 1);
 			}
+			
 			// 处理pos节点后，其孩子节点不用处理
 			return;
 		}
@@ -100,7 +140,7 @@ public class LexGrammarExtractor
 		{
 			extractRule(node);
 		}
-		
+
 		for (HeadTreeNode node1 : node.getChildren())
 		{
 			traverseTree((HeadTreeNodeForCollins) node1);
@@ -490,41 +530,5 @@ public class LexGrammarExtractor
 			// 不管rule1是否已经存在，回退规则rule2的数目都要+1
 			map.get(rule2).addAmount(1);
 		}
-	}
-
-	/**
-	 * 由括号表达式列表直接得到LexPCFG
-	 */
-	public static LexPCFG getLexPCFG(ArrayList<String> bracketStrList) throws IOException
-	{
-		LexPCFG grammar = new LexGrammarExtractor().brackets2Grammar(bracketStrList);
-
-		return grammar;
-	}
-
-	/**
-	 * 括号表达式生成文法
-	 * 
-	 * @param bracketStrList
-	 * @return
-	 */
-	private LexPCFG brackets2Grammar(ArrayList<String> bracketStrList)
-	{
-		AbstractHeadGenerator headGen = new HeadGeneratorCollins(new HeadRuleSetCTB());
-		
-		for (String bracketStr : bracketStrList)
-		{
-			TreeNode rootNode = BracketExpUtil.generateTree(bracketStr);
-
-			HeadTreeNodeForCollins headNode = TreeToHeadTreeForCollins.treeToHeadTree(rootNode, headGen);
-
-			if (startSymbol == null)
-				startSymbol = headNode.getNodeName();
-
-			traverseTree(headNode);
-		}
-
-		return new LexPCFG(startSymbol, posSet, wordMap, null, headGenMap, parentList, sidesGenMap, stopGenMap,
-				specialGenMap);
 	}
 }
