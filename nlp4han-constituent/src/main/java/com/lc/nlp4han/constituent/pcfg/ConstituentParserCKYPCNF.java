@@ -1,5 +1,8 @@
 package com.lc.nlp4han.constituent.pcfg;
 
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -97,7 +100,7 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 		for (String bracketString : bracketList)
 		{
 			//System.out.println(bracketString.toString());
-			TreeNode rootNode = RestoreTree.restoreTree(BracketExpUtil.generateTree(bracketString));
+			TreeNode rootNode = TreeRestorer.restoreTree(BracketExpUtil.generateTree(bracketString));
 			
 			treeArray[i++] = new ConstituentTree(rootNode);
 		}
@@ -246,13 +249,13 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 					HashMap<String, CKYPRule> ruleMap = table[i][j].getPruleMap();
 					if (poses == null)
 					{// 由分词结果反推得到规则，并进行table表对角线的初始化
-						for (RewriteRule rule0 : pcnf.getRuleByrhs(words[i]))
+						for (RewriteRule rule0 : pcnf.getRuleByRHS(words[i]))
 						{
 							PRule rule = (PRule) rule0;
-							String lhs = rule.getLhs().split("@")[0];
-							CKYPRule ckyrule = new CKYPRule(rule.getProb(), rule.getLhs(), rule.getRhs(), 0, 0, 0);
+							String lhs = rule.getLHS().split("@")[0];
+							CKYPRule ckyrule = new CKYPRule(rule.getProb(), rule.getLHS(), rule.getRHS(), 0, 0, 0);
 							ruleMap.put(lhs, ckyrule);
-							updateCellRules(rule.getProb(), ruleMap, rule.getLhs(), words[j - 1], null, 0);
+							updateCellRules(rule.getProb(), ruleMap, rule.getLHS(), words[j - 1], null, 0);
 						}
 					}
 					else
@@ -327,12 +330,12 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 		{
 			rhs.add(rhs1);
 			rhs.add(rhs2);
-			ruleSet = pcnf.getRuleByrhs(rhs);
+			ruleSet = pcnf.getRuleByRHS(rhs);
 		}
 		else
 		{
 			rhs.add(rhs1);
-			ruleSet = pcnf.getRuleByrhs(lhs0);
+			ruleSet = pcnf.getRuleByRHS(lhs0);
 		}
 
 		if (ruleSet != null)
@@ -341,13 +344,13 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 			{
 				PRule prule = (PRule) rule;
 
-				String lhsOfckyrule1 = prule.getLhs();
+				String lhsOfckyrule1 = prule.getLHS();
 				if (lhs0 != null)
 				{
 					lhsOfckyrule1 += "@" + lhs0;
 				}
 				CKYPRule ckyrule1 = new CKYPRule(prule.getProb() * pro, lhsOfckyrule1, rhs, k, 0, 0);
-				String lhs = prule.getLhs().split("@")[0];// 取左侧第一个为ruleMap的key值，如NP@NN中的NP
+				String lhs = prule.getLHS().split("@")[0];// 取左侧第一个为ruleMap的key值，如NP@NN中的NP
 
 				if (!ruleMap.keySet().contains(lhs))
 				{// 该非终结符对应的规则不存在，直接添加
@@ -398,21 +401,21 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 	private void createBracket(int i, int j, CKYPRule prule, StringBuilder strBuilder) {
 		strBuilder.append("(");
 
-		strBuilder.append(prule.getLhs());
+		strBuilder.append(prule.getLHS());
 		if (i == j - 1)
 		{// 对角线存储词性规则
 			strBuilder.append(" ");
-			strBuilder.append(prule.getRhs().get(0));
+			strBuilder.append(prule.getRHS().get(0));
 			strBuilder.append(")");
 			return;
 		}
 		
 		// 第一个孩子
-		CKYPRule lPrule = table[i][prule.getK()].getPruleMap().get(prule.getRhs().get(0));
+		CKYPRule lPrule = table[i][prule.getK()].getPruleMap().get(prule.getRHS().get(0));
 		createBracket(i, prule.getK(), lPrule, strBuilder);
 		
 		// 第二个孩子
-		CKYPRule rPrule = table[prule.getK()][j].getPruleMap().get(prule.getRhs().get(1));
+		CKYPRule rPrule = table[prule.getK()][j].getPruleMap().get(prule.getRHS().get(1));
 		createBracket(prule.getK(), j, rPrule, strBuilder);
 
 		strBuilder.append(")");
@@ -456,7 +459,9 @@ public class ConstituentParserCKYPCNF implements ConstituentParser
 
 	public static void main(String[] args) throws IOException, ClassNotFoundException
 	{
-		PCFG pcnf=CFGModelIOUtil.loadPCFGModel(args[0]); 
+		DataInput in = new DataInputStream(new FileInputStream((args[0])));
+		PCFG pcnf = new PCFG();
+		pcnf.read(in);
 		
 		double pruneThreshold = 0.0001;
 		boolean secondPrune = false;

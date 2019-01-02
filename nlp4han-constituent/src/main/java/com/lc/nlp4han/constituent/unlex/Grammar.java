@@ -16,7 +16,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
-import java.util.function.BiFunction;
 
 import com.lc.nlp4han.constituent.GrammarWritable;
 import com.lc.nlp4han.constituent.TreeNode;
@@ -40,10 +39,11 @@ public class Grammar implements GrammarWritable
 	private HashSet<UnaryRule> uRules;
 	private Lexicon lexicon;// 包含preRules
 
-	// 添加相同孩子为key的map
-	private HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>> preRuleBySameChildren; // 外层map<word在字典中的索引,内map>
-	private HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>> bRuleBySameChildren;
-	private HashMap<Short, HashMap<UnaryRule, UnaryRule>> uRuleBySameChildren;
+//	// 添加相同孩子为key的map
+//	private HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>> preRuleBySameChildren; // 外层map<word在字典中的索引,内map>
+//	private HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>> bRuleBySameChildren;
+//	private HashMap<Short, HashMap<UnaryRule, UnaryRule>> uRuleBySameChildren;
+	
 	// 相同父节点的规则放在一个map中
 	private HashMap<Short, HashMap<PreterminalRule, PreterminalRule>> preRuleBySameHead; // 内map<ruleHashcode/rule>
 	private HashMap<Short, HashMap<BinaryRule, BinaryRule>> bRuleBySameHead;
@@ -57,9 +57,9 @@ public class Grammar implements GrammarWritable
 		this.bRules = bRules;
 		this.uRules = uRules;
 		this.lexicon = lexicon;
-		this.bRuleBySameChildren = new HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>>();
-		this.uRuleBySameChildren = new HashMap<Short, HashMap<UnaryRule, UnaryRule>>();
-		this.preRuleBySameChildren = new HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>>();
+//		this.bRuleBySameChildren = new HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>>();
+//		this.uRuleBySameChildren = new HashMap<Short, HashMap<UnaryRule, UnaryRule>>();
+//		this.preRuleBySameChildren = new HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>>();
 		this.bRuleBySameHead = new HashMap<Short, HashMap<BinaryRule, BinaryRule>>();
 		this.uRuleBySameHead = new HashMap<Short, HashMap<UnaryRule, UnaryRule>>();
 		this.preRuleBySameHead = new HashMap<Short, HashMap<PreterminalRule, PreterminalRule>>();
@@ -73,9 +73,9 @@ public class Grammar implements GrammarWritable
 		this.bRules = new HashSet<>();
 		this.uRules = new HashSet<>();
 		this.lexicon = new Lexicon();
-		this.bRuleBySameChildren = new HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>>();
-		this.uRuleBySameChildren = new HashMap<Short, HashMap<UnaryRule, UnaryRule>>();
-		this.preRuleBySameChildren = new HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>>();
+//		this.bRuleBySameChildren = new HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>>();
+//		this.uRuleBySameChildren = new HashMap<Short, HashMap<UnaryRule, UnaryRule>>();
+//		this.preRuleBySameChildren = new HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>>();
 		this.bRuleBySameHead = new HashMap<Short, HashMap<BinaryRule, BinaryRule>>();
 		this.uRuleBySameHead = new HashMap<Short, HashMap<UnaryRule, UnaryRule>>();
 		this.preRuleBySameHead = new HashMap<Short, HashMap<PreterminalRule, PreterminalRule>>();
@@ -99,7 +99,7 @@ public class Grammar implements GrammarWritable
 	public PCFG getPCFG()
 	{
 		PCFG pcfg = new PCFG();
-		Set<String> nonTerminalSet = this.getAllSubNonterminalSym();
+		
 		for (UnaryRule uRule : uRules)
 		{
 			for (String aRule : uRule.toStringRules(this))
@@ -142,8 +142,11 @@ public class Grammar implements GrammarWritable
 				}
 			}
 		}
+		
+		Set<String> nonTerminalSet = this.getAllSubNonterminalSym();
 		pcfg.setNonTerminalSet(nonTerminalSet);
 		pcfg.setStartSymbol("ROOT");
+		
 		return pcfg;
 	}
 
@@ -180,19 +183,19 @@ public class Grammar implements GrammarWritable
 
 			bRuleBySameHead.get(bRule.parent).put(bRule, bRule);
 
-			if (!bRuleBySameChildren.containsKey(bRule.getLeftChild()))
-			{
-
-				bRuleBySameChildren.put(bRule.getLeftChild(), new HashMap<Short, HashMap<BinaryRule, BinaryRule>>());
-			}
-
-			if (!bRuleBySameChildren.get(bRule.getLeftChild()).containsKey(bRule.getRightChild()))
-			{
-				bRuleBySameChildren.get(bRule.getLeftChild()).put(bRule.getRightChild(),
-						new HashMap<BinaryRule, BinaryRule>());
-			}
-
-			bRuleBySameChildren.get(bRule.getLeftChild()).get(bRule.getRightChild()).put(bRule, bRule);
+//			if (!bRuleBySameChildren.containsKey(bRule.getLeftChild()))
+//			{
+//
+//				bRuleBySameChildren.put(bRule.getLeftChild(), new HashMap<Short, HashMap<BinaryRule, BinaryRule>>());
+//			}
+//
+//			if (!bRuleBySameChildren.get(bRule.getLeftChild()).containsKey(bRule.getRightChild()))
+//			{
+//				bRuleBySameChildren.get(bRule.getLeftChild()).put(bRule.getRightChild(),
+//						new HashMap<BinaryRule, BinaryRule>());
+//			}
+//
+//			bRuleBySameChildren.get(bRule.getLeftChild()).get(bRule.getRightChild()).put(bRule, bRule);
 		}
 
 		for (UnaryRule uRule : uRules)
@@ -203,11 +206,11 @@ public class Grammar implements GrammarWritable
 			}
 			uRuleBySameHead.get(uRule.parent).put(uRule, uRule);
 
-			if (!uRuleBySameChildren.containsKey(uRule.getChild()))
-			{
-				uRuleBySameChildren.put(uRule.getChild(), new HashMap<UnaryRule, UnaryRule>());
-			}
-			uRuleBySameChildren.get(uRule.getChild()).put(uRule, uRule);
+//			if (!uRuleBySameChildren.containsKey(uRule.getChild()))
+//			{
+//				uRuleBySameChildren.put(uRule.getChild(), new HashMap<UnaryRule, UnaryRule>());
+//			}
+//			uRuleBySameChildren.get(uRule.getChild()).put(uRule, uRule);
 		}
 
 		for (PreterminalRule preRule : lexicon.getPreRules())
@@ -218,66 +221,66 @@ public class Grammar implements GrammarWritable
 			}
 			preRuleBySameHead.get(preRule.parent).put(preRule, preRule);
 
-			if (!preRuleBySameChildren.containsKey(lexicon.getDictionary().get(preRule.getWord())))
-			{
-				preRuleBySameChildren.put(lexicon.getDictionary().get(preRule.getWord()),
-						new HashMap<PreterminalRule, PreterminalRule>());
-			}
-			preRuleBySameChildren.get(lexicon.getDictionary().get(preRule.getWord())).put(preRule, preRule);
+//			if (!preRuleBySameChildren.containsKey(lexicon.getDictionary().get(preRule.getWord())))
+//			{
+//				preRuleBySameChildren.put(lexicon.getDictionary().get(preRule.getWord()),
+//						new HashMap<PreterminalRule, PreterminalRule>());
+//			}
+//			preRuleBySameChildren.get(lexicon.getDictionary().get(preRule.getWord())).put(preRule, preRule);
 		}
 	}
 
-	public TreeMap<String, Double> calculateSameParentRuleScoreSum()
-	{
-		TreeMap<String, Double> sameParentRuleScoreSum = new TreeMap<>();
-		for (short symbol : this.nonterminalTable.getInt_strMap().keySet())
-		{
-			if (this.bRuleBySameHead.containsKey(symbol))
-			{
-				for (BinaryRule bRule : this.bRuleBySameHead.get(symbol).keySet())
-				{
-					for (Map.Entry<String, Double> entry : bRule.getParent_i_ScoceSum(this).entrySet())
-					{
-						sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(),
-								new BiFunction<Double, Double, Double>()
-								{
-									@Override
-									public Double apply(Double t, Double u)
-									{
-										return t + u;
-									}
-								});
-					}
-				}
-			}
-
-			if (this.uRuleBySameHead.containsKey(symbol))
-			{
-				for (UnaryRule uRule : this.uRuleBySameHead.get(symbol).keySet())
-				{
-					for (Map.Entry<String, Double> entry : uRule.getParent_i_ScoceSum(this).entrySet())
-					{
-						sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(),
-								(score, newScore) -> score + newScore);
-					}
-				}
-			}
-
-			if (this.preRuleBySameHead.containsKey(symbol))
-			{
-				for (PreterminalRule preRule : this.preRuleBySameHead.get(symbol).keySet())
-				{
-					for (Map.Entry<String, Double> entry : preRule.getParent_i_ScoceSum(this).entrySet())
-					{
-						sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(),
-								(score, newScore) -> score + newScore);
-					}
-				}
-			}
-		}
-
-		return sameParentRuleScoreSum;
-	}
+//	public TreeMap<String, Double> calculateSameParentRuleScoreSum()
+//	{
+//		TreeMap<String, Double> sameParentRuleScoreSum = new TreeMap<>();
+//		for (short symbol : this.nonterminalTable.getInt_strMap().keySet())
+//		{
+//			if (this.bRuleBySameHead.containsKey(symbol))
+//			{
+//				for (BinaryRule bRule : this.bRuleBySameHead.get(symbol).keySet())
+//				{
+//					for (Map.Entry<String, Double> entry : bRule.getParent_i_ScoceSum(this).entrySet())
+//					{
+//						sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(),
+//								new BiFunction<Double, Double, Double>()
+//								{
+//									@Override
+//									public Double apply(Double t, Double u)
+//									{
+//										return t + u;
+//									}
+//								});
+//					}
+//				}
+//			}
+//
+//			if (this.uRuleBySameHead.containsKey(symbol))
+//			{
+//				for (UnaryRule uRule : this.uRuleBySameHead.get(symbol).keySet())
+//				{
+//					for (Map.Entry<String, Double> entry : uRule.getParent_i_ScoceSum(this).entrySet())
+//					{
+//						sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(),
+//								(score, newScore) -> score + newScore);
+//					}
+//				}
+//			}
+//
+//			if (this.preRuleBySameHead.containsKey(symbol))
+//			{
+//				for (PreterminalRule preRule : this.preRuleBySameHead.get(symbol).keySet())
+//				{
+//					for (Map.Entry<String, Double> entry : preRule.getParent_i_ScoceSum(this).entrySet())
+//					{
+//						sameParentRuleScoreSum.merge(entry.getKey(), entry.getValue(),
+//								(score, newScore) -> score + newScore);
+//					}
+//				}
+//			}
+//		}
+//
+//		return sameParentRuleScoreSum;
+//	}
 
 	public void grammarExam()
 	{
@@ -295,11 +298,11 @@ public class Grammar implements GrammarWritable
 				System.err.println(false + "********************二元规则集bRuleBySameHead" + berrcount);
 			}
 
-			if (bRule != bRuleBySameChildren.get(bRule.getLeftChild()).get(bRule.getRightChild()).get(bRule))
-			{
-				berrcount1++;
-				System.err.println(false + "********************二元规则集bRuleBySameChildren" + berrcount1);
-			}
+//			if (bRule != bRuleBySameChildren.get(bRule.getLeftChild()).get(bRule.getRightChild()).get(bRule))
+//			{
+//				berrcount1++;
+//				System.err.println(false + "********************二元规则集bRuleBySameChildren" + berrcount1);
+//			}
 		}
 
 		for (UnaryRule uRule : uRules)
@@ -314,11 +317,11 @@ public class Grammar implements GrammarWritable
 				System.err.println(false + "********************一元规则uRuleBySameHead" + uerrcount);
 			}
 
-			if (uRule != uRuleBySameChildren.get(uRule.getChild()).get(uRule))
-			{
-				uerrcount1++;
-				System.err.println(false + "********************一元规则uRuleBySameChildren" + uerrcount1);
-			}
+//			if (uRule != uRuleBySameChildren.get(uRule.getChild()).get(uRule))
+//			{
+//				uerrcount1++;
+//				System.err.println(false + "********************一元规则uRuleBySameChildren" + uerrcount1);
+//			}
 		}
 
 		for (PreterminalRule preRule : lexicon.getPreRules())
@@ -333,11 +336,11 @@ public class Grammar implements GrammarWritable
 				System.err.println(false + "********************预终结符号规则preRuleBySameHead" + perrcount);
 			}
 
-			if (preRule != preRuleBySameChildren.get(lexicon.getDictionary().get(preRule.getWord())).get(preRule))
-			{
-				perrcount1++;
-				System.err.println(false + "********************预终结符号规则preRuleBySameChildren" + perrcount1);
-			}
+//			if (preRule != preRuleBySameChildren.get(lexicon.getDictionary().get(preRule.getWord())).get(preRule))
+//			{
+//				perrcount1++;
+//				System.err.println(false + "********************预终结符号规则preRuleBySameChildren" + perrcount1);
+//			}
 		}
 	}
 
@@ -375,23 +378,23 @@ public class Grammar implements GrammarWritable
 		}
 		bRuleBySameHead.get(parent).put(bRule, bRule);
 
-		short lc = bRule.getLeftChild();
-		short rc = bRule.getRightChild();
-		HashMap<Short, HashMap<BinaryRule, BinaryRule>> middleMap;
-		if (!bRuleBySameChildren.containsKey(lc))
-		{
-			bRuleBySameChildren.put(lc, new HashMap<Short, HashMap<BinaryRule, BinaryRule>>());
-		}
-
-		middleMap = bRuleBySameChildren.get(lc);
-		HashMap<BinaryRule, BinaryRule> innerMap;
-		if (!middleMap.containsKey(rc))
-		{
-			middleMap.put(rc, new HashMap<BinaryRule, BinaryRule>());
-		}
-
-		innerMap = middleMap.get(rc);
-		innerMap.put(bRule, bRule);
+//		short lc = bRule.getLeftChild();
+//		short rc = bRule.getRightChild();
+//		HashMap<Short, HashMap<BinaryRule, BinaryRule>> middleMap;
+//		if (!bRuleBySameChildren.containsKey(lc))
+//		{
+//			bRuleBySameChildren.put(lc, new HashMap<Short, HashMap<BinaryRule, BinaryRule>>());
+//		}
+//
+//		middleMap = bRuleBySameChildren.get(lc);
+//		HashMap<BinaryRule, BinaryRule> innerMap;
+//		if (!middleMap.containsKey(rc))
+//		{
+//			middleMap.put(rc, new HashMap<BinaryRule, BinaryRule>());
+//		}
+//
+//		innerMap = middleMap.get(rc);
+//		innerMap.put(bRule, bRule);
 	}
 
 	public void add(UnaryRule uRule)
@@ -405,13 +408,13 @@ public class Grammar implements GrammarWritable
 		}
 		uRuleBySameHead.get(parent).put(uRule, uRule);
 
-		short c = uRule.getChild();
-
-		if (!uRuleBySameChildren.containsKey(c))
-		{
-			uRuleBySameChildren.put(c, new HashMap<UnaryRule, UnaryRule>());
-		}
-		uRuleBySameChildren.get(c).put(uRule, uRule);
+//		short c = uRule.getChild();
+//
+//		if (!uRuleBySameChildren.containsKey(c))
+//		{
+//			uRuleBySameChildren.put(c, new HashMap<UnaryRule, UnaryRule>());
+//		}
+//		uRuleBySameChildren.get(c).put(uRule, uRule);
 	}
 
 	public void add(PreterminalRule preRule)
@@ -425,12 +428,12 @@ public class Grammar implements GrammarWritable
 		}
 		preRuleBySameHead.get(parent).put(preRule, preRule);
 
-		Integer wordIntVal = wordIntValue(preRule.getWord());
-		if (!preRuleBySameChildren.containsKey(wordIntVal))
-		{
-			preRuleBySameChildren.put(wordIntVal, new HashMap<PreterminalRule, PreterminalRule>());
-		}
-		preRuleBySameChildren.get(wordIntVal).put(preRule, preRule);
+//		Integer wordIntVal = wordIntValue(preRule.getWord());
+//		if (!preRuleBySameChildren.containsKey(wordIntVal))
+//		{
+//			preRuleBySameChildren.put(wordIntVal, new HashMap<PreterminalRule, PreterminalRule>());
+//		}
+//		preRuleBySameChildren.get(wordIntVal).put(preRule, preRule);
 	}
 
 	public BinaryRule readBRule(String[] rule)
@@ -786,6 +789,7 @@ public class Grammar implements GrammarWritable
 					"[" + this.symbolStrValue(preterminalSym) + "," + this.getNumSubSymbol(preterminalSym) + "]" + " ");
 		}
 		str1.append("\n");
+		
 		str1.append("非预终结，其他符号：");
 		for (short nonterminalSym : this.allNonterminalIntValArr())
 		{
@@ -795,6 +799,7 @@ public class Grammar implements GrammarWritable
 						+ " ");
 			}
 		}
+		
 		return str1.toString();
 	}
 
@@ -824,6 +829,7 @@ public class Grammar implements GrammarWritable
 				{
 					preRulesBySameSubHead[i] = new HashMap<String, Double>();
 				}
+				
 				for (PreterminalRule preRule : this.getPreRuleSetBySameHead(symbol))
 				{
 					String[] subRuleOfpreRule = preRule.toStringRules(this);
@@ -837,9 +843,11 @@ public class Grammar implements GrammarWritable
 								.parseDouble(subRuleOfpreRule[j].substring(subRuleOfpreRule[j].lastIndexOf(" "))));
 					}
 				}
+				
 				allPreRules.put(symbolStr, preRulesBySameSubHead);
 			}
 		}
+		
 		return allPreRules;
 	}
 
@@ -905,11 +913,9 @@ public class Grammar implements GrammarWritable
 	{
 		StringBuilder grammarStr = new StringBuilder();
 
-		TreeMap<String, Map<String, Double>[]> allBAndURules = this.getSortedBAndURules();
-		TreeMap<String, Map<String, Double>[]> allPreRules = this.getSortedPreRules();
-
 		grammarStr.append("--起始符--" + "\n");
 		grammarStr.append(this.getStartSymbol() + "\n");
+		
 		grammarStr.append("--非终结符集--" + "\n");
 		for (int symbol = 0; symbol < this.getNumSymbol(); symbol++)
 		{
@@ -921,6 +927,7 @@ public class Grammar implements GrammarWritable
 			grammarStr.append(sym);
 		}
 		grammarStr.append("\n");
+		
 		for (int symbol = 0; symbol < this.getNumSymbol(); symbol++)
 		{
 			short numSubSymbol = this.getNumSubSymbol((short) symbol);
@@ -932,6 +939,7 @@ public class Grammar implements GrammarWritable
 			grammarStr.append(numStr);
 		}
 		grammarStr.append("\n");
+		
 		for (int i = 0; i < this.allPreterminal().size(); i++)
 		{
 			short preterminal = this.allPreterminal().get(i);
@@ -943,6 +951,8 @@ public class Grammar implements GrammarWritable
 			grammarStr.append(pretermianlStr);
 		}
 		grammarStr.append("\r");
+		
+		TreeMap<String, Map<String, Double>[]> allBAndURules = this.getSortedBAndURules();	
 		grammarStr.append("--一元二元规则集--" + "\n");
 		for (Map.Entry<String, Map<String, Double>[]> entry : allBAndURules.entrySet())
 		{
@@ -956,6 +966,8 @@ public class Grammar implements GrammarWritable
 				}
 			}
 		}
+		
+		TreeMap<String, Map<String, Double>[]> allPreRules = this.getSortedPreRules();
 		grammarStr.append("--预终结符规则集--" + "\n");
 		for (Map.Entry<String, Map<String, Double>[]> entry : allPreRules.entrySet())
 		{
@@ -1072,6 +1084,7 @@ public class Grammar implements GrammarWritable
 
 		out.writeUTF("--起始符--" + "\n");
 		out.writeUTF(this.getStartSymbol() + "\n");
+		
 		out.writeUTF("--非终结符集--" + "\n");
 		StringBuilder sym = new StringBuilder();
 		for (int symbol = 0; symbol < this.getNumSymbol(); symbol++)
@@ -1083,6 +1096,7 @@ public class Grammar implements GrammarWritable
 			}
 		}
 		out.writeUTF(sym.toString() + "\n");
+		
 		StringBuilder numSubStr = new StringBuilder();
 		for (int symbol = 0; symbol < this.getNumSymbol(); symbol++)
 		{
@@ -1094,6 +1108,7 @@ public class Grammar implements GrammarWritable
 			}
 		}
 		out.writeUTF(numSubStr.toString() + "\n");
+		
 		StringBuilder pretermianlStr = new StringBuilder();
 		for (int i = 0; i < this.allPreterminal().size(); i++)
 		{
@@ -1106,6 +1121,7 @@ public class Grammar implements GrammarWritable
 
 		}
 		out.writeUTF(pretermianlStr.toString() + "\n");
+		
 		out.writeUTF("--一元二元规则集--" + "\n");
 		for (Map.Entry<String, Map<String, Double>[]> entry : allBAndURules.entrySet())
 		{
@@ -1119,6 +1135,7 @@ public class Grammar implements GrammarWritable
 				}
 			}
 		}
+		
 		out.writeUTF("--预终结符规则集--" + "\n");
 		for (Map.Entry<String, Map<String, Double>[]> entry : allPreRules.entrySet())
 		{

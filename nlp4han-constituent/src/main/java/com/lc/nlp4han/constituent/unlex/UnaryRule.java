@@ -67,6 +67,7 @@ public class UnaryRule extends Rule
 				ArrayList<Double> sameChild = new ArrayList<>(scores.get(i));
 				scores.add(i + 1, sameChild);
 			}
+		
 		if (randomPerturbation)
 		{
 			double randomness = 1.0;
@@ -159,11 +160,6 @@ public class UnaryRule extends Rule
 		return result;
 	}
 
-	// public int chidrenHashcode()
-	// {
-	// return child;
-	// }
-
 	public boolean equals(Object obj)
 	{
 		if (this == obj)
@@ -215,14 +211,6 @@ public class UnaryRule extends Rule
 		this.scores = score;
 	}
 
-	public boolean isSameRule(short parent, short child)
-	{
-		if (this.parent == parent && this.child == child)
-			return true;
-		else
-			return false;
-	}
-
 	@Override
 	boolean withIn(HashSet<? extends Rule> rules)
 	{
@@ -254,29 +242,21 @@ public class UnaryRule extends Rule
 					parentStr = g.symbolStrValue(parent);
 				else
 					parentStr = g.symbolStrValue(parent) + "_" + i;
+				
 				if (g.getNumSubSymbol(child) == 1)
 					childStr = g.symbolStrValue(child);
 				else
 					childStr = g.symbolStrValue(child) + "_" + j;
+				
 				String str = parentStr + " -> " + childStr + " " + scores.get(i).get(j);
 				strs[count] = str;
+				
 				count++;
 			}
 		}
 		return strs;
 	}
 
-	@Override
-	public String toStringRule(NonterminalTable nonterminalTable, short... labels)
-	{
-		if (labels.length != 2)
-			throw new Error("参数错误。");
-		String parentStr = nonterminalTable.stringValue(parent);
-		String childStr = nonterminalTable.stringValue(child);
-		String str = parentStr + "_" + labels[0] + "->" + childStr + "_" + labels[1] + " "
-				+ scores.get(labels[0]).get(labels[1]);
-		return str;
-	}
 
 	public TreeMap<String, Double> getParent_i_ScoceSum(Grammar g)
 	{

@@ -90,7 +90,7 @@ public class GrammarSpliter
 		Grammar g = null;
 		try
 		{
-			g = GrammarExtractorToolLatentAnnotation.getGrammar(0, 0.5, 50, 0.01, Lexicon.DEFAULT_RAREWORD_THRESHOLD,
+			g = LatentGrammarExtractorTool.getGrammar(0, 0.5, 50, 0.01, Lexicon.DEFAULT_RAREWORD_THRESHOLD,
 					"C:\\Users\\hp\\Desktop\\test100tree.txt", "utf-8");
 		}
 		catch (IOException e)

@@ -224,14 +224,6 @@ public class BinaryRule extends Rule
 		}
 	}
 
-	public boolean isSameRule(short parent, short lChild, short rChild)
-	{
-		if (this.parent == parent && this.leftChild == lChild && this.rightChild == rChild)
-			return true;
-		else
-			return false;
-	}
-
 	public int hashCode()
 	{
 		final int prime = 31;
@@ -240,14 +232,6 @@ public class BinaryRule extends Rule
 		result = prime * result + rightChild;
 		return result;
 	}
-
-	// public int chidrenHashcode()
-	// {
-	// final int prime = 31;
-	// int result = leftChild;
-	// result = result * prime + rightChild;
-	// return result;
-	// }
 
 	public boolean equals(Object obj)
 	{
@@ -284,11 +268,6 @@ public class BinaryRule extends Rule
 	{
 		this.rightChild = rightChild;
 	}
-
-//	public ArrayList<ArrayList<ArrayList<Double>>> getScores()
-//	{
-//		return scores;
-//	}
 
 	public void setScores(ArrayList<ArrayList<ArrayList<Double>>> scores)
 	{
@@ -354,16 +333,20 @@ public class BinaryRule extends Rule
 						parentStr = g.symbolStrValue(parent);
 					else
 						parentStr = g.symbolStrValue(parent) + "_" + i;
+					
 					if (g.getNumSubSymbol(leftChild) == 1)
 						lChildStr = g.symbolStrValue(leftChild);
 					else
 						lChildStr = g.symbolStrValue(leftChild) + "_" + j;
+					
 					if (g.getNumSubSymbol(rightChild) == 1)
 						rChildStr = g.symbolStrValue(rightChild);
 					else
 						rChildStr = g.symbolStrValue(rightChild) + "_" + k;
+					
 					String str = parentStr + " -> " + lChildStr + " " + rChildStr + " " + scores.get(i).get(j).get(k);
 					strs[count] = str;
+					
 					count++;
 				}
 			}
@@ -377,18 +360,6 @@ public class BinaryRule extends Rule
 		String lChildStr = g.symbolStrValue(leftChild);
 		String rChildStr = g.symbolStrValue(rightChild);
 		return parentStr + " -> " + lChildStr + " " + rChildStr;
-	}
-
-	public String toStringRule(NonterminalTable nonterminalTable, short... labels)
-	{
-		if (labels.length != 3)
-			throw new Error("参数错误。");
-		String parentStr = nonterminalTable.stringValue(parent);
-		String lChildStr = nonterminalTable.stringValue(leftChild);
-		String rChildStr = nonterminalTable.stringValue(rightChild);
-		String str = parentStr + "_" + labels[0] + "->" + lChildStr + "_" + labels[1] + " " + rChildStr + "_"
-				+ labels[2] + " " + scores.get(labels[0]).get(labels[1]).get(labels[2]);
-		return str;
 	}
 
 	public TreeMap<String, Double> getParent_i_ScoceSum(Grammar g)

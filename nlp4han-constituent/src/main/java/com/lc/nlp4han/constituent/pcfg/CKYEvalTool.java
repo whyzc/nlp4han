@@ -72,7 +72,6 @@ public class CKYEvalTool
 	public static void eval(String modelFile, String goldFile, String encoding, double pruneThreshold,
 			boolean secondPrune, boolean prior, boolean segmentPrune) throws IOException, ClassNotFoundException
 	{
-//		PCFG pcnf = CFGModelIOUtil.loadPCFGModel(trainFile);
 		DataInput in = new DataInputStream(new FileInputStream(modelFile));
 		PCFG pcnf = new PCFG();
 		pcnf.read(in);

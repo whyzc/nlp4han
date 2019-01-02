@@ -72,4 +72,41 @@ public class AnaphoraResult
 		this.antecedentString = antecedentString;
 	}
 
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((antecedentString == null) ? 0 : antecedentString.hashCode());
+		result = prime * result + ((pronString == null) ? 0 : pronString.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AnaphoraResult other = (AnaphoraResult) obj;
+		if (antecedentString == null)
+		{
+			if (other.antecedentString != null)
+				return false;
+		}
+		else if (!antecedentString.equals(other.antecedentString))
+			return false;
+		if (pronString == null)
+		{
+			if (other.pronString != null)
+				return false;
+		}
+		else if (!pronString.equals(other.pronString))
+			return false;
+		return true;
+	}
+
 }

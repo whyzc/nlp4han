@@ -23,7 +23,7 @@ import com.lc.nlp4han.util.CharTypeUtil;
  */
 public class WordBasedTF_IDFFeatureGenerator implements FeatureGenerator
 {
-	private Map<String, Count> wordInfo = new HashMap<String, Count>();
+	private Map<String, Count> textsInfo = new HashMap<String, Count>();
 	private int totalDocumentNumber = 0;
 	private Set<String> stopWords = new HashSet<String>();
 	
@@ -100,9 +100,9 @@ public class WordBasedTF_IDFFeatureGenerator implements FeatureGenerator
 	{
 		Feature result = new Feature();
 		result.setKey(word);
-		if (wordInfo.containsKey(word))
+		if (textsInfo.containsKey(word))
 		{
-			Count c = wordInfo.get(word);
+			Count c = textsInfo.get(word);
 			double tf = tn*1.0 / textTermNum;
 			double idf = Math.log(totalDocumentNumber*1.0/(c.dn+1));
 			result.setValue(tf*idf);
@@ -169,20 +169,20 @@ public class WordBasedTF_IDFFeatureGenerator implements FeatureGenerator
 			for (Entry<String, Integer> e : es)
 			{
 				String key = e.getKey();
-				if (wordInfo.containsKey(key))
+				if (textsInfo.containsKey(key))
 				{
-					Count c = wordInfo.get(key);
+					Count c = textsInfo.get(key);
 					c.tn += e.getValue();
 					c.dn++;
 				}
 				else
 				{
 					Count c= new Count(e.getValue(), 1);
-					wordInfo.put(key, c);
+					textsInfo.put(key, c);
 				}
 			}
 		}
-		wordInfo = pruning(wordInfo);
+		textsInfo = pruning(textsInfo);
 		totalDocumentNumber = texts.size();
 	}
 	
@@ -193,9 +193,9 @@ public class WordBasedTF_IDFFeatureGenerator implements FeatureGenerator
 	 */
 	public int getTermNumber(String word)
 	{
-		if (wordInfo.containsKey(word))
+		if (textsInfo.containsKey(word))
 		{
-			return wordInfo.get(word).tn;
+			return textsInfo.get(word).tn;
 		}
 		else
 		{
@@ -210,9 +210,9 @@ public class WordBasedTF_IDFFeatureGenerator implements FeatureGenerator
 	 */
 	public int getDocumentNumber(String word)
 	{
-		if (wordInfo.containsKey(word))
+		if (textsInfo.containsKey(word))
 		{
-			return wordInfo.get(word).dn;
+			return textsInfo.get(word).dn;
 		}
 		else
 		{
@@ -227,13 +227,13 @@ public class WordBasedTF_IDFFeatureGenerator implements FeatureGenerator
 	 */
 	public boolean containsWord(String word)
 	{
-		return wordInfo.containsKey(word);
+		return textsInfo.containsKey(word);
 	}
 
 	@Override
 	public boolean isInitialized()
 	{
-		if (wordInfo == null || wordInfo.size()<1)
+		if (textsInfo == null || textsInfo.size()<1)
 			return false;
 		else
 			return true;
@@ -244,9 +244,9 @@ public class WordBasedTF_IDFFeatureGenerator implements FeatureGenerator
 	 * @return 分词信息
 	 */
 	@Override
-	public Map<String, Count> getWordInfo()
+	public Map<String, Count> getTextsInfo()
 	{
-		return wordInfo;
+		return textsInfo;
 	}
 
 	/**
@@ -261,7 +261,7 @@ public class WordBasedTF_IDFFeatureGenerator implements FeatureGenerator
 	@Override
 	public String toString()
 	{
-		return  wordInfo + "";
+		return  textsInfo + "";
 	}
 	
 	private boolean isStopWord(String word)

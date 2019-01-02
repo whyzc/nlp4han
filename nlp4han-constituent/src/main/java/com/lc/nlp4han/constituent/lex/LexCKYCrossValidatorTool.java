@@ -26,7 +26,7 @@ public class LexCKYCrossValidatorTool
 {
 
 	private static ConstituentParser getParser(TrainingSampleStream<ConstituentTree> trainingSampleStream,
-			double pruneThreshold, boolean secondPrune,boolean prior) throws IOException
+			double pruneThreshold, boolean secondPrune, boolean prior) throws IOException
 	{
 		ArrayList<String> bracketList = new ArrayList<String>();
 		ConstituentTree tree = trainingSampleStream.read();
@@ -37,20 +37,22 @@ public class LexCKYCrossValidatorTool
 			tree = trainingSampleStream.read();
 			i++;
 		}
+		
 		System.out.println("训练模型句子的个数是 " + i);
 		System.out.println("从树库提取文法...");
+		
 		LexPCFG lexpcfg = LexGrammarExtractor.getLexPCFG(bracketList);
-		
-		if(prior) {
-			@SuppressWarnings("unchecked")
-			ArrayList<String> bracketListClone=(ArrayList<String>) bracketList.clone();
-			HashMap<String,Double> map=POSProUtil.brackets2Map(bracketListClone,"lex");
-			LexPCFGPrior lpgp=(LexPCFGPrior)lexpcfg;
+
+		if (prior)
+		{
+			HashMap<String, Double> map = POSProUtil.brackets2Map(bracketList, "lex");
+			LexPCFGPrior lpgp = (LexPCFGPrior) lexpcfg;
 			lpgp.setPriorMap(map);
-			return new ConstituentParseLexPCFG(lpgp,pruneThreshold,secondPrune,prior);
+			
+			return new ConstituentParseLexPCFG(lpgp, pruneThreshold, secondPrune, prior);
 		}
-		
-		return new ConstituentParseLexPCFG(lexpcfg,pruneThreshold,secondPrune,prior);
+
+		return new ConstituentParseLexPCFG(lexpcfg, pruneThreshold, secondPrune, prior);
 	}
 
 	/**
@@ -65,7 +67,7 @@ public class LexCKYCrossValidatorTool
 	 * @throws IOException
 	 */
 	public void evaluate(ObjectStream<ConstituentTree> sampleStream, int nFolds, ConstituentMeasure measure,
-			double pruneThreshold, boolean secondPrune,boolean prior) throws IOException
+			double pruneThreshold, boolean secondPrune, boolean prior) throws IOException
 	{
 
 		CrossValidationPartitioner<ConstituentTree> partitioner = new CrossValidationPartitioner<ConstituentTree>(
@@ -77,7 +79,8 @@ public class LexCKYCrossValidatorTool
 
 			long start = System.currentTimeMillis();
 			CrossValidationPartitioner.TrainingSampleStream<ConstituentTree> trainingSampleStream = partitioner.next();
-			ConstituentParser parser = getParser(trainingSampleStream, pruneThreshold, secondPrune,prior);
+			
+			ConstituentParser parser = getParser(trainingSampleStream, pruneThreshold, secondPrune, prior);
 			System.out.println("训练学习时间：" + (System.currentTimeMillis() - start) + "ms");
 
 			CKYParserEvaluator evaluator = new CKYParserEvaluator(parser);
@@ -106,7 +109,7 @@ public class LexCKYCrossValidatorTool
 		String encoding = null;
 		double pruneThreshold = 0.0001;
 		boolean secondPrune = false;
-		boolean prior=false;
+		boolean prior = false;
 		for (int i = 0; i < args.length; i++)
 		{
 			if (args[i].equals("-data"))
@@ -146,6 +149,6 @@ public class LexCKYCrossValidatorTool
 		LexCKYCrossValidatorTool run = new LexCKYCrossValidatorTool();
 		ConstituentMeasure measure = new ConstituentMeasure();
 
-		run.evaluate(sampleStream, folds, measure, pruneThreshold, secondPrune,prior);
+		run.evaluate(sampleStream, folds, measure, pruneThreshold, secondPrune, prior);
 	}
 }

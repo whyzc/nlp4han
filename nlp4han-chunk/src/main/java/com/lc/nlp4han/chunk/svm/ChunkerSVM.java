@@ -1,6 +1,10 @@
 package com.lc.nlp4han.chunk.svm;
 
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,12 +20,13 @@ import com.lc.nlp4han.ml.util.ObjectStream;
 
 /**
  * 基于词和词性的组块分析模型训练类，用于SVM框架
+ * 
  * @author 杨智超
  *
  */
 public abstract class ChunkerSVM implements Chunker
 {
-	private SVMStandardInput ssi = null;
+	private ConversionInformation ci = null;
 	private ChunkAnalysisContextGenerator contextgenerator;
 	private Object model;
 	private String label;
@@ -41,22 +46,16 @@ public abstract class ChunkerSVM implements Chunker
 	public ChunkerSVM(ChunkAnalysisContextGenerator contextgenerator, String filePath, String encoding, String label)
 	{
 		this(contextgenerator, label);
-		try
-		{
-			ssi = new SVMStandardInput();
-			ssi.readConversionInfo(filePath, encoding);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+
+		ci = new ConversionInformation(filePath, encoding);
+
 	}
 
 	public void setModel(Object model)
 	{
 		this.model = model;
 	}
-	
+
 	public Object getModel()
 	{
 		return this.model;
@@ -64,28 +63,24 @@ public abstract class ChunkerSVM implements Chunker
 
 	/**
 	 * 设置数据转换信息SVMStandardInput
+	 * 
 	 * @param ssi
 	 */
-	public void setSVMStandardInput(SVMStandardInput ssi)
+	public void setSVMStandardInput(ConversionInformation ci)
 	{
-		this.ssi = ssi;
+		this.ci = ci;
 	}
-	
+
 	/**
 	 * 读取组块文件，生成数据转换信息
+	 * 
 	 * @param filePath
 	 */
 	public void setSVMStandardInput(String filePath)
 	{
-		try
-		{
-			this.ssi = new SVMStandardInput();
-			this.ssi.readConversionInfo(filePath, "utf-8");
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+
+		this.ci = new ConversionInformation(filePath, "utf-8");
+
 	}
 
 	public void setContextgenerator(ChunkAnalysisContextGenerator contextgenerator)
@@ -100,6 +95,7 @@ public abstract class ChunkerSVM implements Chunker
 
 	/**
 	 * 根据模型路径，加载model
+	 * 
 	 * @param modelPath
 	 */
 	public abstract void setModel(String modelPath);
@@ -133,11 +129,11 @@ public abstract class ChunkerSVM implements Chunker
 
 		return sample.toChunk();
 	}
-	
+
 	@Override
 	public Chunk[][] parse(String sentence, int k)
 	{
-		return new Chunk[][] {parse(sentence)};
+		return new Chunk[][] { parse(sentence) };
 	}
 
 	/**
@@ -158,9 +154,9 @@ public abstract class ChunkerSVM implements Chunker
 		{
 			String[] context = contextgenerator.getContext(i, words, chunkTags, poses);
 
-			line = "1 " + SVMStandardInput.getSVMStandardFeaturesInput(context, ssi); // <label> <index1>:<value1>
-																						// <index2>:<value2> ...
-																						// 预测时，label可以为任意值
+			line = "1 " + SVMSampleUtil.oneSample(context, ci); // <label> <index1>:<value1> <index2>:<value2>
+																// ...；预测时，label可以为任意值
+
 			String tag = predict(line, getModel());
 			chunkTags[i] = tag;
 
@@ -180,11 +176,12 @@ public abstract class ChunkerSVM implements Chunker
 
 	/**
 	 * 调用model，预测结果
-	 * @param line 
+	 * 
+	 * @param line
 	 *            line为libsvm的标准输入格式，形如 2 4:5 7:3 8:2....
 	 * @param model
 	 *            模型
-	 * @return	分类结果，数字类型
+	 * @return 分类结果，数字类型
 	 * @throws IOException
 	 */
 	public abstract double predictOneLine(String line, Object model) throws IOException;
@@ -195,7 +192,7 @@ public abstract class ChunkerSVM implements Chunker
 	private String transform(String v)
 	{
 		int t = str2int(v);
-		String result = ssi.getClassificationResults().get(t - 1);
+		String result = ci.getClassificationLabel(t);
 		return result;
 	}
 
@@ -206,11 +203,12 @@ public abstract class ChunkerSVM implements Chunker
 
 	/**
 	 * 训练模型
-	 * @param sampleStream 
+	 * 
+	 * @param sampleStream
 	 *            文件流
-	 * @param arg 
+	 * @param arg
 	 *            训练参数
-	 * @param contextGen 
+	 * @param contextGen
 	 *            特征生成器
 	 * @throws IOException
 	 * @throws InvalidInputDataException
@@ -228,30 +226,63 @@ public abstract class ChunkerSVM implements Chunker
 		ObjectStream<Event> es = new ChunkerWordPosSampleEvent(sampleStream, contextGen);
 		init(es);
 		es.reset();
-		String[] input = SVMStandardInput.standardInput(es, ssi);
-		SVMStandardInput.writeToFile(arg[arg.length - 2], input, "utf-8");
+		String[] input = SVMSampleUtil.samples(es, ci);
+		saveFile(arg[arg.length - 2], input, "utf-8");
 	}
 
 	/**
 	 * 根据训练参数进行训练
+	 * 
 	 * @param arg
 	 */
 	public abstract void train(String[] arg);
 
 	/**
 	 * 根据事件流生成数据转换信息
+	 * 
 	 * @param es
 	 */
 	private void init(ObjectStream<Event> es)
 	{
-		this.ssi = new SVMStandardInput();
+		this.ci = new ConversionInformation(es);
+	}
+
+	private void saveFile(String saveFilePath, String[] datum, String encoding)
+	{
+		BufferedWriter bw = null;
 		try
 		{
-			ssi.init(es);
+			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(saveFilePath), encoding));
+			for (int i = 0; i < datum.length; i++)
+			{
+				bw.write(datum[i]);
+				bw.write("\n");
+			}
+
+			bw.flush();
+			bw.close();
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
 		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
+		}
+		finally
+		{
+			try
+			{
+				if (null != bw)
+				{
+					bw.close();
+				}
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 }

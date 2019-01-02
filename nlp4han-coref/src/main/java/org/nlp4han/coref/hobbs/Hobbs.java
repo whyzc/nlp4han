@@ -1,12 +1,11 @@
 package org.nlp4han.coref.hobbs;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.nlp4han.coref.AnaphoraResolution;
+import org.nlp4han.coref.AnaphoraResult;
 import org.nlp4han.coref.centering.CenteringBFP;
 
 import com.lc.nlp4han.constituent.Path;
@@ -67,7 +66,6 @@ public class Hobbs implements AnaphoraResolution
 		{
 			Path path = new Path(x, tmp);
 			candidateNodes = TreeNodeUtil.getNPNodeOnLeftOfPath(x, path);
-//			filter.setFilteredNodes(candidateNodes);
 			filter.filter(candidateNodes);
 
 			if (!candidateNodes.isEmpty())
@@ -95,7 +93,6 @@ public class Hobbs implements AnaphoraResolution
 					break;
 				x = constituentTrees.get(index);
 				candidateNodes = TreeNodeUtil.getNPNodes(x);
-//				filter.setFilteredNodes(candidateNodes);
 				filter.filter(candidateNodes);
 				if (!candidateNodes.isEmpty())
 				{
@@ -117,7 +114,6 @@ public class Hobbs implements AnaphoraResolution
 				}
 				
 				candidateNodes = TreeNodeUtil.getNPNodeOnLeftOfPath(x, path);
-//				filter.setFilteredNodes(candidateNodes);
 				filter.filter(candidateNodes);
 				if (!candidateNodes.isEmpty())
 				{
@@ -131,7 +127,6 @@ public class Hobbs implements AnaphoraResolution
 				if (TreeNodeUtil.isIPNode(x))
 				{
 					candidateNodes = getNPNodeOnRightOfPath(x, path);
-//					filter.setFilteredNodes(candidateNodes);
 					filter.filter(candidateNodes);
 					if (!candidateNodes.isEmpty())
 					{
@@ -275,9 +270,9 @@ public class Hobbs implements AnaphoraResolution
 	}
 
 	@Override
-	public Map<TreeNode, TreeNode> resolve(List<TreeNode> sentences)
+	public List<AnaphoraResult> resolve(List<TreeNode> sentences)
 	{
-		Map<TreeNode, TreeNode> result = new HashMap<TreeNode, TreeNode>();
+		List<AnaphoraResult> result = new ArrayList<AnaphoraResult>();
 		List<TreeNode> prons = new ArrayList<TreeNode>();
 		for (int i=0 ; i<sentences.size() ; i++)
 		{
@@ -303,8 +298,8 @@ public class Hobbs implements AnaphoraResolution
 				filter.setReferenceConditions(prons.get(i));
 				TreeNode anaphNode = hobbs(sentences, prons.get(i));
 				//String resultStr = resultStr(prons.get(i), anaphNode);
-				
-				result.put(prons.get(i), anaphNode);
+				AnaphoraResult tmp = new AnaphoraResult(prons.get(i), anaphNode);
+				result.add(tmp);
 			}
 		}
 		
@@ -312,7 +307,7 @@ public class Hobbs implements AnaphoraResolution
 	}
 
 	@Override
-	public TreeNode resolve(List<TreeNode> sentences, TreeNode pronoun)
+	public AnaphoraResult resolve(List<TreeNode> sentences, TreeNode pronoun)
 	{
 		if (filter == null)
 		{
@@ -324,7 +319,8 @@ public class Hobbs implements AnaphoraResolution
 		filter.setReferenceConditions(pronoun);
 		TreeNode anaphNode = hobbs(sentences, pronoun);
 		//String resultStr = resultStr(pronoun, anaphNode);
-		return anaphNode;
+		AnaphoraResult result = new AnaphoraResult(pronoun, anaphNode);
+		return result;
 	}
 	
 }

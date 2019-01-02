@@ -177,8 +177,10 @@ public class PreterminalRule extends Rule
 				parentStr = g.symbolStrValue(parent);
 			else
 				parentStr = g.symbolStrValue(parent) + "_" + i;
+			
 			String childStr = word;
 			String str = parentStr + " -> " + childStr + " " + scores.get(i);
+			
 			strs[i] = str;
 		}
 		return strs;
@@ -190,15 +192,15 @@ public class PreterminalRule extends Rule
 		return parentStr + " -> " + word;
 	}
 
-	public String toStringRule(NonterminalTable nonterminalTable, short... labels)
-	{
-		if (labels.length != 1)
-			throw new Error("参数错误。");
-		String parentStr = nonterminalTable.stringValue(parent);
-		String childStr = word;
-		String str = parentStr + "_" + labels[0] + "->" + childStr + " " + scores.get(labels[0]);
-		return str;
-	}
+//	public String toStringRule(NonterminalTable nonterminalTable, short... labels)
+//	{
+//		if (labels.length != 1)
+//			throw new Error("参数错误。");
+//		String parentStr = nonterminalTable.stringValue(parent);
+//		String childStr = word;
+//		String str = parentStr + "_" + labels[0] + "->" + childStr + " " + scores.get(labels[0]);
+//		return str;
+//	}
 
 	public TreeMap<String, Double> getParent_i_ScoceSum(Grammar g)
 	{

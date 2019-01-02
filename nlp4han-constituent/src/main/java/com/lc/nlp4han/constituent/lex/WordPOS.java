@@ -6,12 +6,12 @@ package com.lc.nlp4han.constituent.lex;
  * @author qyl
  *
  */
-public class pos2Word
+public class WordPOS
 {
 	private String word = null;
 	private String pos = null;
 
-	public pos2Word(String word, String pos)
+	public WordPOS(String word, String pos)
 	{
 		this.word = word;
 		this.pos = pos;
@@ -56,7 +56,7 @@ public class pos2Word
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		pos2Word other = (pos2Word) obj;
+		WordPOS other = (WordPOS) obj;
 		if (pos == null)
 		{
 			if (other.pos != null)

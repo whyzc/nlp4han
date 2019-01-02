@@ -5,9 +5,9 @@ import static org.junit.Assert.assertNotEquals;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
+import org.nlp4han.coref.AnaphoraResult;
 import org.nlp4han.coref.centering.EvaluationBFP;
 import org.nlp4han.coref.hobbs.Hobbs;
 
@@ -34,11 +34,7 @@ public class TestHobbs
 		constituentTrees.add(s1);
 		constituentTrees.add(s2);
 		
-//		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter()); // 组合过滤器
-//		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
-		
-//		Hobbs hobbs = new Hobbs();
-		Map<TreeNode, TreeNode> result = hobbs.resolve(constituentTrees);
+		List<AnaphoraResult> result = hobbs.resolve(constituentTrees);
 		
 		List<String> resultStr = EvaluationBFP.toStringFormat(result, constituentTrees);
 		
@@ -63,11 +59,7 @@ public class TestHobbs
 		constituentTrees.add(s1);
 		constituentTrees.add(s2);
 
-//		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter()); // 组合过滤器
-//		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
-		
-//		Hobbs hobbs = new Hobbs();
-		Map<TreeNode, TreeNode> result = hobbs.resolve(constituentTrees);
+		List<AnaphoraResult> result = hobbs.resolve(constituentTrees);
 		List<String> resultStr = EvaluationBFP.toStringFormat(result, constituentTrees);
 		
 		List<String> goal = new ArrayList<String>();
@@ -89,11 +81,7 @@ public class TestHobbs
 		List<TreeNode> constituentTrees = new ArrayList<TreeNode>();
 		constituentTrees.add(s1);
 
-//		AttributeFilter attributeFilter = new AttributeFilter(new PNFilter()); // 组合过滤器
-//		attributeFilter.setAttributeGenerator(new AttributeGeneratorByDic()); // 装入属性生成器
-		
-//		Hobbs hobbs = new Hobbs();
-		Map<TreeNode, TreeNode> result = hobbs.resolve(constituentTrees);
+		List<AnaphoraResult> result = hobbs.resolve(constituentTrees);
 		List<String> resultStr = EvaluationBFP.toStringFormat(result, constituentTrees);
 		
 		List<String> goal = new ArrayList<String>();
@@ -112,14 +100,14 @@ public class TestHobbs
 		List<TreeNode> constituentTrees = new ArrayList<TreeNode>();
 		constituentTrees.add(s1);
 
-		Map<TreeNode, TreeNode> result = hobbs.resolve(constituentTrees);
+		List<AnaphoraResult> result = hobbs.resolve(constituentTrees);
 		
 		assertEquals(1, result.size());
 		
-		TreeNode pron = result.keySet().iterator().next();
+		TreeNode pron = result.get(0).getPronNode();
 		assertEquals("他", TreeNodeUtil.getetWordString(pron));
 		
-		TreeNode antecedent = result.get(pron);
+		TreeNode antecedent = result.get(0).getAntecedentNode();
 		assertEquals("李明", TreeNodeUtil.getetWordString(antecedent));
 	}
 	
