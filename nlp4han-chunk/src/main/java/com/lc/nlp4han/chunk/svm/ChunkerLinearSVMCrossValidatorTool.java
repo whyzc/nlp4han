@@ -56,7 +56,7 @@ public class ChunkerLinearSVMCrossValidatorTool
 	public static void main(String[] args) throws IOException, InvalidInputDataException
 	{
 		int folds = 10;
-		String scheme = "BIOE";
+		String scheme = "BIEO";
 		String encoding = "UTF-8";
 		String corpusFile = null;
 		List<String> trainArgsList = new ArrayList<String>();
@@ -183,8 +183,8 @@ public class ChunkerLinearSVMCrossValidatorTool
 		Properties p = SVMSampleUtil.getDefaultConf();
 		ChunkAnalysisContextGenerator contextGen = new ChunkerWordPosContextGeneratorConf(p);
 		ChunkerSVMCrossValidation crossValidator = new ChunkerSVMCrossValidation(trainArgs);
-		ChunkerLinearSVM me = new ChunkerLinearSVM();
-		crossValidator.evaluate(sampleStream, folds, me, contextGen, measure, p);
+		ChunkerLinearSVM chunker = new ChunkerLinearSVM();
+		crossValidator.evaluate(sampleStream, folds, chunker, contextGen, measure, p);
 
 		sampleStream.close();
 		deleteFile(trainArgs[trainArgs.length - 1]);
