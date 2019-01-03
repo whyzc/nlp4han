@@ -101,7 +101,7 @@ public class LexGrammarExtractor
 			traverseTree(headNode);
 		}
 
-		return new LexPCFG(startSymbol, posSet, wordMap, null, headGenMap, parentList, sidesGenMap, stopGenMap,
+		return new LexPCFGPrior(startSymbol, posSet, wordMap, null, headGenMap, parentList, sidesGenMap, stopGenMap,
 				specialGenMap);
 	}
 
