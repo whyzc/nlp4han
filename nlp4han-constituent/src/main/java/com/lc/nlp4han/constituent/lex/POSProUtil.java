@@ -8,7 +8,7 @@ import java.util.HashMap;
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.PlainTextByTreeStream;
 import com.lc.nlp4han.constituent.TreeNode;
-import com.lc.nlp4han.constituent.lex.CTBPreprocessTool;
+import com.lc.nlp4han.constituent.lex.NPBUtil;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 
 public class POSProUtil
@@ -39,7 +39,7 @@ public class POSProUtil
 			TreeNode rootNode1 = BracketExpUtil.generateTree(bracketStr);
 			if (type.equals("lex"))
 			{
-				CTBPreprocessTool.traverseTreeAddNPB(rootNode1);
+				NPBUtil.labelNPB(rootNode1);
 			}
 			traverse(rootNode1, map);
 		}
