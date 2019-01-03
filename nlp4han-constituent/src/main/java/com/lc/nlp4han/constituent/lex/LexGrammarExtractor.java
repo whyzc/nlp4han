@@ -45,18 +45,10 @@ public class LexGrammarExtractor
 		// 括号表达式树拼接成括号表达式String数组
 		PlainTextByTreeStream ptbt = new PlainTextByTreeStream(new FileInputStreamFactory(new File(fileName)),
 				enCoding);
-//		AbstractHeadGenerator headGen = new HeadGeneratorCollins(new HeadRuleSetCTB());
 		String bracketStr = ptbt.read();
 		ArrayList<String> bracketList = new ArrayList<String>();
 		while (bracketStr != null)
 		{
-//			TreeNode rootNode = BracketExpUtil.generateTree(bracketStr);
-//			HeadTreeNodeForCollins headNode = TreeToHeadTreeForCollins.treeToHeadTree(rootNode, headGen);
-//			if (startSymbol == null)
-//			{// 起始符提取
-//				startSymbol = headNode.getNodeName();
-//			}
-//			traverseTree(headNode);
 			bracketList.add(bracketStr);
 			
 			bracketStr = ptbt.read();
@@ -64,9 +56,6 @@ public class LexGrammarExtractor
 		ptbt.close();
 		
 		return brackets2Grammar(bracketList);
-		
-//		return new LexPCFG(startSymbol, posSet, wordMap, null, headGenMap, parentList, sidesGenMap, stopGenMap,
-//				specialGenMap);
 	}
 
 	/**

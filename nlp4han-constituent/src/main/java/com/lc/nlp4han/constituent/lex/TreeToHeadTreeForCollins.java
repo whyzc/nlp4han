@@ -20,9 +20,7 @@ public class TreeToHeadTreeForCollins
 		String[] verbArray = { "VA", "VC", "VE", "VV", "BA", "LB" };
 		HashSet<String> verbs = new HashSet<String>();
 		for (String verb : verbArray)
-		{
 			verbs.add(verb);
-		}
 
 		// 作为临时的根节点
 		HeadTreeNodeForCollins rootNode = new HeadTreeNodeForCollins("tempRoot");
@@ -65,7 +63,7 @@ public class TreeToHeadTreeForCollins
 			node.setHeadPos(treeNode.getNodeName());
 			node.setHeadWord(treeNode.getChildName(0));
 			node.setHeadChildIndex(0);
-			
+
 			// 动词检测
 			if (verbs.contains(node.getNodeName()))
 				node.setVerb(true);
@@ -75,7 +73,7 @@ public class TreeToHeadTreeForCollins
 			node.setHeadWord(headGen.extractHeadWord(node));
 			node.setHeadPos(headGen.extractHeadPos(node));
 			node.setHeadChildIndex(headGen.extractHeadIndex(node));
-			
+
 			// 动词检测
 			for (HeadTreeNode child : node.getChildren())
 			{

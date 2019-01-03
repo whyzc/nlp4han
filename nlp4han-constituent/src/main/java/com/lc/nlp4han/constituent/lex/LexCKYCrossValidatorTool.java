@@ -45,7 +45,7 @@ public class LexCKYCrossValidatorTool
 
 		if (prior)
 		{
-			HashMap<String, Double> map = POSProUtil.brackets2Map(bracketList, "lex");
+			HashMap<String, Double> map = NonterminalProbUtil.getNonterminalProb(bracketList, "lex");
 			LexPCFGPrior lpgp = (LexPCFGPrior) lexpcfg;
 			lpgp.setPriorMap(map);
 			
