@@ -50,7 +50,7 @@ public class ChunkerSVMCrossValidatorTool
 	public static void main(String[] args) throws IOException, InvalidInputDataException
 	{
 		int folds = 10;
-		String scheme = "BIOE";
+		String scheme = "BIEO";
 		String encoding = "UTF-8";
 		String corpusFile = null;
 		String[] trainArgs = null;
@@ -188,9 +188,7 @@ public class ChunkerSVMCrossValidatorTool
 		trainArgsList.add(corpusFile + ".model.cv");
 
 		trainArgs = trainArgsList.toArray(new String[trainArgsList.size()]);
-
-		ObjectStream<String> lineStream = new PlainTextByLineStream(
-				new MarkableFileInputStreamFactory(new File(corpusFile)), encoding);
+	
 		AbstractChunkSampleParser parse = null;
 		AbstractChunkAnalysisMeasure measure = null;
 
@@ -210,15 +208,20 @@ public class ChunkerSVMCrossValidatorTool
 			measure = new ChunkAnalysisMeasureBIO();
 		}
 
+		ObjectStream<String> lineStream = new PlainTextByLineStream(
+				new MarkableFileInputStreamFactory(new File(corpusFile)), encoding);
 		ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkerWordPosSampleStream(lineStream, parse,
 				scheme);
+		
 		Properties p = SVMSampleUtil.getDefaultConf();
 		ChunkAnalysisContextGenerator contextGen = new ChunkerWordPosContextGeneratorConf(p);
+		
 		ChunkerSVMCrossValidation crossValidator = new ChunkerSVMCrossValidation(trainArgs);
-		ChunkerLibSVM me = new ChunkerLibSVM();
-		crossValidator.evaluate(sampleStream, folds, me, contextGen, measure, p);
+		ChunkerLibSVM chunker = new ChunkerLibSVM();	
+		crossValidator.evaluate(sampleStream, folds, chunker, contextGen, measure, p);
 
 		sampleStream.close();
+		
 		deleteFile(trainArgs[trainArgs.length - 1]);
 		deleteFile(trainArgs[trainArgs.length - 2]);
 	}
