@@ -40,7 +40,7 @@ public class PreterminalRule extends Rule
 	@Override
 	public void split()
 	{
-		Random random = Grammar.random;
+		Random random = GrammarExtractor.random;
 		boolean randomPerturbation = false;// preRule分裂不添加随机扰动
 		// split father
 		int pNumSubSymbol = scores.size();
@@ -150,11 +150,6 @@ public class PreterminalRule extends Rule
 	public void setScore(short subP, double score)
 	{
 		scores.set(subP, score);
-	}
-
-	public void setScores(ArrayList<Double> scores)
-	{
-		this.scores = scores;
 	}
 
 	@Override

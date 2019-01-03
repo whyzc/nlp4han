@@ -44,7 +44,7 @@ public class UnaryRule extends Rule
 	@Override
 	public void split()
 	{
-		Random random = Grammar.random;
+		Random random = GrammarExtractor.random;
 		boolean randomPerturbation = true;
 		// split child
 		int pNumSubSymbol = scores.size();
@@ -204,11 +204,6 @@ public class UnaryRule extends Rule
 				scores.get(subP).add(0.0);
 			}
 		}
-	}
-
-	public void setScores(ArrayList<ArrayList<Double>> score)
-	{
-		this.scores = score;
 	}
 
 	@Override

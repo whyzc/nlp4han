@@ -57,7 +57,7 @@ public class BinaryRule extends Rule
 	@Override
 	public void split()
 	{
-		Random random = Grammar.random;
+		Random random = GrammarExtractor.random;
 		boolean randomPerturbation = true;
 		// split rightChild
 		int pNumSubSymbol = scores.size();
@@ -267,11 +267,6 @@ public class BinaryRule extends Rule
 	public void setRightChild(short rightChild)
 	{
 		this.rightChild = rightChild;
-	}
-
-	public void setScores(ArrayList<ArrayList<ArrayList<Double>>> scores)
-	{
-		this.scores = scores;
 	}
 
 	public double getScore(short subP, short subLC, short subRC)

@@ -182,6 +182,7 @@ public class GrammarWriter
 				}
 			}
 		}
+		rulesWriter.write("--end--");
 		rulesWriter.close();
 	}
 
