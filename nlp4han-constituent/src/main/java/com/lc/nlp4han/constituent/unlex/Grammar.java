@@ -37,11 +37,6 @@ public class Grammar implements GrammarWritable
 	private HashSet<BinaryRule> bRules;
 	private HashSet<UnaryRule> uRules;
 	private Lexicon lexicon;// 包含preRules
-
-//	// 添加相同孩子为key的map
-//	private HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>> preRuleBySameChildren; // 外层map<word在字典中的索引,内map>
-//	private HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>> bRuleBySameChildren;
-//	private HashMap<Short, HashMap<UnaryRule, UnaryRule>> uRuleBySameChildren;
 	
 	// 相同父节点的规则放在一个map中
 	private HashMap<Short, HashMap<PreterminalRule, PreterminalRule>> preRuleBySameHead; // 内map<ruleHashcode/rule>
@@ -56,9 +51,6 @@ public class Grammar implements GrammarWritable
 		this.bRules = bRules;
 		this.uRules = uRules;
 		this.lexicon = lexicon;
-//		this.bRuleBySameChildren = new HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>>();
-//		this.uRuleBySameChildren = new HashMap<Short, HashMap<UnaryRule, UnaryRule>>();
-//		this.preRuleBySameChildren = new HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>>();
 		this.bRuleBySameHead = new HashMap<Short, HashMap<BinaryRule, BinaryRule>>();
 		this.uRuleBySameHead = new HashMap<Short, HashMap<UnaryRule, UnaryRule>>();
 		this.preRuleBySameHead = new HashMap<Short, HashMap<PreterminalRule, PreterminalRule>>();
@@ -72,9 +64,7 @@ public class Grammar implements GrammarWritable
 		this.bRules = new HashSet<>();
 		this.uRules = new HashSet<>();
 		this.lexicon = new Lexicon();
-//		this.bRuleBySameChildren = new HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>>();
-//		this.uRuleBySameChildren = new HashMap<Short, HashMap<UnaryRule, UnaryRule>>();
-//		this.preRuleBySameChildren = new HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>>();
+
 		this.bRuleBySameHead = new HashMap<Short, HashMap<BinaryRule, BinaryRule>>();
 		this.uRuleBySameHead = new HashMap<Short, HashMap<UnaryRule, UnaryRule>>();
 		this.preRuleBySameHead = new HashMap<Short, HashMap<PreterminalRule, PreterminalRule>>();
@@ -182,19 +172,6 @@ public class Grammar implements GrammarWritable
 
 			bRuleBySameHead.get(bRule.parent).put(bRule, bRule);
 
-//			if (!bRuleBySameChildren.containsKey(bRule.getLeftChild()))
-//			{
-//
-//				bRuleBySameChildren.put(bRule.getLeftChild(), new HashMap<Short, HashMap<BinaryRule, BinaryRule>>());
-//			}
-//
-//			if (!bRuleBySameChildren.get(bRule.getLeftChild()).containsKey(bRule.getRightChild()))
-//			{
-//				bRuleBySameChildren.get(bRule.getLeftChild()).put(bRule.getRightChild(),
-//						new HashMap<BinaryRule, BinaryRule>());
-//			}
-//
-//			bRuleBySameChildren.get(bRule.getLeftChild()).get(bRule.getRightChild()).put(bRule, bRule);
 		}
 
 		for (UnaryRule uRule : uRules)
@@ -205,11 +182,6 @@ public class Grammar implements GrammarWritable
 			}
 			uRuleBySameHead.get(uRule.parent).put(uRule, uRule);
 
-//			if (!uRuleBySameChildren.containsKey(uRule.getChild()))
-//			{
-//				uRuleBySameChildren.put(uRule.getChild(), new HashMap<UnaryRule, UnaryRule>());
-//			}
-//			uRuleBySameChildren.get(uRule.getChild()).put(uRule, uRule);
 		}
 
 		for (PreterminalRule preRule : lexicon.getPreRules())
@@ -220,12 +192,6 @@ public class Grammar implements GrammarWritable
 			}
 			preRuleBySameHead.get(preRule.parent).put(preRule, preRule);
 
-//			if (!preRuleBySameChildren.containsKey(lexicon.getDictionary().get(preRule.getWord())))
-//			{
-//				preRuleBySameChildren.put(lexicon.getDictionary().get(preRule.getWord()),
-//						new HashMap<PreterminalRule, PreterminalRule>());
-//			}
-//			preRuleBySameChildren.get(lexicon.getDictionary().get(preRule.getWord())).put(preRule, preRule);
 		}
 	}
 
@@ -296,12 +262,6 @@ public class Grammar implements GrammarWritable
 				berrcount++;
 				System.err.println(false + "********************二元规则集bRuleBySameHead" + berrcount);
 			}
-
-//			if (bRule != bRuleBySameChildren.get(bRule.getLeftChild()).get(bRule.getRightChild()).get(bRule))
-//			{
-//				berrcount1++;
-//				System.err.println(false + "********************二元规则集bRuleBySameChildren" + berrcount1);
-//			}
 		}
 
 		for (UnaryRule uRule : uRules)
@@ -315,12 +275,6 @@ public class Grammar implements GrammarWritable
 				uerrcount++;
 				System.err.println(false + "********************一元规则uRuleBySameHead" + uerrcount);
 			}
-
-//			if (uRule != uRuleBySameChildren.get(uRule.getChild()).get(uRule))
-//			{
-//				uerrcount1++;
-//				System.err.println(false + "********************一元规则uRuleBySameChildren" + uerrcount1);
-//			}
 		}
 
 		for (PreterminalRule preRule : lexicon.getPreRules())
@@ -335,11 +289,6 @@ public class Grammar implements GrammarWritable
 				System.err.println(false + "********************预终结符号规则preRuleBySameHead" + perrcount);
 			}
 
-//			if (preRule != preRuleBySameChildren.get(lexicon.getDictionary().get(preRule.getWord())).get(preRule))
-//			{
-//				perrcount1++;
-//				System.err.println(false + "********************预终结符号规则preRuleBySameChildren" + perrcount1);
-//			}
 		}
 	}
 
@@ -375,25 +324,8 @@ public class Grammar implements GrammarWritable
 			HashMap<BinaryRule, BinaryRule> inner = new HashMap<>();
 			bRuleBySameHead.put(parent, inner);
 		}
+		
 		bRuleBySameHead.get(parent).put(bRule, bRule);
-
-//		short lc = bRule.getLeftChild();
-//		short rc = bRule.getRightChild();
-//		HashMap<Short, HashMap<BinaryRule, BinaryRule>> middleMap;
-//		if (!bRuleBySameChildren.containsKey(lc))
-//		{
-//			bRuleBySameChildren.put(lc, new HashMap<Short, HashMap<BinaryRule, BinaryRule>>());
-//		}
-//
-//		middleMap = bRuleBySameChildren.get(lc);
-//		HashMap<BinaryRule, BinaryRule> innerMap;
-//		if (!middleMap.containsKey(rc))
-//		{
-//			middleMap.put(rc, new HashMap<BinaryRule, BinaryRule>());
-//		}
-//
-//		innerMap = middleMap.get(rc);
-//		innerMap.put(bRule, bRule);
 	}
 
 	public void add(UnaryRule uRule)
@@ -405,15 +337,8 @@ public class Grammar implements GrammarWritable
 			HashMap<UnaryRule, UnaryRule> inner = new HashMap<>();
 			uRuleBySameHead.put(parent, inner);
 		}
+		
 		uRuleBySameHead.get(parent).put(uRule, uRule);
-
-//		short c = uRule.getChild();
-//
-//		if (!uRuleBySameChildren.containsKey(c))
-//		{
-//			uRuleBySameChildren.put(c, new HashMap<UnaryRule, UnaryRule>());
-//		}
-//		uRuleBySameChildren.get(c).put(uRule, uRule);
 	}
 
 	public void add(PreterminalRule preRule)
@@ -425,14 +350,8 @@ public class Grammar implements GrammarWritable
 			HashMap<PreterminalRule, PreterminalRule> inner = new HashMap<>();
 			preRuleBySameHead.put(parent, inner);
 		}
+		
 		preRuleBySameHead.get(parent).put(preRule, preRule);
-
-//		Integer wordIntVal = wordIntValue(preRule.getWord());
-//		if (!preRuleBySameChildren.containsKey(wordIntVal))
-//		{
-//			preRuleBySameChildren.put(wordIntVal, new HashMap<PreterminalRule, PreterminalRule>());
-//		}
-//		preRuleBySameChildren.get(wordIntVal).put(preRule, preRule);
 	}
 
 	public BinaryRule readBRule(String[] rule)
@@ -680,24 +599,6 @@ public class Grammar implements GrammarWritable
 	{
 		this.lexicon = lexicon;
 	}
-
-	// 暂时不用
-	// public HashMap<Integer, HashMap<PreterminalRule, PreterminalRule>>
-	// getPreRuleBySameChildren()
-	// {
-	// return preRuleBySameChildren;
-	// }
-	//
-	// public HashMap<Short, HashMap<Short, HashMap<BinaryRule, BinaryRule>>>
-	// getbRuleBySameChildren()
-	// {
-	// return bRuleBySameChildren;
-	// }
-	//
-	// public HashMap<Short, HashMap<UnaryRule, UnaryRule>> getuRuleBySameChildren()
-	// {
-	// return uRuleBySameChildren;
-	// }
 
 	public Set<PreterminalRule> getPreRuleSetBySameHead(short parent)
 	{
