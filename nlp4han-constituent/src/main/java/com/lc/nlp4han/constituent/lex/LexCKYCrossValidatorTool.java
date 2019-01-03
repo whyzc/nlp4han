@@ -134,13 +134,11 @@ public class LexCKYCrossValidatorTool
 			}
 			else if (args[i].equals("-secondPrune"))
 			{
-				secondPrune = Boolean.parseBoolean(args[i + 1]);
-				i++;
+				secondPrune = true;
 			}
 			else if (args[i].equals("-prior"))
 			{
-				prior = Boolean.parseBoolean(args[i + 1]);
-				i++;
+				prior = true;
 			}
 		}
 
