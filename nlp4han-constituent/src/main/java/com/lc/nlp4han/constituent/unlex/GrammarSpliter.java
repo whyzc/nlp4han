@@ -75,8 +75,8 @@ public class GrammarSpliter
 			return;
 		if (tree.isLeaf())
 			return;
-		if (!(tree.getLabel().getSymbol() == g.symbolIntValue(g.getStartSymbol())))
-			tree.getLabel().setNumSubSymbol((short) (g.getNumSubSymbol(tree.getLabel().getSymbol())));
+		if (!(tree.getAnnotation().getSymbol() == g.symbolIntValue(g.getStartSymbol())))
+			tree.getAnnotation().setNumSubSymbol((short) (g.getNumSubSymbol(tree.getAnnotation().getSymbol())));
 
 		for (AnnotationTreeNode child : tree.getChildren())
 		{

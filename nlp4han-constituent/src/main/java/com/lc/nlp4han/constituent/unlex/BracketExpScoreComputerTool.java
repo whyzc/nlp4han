@@ -19,7 +19,7 @@ public class BracketExpScoreComputerTool
 		// System.out
 		// .println("score:" + tree.getLabel().getInnerScores()[0] + ",scale:" +
 		// tree.getLabel().getInnerScale());
-		return Math.log(tree.getLabel().getInnerScores()[0]) + 100 * tree.getLabel().getInnerScale();
+		return Math.log(tree.getAnnotation().getInnerScores()[0]) + 100 * tree.getAnnotation().getInnerScale();
 	}
 
 	public static void main(String args[])

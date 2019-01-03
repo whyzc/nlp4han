@@ -185,12 +185,12 @@ public class GrammarExtractor
 			while (!queue.isEmpty())
 			{
 				short parent, leftChild = -1, rightChild = -1;
-				parent = queue.peek().getLabel().getSymbol();
+				parent = queue.peek().getAnnotation().getSymbol();
 
 				if (queue.peek().getChildren().size() == 2)
 				{
-					leftChild = queue.peek().getChildren().get(0).getLabel().getSymbol();
-					rightChild = queue.peek().getChildren().get(1).getLabel().getSymbol();
+					leftChild = queue.peek().getChildren().get(0).getAnnotation().getSymbol();
+					rightChild = queue.peek().getChildren().get(1).getAnnotation().getSymbol();
 					if (leftChild != -1 && rightChild != -1)
 					{
 						BinaryRule bRule = new BinaryRule(parent, leftChild, rightChild);
@@ -208,9 +208,9 @@ public class GrammarExtractor
 				}
 				else if (queue.peek().getChildren().size() == 1)
 				{
-					if (queue.peek().getChildren().get(0).getLabel().getWord() == null)
+					if (queue.peek().getChildren().get(0).getAnnotation().getWord() == null)
 					{
-						leftChild = queue.peek().getChildren().get(0).getLabel().getSymbol();
+						leftChild = queue.peek().getChildren().get(0).getAnnotation().getSymbol();
 						if (leftChild != -1)
 						{
 							UnaryRule uRule = new UnaryRule(parent, leftChild);
@@ -228,7 +228,7 @@ public class GrammarExtractor
 					}
 					else
 					{
-						String child = queue.peek().getChildren().get(0).getLabel().getWord();
+						String child = queue.peek().getChildren().get(0).getAnnotation().getWord();
 						dictionary.add(child);
 						PreterminalRule preRule = new PreterminalRule(parent, child);
 						if (!preRuleBySameHeadCount[preterminal.indexOf(parent)].containsKey(preRule))
@@ -720,8 +720,8 @@ public class GrammarExtractor
 		if (tree.getChildren().size() == 0 || tree == null)
 			return;
 		double scalingFactor;
-		Annotation rootLabel = root.getLabel();
-		Annotation pLabel = tree.getLabel();
+		Annotation rootLabel = root.getAnnotation();
+		Annotation pLabel = tree.getAnnotation();
 		short pSymbol = pLabel.getSymbol();
 		short nSubP = g.getNumSubSymbol(pSymbol);
 		double rootIS = rootLabel.getInnerScores()[0];
@@ -731,8 +731,8 @@ public class GrammarExtractor
 
 			AnnotationTreeNode lC = tree.getChildren().get(0);
 			AnnotationTreeNode rC = tree.getChildren().get(1);
-			Annotation lCLabel = lC.getLabel();
-			Annotation rCLabel = rC.getLabel();
+			Annotation lCLabel = lC.getAnnotation();
+			Annotation rCLabel = rC.getAnnotation();
 			short lcSymbol = lCLabel.getSymbol();
 			short rcSymbol = rCLabel.getSymbol();
 			short nSubLC = g.getNumSubSymbol(lcSymbol);
@@ -776,10 +776,10 @@ public class GrammarExtractor
 				}
 			}
 		}
-		else if (tree.getChildren().size() == 1 && tree.getChildren().get(0).getLabel().getWord() == null)
+		else if (tree.getChildren().size() == 1 && tree.getChildren().get(0).getAnnotation().getWord() == null)
 		{
 			AnnotationTreeNode child = tree.getChildren().get(0);
-			Annotation cLabel = child.getLabel();
+			Annotation cLabel = child.getAnnotation();
 			short cSymbol = cLabel.getSymbol();
 			short nSubC = g.getNumSubSymbol(cSymbol);
 			UnaryRule rule = new UnaryRule(pSymbol, cSymbol);
@@ -816,7 +816,7 @@ public class GrammarExtractor
 		}
 		else if (tree.isPreterminal())
 		{
-			PreterminalRule rule = new PreterminalRule(pSymbol, tree.getChildren().get(0).getLabel().getWord());
+			PreterminalRule rule = new PreterminalRule(pSymbol, tree.getChildren().get(0).getAnnotation().getWord());
 			rule = g.getRule(rule);
 			double[] count;
 			if (!ruleCounter.preRuleCounter.containsKey(rule))
@@ -828,7 +828,7 @@ public class GrammarExtractor
 			{
 				count = ruleCounter.preRuleCounter.get(rule);
 			}
-			scalingFactor = ScalingTools.calcScaleFactor(pLabel.getOuterScale() - root.getLabel().getInnerScale());
+			scalingFactor = ScalingTools.calcScaleFactor(pLabel.getOuterScale() - root.getAnnotation().getInnerScale());
 			double tempCount = 0.0;
 			for (short i = 0; i < nSubP; i++)
 			{

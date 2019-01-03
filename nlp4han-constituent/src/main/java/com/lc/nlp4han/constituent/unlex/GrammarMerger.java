@@ -57,10 +57,10 @@ public class GrammarMerger
 		if (tree.isLeaf())
 			return;
 		
-		tree.getLabel().setNumSubSymbol(g.getNumSubSymbol(tree.getLabel().getSymbol()));
+		tree.getAnnotation().setNumSubSymbol(g.getNumSubSymbol(tree.getAnnotation().getSymbol()));
 		tree.forgetIOScoreAndScale();
-		tree.getLabel().setInnerScores(null);
-		tree.getLabel().setOuterScores(null);
+		tree.getAnnotation().setInnerScores(null);
+		tree.getAnnotation().setOuterScores(null);
 		for (AnnotationTreeNode child : tree.getChildren())
 		{
 			mergeTreeAnnotation(g, child);
@@ -174,7 +174,7 @@ public class GrammarMerger
 			if (!child.isLeaf())
 				logSenScoreGradient += getMergeSymbolHelper(g, child, symbol, subSymbolIndex, mergeWeight);
 		}
-		if (tree.getLabel().getSymbol() == symbol && symbol != 0)
+		if (tree.getAnnotation().getSymbol() == symbol && symbol != 0)
 		{
 			logSenScoreGradient += Math.log(TreeBank.calSentenceSocreIgnoreScale(tree)
 					/ calSenSocreAssumeMergeState_iIgnoreScale(tree, subSymbolIndex, mergeWeight));
@@ -196,15 +196,15 @@ public class GrammarMerger
 			double[][] mergeWeight)
 	{
 
-		if (node.getLabel().getInnerScores() == null || node.getLabel().getOuterScores() == null)
+		if (node.getAnnotation().getInnerScores() == null || node.getAnnotation().getOuterScores() == null)
 			throw new Error("没有计算树上节点的内外向概率。");
 		if (node.isLeaf())
 			throw new Error("不能利用叶子节点计算内外向概率。");
-		if (node.getLabel().getSymbol() == 0)// root不分裂不合并
+		if (node.getAnnotation().getSymbol() == 0)// root不分裂不合并
 			return 0;
 		double sentenceScore = 0.0;
-		Double[] innerScore = node.getLabel().getInnerScores();
-		Double[] outerScores = node.getLabel().getOuterScores();
+		Double[] innerScore = node.getAnnotation().getInnerScores();
+		Double[] outerScores = node.getAnnotation().getOuterScores();
 		int numSubState = innerScore.length;
 		if (subStateIndex % 2 == 1)
 		{
@@ -214,8 +214,8 @@ public class GrammarMerger
 		{
 			if (i == subStateIndex)
 			{
-				double iWeight = mergeWeight[node.getLabel().getSymbol()][i];
-				double brotherWeight = mergeWeight[node.getLabel().getSymbol()][i + 1];
+				double iWeight = mergeWeight[node.getAnnotation().getSymbol()][i];
+				double brotherWeight = mergeWeight[node.getAnnotation().getSymbol()][i + 1];
 				if (iWeight == Double.NaN || brotherWeight == Double.NaN)
 				{
 					System.err.println(" count Of SubSymbol_Si and SubSymbol_Si+1 underFlow.");
@@ -230,7 +230,7 @@ public class GrammarMerger
 			}
 		}
 		double logSenScore = Math.log(sentenceScore)
-				+ 100 * (node.getLabel().getInnerScale() + node.getLabel().getOuterScale());
+				+ 100 * (node.getAnnotation().getInnerScale() + node.getAnnotation().getOuterScale());
 		return logSenScore;
 	}
 
@@ -238,15 +238,15 @@ public class GrammarMerger
 			double[][] mergeWeight)
 	{
 
-		if (node.getLabel().getInnerScores() == null || node.getLabel().getOuterScores() == null)
+		if (node.getAnnotation().getInnerScores() == null || node.getAnnotation().getOuterScores() == null)
 			throw new Error("没有计算树上节点的内外向概率。");
 		if (node.isLeaf())
 			throw new Error("不能利用叶子节点计算内外向概率。");
-		if (node.getLabel().getSymbol() == 0)// root不分裂不合并
+		if (node.getAnnotation().getSymbol() == 0)// root不分裂不合并
 			return 0;
 		double sentenceScore = 0.0;
-		Double[] innerScore = node.getLabel().getInnerScores();
-		Double[] outerScores = node.getLabel().getOuterScores();
+		Double[] innerScore = node.getAnnotation().getInnerScores();
+		Double[] outerScores = node.getAnnotation().getOuterScores();
 		int numSubState = innerScore.length;
 		if (subStateIndex % 2 == 1)
 		{
@@ -256,8 +256,8 @@ public class GrammarMerger
 		{
 			if (i == subStateIndex)
 			{
-				double iWeight = mergeWeight[node.getLabel().getSymbol()][i];
-				double brotherWeight = mergeWeight[node.getLabel().getSymbol()][i + 1];
+				double iWeight = mergeWeight[node.getAnnotation().getSymbol()][i];
+				double brotherWeight = mergeWeight[node.getAnnotation().getSymbol()][i + 1];
 				if (iWeight == Double.NaN || brotherWeight == Double.NaN)
 				{
 					System.err.println(" count Of SubSymbol_Si and SubSymbol_Si+1 underFlow.");

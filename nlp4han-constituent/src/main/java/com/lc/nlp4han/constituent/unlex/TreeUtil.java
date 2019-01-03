@@ -95,8 +95,8 @@ public class TreeUtil
 	{
 		if (tree.isLeaf() || tree == null)
 			return tree;
-		tree.getLabel().setInnerScores(null);
-		tree.getLabel().setOuterScores(null);
+		tree.getAnnotation().setInnerScores(null);
+		tree.getAnnotation().setOuterScores(null);
 		for (AnnotationTreeNode child : tree.getChildren())
 		{
 			forgetScore(child);
