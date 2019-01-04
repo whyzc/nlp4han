@@ -43,7 +43,7 @@ public class ConstituentParserParentLabelAdded implements ConstituentParserLaten
 		{
 			if (tree != null)
 			{
-				Binarization.recoverBinaryTree(tree.getRoot());
+				TreeBinarization.unbinarize(tree.getRoot());
 				TreeUtil.removeParentLabel(tree.getRoot());
 				trees.add(tree);
 			}

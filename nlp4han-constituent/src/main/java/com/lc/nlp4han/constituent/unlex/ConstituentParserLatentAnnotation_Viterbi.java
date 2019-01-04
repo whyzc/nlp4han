@@ -79,7 +79,7 @@ public class ConstituentParserLatentAnnotation_Viterbi implements ConstituentPar
 			{
 				removeOriginalTag(tree.getRoot());
 				TreeUtil.removeLatentLabel(tree.getRoot());
-				Binarization.recoverBinaryTree(tree.getRoot());
+				TreeBinarization.unbinarize(tree.getRoot());
 				trees.add(tree);
 			}
 		}

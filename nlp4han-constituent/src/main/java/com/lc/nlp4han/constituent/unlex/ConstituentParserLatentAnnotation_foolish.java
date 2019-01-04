@@ -78,7 +78,7 @@ public class ConstituentParserLatentAnnotation_foolish implements ConstituentPar
 				double logScore = BracketExpScoreComputerTool.comperter(grammarLatentLabel, annotationTree);
 				if (logScore != Double.NEGATIVE_INFINITY)
 				{
-					Binarization.recoverBinaryTree(trees[i].getRoot());
+					TreeBinarization.unbinarize(trees[i].getRoot());
 					scores.put(logScore, trees[i]);
 				}
 			}

@@ -28,7 +28,7 @@ public class BracketExpScoreComputerTool
 		{
 			Grammar gLatentAnnotation = LatentGrammarExtractorTool.getGrammar(1, 0.5, 50, 0.01, 10,
 					"C:\\Users\\hp\\Desktop\\test100.txt", "utf-8");
-			TreeNode tree = Binarization.binarizeTree(BracketExpUtil.generateTree(
+			TreeNode tree = TreeBinarization.binarize(BracketExpUtil.generateTree(
 					"(ROOT(FRAG(NN 新华社)(NR 上海)(NT 二月)(NT 十日)(NN 电)(PU （)(NN 记者)(NR 谢金虎)(PU 、)(NR 张持坚)(PU ）)))"));
 			AnnotationTreeNode theTree = gLatentAnnotation.convert2AnnotationTreeNode(tree);
 			double score = comperter(gLatentAnnotation, theTree);

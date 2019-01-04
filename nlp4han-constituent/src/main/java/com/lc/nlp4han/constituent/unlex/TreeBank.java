@@ -56,7 +56,7 @@ public class TreeBank
 		tree = TreeUtil.removeL2LRule(tree);
 		if (addParentLabel)
 			tree = TreeUtil.addParentLabel(tree);
-		tree = Binarization.binarizeTree(tree);
+		tree = TreeBinarization.binarize(tree);
 		AnnotationTreeNode annotatedTree = AnnotationTreeNode.getInstance(tree, this.nonterminalTable);
 		treeBank.add(annotatedTree);
 	}

@@ -94,7 +94,7 @@ public class EvaluatorParentLabelAdded extends Evaluator<ConstituentTree>
 			}
 			else
 			{
-				Binarization.recoverBinaryTree(treePre.getRoot());
+				TreeBinarization.unbinarize(treePre.getRoot());
 				measure.update(rootNodeRef, TreeUtil.removeParentLabel(treePre.getRoot()));
 			}
 		}
