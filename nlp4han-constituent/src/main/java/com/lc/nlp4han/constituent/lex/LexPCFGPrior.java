@@ -1,7 +1,5 @@
 package com.lc.nlp4han.constituent.lex;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 

@@ -1,6 +1,9 @@
 package com.lc.nlp4han.constituent.lex;
 
+import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import com.lc.nlp4han.constituent.ConstituentMeasure;
@@ -60,9 +63,13 @@ public class LexCKYEvaTool
 	private static void eval(String modelpath, String goldpath, String encoding, double pruneThreshold,
 			boolean secondPrune, boolean prior) throws ClassNotFoundException, IOException
 	{
-		LexPCFG lexpcfg = LexPCFGModelIOUtil.loadModel(modelpath);
+		DataInput in = new DataInputStream(new FileInputStream(modelpath));
+		LexPCFG lexPCFG = new LexPCFG();
+		lexPCFG.read(in);
 		
-		CKYParserEvaluator evaluator = new CKYParserEvaluator(lexpcfg,pruneThreshold,secondPrune,prior);
+//		LexPCFG lexpcfg = LexPCFGModelIOUtil.loadModel(modelpath);
+		
+		CKYParserEvaluator evaluator = new CKYParserEvaluator(lexPCFG,pruneThreshold,secondPrune,prior);
 		
 		ConstituentMeasure measure = new ConstituentMeasure();
 		evaluator.setMeasure(measure);
