@@ -13,8 +13,8 @@ import java.io.IOException;
  */
 public class LatentGrammarExtractorTool
 {
-	public static Grammar getGrammar(int SMCycle, double mergeRate, int EMIterations, double smooth,
-			int rareWordThreshold, String treeBankPath, String encoding) throws IOException
+	public static Grammar getGrammar(String treeBankPath, String encoding, int SMCycle, double mergeRate,
+			int EMIterations, double smooth, int rareWordThreshold) throws IOException
 	{
 		GrammarExtractor gExtractor = new GrammarExtractor();
 		if (SMCycle < 0)
@@ -87,8 +87,8 @@ public class LatentGrammarExtractorTool
 			long start = System.currentTimeMillis();
 			System.out.println("开始提取初始文法");
 			
-			Grammar g = LatentGrammarExtractorTool.getGrammar(SMCycle, mergeRate, iterations, smooth,
-					Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainFilePath, encoding);
+			Grammar g = LatentGrammarExtractorTool.getGrammar(trainFilePath, encoding, SMCycle, mergeRate,
+					iterations, smooth, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
 			
 //			GrammarWriter.writeToFileStandard(g, outputFilePath, true);
 			DataOutput out = new DataOutputStream(new FileOutputStream(outputFilePath));

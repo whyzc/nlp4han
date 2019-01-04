@@ -83,8 +83,8 @@ public class EvaluatorLatentAnnotation_Viterbi extends Evaluator<ConstituentTree
 			throws IOException
 	{
 		long start = System.currentTimeMillis();
-		Grammar gLatentAnntation = LatentGrammarExtractorTool.getGrammar(SMCycle, mergeRate, iterations,
-				smoothRate, Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF, trainEn);
+		Grammar gLatentAnntation = LatentGrammarExtractorTool.getGrammar(trainF, trainEn, SMCycle,
+				mergeRate, iterations, smoothRate, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
 
 		ConstituentParserLatentAnnotation_Viterbi parser = new ConstituentParserLatentAnnotation_Viterbi(
 				gLatentAnntation, pruneThreshold, secondPrune, prior);

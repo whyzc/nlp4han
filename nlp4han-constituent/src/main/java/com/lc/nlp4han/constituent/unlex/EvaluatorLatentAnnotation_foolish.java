@@ -108,11 +108,11 @@ public class EvaluatorLatentAnnotation_foolish extends Evaluator<ConstituentTree
 			double smoothRate, double pruneThreshold, boolean secondPrune, boolean prior) throws IOException
 	{
 		long start = System.currentTimeMillis();
-		Grammar baseline = LatentGrammarExtractorTool.getGrammar(0, 0, 0, smoothRate,
-				Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF, trainEn);
+		Grammar baseline = LatentGrammarExtractorTool.getGrammar(trainF, trainEn, 0, 0,
+				0, smoothRate, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
 		PCFG pcfg = baseline.getPCFG();
-		Grammar gLatentAnntation = LatentGrammarExtractorTool.getGrammar(1, 0.5, iterations, smoothRate,
-				Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF, trainEn);
+		Grammar gLatentAnntation = LatentGrammarExtractorTool.getGrammar(trainF, trainEn, 1, 0.5,
+				iterations, smoothRate, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
 
 		long end = System.currentTimeMillis();
 		ConstituentParserCKYLoosePCNF p2nf = new ConstituentParserCKYLoosePCNF(pcfg, pruneThreshold, secondPrune,

@@ -10,7 +10,7 @@ import com.lc.nlp4han.constituent.TreeNode;
  * 
  * @author 王宁
  */
-public class BracketExpScoreComputerTool
+public class TreeProbTool
 {
 	// 返回树的log似然值
 	public static double comperter(Grammar gLatentAnnotation, AnnotationTreeNode tree)
@@ -26,8 +26,8 @@ public class BracketExpScoreComputerTool
 	{
 		try
 		{
-			Grammar gLatentAnnotation = LatentGrammarExtractorTool.getGrammar(1, 0.5, 50, 0.01, 10,
-					"C:\\Users\\hp\\Desktop\\test100.txt", "utf-8");
+			Grammar gLatentAnnotation = LatentGrammarExtractorTool.getGrammar("C:\\Users\\hp\\Desktop\\test100.txt", "utf-8", 1, 0.5, 50,
+					0.01, 10);
 			TreeNode tree = TreeBinarization.binarize(BracketExpUtil.generateTree(
 					"(ROOT(FRAG(NN 新华社)(NR 上海)(NT 二月)(NT 十日)(NN 电)(PU （)(NN 记者)(NR 谢金虎)(PU 、)(NR 张持坚)(PU ）)))"));
 			AnnotationTreeNode theTree = gLatentAnnotation.convert2AnnotationTreeNode(tree);
