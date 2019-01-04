@@ -17,35 +17,25 @@ import java.util.Set;
 import com.lc.nlp4han.ml.model.Event;
 import com.lc.nlp4han.ml.util.ObjectStream;
 
-public class ConversionInformation
+public class SVMFeatureLabelInfo
 {
-	private Map<String, Integer> features = new HashMap<String, Integer>(); // key为特征，如"w0=上海"；vaule为该特征对应于"<label>
-																			// <index1>:<value1>
-																			// <index2>:<value2>..."中的index，从1开始
+	// 特征到序号，特征序号从1开始
+	private Map<String, Integer> feature2Index = new HashMap<String, Integer>(); 
+	private List<Integer> featureCount = new ArrayList<Integer>(); // 记录各特征的数量，features中特征的value值-1对应该列表的索引
 
-	private List<Integer> numberOfFeatures = new ArrayList<Integer>(); // 记录各特征的数量，features中特征的value值-1对应该列表的索引
+	// 类标签到序号，类序号从1开始
+	private Map<String, Integer> class2Index = new HashMap<String, Integer>(); 
+	private List<Integer> classCount = new ArrayList<Integer>(); // 记录各分类标签的数量，classificationLabels中分类标签value值-1对应该列表的索引
 
-	private Map<String, Integer> classificationLabels = new HashMap<String, Integer>(); // key为分类的标签，如"NN_B"，"VP_I"，vaule为该特征对应于"<label>
-																						// <index1>:<value1>
-																						// <index2>:<value2>..."中的label，从1开始
+	private int totalSamples = -1;
 
-	private List<Integer> numberOfClassification = new ArrayList<Integer>(); // 记录各分类标签的数量，classificationLabels中分类标签value值-1对应该列表的索引
-
-	private int totalSamplesNumber = -1;
-
-	public ConversionInformation(ObjectStream<Event> es)
+	public SVMFeatureLabelInfo(ObjectStream<Event> es) throws IOException
 	{
-		try
-		{
-			init(es);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		init(es);
+
 	}
 
-	public ConversionInformation(String filePath, String encoding)
+	public SVMFeatureLabelInfo(String filePath, String encoding)
 	{
 		try
 		{
@@ -57,7 +47,7 @@ public class ConversionInformation
 		}
 	}
 
-	public ConversionInformation(String filePath)
+	public SVMFeatureLabelInfo(String filePath)
 	{
 		this(filePath, "UTF-8");
 	}
@@ -68,15 +58,15 @@ public class ConversionInformation
 		while ((event = es.read()) != null)
 		{
 			Integer index = null;
-			if ((index = classificationLabels.get(event.getOutcome())) == null)
+			if ((index = class2Index.get(event.getOutcome())) == null)
 			{
-				classificationLabels.put(event.getOutcome(), classificationLabels.size() + 1);
+				class2Index.put(event.getOutcome(), class2Index.size() + 1);
 
-				numberOfClassification.add(1);
+				classCount.add(1);
 			}
 			else
 			{
-				numberOfClassification.set(index - 1, numberOfClassification.get(index - 1) + 1);
+				classCount.set(index - 1, classCount.get(index - 1) + 1);
 			}
 
 			String[] contexts = event.getContext();
@@ -84,15 +74,15 @@ public class ConversionInformation
 			for (int i = 0; i < contexts.length; i++)
 			{
 
-				if ((index = features.get(contexts[i])) == null)
+				if ((index = feature2Index.get(contexts[i])) == null)
 				{
-					features.put(contexts[i], features.size() + 1);
+					feature2Index.put(contexts[i], feature2Index.size() + 1);
 
-					numberOfFeatures.add(1);
+					featureCount.add(1);
 				}
 				else
 				{
-					numberOfFeatures.set(index - 1, numberOfFeatures.get(index - 1) + 1);
+					featureCount.set(index - 1, featureCount.get(index - 1) + 1);
 				}
 
 			}
@@ -108,7 +98,7 @@ public class ConversionInformation
 	 */
 	public int getFeatureIndex(String feature)
 	{
-		Integer result = this.features.get(feature);
+		Integer result = this.feature2Index.get(feature);
 		if (result != null)
 			return result;
 		else
@@ -122,9 +112,9 @@ public class ConversionInformation
 	 *            类别标签
 	 * @return SVM输入中对应的label值；若不存在该特征，返回-1
 	 */
-	public int getClassificationValue(String classificationLable)
+	public int getClassIndex(String classificationLable)
 	{
-		Integer result = classificationLabels.get(classificationLable);
+		Integer result = class2Index.get(classificationLable);
 		if (result != null)
 			return result;
 		else
@@ -136,9 +126,9 @@ public class ConversionInformation
 	 * 
 	 * @return
 	 */
-	public int getClassificationLabelNumber()
+	public int getClassesNumber()
 	{
-		return classificationLabels.size();
+		return class2Index.size();
 	}
 
 	/**
@@ -150,7 +140,7 @@ public class ConversionInformation
 	 */
 	public boolean containsFeature(String featureKey)
 	{
-		return features.containsKey(featureKey);
+		return feature2Index.containsKey(featureKey);
 	}
 
 	/**
@@ -160,9 +150,9 @@ public class ConversionInformation
 	 *            类别标签
 	 * @return 包含，则返回true；否则，返回false
 	 */
-	public boolean containsClassificationLabel(String classificationLabel)
+	public boolean containsClassLabel(String classificationLabel)
 	{
-		return this.classificationLabels.containsKey(classificationLabel);
+		return this.class2Index.containsKey(classificationLabel);
 	}
 
 	/**
@@ -172,7 +162,7 @@ public class ConversionInformation
 	 */
 	public Set<String> featureSet()
 	{
-		return this.features.keySet();
+		return this.feature2Index.keySet();
 	}
 
 	/**
@@ -180,9 +170,9 @@ public class ConversionInformation
 	 * 
 	 * @return 类别标签集合
 	 */
-	public Set<String> classificationSet()
+	public Set<String> classesSet()
 	{
-		return this.classificationLabels.keySet();
+		return this.class2Index.keySet();
 	}
 
 	/**
@@ -192,7 +182,7 @@ public class ConversionInformation
 	 */
 	public int getFeaturesNumber()
 	{
-		return this.features.size();
+		return this.feature2Index.size();
 	}
 
 	/**
@@ -207,7 +197,7 @@ public class ConversionInformation
 		int index = getFeatureIndex(feature);
 		if (index == -1)
 			return 0;
-		return numberOfFeatures.get(index - 1);
+		return featureCount.get(index - 1);
 
 	}
 
@@ -218,12 +208,12 @@ public class ConversionInformation
 	 *            类别标签
 	 * @return 类别标签的数量
 	 */
-	public int getClassificationNumber(String classificationLabel)
+	public int getClassNumber(String classificationLabel)
 	{
-		int index = getClassificationValue(classificationLabel);
+		int index = getClassIndex(classificationLabel);
 		if (index == -1)
 			return 0;
-		return numberOfClassification.get(index - 1);
+		return classCount.get(index - 1);
 	}
 
 	/**
@@ -233,9 +223,9 @@ public class ConversionInformation
 	 *            SVM输入中的label值
 	 * @return 类别标签字符串
 	 */
-	public String getClassificationLabel(int classificationValue)
+	public String getClassLabel(int classificationValue)
 	{
-		Set<Entry<String, Integer>> labelSet = this.classificationLabels.entrySet();
+		Set<Entry<String, Integer>> labelSet = this.class2Index.entrySet();
 
 		for (Entry<String, Integer> e : labelSet)
 		{
@@ -250,21 +240,21 @@ public class ConversionInformation
 	 * 
 	 * @return
 	 */
-	public int getTotalSamplesNumber()
+	public int getSamplesNumber()
 	{
-		if (this.totalSamplesNumber == -1)
+		if (this.totalSamples == -1)
 		{
 			int sum = 0;
 
-			for (int n : numberOfClassification)
+			for (int n : classCount)
 			{
 				sum += n;
 			}
 
-			this.totalSamplesNumber = sum;
+			this.totalSamples = sum;
 		}
 
-		return this.totalSamplesNumber;
+		return this.totalSamples;
 	}
 
 	/**
@@ -283,17 +273,17 @@ public class ConversionInformation
 
 		out.write("oneLineNumber=" + oneLineNumber + "\n");
 
-		out.write("features=" + features.size() + "\n");
-		writeMap(features, oneLineNumber, out);
+		out.write("features=" + feature2Index.size() + "\n");
+		writeMap(feature2Index, oneLineNumber, out);
 
-		out.write("classificationLabels=" + classificationLabels.size() + "\n");
-		writeMap(classificationLabels, oneLineNumber, out);
+		out.write("classificationLabels=" + class2Index.size() + "\n");
+		writeMap(class2Index, oneLineNumber, out);
 
-		out.write("numberOfFeatures=" + numberOfFeatures.size() + "\n");
-		writeList(numberOfFeatures, oneLineNumber, out);
+		out.write("numberOfFeatures=" + featureCount.size() + "\n");
+		writeList(featureCount, oneLineNumber, out);
 
-		out.write("numberOfClassification=" + numberOfClassification.size() + "\n");
-		writeList(numberOfClassification, oneLineNumber, out);
+		out.write("numberOfClassification=" + classCount.size() + "\n");
+		writeList(classCount, oneLineNumber, out);
 
 		out.flush();
 		out.close();
@@ -347,7 +337,7 @@ public class ConversionInformation
 				System.err.println("序列化文件格式错误！");
 				System.exit(0);
 			}
-			this.features = readMap(Integer.valueOf(str[1]), oneLineNumber, in);
+			this.feature2Index = readMap(Integer.valueOf(str[1]), oneLineNumber, in);
 		}
 
 		if ((temp = in.readLine()) != null)
@@ -358,7 +348,7 @@ public class ConversionInformation
 				System.err.println("序列化文件格式错误！");
 				System.exit(0);
 			}
-			this.classificationLabels = readMap(Integer.valueOf(str[1]), oneLineNumber, in);
+			this.class2Index = readMap(Integer.valueOf(str[1]), oneLineNumber, in);
 		}
 
 		if ((temp = in.readLine()) != null)
@@ -369,7 +359,7 @@ public class ConversionInformation
 				System.err.println("序列化文件格式错误！");
 				System.exit(0);
 			}
-			this.numberOfFeatures = readIntList(Integer.valueOf(str[1]), oneLineNumber, in);
+			this.featureCount = readIntList(Integer.valueOf(str[1]), oneLineNumber, in);
 		}
 
 		if ((temp = in.readLine()) != null)
@@ -380,7 +370,7 @@ public class ConversionInformation
 				System.err.println("序列化文件格式错误！");
 				System.exit(0);
 			}
-			this.numberOfClassification = readIntList(Integer.valueOf(str[1]), oneLineNumber, in);
+			this.classCount = readIntList(Integer.valueOf(str[1]), oneLineNumber, in);
 		}
 
 		in.close();

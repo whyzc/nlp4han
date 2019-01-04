@@ -26,7 +26,7 @@ import com.lc.nlp4han.ml.util.ObjectStream;
  */
 public abstract class ChunkerSVM implements Chunker
 {
-	private ConversionInformation ci = null;
+	private SVMFeatureLabelInfo ci = null;
 	private ChunkAnalysisContextGenerator contextgenerator;
 	private Object model;
 	private String label;
@@ -47,7 +47,7 @@ public abstract class ChunkerSVM implements Chunker
 	{
 		this(contextgenerator, label);
 
-		ci = new ConversionInformation(filePath, encoding);
+		ci = new SVMFeatureLabelInfo(filePath, encoding);
 
 	}
 
@@ -66,7 +66,7 @@ public abstract class ChunkerSVM implements Chunker
 	 * 
 	 * @param ssi
 	 */
-	public void setSVMStandardInput(ConversionInformation ci)
+	public void setSVMStandardInput(SVMFeatureLabelInfo ci)
 	{
 		this.ci = ci;
 	}
@@ -79,7 +79,7 @@ public abstract class ChunkerSVM implements Chunker
 	public void setSVMStandardInput(String filePath)
 	{
 
-		this.ci = new ConversionInformation(filePath, "utf-8");
+		this.ci = new SVMFeatureLabelInfo(filePath, "utf-8");
 
 	}
 
@@ -154,7 +154,7 @@ public abstract class ChunkerSVM implements Chunker
 		{
 			String[] context = contextgenerator.getContext(i, words, chunkTags, poses);
 
-			line = "1 " + SVMSampleUtil.oneSample(context, ci); // <label> <index1>:<value1> <index2>:<value2>
+			line = "1 " + SVMSampleUtil.toSVMSample(context, ci); // <label> <index1>:<value1> <index2>:<value2>
 																// ...；预测时，label可以为任意值
 
 			String tag = predict(line, getModel());
@@ -192,7 +192,7 @@ public abstract class ChunkerSVM implements Chunker
 	private String transform(String v)
 	{
 		int t = str2int(v);
-		String result = ci.getClassificationLabel(t);
+		String result = ci.getClassLabel(t);
 		return result;
 	}
 
@@ -226,7 +226,7 @@ public abstract class ChunkerSVM implements Chunker
 		ObjectStream<Event> es = new ChunkerWordPosSampleEvent(sampleStream, contextGen);
 		init(es);
 		es.reset();
-		String[] input = SVMSampleUtil.samples(es, ci);
+		String[] input = SVMSampleUtil.toSVMSamples(es, ci);
 		saveFile(arg[arg.length - 2], input, "utf-8");
 	}
 
@@ -241,10 +241,11 @@ public abstract class ChunkerSVM implements Chunker
 	 * 根据事件流生成数据转换信息
 	 * 
 	 * @param es
+	 * @throws IOException 
 	 */
-	private void init(ObjectStream<Event> es)
+	private void init(ObjectStream<Event> es) throws IOException
 	{
-		this.ci = new ConversionInformation(es);
+		this.ci = new SVMFeatureLabelInfo(es);
 	}
 
 	private void saveFile(String saveFilePath, String[] datum, String encoding)

@@ -38,10 +38,10 @@ public class ChunkerSVMTrainerTool
 		Map<String, String[]> as = decompositionArgs(args);
 
 		String[] inputArgs = as.get("input");
-		ConversionInformation ci = SVMSampleUtil.conversion(inputArgs);
+		SVMFeatureLabelInfo ci = SVMSampleUtil.convert(inputArgs);
 
-		System.out.println("类别总数：" + ci.getClassificationLabelNumber());
-		System.out.println("样本总数：" + ci.getTotalSamplesNumber());
+		System.out.println("类别总数：" + ci.getClassesNumber());
+		System.out.println("样本总数：" + ci.getSamplesNumber());
 		System.out.println("特征总数：" + ci.getFeaturesNumber());
 
 		String[] trainArgs = as.get("train");

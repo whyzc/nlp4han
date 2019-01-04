@@ -13,10 +13,10 @@ import com.lc.nlp4han.ml.util.ObjectStream;
 
 public class TestSVMSampleUtil
 {
-	private static ConversionInformation tfi = null;
+	private static SVMFeatureLabelInfo tfi = null;
 
 	@BeforeClass
-	public static void before()
+	public static void before() throws IOException
 	{
 		String contents;
 		contents = "[上海/NR 浦东/NR]NP [开发/NN 与/CC 法制/NN 建设/NN]NP [同步/VV]VP ";
@@ -117,7 +117,7 @@ public class TestSVMSampleUtil
 			e.printStackTrace();
 		}
 
-		tfi = new ConversionInformation(es);
+		tfi = new SVMFeatureLabelInfo(es);
 	}
 
 	@Test
@@ -127,7 +127,7 @@ public class TestSVMSampleUtil
 		context[0] = "w0=浦东";
 		context[1] = "p0=NR";
 
-		String actual = SVMSampleUtil.oneSample(context, tfi);
+		String actual = SVMSampleUtil.toSVMSample(context, tfi);
 
 		assertEquals("2:1 3:1", actual);
 	}
@@ -140,7 +140,7 @@ public class TestSVMSampleUtil
 		context[1] = "p0=NR";
 		Event event = new Event("NP_E", context);
 
-		String actual = SVMSampleUtil.oneSample(event, tfi);
+		String actual = SVMSampleUtil.toSVMSample(event, tfi);
 
 		assertEquals("2 2:1 3:1", actual);
 	}

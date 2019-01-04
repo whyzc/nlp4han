@@ -16,10 +16,10 @@ import com.lc.nlp4han.ml.util.ObjectStream;
 
 public class TestConversionInformation
 {
-	private static ConversionInformation tfi = null;
+	private static SVMFeatureLabelInfo tfi = null;
 
 	@BeforeClass
-	public static void before()
+	public static void before() throws IOException
 	{
 		String contents;
 		contents = "[上海/NR 浦东/NR]NP [开发/NN 与/CC 法制/NN 建设/NN]NP [同步/VV]VP";
@@ -120,7 +120,7 @@ public class TestConversionInformation
 			e.printStackTrace();
 		}
 
-		tfi = new ConversionInformation(es);
+		tfi = new SVMFeatureLabelInfo(es);
 	}
 
 	@Test
@@ -148,7 +148,7 @@ public class TestConversionInformation
 		String classification;
 		classification = "NP_B";
 
-		int actual1 = tfi.getClassificationValue(classification);
+		int actual1 = tfi.getClassIndex(classification);
 
 		int expected1 = 1;
 
@@ -156,7 +156,7 @@ public class TestConversionInformation
 
 		classification = "VP_S";
 
-		int actual2 = tfi.getClassificationValue(classification);
+		int actual2 = tfi.getClassIndex(classification);
 
 		int expected2 = 4;
 
@@ -164,7 +164,7 @@ public class TestConversionInformation
 
 		classification = "asdf";
 
-		int actual3 = tfi.getClassificationValue(classification);
+		int actual3 = tfi.getClassIndex(classification);
 
 		int expected3 = -1;
 
@@ -192,13 +192,13 @@ public class TestConversionInformation
 	{
 		String key1 = "VP_S";
 
-		boolean actual1 = tfi.containsClassificationLabel(key1);
+		boolean actual1 = tfi.containsClassLabel(key1);
 
 		assertTrue(actual1);
 
 		String key2 = "abc";
 
-		boolean actual2 = tfi.containsClassificationLabel(key2);
+		boolean actual2 = tfi.containsClassLabel(key2);
 
 		assertFalse(actual2);
 	}
@@ -232,14 +232,14 @@ public class TestConversionInformation
 	@Test
 	public void testGetClassificationLabelNumber()
 	{
-		int actual = tfi.getClassificationLabelNumber();
+		int actual = tfi.getClassesNumber();
 		assertEquals(4, actual);
 	}
 
 	@Test
 	public void testGet()
 	{
-		int actual = tfi.getTotalSamplesNumber();
+		int actual = tfi.getSamplesNumber();
 		assertEquals(7, actual);
 	}
 
@@ -247,7 +247,7 @@ public class TestConversionInformation
 	public void testGetClassificationLabel()
 	{
 		int value = 2;
-		String actual = tfi.getClassificationLabel(value);
+		String actual = tfi.getClassLabel(value);
 
 		assertEquals("NP_E", actual);
 	}
