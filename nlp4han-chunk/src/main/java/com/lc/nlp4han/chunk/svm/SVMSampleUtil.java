@@ -243,6 +243,7 @@ public class SVMSampleUtil
 			throws IOException
 	{
 		Properties properties = getDefaultConf();
+		
 		return convert(filePath, encoding, scheme, properties, saveFilePath);
 	}
 
@@ -257,8 +258,10 @@ public class SVMSampleUtil
 	public static SVMFeatureLabelInfo convert(String[] args) throws IOException
 	{
 		String[] params = parseArgs(args);
+		
 		Properties featureConf = getDefaultConf();
 		SVMFeatureLabelInfo ci = convert(params[0], params[1], params[2], featureConf, params[3]);
+		
 		return ci;
 	}
 
