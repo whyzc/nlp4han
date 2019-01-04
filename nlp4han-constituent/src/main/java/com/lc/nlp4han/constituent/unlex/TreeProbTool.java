@@ -13,9 +13,9 @@ import com.lc.nlp4han.constituent.TreeNode;
 public class TreeProbTool
 {
 	// 返回树的log似然值
-	public static double comperter(Grammar gLatentAnnotation, AnnotationTreeNode tree)
+	public static double computeProb(Grammar latentGrammar, AnnotationTreeNode tree)
 	{
-		TreeBank.calculateInnerScore(gLatentAnnotation, tree);
+		TreeBank.calculateInnerScore(latentGrammar, tree);
 		// System.out
 		// .println("score:" + tree.getLabel().getInnerScores()[0] + ",scale:" +
 		// tree.getLabel().getInnerScale());
@@ -26,12 +26,15 @@ public class TreeProbTool
 	{
 		try
 		{
-			Grammar gLatentAnnotation = LatentGrammarExtractorTool.getGrammar("C:\\Users\\hp\\Desktop\\test100.txt", "utf-8", 1, 0.5, 50,
+			Grammar grammar = LatentGrammarExtractorTool.getGrammar(args[0], args[1], 1, 0.5, 50,
 					0.01, 10);
+			
 			TreeNode tree = TreeBinarization.binarize(BracketExpUtil.generateTree(
 					"(ROOT(FRAG(NN 新华社)(NR 上海)(NT 二月)(NT 十日)(NN 电)(PU （)(NN 记者)(NR 谢金虎)(PU 、)(NR 张持坚)(PU ）)))"));
-			AnnotationTreeNode theTree = gLatentAnnotation.convert2AnnotationTreeNode(tree);
-			double score = comperter(gLatentAnnotation, theTree);
+			
+			AnnotationTreeNode theTree = grammar.convert2AnnotationTreeNode(tree);
+			double score = computeProb(grammar, theTree);
+			
 			System.out.println("logS:" + score);
 		}
 		catch (IOException e)
