@@ -1,8 +1,13 @@
 package com.lc.nlp4han.constituent.lex;
 
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Scanner;
 
 import com.lc.nlp4han.constituent.BracketExpUtil;
 import com.lc.nlp4han.constituent.ConstituentParser;
@@ -784,5 +789,47 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 					children);
 		}
 		return edge;
+	}
+	
+	public static void main(String[] args) throws IOException, ClassNotFoundException
+	{
+		DataInput in = new DataInputStream(new FileInputStream((args[0])));
+		LexPCFG lexPCFG = new LexPCFG();
+		lexPCFG.read(in);
+
+		double pruneThreshold = 0.0001;// Double.parseDouble(args[2]);
+		boolean secondPrune = false;// Boolean.getBoolean(args[3]);
+		boolean prior = false;// Boolean.getBoolean(args[4]);
+
+		ConstituentParseLexPCFG parser = new ConstituentParseLexPCFG(lexPCFG, pruneThreshold, secondPrune,
+				prior);
+
+		Scanner input = new Scanner(System.in);
+		String text = "";
+		while (true)
+		{
+			System.out.println("请输入待分析的文本：");
+			text = input.nextLine();
+
+			if (text.equals(""))
+			{
+				System.out.println("内容为空，请重新输入！");
+			}
+			else if (text.equals("exit"))
+			{
+				break;
+			}
+			else
+			{
+				String[] s = text.split("\\s+");
+				ConstituentTree tree = parser.parse(s);
+				if (tree != null)
+					System.out.println(tree.toPrettyString());
+				else
+					System.out.println("Can't parse.");
+			}
+		}
+
+		input.close();
 	}
 }
