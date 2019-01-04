@@ -1,5 +1,8 @@
 package com.lc.nlp4han.constituent.unlex;
 
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
@@ -7,7 +10,7 @@ import java.io.IOException;
  * 
  * @author 王宁
  */
-public class GrammarExtractorToolPLabelAdded
+public class GrammarExtractorParentTool
 {
 	public static Grammar getGrammar(String trainFilePath, String encoding, int rareWordThreshold) throws IOException
 	{
@@ -47,10 +50,16 @@ public class GrammarExtractorToolPLabelAdded
 		{
 			long start = System.currentTimeMillis();
 			System.out.println("开始提取初始文法");
-			Grammar g = GrammarExtractorToolPLabelAdded.getGrammar(trainFilePath, encoding,
+			
+			Grammar g = GrammarExtractorParentTool.getGrammar(trainFilePath, encoding,
 					Lexicon.DEFAULT_RAREWORD_THRESHOLD);
-			GrammarWriter.writeToFile(g, outputFilePath, true);
+			
+//			GrammarWriter.writeToFile(g, outputFilePath, true);
+			DataOutput out = new DataOutputStream(new FileOutputStream(outputFilePath));
+			g.write(out);
+			
 			System.out.println("提取初始文法完毕");
+			
 			long end = System.currentTimeMillis();
 			long time = end - start;
 			System.out.println("提取语法消耗时间：" + time);
@@ -63,7 +72,7 @@ public class GrammarExtractorToolPLabelAdded
 
 	private static void usage()
 	{
-		System.out.println(GrammarExtractorToolPLabelAdded.class.getName() + "\n"
+		System.out.println(GrammarExtractorParentTool.class.getName() + "\n"
 				+ " -train <trainFile> -out <outFile>  [-encoing <encoding>]  ");
 	}
 

@@ -90,7 +90,6 @@ public class LatentGrammarExtractorTool
 			Grammar g = LatentGrammarExtractorTool.getGrammar(trainFilePath, encoding, SMCycle, mergeRate,
 					iterations, smooth, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
 			
-//			GrammarWriter.writeToFileStandard(g, outputFilePath, true);
 			DataOutput out = new DataOutputStream(new FileOutputStream(outputFilePath));
 			g.write(out);
 			

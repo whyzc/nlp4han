@@ -116,7 +116,7 @@ public class EvaluatorParentLabelAdded extends Evaluator<ConstituentTree>
 			double pruneThreshold, boolean secondPrune, boolean prior) throws IOException
 	{
 		long start = System.currentTimeMillis();
-		Grammar g = GrammarExtractorToolPLabelAdded.getGrammar(trainF, trainEn, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
+		Grammar g = GrammarExtractorParentTool.getGrammar(trainF, trainEn, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
 		long end = System.currentTimeMillis();
 		EvaluatorParentLabelAdded evaluator = new EvaluatorParentLabelAdded(g.getPCFG(), pruneThreshold, secondPrune,
 				prior);
