@@ -2,6 +2,7 @@ package com.lc.nlp4han.constituent.unlex;
 
 import java.util.ArrayList;
 
+import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYLoosePCNF;
 import com.lc.nlp4han.constituent.pcfg.PCFG;
@@ -10,16 +11,16 @@ import com.lc.nlp4han.constituent.pcfg.UncompatibleGrammar;
 /**
  * 用带父节点标记的语法解析
  */
-public class ConstituentParserParentLabelAdded implements ConstituentParserLatentAnnotation
+public class ConstituentParserParent implements ConstituentParser
 {
 	private ConstituentParserCKYLoosePCNF p2nf;
 
-	public ConstituentParserParentLabelAdded(Grammar gPLAdded) throws UncompatibleGrammar
+	public ConstituentParserParent(Grammar gPLAdded) throws UncompatibleGrammar
 	{
 		this(gPLAdded, 0.0001, false, false);
 	}
 
-	public ConstituentParserParentLabelAdded(Grammar gPLAdded, double pruneThreshold, boolean secondPrune,
+	public ConstituentParserParent(Grammar gPLAdded, double pruneThreshold, boolean secondPrune,
 			boolean prior) throws UncompatibleGrammar
 	{
 		PCFG pcfg = gPLAdded.getPCFG();

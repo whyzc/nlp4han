@@ -43,7 +43,7 @@ public class CrossValidatorLatentAnnotation_Viterbi
 			System.out.println("训练学习时间：" + (System.currentTimeMillis() - start) + "ms");
 			
 			long start2 = System.currentTimeMillis();
-			ConstituentParserLatentAnnotation_Viterbi parser = new ConstituentParserLatentAnnotation_Viterbi(gLatent,
+			ConstituentParserUnlex parser = new ConstituentParserUnlex(gLatent,
 					pruneThreshold, secondPrune, prior);
 			EvaluatorLatentAnnotation_Viterbi evaluator = new EvaluatorLatentAnnotation_Viterbi(parser);
 			evaluator.setMeasure(measure);

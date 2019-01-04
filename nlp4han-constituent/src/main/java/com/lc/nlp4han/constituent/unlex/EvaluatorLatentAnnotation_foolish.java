@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.lc.nlp4han.constituent.ConstituentMeasure;
+import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.TreeNodeUtil;
@@ -27,7 +28,7 @@ public class EvaluatorLatentAnnotation_foolish extends Evaluator<ConstituentTree
 	/**
 	 * 句法分析模型得到一颗句法树z
 	 */
-	private ConstituentParserLatentAnnotation parser;
+	private ConstituentParser parser;
 
 	/**
 	 * 句法树中的短语分析评估
@@ -47,7 +48,7 @@ public class EvaluatorLatentAnnotation_foolish extends Evaluator<ConstituentTree
 		this.measure = measure;
 	}
 
-	public EvaluatorLatentAnnotation_foolish(ConstituentParserLatentAnnotation parser)
+	public EvaluatorLatentAnnotation_foolish(ConstituentParser parser)
 	{
 		this.parser = parser;
 	}
@@ -117,7 +118,7 @@ public class EvaluatorLatentAnnotation_foolish extends Evaluator<ConstituentTree
 		long end = System.currentTimeMillis();
 		ConstituentParserCKYLoosePCNF p2nf = new ConstituentParserCKYLoosePCNF(pcfg, pruneThreshold, secondPrune,
 				prior);
-		ConstituentParserLatentAnnotation parser = new ConstituentParserLatentAnnotation_foolish(p2nf,
+		ConstituentParser parser = new ConstituentParserLatentAnnotation_foolish(p2nf,
 				gLatentAnntation);
 		EvaluatorLatentAnnotation_foolish evaluator = new EvaluatorLatentAnnotation_foolish(parser);
 		ConstituentMeasure measure = new ConstituentMeasure();

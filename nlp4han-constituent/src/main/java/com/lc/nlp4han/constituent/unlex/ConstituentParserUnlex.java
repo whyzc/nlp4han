@@ -20,17 +20,17 @@ import com.lc.nlp4han.constituent.pcfg.UncompatibleGrammar;
  * 
  * @author 王宁
  */
-public class ConstituentParserLatentAnnotation_Viterbi implements ConstituentParserLatentAnnotation
+public class ConstituentParserUnlex implements ConstituentParser
 {
 	// TODO:使用ConstituentParserCKYPCNF
 	private ConstituentParserCKYLoosePCNF parserLoosePCNF;
 
-	public ConstituentParserLatentAnnotation_Viterbi(Grammar gLatent) throws UncompatibleGrammar
+	public ConstituentParserUnlex(Grammar gLatent) throws UncompatibleGrammar
 	{
 		this(gLatent, 0.0001, false, false);
 	}
 
-	public ConstituentParserLatentAnnotation_Viterbi(Grammar gLatent, double pruneThreshold, boolean secondPrune,
+	public ConstituentParserUnlex(Grammar gLatent, double pruneThreshold, boolean secondPrune,
 			boolean prior) throws UncompatibleGrammar
 	{
 		PCFG pcfg = gLatent.getPCFG();
@@ -123,7 +123,7 @@ public class ConstituentParserLatentAnnotation_Viterbi implements ConstituentPar
 		Grammar g = new Grammar();
 		g.read(in);
 
-		ConstituentParser parser = new ConstituentParserLatentAnnotation_Viterbi(g);
+		ConstituentParser parser = new ConstituentParserUnlex(g);
 
 		Scanner input = new Scanner(System.in);
 		String text = "";

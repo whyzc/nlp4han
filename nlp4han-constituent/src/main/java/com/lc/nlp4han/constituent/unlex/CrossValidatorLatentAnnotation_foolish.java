@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import com.lc.nlp4han.constituent.ConstituentMeasure;
+import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.PlainTextByTreeStream;
 import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYLoosePCNF;
@@ -46,7 +47,7 @@ public class CrossValidatorLatentAnnotation_foolish
 			long start2 = System.currentTimeMillis();
 			ConstituentParserCKYLoosePCNF p2nf = new ConstituentParserCKYLoosePCNF(pcfg, pruneThreshold, secondPrune,
 					prior);
-			ConstituentParserLatentAnnotation parser = new ConstituentParserLatentAnnotation_foolish(p2nf, gLatent);
+			ConstituentParser parser = new ConstituentParserLatentAnnotation_foolish(p2nf, gLatent);
 			EvaluatorLatentAnnotation_foolish evaluator = new EvaluatorLatentAnnotation_foolish(parser);
 			evaluator.setMeasure(measure);
 			ObjectStream<ConstituentTree> sampleStream = new ConstituentTreeStream(

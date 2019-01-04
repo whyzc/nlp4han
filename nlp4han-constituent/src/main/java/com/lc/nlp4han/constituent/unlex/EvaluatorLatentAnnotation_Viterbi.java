@@ -16,12 +16,12 @@ import com.lc.nlp4han.ml.util.ObjectStream;
 
 public class EvaluatorLatentAnnotation_Viterbi extends Evaluator<ConstituentTree>
 {
-	private ConstituentParserLatentAnnotation_Viterbi parser;
+	private ConstituentParserUnlex parser;
 	private ConstituentMeasure measure;
 	private long count = 0;
 	private long totalTime = 0;
 
-	public EvaluatorLatentAnnotation_Viterbi(ConstituentParserLatentAnnotation_Viterbi parser)
+	public EvaluatorLatentAnnotation_Viterbi(ConstituentParserUnlex parser)
 	{
 		this.parser = parser;
 	}
@@ -86,7 +86,7 @@ public class EvaluatorLatentAnnotation_Viterbi extends Evaluator<ConstituentTree
 		Grammar gLatentAnntation = LatentGrammarExtractorTool.getGrammar(trainF, trainEn, SMCycle,
 				mergeRate, iterations, smoothRate, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
 
-		ConstituentParserLatentAnnotation_Viterbi parser = new ConstituentParserLatentAnnotation_Viterbi(
+		ConstituentParserUnlex parser = new ConstituentParserUnlex(
 				gLatentAnntation, pruneThreshold, secondPrune, prior);
 		long end = System.currentTimeMillis();
 		System.out.println("语法训练时间：" + (end - start) + "ms");

@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.TreeMap;
 
+import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYLoosePCNF;
 
 /**
  * @author 王宁
  */
-public class ConstituentParserLatentAnnotation_foolish implements ConstituentParserLatentAnnotation
+public class ConstituentParserLatentAnnotation_foolish implements ConstituentParser
 {
 	public static int deafultParserCKYP2NF_K = 10;
 	private ConstituentParserCKYLoosePCNF p2nf;
