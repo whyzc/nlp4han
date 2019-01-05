@@ -1,11 +1,8 @@
 package com.lc.nlp4han.constituent.lex;
 
-import java.io.BufferedReader;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -29,11 +26,13 @@ public class LexPCFG implements GrammarWritable
 
 	// 词性标注和词，以及数目
 	private HashMap<WordPOS, Integer> wordMap = new HashMap<WordPOS, Integer>();
+
 	// 词在训练集中的pos集合
 	private HashMap<String, HashSet<String>> posesOfWord = new HashMap<String, HashSet<String>>();
 
 	// P(H|P,t,w)）相关的统计数据
 	private HashMap<OccurenceCollins, RuleAmountsInfo> headGenMap = new HashMap<OccurenceCollins, RuleAmountsInfo>();
+
 	private HashMap<OccurenceCollins, HashSet<String>> parentList = new HashMap<OccurenceCollins, HashSet<String>>();
 
 	// 用于生成SidesChild(包含其中心word和pos)相关统计数据
@@ -67,103 +66,106 @@ public class LexPCFG implements GrammarWritable
 		this.specialGenMap = specialGenMap;
 	}
 
-	/**
-	 * 从输入流中读取模型
-	 * @param in
-	 * @param encoding
-	 * @throws IOException
-	 */
-	public void readGrammar(InputStream in, String encoding) throws IOException {
-		BufferedReader buffer = new BufferedReader(new InputStreamReader(in, encoding));
-		String str = buffer.readLine().trim();
-		if (str.equals("--起始符--"))
-		{
-			setStartSymbol(buffer.readLine().trim());
-		}
-		buffer.readLine();
+//	/**
+//	 * 从输入流中读取模型
+//	 * 
+//	 * @param in
+//	 * @param encoding
+//	 * @throws IOException
+//	 */
+//	public void readGrammar(InputStream in, String encoding) throws IOException
+//	{
+//		BufferedReader buffer = new BufferedReader(new InputStreamReader(in, encoding));
+//		String str = buffer.readLine().trim();
+//		if (str.equals("--起始符--"))
+//		{
+//			setStartSymbol(buffer.readLine().trim());
+//		}
+//		buffer.readLine();
+//
+//		str = buffer.readLine().trim();
+//		while (!str.equals("--POS-Word集--"))
+//		{// 添加词性标注集
+//			posSet.add(str);
+//			str = buffer.readLine().trim();
+//		}
+//
+//		str = buffer.readLine().trim();
+//		while (!str.equals("--生成头结点的规则集--"))
+//		{// POS-Word集
+//			String[] strs = str.split(" ");
+//			wordMap.put(new WordPOS(strs[0], strs[1]), Integer.parseInt(strs[2]));
+//			str = buffer.readLine().trim();
+//		}
+//
+//		str = buffer.readLine().trim();
+//		while (!str.equals("--头结点向上延伸的标记集--"))
+//		{// 生成头结点的规则集
+//			String[] strs = str.split(" ");
+//			int amount = Integer.parseInt(strs[strs.length - 2]);
+//			int sort = Integer.parseInt(strs[strs.length - 1]);
+//			headGenMap.put(new OccurenceHeadChild(strs), new RuleAmountsInfo(amount, sort));
+//			str = buffer.readLine();
+//		}
+//
+//		str = buffer.readLine().trim();
+//		while (!str.equals("--生成两侧孩子的规则集--"))
+//		{// 头结点向上延伸的标记集
+//			String[] strs = str.split(" ");
+//			HashSet<String> set = new HashSet<String>();
+//			for (int i = 4; i < strs.length; i++)
+//			{
+//				set.add(strs[i]);
+//			}
+//			parentList.put(new OccurenceHeadChild(strs), set);
+//			str = buffer.readLine();
+//		}
+//
+//		str = buffer.readLine().trim();
+//		while (!str.equals("--生成两侧Stop的规则集--"))
+//		{// 生成两侧孩子的规则集
+//			String[] strs = str.split(" ");
+//			int amount = Integer.parseInt(strs[strs.length - 2]);
+//			int subtypesAmount = Integer.parseInt(strs[strs.length - 1]);
+//			sidesGenMap.put(new OccurenceSides(strs), new RuleAmountsInfo(amount, subtypesAmount));
+//			str = buffer.readLine();
+//		}
+//
+//		str = buffer.readLine().trim();
+//		while (!str.equals("--特殊规则集--"))
+//		{// 生成两侧Stop的规则集
+//			String[] strs = str.split(" ");
+//			int amount = 1;
+//			amount = Integer.parseInt(strs[strs.length - 2]);
+//			int sort = Integer.parseInt(strs[strs.length - 1]);
+//			stopGenMap.put(new OccurenceStop(strs), new RuleAmountsInfo(amount, sort));
+//			str = buffer.readLine();
+//		}
+//
+//		str = buffer.readLine().trim();
+//		while (str != null && !str.equals("完"))
+//		{// 特殊规则集
+//			String[] strs = str.split(" ");
+//			int amount = Integer.parseInt(strs[strs.length - 2]);
+//			int sort = Integer.parseInt(strs[strs.length - 1]);
+//			specialGenMap.put(new OccurenceSpecialCase(strs), new RuleAmountsInfo(amount, sort));
+//			str = buffer.readLine();
+//		}
+//		buffer.close();
+//	}
 
-		str = buffer.readLine().trim();
-		while (!str.equals("--POS-Word集--"))
-		{// 添加词性标注集
-			posSet.add(str);
-			str = buffer.readLine().trim();
-		}
-
-		str=buffer.readLine().trim();
-		while (!str.equals("--生成头结点的规则集--"))
-		{// POS-Word集
-			String[] strs = str.split(" ");
-			wordMap.put(new WordPOS(strs[0], strs[1]), Integer.parseInt(strs[2]));
-			str = buffer.readLine().trim();	
-		}
-
-		str=buffer.readLine().trim();
-		while (!str.equals("--头结点向上延伸的标记集--"))
-		{// 生成头结点的规则集
-			String[] strs = str.split(" ");
-			int amount = Integer.parseInt(strs[strs.length - 2]);
-			int sort = Integer.parseInt(strs[strs.length - 1]);
-			headGenMap.put(new OccurenceHeadChild(strs), new RuleAmountsInfo(amount, sort));
-			str = buffer.readLine();
-		}
-
-		str=buffer.readLine().trim();
-		while (!str.equals("--生成两侧孩子的规则集--"))
-		{// 头结点向上延伸的标记集
-			String[] strs = str.split(" ");
-			HashSet<String> set = new HashSet<String>();
-			for (int i = 4; i < strs.length; i++)
-			{
-				set.add(strs[i]);
-			}
-			parentList.put(new OccurenceHeadChild(strs), set);
-			str = buffer.readLine();
-		}
-
-		str=buffer.readLine().trim();
-		while (!str.equals("--生成两侧Stop的规则集--"))
-		{// 生成两侧孩子的规则集
-			String[] strs = str.split(" ");
-			int amount = Integer.parseInt(strs[strs.length - 2]);
-			int subtypesAmount = Integer.parseInt(strs[strs.length - 1]);
-			sidesGenMap.put(new OccurenceSides(strs), new RuleAmountsInfo(amount, subtypesAmount));
-			str = buffer.readLine();
-		}
-
-		str=buffer.readLine().trim();
-		while (!str.equals("--特殊规则集--"))
-		{// 生成两侧Stop的规则集
-			String[] strs = str.split(" ");
-			int amount = 1;
-			amount = Integer.parseInt(strs[strs.length - 2]);
-			int sort = Integer.parseInt(strs[strs.length - 1]);
-			stopGenMap.put(new OccurenceStop(strs), new RuleAmountsInfo(amount, sort));
-			str = buffer.readLine();
-		}
-
-		str=buffer.readLine().trim();
-		while (str != null&&!str.equals("完"))
-		{// 特殊规则集
-			String[] strs = str.split(" ");
-			int amount = Integer.parseInt(strs[strs.length - 2]);
-			int sort = Integer.parseInt(strs[strs.length - 1]);
-			specialGenMap.put(new OccurenceSpecialCase(strs), new RuleAmountsInfo(amount, sort));
-			str = buffer.readLine();
-		}
-		buffer.close();
-	}
-	/**
-	 * 从流中读取数据
-	 * 
-	 * @param in
-	 * @param encoding
-	 * @throws IOException
-	 */
-	public LexPCFG(InputStream in, String encoding) throws IOException
-	{
-		readGrammar(in,encoding);
-		
-	}
+//	/**
+//	 * 从流中读取数据
+//	 * 
+//	 * @param in
+//	 * @param encoding
+//	 * @throws IOException
+//	 */
+//	public LexPCFG(InputStream in, String encoding) throws IOException
+//	{
+//		readGrammar(in, encoding);
+//
+//	}
 
 	/**
 	 * 得到词性标注集合
@@ -181,7 +183,7 @@ public class LexPCFG implements GrammarWritable
 	 * @param word
 	 * @return
 	 */
-	public HashSet<String> getposSetByword(String word)
+	public HashSet<String> getPosSetByword(String word)
 	{
 		return posesOfWord.get(word);
 	}
@@ -282,7 +284,7 @@ public class LexPCFG implements GrammarWritable
 		if (type.equals("2side"))
 		{
 			OccurenceSides rs = (OccurenceSides) rule;
-			double i = 0.02;//未登录词的平滑值
+			double i = 0.02;// 未登录词的平滑值
 			e3 = getProForWord(rs, i);
 		}
 		else
@@ -556,7 +558,7 @@ public class LexPCFG implements GrammarWritable
 			OccurenceHeadChild rule1 = (OccurenceHeadChild) rule;
 			stb.append(rule1.toString() + " " + specialGenMap.get(rule1).toString() + '\n');
 		}
-		stb.append("完" );
+		stb.append("完");
 		return stb.toString();
 	}
 
