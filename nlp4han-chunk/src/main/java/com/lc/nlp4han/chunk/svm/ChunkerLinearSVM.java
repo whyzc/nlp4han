@@ -9,6 +9,10 @@ import com.lc.nlp4han.chunk.svm.liblinear.Model;
 import com.lc.nlp4han.chunk.svm.liblinear.PredictLinear;
 import com.lc.nlp4han.chunk.svm.liblinear.Train;
 
+/**
+ * 基于SVMLinear的组块分析器
+ *
+ */
 public class ChunkerLinearSVM extends ChunkerSVM
 {
 	Model model = null;

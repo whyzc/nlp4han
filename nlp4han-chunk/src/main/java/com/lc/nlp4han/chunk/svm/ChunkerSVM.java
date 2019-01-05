@@ -26,8 +26,8 @@ import com.lc.nlp4han.ml.util.ObjectStream;
 public abstract class ChunkerSVM implements Chunker
 {
 	private SVMFeatureLabelInfo ci = null;
+	
 	private ChunkAnalysisContextGenerator contextgenerator;
-	private Object model;
 	private String label;
 
 	public ChunkerSVM()
@@ -50,15 +50,9 @@ public abstract class ChunkerSVM implements Chunker
 
 	}
 
-	public void setModel(Object model)
-	{
-		this.model = model;
-	}
+	public abstract void setModel(Object model);
 
-	public Object getModel()
-	{
-		return this.model;
-	}
+	public abstract Object getModel();
 
 	/**
 	 * 设置数据转换信息SVMStandardInput
