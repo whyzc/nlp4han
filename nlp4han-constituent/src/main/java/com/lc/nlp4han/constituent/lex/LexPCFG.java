@@ -203,9 +203,9 @@ public class LexPCFG implements GrammarWritable
 	 * 
 	 * @return
 	 */
-	public double getProForGenerateHead(OccurenceHeadChild rhcg)
+	public double getProbForGenerateHead(OccurenceHeadChild rhcg)
 	{
-		return getProOfBackOff(rhcg, headGenMap, "head");
+		return getProbOfBackOff(rhcg, headGenMap, "head");
 	}
 
 	/**
@@ -214,9 +214,9 @@ public class LexPCFG implements GrammarWritable
 	 * @param rsg
 	 * @return
 	 */
-	public double getProForGenerateStop(OccurenceStop rsg)
+	public double getProbForGenerateStop(OccurenceStop rsg)
 	{
-		return getProOfBackOff(rsg, stopGenMap, "stop");
+		return getProbOfBackOff(rsg, stopGenMap, "stop");
 	}
 
 	/**
@@ -225,7 +225,7 @@ public class LexPCFG implements GrammarWritable
 	 * @param sidesRule
 	 * @return
 	 */
-	public double getProForGenerateSides(OccurenceSides sr)
+	public double getProbForGenerateSides(OccurenceSides sr)
 	{
 		// 需要进行平滑运算将其分为两部分
 		String parentLabel = sr.getParentLabel();// 父节点的非终结符标记
@@ -244,7 +244,7 @@ public class LexPCFG implements GrammarWritable
 				sideHeadPOS, null, coor, pu, distance);
 		OccurenceSides rule2 = new OccurenceSides(headLabel, parentLabel, headPOS, headWord, direction, sideLabel,
 				sideHeadPOS, sideHeadWord, coor, pu, distance);
-		return getProOfBackOff(rule1, sidesGenMap, "1side") * getProOfBackOff(rule2, sidesGenMap, "2side");
+		return getProbOfBackOff(rule1, sidesGenMap, "1side") * getProbOfBackOff(rule2, sidesGenMap, "2side");
 	}
 
 	/**
@@ -254,9 +254,9 @@ public class LexPCFG implements GrammarWritable
 	 * @param specialRule
 	 * @return
 	 */
-	public double getProForSpecialCase(OccurenceSpecialCase specialRule)
+	public double getProbForSpecialCase(OccurenceSpecialCase specialRule)
 	{
-		return getProOfBackOff(specialRule, specialGenMap, "special");
+		return getProbOfBackOff(specialRule, specialGenMap, "special");
 	}
 
 	/**
@@ -266,17 +266,17 @@ public class LexPCFG implements GrammarWritable
 	 * @param map
 	 * @return
 	 */
-	private double getProOfBackOff(OccurenceCollins rule, HashMap<OccurenceCollins, RuleAmountsInfo> map, String type)
+	private double getProbOfBackOff(OccurenceCollins rule, HashMap<OccurenceCollins, RuleAmountsInfo> map, String type)
 	{
 		double e1, e2, e3, w1, w2;
 		e3 = 0;
 
-		double[] pw1 = getProAndWeight(rule, map, type);
+		double[] pw1 = getProbAndWeight(rule, map, type);
 		e1 = pw1[1];
 		w1 = pw1[0];
 
 		rule.setHeadWord(null);
-		double[] pw2 = getProAndWeight(rule, map, type);
+		double[] pw2 = getProbAndWeight(rule, map, type);
 		e2 = pw2[1];
 		w2 = pw2[0];
 
@@ -285,11 +285,11 @@ public class LexPCFG implements GrammarWritable
 		{
 			OccurenceSides rs = (OccurenceSides) rule;
 			double i = 0.02;// 未登录词的平滑值
-			e3 = getProForWord(rs, i);
+			e3 = getProbForWord(rs, i);
 		}
 		else
 		{
-			double[] pw3 = getProAndWeight(rule, map, type);
+			double[] pw3 = getProbAndWeight(rule, map, type);
 			e3 = pw3[1];
 		}
 
@@ -307,7 +307,7 @@ public class LexPCFG implements GrammarWritable
 	 * 
 	 * @return
 	 */
-	private double getProForWord(OccurenceSides rs, double count)
+	private double getProbForWord(OccurenceSides rs, double count)
 	{
 		double e3 = 0;
 		WordPOS wop = new WordPOS(rs.getSideHeadWord(), rs.getSideHeadPOS());
@@ -327,7 +327,7 @@ public class LexPCFG implements GrammarWritable
 	 * 
 	 * @return
 	 */
-	private double[] getProAndWeight(OccurenceCollins rhcg, HashMap<OccurenceCollins, RuleAmountsInfo> map, String type)
+	private double[] getProbAndWeight(OccurenceCollins rhcg, HashMap<OccurenceCollins, RuleAmountsInfo> map, String type)
 	{
 		int x, u, y;
 		double[] pw = new double[2];

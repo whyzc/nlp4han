@@ -470,7 +470,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 			int start = edge.getStart();
 			int end = edge.getEnd();
 			rhcg0.setParentLabel(str);
-			double edgePro=lexpcfg.getProForGenerateHead(rhcg0);
+			double edgePro=lexpcfg.getProbForGenerateHead(rhcg0);
 			if(edgePro==0.0) {
 				edgePro=smoothPro;
 				}
@@ -540,8 +540,8 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 					true, new Distance());
 		}
 		// 将原始概率与两侧规则的概率相乘得到新的概率
-		double lstop=lexpcfg.getProForGenerateStop(rsg1);
-		double rstop=lexpcfg.getProForGenerateStop(rsg2);
+		double lstop=lexpcfg.getProbForGenerateStop(rsg1);
+		double rstop=lexpcfg.getProbForGenerateStop(rsg2);
 		
 		// 如果概率为零则不添加
 		if(lstop==0) lstop=smoothPro;
@@ -641,7 +641,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 						direction, e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(), false, false, e1.getRc());
 			}
 			
-			double sidesPro=lexpcfg.getProForGenerateSides(rsg);
+			double sidesPro=lexpcfg.getProbForGenerateSides(rsg);
 			if (sidesPro == 0.0)
 			{
 				return;
@@ -682,7 +682,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 				rsg = new OccurenceSides(e2.getHeadLabel(), e2.getLabel(), e2.getHeadPOS(), e2.getHeadWord(),
 						direction, e1.getLabel(), e1.getHeadPOS(), e1.getHeadWord(), false, false, e2.getLc());
 			}
-			double sidesPro=lexpcfg.getProForGenerateSides(rsg);
+			double sidesPro=lexpcfg.getProbForGenerateSides(rsg);
 			if (sidesPro == 0.0)
 			{
 				return;
@@ -765,7 +765,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 					e1.getChild(e1.getChildNum() - 2).getHeadWord(), e2.getHeadWord(),
 					e1.getChild(e1.getChildNum() - 2).getHeadPOS(), e2.getHeadPOS());
 			
-			pro = pro * lexpcfg.getProForGenerateSides(rsg) * lexpcfg.getProForSpecialCase(sg);
+			pro = pro * lexpcfg.getProbForGenerateSides(rsg) * lexpcfg.getProbForSpecialCase(sg);
 		}
 		return pro;
 	}
