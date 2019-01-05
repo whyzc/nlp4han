@@ -105,4 +105,9 @@ public class OccurenceCollins
 		return parentLabel + " " + headPOS + " " + headWord;
 	}
 
+	public String toReadableString()
+	{
+		return "P=" + parentLabel + ", t=" + headPOS + ", w=" + headWord;
+	}
+
 }
