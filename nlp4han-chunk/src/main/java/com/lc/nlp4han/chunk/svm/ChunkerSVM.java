@@ -97,8 +97,9 @@ public abstract class ChunkerSVM implements Chunker
 	 * 根据模型路径，加载model
 	 * 
 	 * @param modelPath
+	 * @throws IOException 
 	 */
-	public abstract void setModel(String modelPath);
+	public abstract void setModel(String modelPath) throws IOException;
 
 	@Override
 	public Chunk[] parse(String sentence)
@@ -216,12 +217,12 @@ public abstract class ChunkerSVM implements Chunker
 	public void train(ObjectStream<AbstractChunkAnalysisSample> sampleStream, String[] arg,
 			ChunkAnalysisContextGenerator contextGen) throws IOException, InvalidInputDataException
 	{
-		generateTrainDatum(sampleStream, arg, contextGen);
+		generateSVMSamples(sampleStream, arg, contextGen);
 
 		train(arg);
 	}
 
-	private void generateTrainDatum(ObjectStream<AbstractChunkAnalysisSample> sampleStream, String[] arg,
+	private void generateSVMSamples(ObjectStream<AbstractChunkAnalysisSample> sampleStream, String[] arg,
 			ChunkAnalysisContextGenerator contextGen) throws RuntimeException, IOException
 	{
 		ObjectStream<Event> es = new ChunkerWordPosSampleEvent(sampleStream, contextGen);
@@ -239,19 +240,9 @@ public abstract class ChunkerSVM implements Chunker
 	 * 根据训练参数进行训练
 	 * 
 	 * @param arg
+	 * @throws IOException 
 	 */
-	public abstract void train(String[] arg);
-
-//	/**
-//	 * 根据事件流生成数据转换信息
-//	 * 
-//	 * @param es
-//	 * @throws IOException
-//	 */
-//	private void init(ObjectStream<Event> es) throws IOException
-//	{
-//		this.ci = new SVMFeatureLabelInfo(es);
-//	}
+	public abstract void train(String[] arg) throws IOException;
 
 	private void saveFile(String saveFilePath, String[] datum, String encoding) throws IOException
 	{

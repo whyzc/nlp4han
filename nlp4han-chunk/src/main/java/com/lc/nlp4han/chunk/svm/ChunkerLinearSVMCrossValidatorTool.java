@@ -152,8 +152,8 @@ public class ChunkerLinearSVMCrossValidatorTool
 			System.exit(1);
 		}
 
-		trainArgsList.add(corpusFile + ".svm.cv");
-		trainArgsList.add(corpusFile + ".model.cv");
+		trainArgsList.add(corpusFile + ".svm.cv"); // 临时样本文件
+		trainArgsList.add(corpusFile + ".model.cv"); // 临时模型文件
 
 		String[] trainArgs = trainArgsList.toArray(new String[trainArgsList.size()]);
 
@@ -187,6 +187,8 @@ public class ChunkerLinearSVMCrossValidatorTool
 		crossValidator.evaluate(sampleStream, folds, chunker, contextGen, measure, p);
 
 		sampleStream.close();
+		
+		// 删除临时文件
 		deleteFile(trainArgs[trainArgs.length - 1]);
 		deleteFile(trainArgs[trainArgs.length - 2]);
 	}
