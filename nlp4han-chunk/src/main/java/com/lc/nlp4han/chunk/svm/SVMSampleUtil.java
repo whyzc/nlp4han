@@ -220,7 +220,7 @@ public class SVMSampleUtil
 
 		saveFile(saveFilePath, input, "utf-8");
 
-		tfi.serialization(saveFilePath + ".info", "utf-8");
+		tfi.write(saveFilePath + ".info", "utf-8");
 
 		return tfi;
 	}

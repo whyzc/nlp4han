@@ -1,7 +1,6 @@
 package com.lc.nlp4han.chunk.svm;
 
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -43,7 +42,7 @@ public abstract class ChunkerSVM implements Chunker
 		this.label = label;
 	}
 
-	public ChunkerSVM(ChunkAnalysisContextGenerator contextgenerator, String filePath, String encoding, String label)
+	public ChunkerSVM(ChunkAnalysisContextGenerator contextgenerator, String filePath, String encoding, String label) throws IOException
 	{
 		this(contextgenerator, label);
 
@@ -75,8 +74,9 @@ public abstract class ChunkerSVM implements Chunker
 	 * 读取组块文件，生成数据转换信息
 	 * 
 	 * @param filePath
+	 * @throws IOException 
 	 */
-	public void setSVMStandardInput(String filePath)
+	public void setSVMStandardInput(String filePath) throws IOException
 	{
 
 		this.ci = new SVMFeatureLabelInfo(filePath, "utf-8");
@@ -155,7 +155,7 @@ public abstract class ChunkerSVM implements Chunker
 			String[] context = contextgenerator.getContext(i, words, chunkTags, poses);
 
 			line = "1 " + SVMSampleUtil.toSVMSample(context, ci); // <label> <index1>:<value1> <index2>:<value2>
-																// ...；预测时，label可以为任意值
+																	// ...；预测时，label可以为任意值
 
 			String tag = predict(line, getModel());
 			chunkTags[i] = tag;
@@ -217,6 +217,7 @@ public abstract class ChunkerSVM implements Chunker
 			ChunkAnalysisContextGenerator contextGen) throws IOException, InvalidInputDataException
 	{
 		generateTrainDatum(sampleStream, arg, contextGen);
+
 		train(arg);
 	}
 
@@ -224,9 +225,13 @@ public abstract class ChunkerSVM implements Chunker
 			ChunkAnalysisContextGenerator contextGen) throws RuntimeException, IOException
 	{
 		ObjectStream<Event> es = new ChunkerWordPosSampleEvent(sampleStream, contextGen);
-		init(es);
+//		init(es);
+		
+		this.ci = new SVMFeatureLabelInfo(es);
+
 		es.reset();
 		String[] input = SVMSampleUtil.toSVMSamples(es, ci);
+
 		saveFile(arg[arg.length - 2], input, "utf-8");
 	}
 
@@ -237,53 +242,30 @@ public abstract class ChunkerSVM implements Chunker
 	 */
 	public abstract void train(String[] arg);
 
-	/**
-	 * 根据事件流生成数据转换信息
-	 * 
-	 * @param es
-	 * @throws IOException 
-	 */
-	private void init(ObjectStream<Event> es) throws IOException
-	{
-		this.ci = new SVMFeatureLabelInfo(es);
-	}
+//	/**
+//	 * 根据事件流生成数据转换信息
+//	 * 
+//	 * @param es
+//	 * @throws IOException
+//	 */
+//	private void init(ObjectStream<Event> es) throws IOException
+//	{
+//		this.ci = new SVMFeatureLabelInfo(es);
+//	}
 
-	private void saveFile(String saveFilePath, String[] datum, String encoding)
+	private void saveFile(String saveFilePath, String[] datum, String encoding) throws IOException
 	{
 		BufferedWriter bw = null;
-		try
-		{
-			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(saveFilePath), encoding));
-			for (int i = 0; i < datum.length; i++)
-			{
-				bw.write(datum[i]);
-				bw.write("\n");
-			}
 
-			bw.flush();
-			bw.close();
-		}
-		catch (FileNotFoundException e)
+		bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(saveFilePath), encoding));
+		for (int i = 0; i < datum.length; i++)
 		{
-			e.printStackTrace();
+			bw.write(datum[i]);
+			bw.write("\n");
 		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		finally
-		{
-			try
-			{
-				if (null != bw)
-				{
-					bw.close();
-				}
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-		}
+
+		bw.flush();
+		bw.close();
+
 	}
 }

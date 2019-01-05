@@ -20,39 +20,32 @@ import com.lc.nlp4han.ml.util.ObjectStream;
 public class SVMFeatureLabelInfo
 {
 	// 特征到序号，特征序号从1开始
-	private Map<String, Integer> feature2Index = new HashMap<String, Integer>(); 
+	private Map<String, Integer> feature2Index = new HashMap<String, Integer>();
 	private List<Integer> featureCount = new ArrayList<Integer>(); // 记录各特征的数量，features中特征的value值-1对应该列表的索引
 
 	// 类标签到序号，类序号从1开始
-	private Map<String, Integer> class2Index = new HashMap<String, Integer>(); 
+	private Map<String, Integer> class2Index = new HashMap<String, Integer>();
 	private List<Integer> classCount = new ArrayList<Integer>(); // 记录各分类标签的数量，classificationLabels中分类标签value值-1对应该列表的索引
 
 	private int totalSamples = -1;
 
 	public SVMFeatureLabelInfo(ObjectStream<Event> es) throws IOException
 	{
-		init(es);
+		scan(es);
 
 	}
 
-	public SVMFeatureLabelInfo(String filePath, String encoding)
+	public SVMFeatureLabelInfo(String filePath, String encoding) throws IOException
 	{
-		try
-		{
-			deserialization(filePath, encoding);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		read(filePath, encoding);
 	}
 
-	public SVMFeatureLabelInfo(String filePath)
+	public SVMFeatureLabelInfo(String filePath) throws IOException
 	{
 		this(filePath, "UTF-8");
 	}
 
-	private void init(ObjectStream<Event> es) throws IOException
+	private void scan(ObjectStream<Event> es) throws IOException
 	{
 		Event event = null;
 		while ((event = es.read()) != null)
@@ -264,7 +257,7 @@ public class SVMFeatureLabelInfo
 	 * @param encoding
 	 * @throws IOException
 	 */
-	public void serialization(String filePath, String encoding) throws IOException
+	public void write(String filePath, String encoding) throws IOException
 	{
 		Path path = Paths.get(filePath);
 		Writer out = Files.newBufferedWriter(path, Charset.forName(encoding));
@@ -295,15 +288,15 @@ public class SVMFeatureLabelInfo
 	 * @param filePath
 	 * @throws IOException
 	 */
-	public void serialization(String filePath) throws IOException
+	public void write(String filePath) throws IOException
 	{
-		serialization(filePath, "utf-8");
+		write(filePath, "utf-8");
 	}
 
 	/**
 	 * 根据序列化文件，进行反序列化
 	 */
-	private void deserialization(String filePath, String encoding) throws IOException
+	private void read(String filePath, String encoding) throws IOException
 	{
 		Path path = Paths.get(filePath);
 
