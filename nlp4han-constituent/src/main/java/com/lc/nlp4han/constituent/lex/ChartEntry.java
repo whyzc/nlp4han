@@ -1,23 +1,23 @@
 package com.lc.nlp4han.constituent.lex;
 
 import java.util.HashMap;
+
 /**
- * 解析过程中二维矩阵的节点类
- * @author qyl
+ * 解析线图中的项
  *
  */
-public class LexNode
+public class ChartEntry
 {
 	private boolean flag;
 	private HashMap<Edge, Double> edgeMap;
 
-	public LexNode(boolean flag, HashMap<Edge, Double> edgeMap)
+	public ChartEntry(boolean flag, HashMap<Edge, Double> edgeMap)
 	{
 		this.flag = flag;
 		this.edgeMap = edgeMap;
 	}
 
-	public LexNode()
+	public ChartEntry()
 	{
 	}
 

@@ -5,6 +5,7 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -24,7 +25,7 @@ import com.lc.nlp4han.constituent.TreeNode;
 public class ConstituentParseLexPCFG implements ConstituentParser
 {
 	private boolean coorAndPc = false;// 是否处理并列结构及标点符号
-	private LexNode[][] chart = null;
+	private ChartEntry[][] chart = null;
 	private LexPCFG lexpcfg = null;
 	private double pruneThreshold;
 	private boolean secondPrune;
@@ -107,19 +108,20 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	 * @return
 	 */
 	private ConstituentTree[] getParseResult(String[] words, String[] poses, int k)
-	{
+	{	
+		ArrayList<String> bracketList = parseLex(words, poses, k, true);
+		
+		if (bracketList == null && secondPrune && words.length <= 40)
+			bracketList = parseLex(words, poses, k, false);
+		
 		int i = 0;
 		ConstituentTree[] treeArray = new ConstituentTree[k];
-		ArrayList<String> bracketList = parseLex(words, poses, k, true);
-		if (bracketList == null && secondPrune && words.length <= 40)
-		{
-			bracketList = parseLex(words, poses, k, false);
-		}
 		for (String bracketString : bracketList)
 		{
 			TreeNode rootNode = BracketExpUtil.generateTree(bracketString);
 			treeArray[i++] = new ConstituentTree(rootNode);
 		}
+		
 		return treeArray;
 	}
 
@@ -135,8 +137,8 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	{
 		// 初始化
 		initializeChart(words, poses);
+		
 		int n = words.length;
-
 		// 填充chart图中的边
 		for (int span = 2; span <= words.length; span++)
 		{
@@ -152,15 +154,7 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 			}
 		}	
 		
-/*		for(int i=0;i<words.length;i++)
-		{
-			for(int j=i+1;j<words.length;j++) {
-				for(Edge edge:chart[i][j].getEdgeMap().keySet()) {
-					System.out.println(edge.toString()+" "+chart[i][j].getEdgeMap().get(edge));
-				}
-			}
-		}*/
-		return BracketListToTree.bracketexpressionGet(chart, words.length, k);
+		return Chart2Results.getBrackets(chart, words.length, k);
 	}
 
 	/**
@@ -365,14 +359,14 @@ public class ConstituentParseLexPCFG implements ConstituentParser
 	private void initializeChart(String[] words, String[] poses)
 	{
 		int n = words.length;
-		chart = new LexNode[n + 1][n + 1];
+		chart = new ChartEntry[n + 1][n + 1];
 		for (int i = 0; i < n; i++)
 		{
 			for (int j = 1; j <= n; j++)
 			{
 				if (j >= i + 1)
 				{
-					chart[i][j] = new LexNode(false, new HashMap<Edge, Double>());
+					chart[i][j] = new ChartEntry(false, new HashMap<Edge, Double>());
 				}
 
 				if (j == i + 1)
