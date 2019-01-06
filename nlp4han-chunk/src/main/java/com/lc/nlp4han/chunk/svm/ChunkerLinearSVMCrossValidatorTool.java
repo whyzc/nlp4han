@@ -184,6 +184,8 @@ public class ChunkerLinearSVMCrossValidatorTool
 		ChunkAnalysisContextGenerator contextGen = new ChunkerWordPosContextGeneratorConf(p);
 		ChunkerSVMCrossValidation crossValidator = new ChunkerSVMCrossValidation(trainArgs);
 		ChunkerLinearSVM chunker = new ChunkerLinearSVM();
+		
+		// 评价
 		crossValidator.evaluate(sampleStream, folds, chunker, contextGen, measure, p);
 
 		sampleStream.close();

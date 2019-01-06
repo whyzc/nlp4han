@@ -220,7 +220,6 @@ public abstract class ChunkerSVM implements Chunker
 			ChunkAnalysisContextGenerator contextGen) throws RuntimeException, IOException
 	{
 		ObjectStream<Event> es = new ChunkerWordPosSampleEvent(sampleStream, contextGen);
-//		init(es);
 		
 		this.ci = new SVMFeatureLabelInfo(es);
 

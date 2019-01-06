@@ -11,7 +11,7 @@ import com.lc.nlp4han.chunk.svm.liblinear.Train;
 
 public class ChunkerLinearSVMTrainerTool
 {
-	private static final String USAGE = "Usage: ChunkAnalysisLinearSVMTrainerTool [options] -data training_set_file\n"
+	private static final String USAGE = "Usage: ChunkerLinearSVMTrainerTool [options] -data training_set_file\n"
 			+ "options:\n" + "-encoding encoding : set encoding\n" + "-label label : such as BIOE, BIOES\n"
 			+ "-model model_path : set the model save path\n" + "-s type : set type of solver (default 1)%n"
 			+ "  for multi-class classification%n" + "    0 -- L2-regularized logistic regression (primal)%n"
@@ -42,9 +42,11 @@ public class ChunkerLinearSVMTrainerTool
 	public static void main(String[] args) throws IOException, InvalidInputDataException
 	{
 		long startTime = System.currentTimeMillis();
-		Map<String, String[]> as = decompositionArgs(args);
+		Map<String, String[]> as = decomposeArgs(args);
 
 		String[] inputArgs = as.get("input");
+		
+		// 转换和保存训练样本
 		SVMFeatureLabelInfo ci = SVMSampleUtil.convert(inputArgs);
 
 		System.out.println("类别总数：" + ci.getClassesNumber());
@@ -53,6 +55,7 @@ public class ChunkerLinearSVMTrainerTool
 
 		String[] trainArgs = as.get("train");
 
+		// 调用SVM框架训练，并保存训练模型
 		Train.main(trainArgs);
 
 		long endTime = System.currentTimeMillis();
@@ -62,7 +65,7 @@ public class ChunkerLinearSVMTrainerTool
 	/**
 	 * 分解参数
 	 */
-	private static Map<String, String[]> decompositionArgs(String[] args)
+	private static Map<String, String[]> decomposeArgs(String[] args)
 	{
 		Map<String, String[]> result = new HashMap<>();
 		List<String> standardInputArgs = new ArrayList<String>();
@@ -159,10 +162,11 @@ public class ChunkerLinearSVMTrainerTool
 		}
 
 		String filePath = dataPath + ".svm";
+		
 		standardInputArgs.add("-save");
 		standardInputArgs.add(filePath);
+		
 		trainArgs.add(filePath);
-
 		if (modelPath != null)
 			trainArgs.add(modelPath);
 		
