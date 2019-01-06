@@ -9,21 +9,23 @@ import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYLoosePCNF;
 
 /**
+ * 利用PCFG文法解析，再根据隐PCFG计算句法树的概率
+ * 
  * @author 王宁
  */
-public class ConstituentParserLatentAnnotation_foolish implements ConstituentParser
+public class ConstituentParserLatentSimple implements ConstituentParser
 {
 	public static int deafultParserCKYP2NF_K = 10;
 	private ConstituentParserCKYLoosePCNF p2nf;
 	private Grammar grammarLatentLabel;
 
-	public ConstituentParserLatentAnnotation_foolish(ConstituentParserCKYLoosePCNF p2nf, Grammar grammarLatentLabel)
+	public ConstituentParserLatentSimple(ConstituentParserCKYLoosePCNF p2nf, Grammar grammarLatentLabel)
 	{
 		this.p2nf = p2nf;
 		this.grammarLatentLabel = grammarLatentLabel;
 	}
 
-	public ConstituentParserLatentAnnotation_foolish(ConstituentParserCKYLoosePCNF p2nf, Grammar grammarLatentLabel,
+	public ConstituentParserLatentSimple(ConstituentParserCKYLoosePCNF p2nf, Grammar grammarLatentLabel,
 			int parserCKYP2NF_K)
 	{
 		this.p2nf = p2nf;

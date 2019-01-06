@@ -14,7 +14,7 @@ import com.lc.nlp4han.ml.util.CrossValidationPartitioner;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 
-public class CrossValidatorLatentAnnotation_foolish
+public class CrossValidatorLatentSimple
 {
 	public void evaluate(ObjectStream<String> sentenceStream, int nFolds, ConstituentMeasure measure,
 			double pruneThreshold, boolean secondPrune, boolean prior) throws IOException
@@ -47,8 +47,8 @@ public class CrossValidatorLatentAnnotation_foolish
 			long start2 = System.currentTimeMillis();
 			ConstituentParserCKYLoosePCNF p2nf = new ConstituentParserCKYLoosePCNF(pcfg, pruneThreshold, secondPrune,
 					prior);
-			ConstituentParser parser = new ConstituentParserLatentAnnotation_foolish(p2nf, gLatent);
-			EvaluatorLatentAnnotation_foolish evaluator = new EvaluatorLatentAnnotation_foolish(parser);
+			ConstituentParser parser = new ConstituentParserLatentSimple(p2nf, gLatent);
+			EvaluatorLatentSimple evaluator = new EvaluatorLatentSimple(parser);
 			evaluator.setMeasure(measure);
 			ObjectStream<ConstituentTree> sampleStream = new ConstituentTreeStream(
 					trainingSampleStream.getTestSampleStream());
@@ -68,7 +68,7 @@ public class CrossValidatorLatentAnnotation_foolish
 
 	private static void usage()
 	{
-		System.out.println(CrossValidatorLatentAnnotation_foolish.class.getName()
+		System.out.println(CrossValidatorLatentSimple.class.getName()
 				+ " -train <corpusFile>  [-encoding <encoding>] [-folds <nFolds>] ");
 	}
 
@@ -108,7 +108,7 @@ public class CrossValidatorLatentAnnotation_foolish
 			ObjectStream<String> sentenceStream = new PlainTextByTreeStream(
 					new FileInputStreamFactory(new File(corpusFile)), encoding);
 			ConstituentMeasure measure = new ConstituentMeasure();
-			CrossValidatorLatentAnnotation_foolish crossValidator = new CrossValidatorLatentAnnotation_foolish();
+			CrossValidatorLatentSimple crossValidator = new CrossValidatorLatentSimple();
 			crossValidator.evaluate(sentenceStream, folds, measure, pruneThreshold, secondPrune, prior);
 		}
 		catch (IOException e)

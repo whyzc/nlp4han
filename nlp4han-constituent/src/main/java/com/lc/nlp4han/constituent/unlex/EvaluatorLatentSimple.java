@@ -23,7 +23,7 @@ import com.lc.nlp4han.ml.util.ObjectStream;
  * @author 王宁
  * 
  */
-public class EvaluatorLatentAnnotation_foolish extends Evaluator<ConstituentTree>
+public class EvaluatorLatentSimple extends Evaluator<ConstituentTree>
 {
 	/**
 	 * 句法分析模型得到一颗句法树z
@@ -48,7 +48,7 @@ public class EvaluatorLatentAnnotation_foolish extends Evaluator<ConstituentTree
 		this.measure = measure;
 	}
 
-	public EvaluatorLatentAnnotation_foolish(ConstituentParser parser)
+	public EvaluatorLatentSimple(ConstituentParser parser)
 	{
 		this.parser = parser;
 	}
@@ -101,7 +101,7 @@ public class EvaluatorLatentAnnotation_foolish extends Evaluator<ConstituentTree
 
 	private static void usage()
 	{
-		System.out.println(EvaluatorLatentAnnotation_foolish.class.getName() + "\n"
+		System.out.println(EvaluatorLatentSimple.class.getName() + "\n"
 				+ "-train <trainFile> -gold <goldFile> [-smooth <smoothRate>] [-trainEncoding <trainEncoding>] [-goldEncoding <trainEncoding>] [-em <emIterations>]");
 	}
 
@@ -118,9 +118,9 @@ public class EvaluatorLatentAnnotation_foolish extends Evaluator<ConstituentTree
 		long end = System.currentTimeMillis();
 		ConstituentParserCKYLoosePCNF p2nf = new ConstituentParserCKYLoosePCNF(pcfg, pruneThreshold, secondPrune,
 				prior);
-		ConstituentParser parser = new ConstituentParserLatentAnnotation_foolish(p2nf,
+		ConstituentParser parser = new ConstituentParserLatentSimple(p2nf,
 				gLatentAnntation);
-		EvaluatorLatentAnnotation_foolish evaluator = new EvaluatorLatentAnnotation_foolish(parser);
+		EvaluatorLatentSimple evaluator = new EvaluatorLatentSimple(parser);
 		ConstituentMeasure measure = new ConstituentMeasure();
 		evaluator.setMeasure(measure);
 		ObjectStream<String> treeStream = new PlainTextByTreeStream(new FileInputStreamFactory(new File(goldF)),

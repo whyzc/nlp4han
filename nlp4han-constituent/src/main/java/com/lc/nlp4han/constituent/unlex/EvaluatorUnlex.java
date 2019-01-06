@@ -14,14 +14,14 @@ import com.lc.nlp4han.constituent.pcfg.ConstituentTreeStream;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 
-public class EvaluatorLatentAnnotation_Viterbi extends Evaluator<ConstituentTree>
+public class EvaluatorUnlex extends Evaluator<ConstituentTree>
 {
 	private ConstituentParserUnlex parser;
 	private ConstituentMeasure measure;
 	private long count = 0;
 	private long totalTime = 0;
 
-	public EvaluatorLatentAnnotation_Viterbi(ConstituentParserUnlex parser)
+	public EvaluatorUnlex(ConstituentParserUnlex parser)
 	{
 		this.parser = parser;
 	}
@@ -90,7 +90,7 @@ public class EvaluatorLatentAnnotation_Viterbi extends Evaluator<ConstituentTree
 				gLatentAnntation, pruneThreshold, secondPrune, prior);
 		long end = System.currentTimeMillis();
 		System.out.println("语法训练时间：" + (end - start) + "ms");
-		EvaluatorLatentAnnotation_Viterbi evaluator = new EvaluatorLatentAnnotation_Viterbi(parser);
+		EvaluatorUnlex evaluator = new EvaluatorUnlex(parser);
 		ConstituentMeasure measure = new ConstituentMeasure();
 		evaluator.setMeasure(measure);
 		ObjectStream<String> treeStream = new PlainTextByTreeStream(new FileInputStreamFactory(new File(goldF)),
@@ -103,7 +103,7 @@ public class EvaluatorLatentAnnotation_Viterbi extends Evaluator<ConstituentTree
 
 	private static void usage()
 	{
-		System.out.println(EvaluatorLatentAnnotation_foolish.class.getName() + "\n"
+		System.out.println(EvaluatorLatentSimple.class.getName() + "\n"
 				+ "-train <trainFile> -gold <goldFile> [-sm <SMCycle>] [-meger <mergeRate>] [-smooth <smoothRate>] [-trainEncoding <trainEncoding>] [-goldEncoding <trainEncoding>] [-em <emIterations>]");
 	}
 
