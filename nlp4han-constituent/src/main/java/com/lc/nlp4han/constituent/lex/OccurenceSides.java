@@ -181,6 +181,14 @@ public class OccurenceSides extends OccurenceHeadChild
 	{
 		return super.toString() + " " + direction + " " + sideLabel + " " + sideHeadPOS + " " + sideHeadWord + " "
 				+ coor + " " + pu + " " + distance;
+	}
+
+	@Override
+	public String toReadableString()
+	{
+		return super.toReadableString() + ", dir=" + direction + ", Li=" + sideLabel + ", ti=" + sideHeadPOS + ", wi=" + sideHeadWord + ", corr="
+		+ coor + ", pu=" + pu+ ", zerolen=" + distance.isAdjacency()
+		+ ", verb=" + distance.isCrossVerb();
 	}	
 	
 }

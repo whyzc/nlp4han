@@ -101,4 +101,12 @@ public class OccurenceStop extends OccurenceHeadChild
 		return super.toString() + " " + direction + " " + stop + " " + distance;
 	}
 
+	@Override
+	public String toReadableString()
+	{
+		return super.toReadableString() + ", dir=" + direction + ", stop=" + stop 
+				+ ", zerolen=" + distance.isAdjacency()
+				+ ", verb=" + distance.isCrossVerb();
+	}
+
 }
