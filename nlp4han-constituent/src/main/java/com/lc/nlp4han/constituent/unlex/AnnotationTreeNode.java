@@ -92,6 +92,7 @@ public class AnnotationTreeNode extends TreeNode
 			return false;
 	}
 
+	// 清空树的内外概率
 	public AnnotationTreeNode forgetIOScoreAndScale()
 	{
 		if (this.isLeaf() || this == null)

@@ -24,6 +24,7 @@ public class TreeBank
 	{
 		this.treeBank = new ArrayList<AnnotationTreeNode>();
 		this.nonterminalTable = new NonterminalTable();
+		
 		init(treeBankPath, addParentLabel, encoding);
 	}
 
@@ -33,30 +34,42 @@ public class TreeBank
 		this.nonterminalTable = new NonterminalTable();
 	}
 
+	/**
+	 * 从括号表达式文件读取句法树
+	 * 
+	 * @param treeBankPath
+	 * @param addParentLabel
+	 * @param encoding
+	 * @throws IOException
+	 */
 	public void init(String treeBankPath, boolean addParentLabel, String encoding) throws IOException
 	{
 		PlainTextByTreeStream stream = new PlainTextByTreeStream(new FileInputStreamFactory(new File(treeBankPath)),
 				encoding);
 		String expression = stream.read();
-		while (expression != "" && expression != null)// 用来得到树库对应的所有结构树Tree<String>
+		while (expression != "" && expression != null)
 		{
 			expression = expression.trim();
 			if (!expression.equals(""))
-			{
 				this.addTree(expression, addParentLabel);
-			}
+			
 			expression = stream.read();
 		}
+		
 		stream.close();
 	}
 
-	public void addTree(String expression, boolean addParentLabel)
+	public void addTree(String bracketStr, boolean addParentLabel)
 	{
-		TreeNode tree = BracketExpUtil.generateTree(expression);
+		TreeNode tree = BracketExpUtil.generateTree(bracketStr);
+		
 		tree = TreeUtil.removeL2LRule(tree);
+		
 		if (addParentLabel)
 			tree = TreeUtil.addParentLabel(tree);
+		
 		tree = TreeBinarization.binarize(tree);
+		
 		AnnotationTreeNode annotatedTree = AnnotationTreeNode.getInstance(tree, this.nonterminalTable);
 		treeBank.add(annotatedTree);
 	}
@@ -71,17 +84,19 @@ public class TreeBank
 	{
 		if (node.getAnnotation().getInnerScores() == null || node.getAnnotation().getOuterScores() == null)
 			throw new Error("没有计算树上节点的内外向概率。");
+		
 		if (node.isLeaf())
 			throw new Error("不能利用叶子节点计算内外向概率。");
+		
 		double sentenceScore = 0.0;
 		Double[] innerScore = node.getAnnotation().getInnerScores();
 		Double[] outerScores = node.getAnnotation().getOuterScores();
 		for (int i = 0; i < innerScore.length; i++)
-		{
 			sentenceScore += innerScore[i] * outerScores[i];
-		}
+		
 		double logSenScore = Math.log(sentenceScore)
 				+ 100 * (node.getAnnotation().getInnerScale() + node.getAnnotation().getOuterScale());
+		
 		return logSenScore;
 	}
 
@@ -89,20 +104,24 @@ public class TreeBank
 	{
 		if (node.getAnnotation().getInnerScores() == null || node.getAnnotation().getOuterScores() == null)
 			throw new Error("没有计算树上节点的内外向概率。");
+		
 		if (node.isLeaf())
 			throw new Error("不能利用叶子节点计算内外向概率。");
+		
 		double sentenceScore = 0.0;
 		Double[] innerScore = node.getAnnotation().getInnerScores();
 		Double[] outerScores = node.getAnnotation().getOuterScores();
 		for (int i = 0; i < innerScore.length; i++)
-		{
 			sentenceScore += innerScore[i] * outerScores[i];
-		}
+		
 		double logSenScore = sentenceScore;
+		
 		return logSenScore;
 	}
 
 	/**
+	 * 计算整个树库的log似然值和
+	 * 
 	 * 使用前要确保计算了内外向概率
 	 * 
 	 * @return 整个树库的log似然值
@@ -111,9 +130,8 @@ public class TreeBank
 	{
 		double totalLSS = 0;
 		for (AnnotationTreeNode root : treeBank)
-		{
 			totalLSS += calLogSentenceSocre(root);
-		}
+		
 		return totalLSS;
 	}
 
@@ -128,13 +146,10 @@ public class TreeBank
 	public static void calculateInnerScore(Grammar g, AnnotationTreeNode tree)
 	{
 		if (tree.isLeaf())
-		{
 			return;
-		}
+		
 		for (AnnotationTreeNode child : tree.getChildren())
-		{
 			calculateInnerScore(g, child);
-		}
 
 		if (tree.isPreterminal())
 		{
@@ -184,7 +199,8 @@ public class TreeBank
 					for (short i = 0; i < innerScores.length; i++)
 					{
 						double innerScores_Ai = 0.0;
-						for (short j = 0; j < g.getNumSubSymbol(tree.getChildren().get(0).getAnnotation().getSymbol()); j++)
+						for (short j = 0; j < g
+								.getNumSubSymbol(tree.getChildren().get(0).getAnnotation().getSymbol()); j++)
 						{ // 规则A_i -> B_j的概率
 							double A_i2B_j = tempUnaryRule.getScore(i, j);
 							double B_jInnerScore = tree.getChildren().get(0).getAnnotation().getInnerScores()[j];
@@ -221,7 +237,8 @@ public class TreeBank
 					for (short i = 0; i < innerScores.length; i++)
 					{
 						double innerScores_Ai = 0.0;
-						for (short j = 0; j < g.getNumSubSymbol(tree.getChildren().get(0).getAnnotation().getSymbol()); j++)
+						for (short j = 0; j < g
+								.getNumSubSymbol(tree.getChildren().get(0).getAnnotation().getSymbol()); j++)
 						{
 							for (short k = 0; k < g
 									.getNumSubSymbol(tree.getChildren().get(1).getAnnotation().getSymbol()); k++)
@@ -290,7 +307,8 @@ public class TreeBank
 			switch (parent.getChildren().size())
 			{
 			case 1:
-				UnaryRule tempUnaryRule = new UnaryRule(parent.getAnnotation().getSymbol(), treeNode.getAnnotation().getSymbol());
+				UnaryRule tempUnaryRule = new UnaryRule(parent.getAnnotation().getSymbol(),
+						treeNode.getAnnotation().getSymbol());
 				if (g.getuRules().contains(tempUnaryRule))
 				{
 					tempUnaryRule = g.getRule(tempUnaryRule);
@@ -335,7 +353,8 @@ public class TreeBank
 					siblingNode_InScore = parent.getChildren().get(0).getAnnotation().getInnerScores();
 					siblingInnerScale = parent.getChildren().get(0).getAnnotation().getInnerScale();
 					tempBRule = new BinaryRule(parent.getAnnotation().getSymbol(),
-							parent.getChildren().get(0).getAnnotation().getSymbol(), treeNode.getAnnotation().getSymbol());
+							parent.getChildren().get(0).getAnnotation().getSymbol(),
+							treeNode.getAnnotation().getSymbol());
 				}
 
 				if (g.getbRules().contains(tempBRule))
@@ -397,12 +416,11 @@ public class TreeBank
 		}
 	}
 
+	// 清空所有树的内外概率
 	public void forgetIOScoreAndScale()
 	{
 		for (AnnotationTreeNode tree : treeBank)
-		{
 			tree.forgetIOScoreAndScale();
-		}
 	}
 
 	public NonterminalTable getNonterminalTable()
