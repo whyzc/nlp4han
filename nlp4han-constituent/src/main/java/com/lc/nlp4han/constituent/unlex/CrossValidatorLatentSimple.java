@@ -19,7 +19,6 @@ public class CrossValidatorLatentSimple
 	public void evaluate(ObjectStream<String> sentenceStream, int nFolds, ConstituentMeasure measure,
 			double pruneThreshold, boolean secondPrune, boolean prior) throws IOException
 	{
-
 		CrossValidationPartitioner<String> partitioner = new CrossValidationPartitioner<String>(sentenceStream, nFolds);
 		int run = 1;
 		double totalTime = 0;
@@ -36,6 +35,7 @@ public class CrossValidatorLatentSimple
 				treeBank.addTree(expression, false);
 				treeBank2.addTree(expression, false);
 			}
+			
 			GrammarExtractor gExtractor = new GrammarExtractor();
 			Grammar g = gExtractor.extractGrammarLatentAnnotation(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD, 0, 50,
 					0.5, 0.01);
@@ -44,10 +44,11 @@ public class CrossValidatorLatentSimple
 			Grammar gLatent = gExtractor2.extractGrammarLatentAnnotation(treeBank2, Lexicon.DEFAULT_RAREWORD_THRESHOLD,
 					1, 50, 0.5, 0.01);
 			System.out.println("训练学习时间：" + (System.currentTimeMillis() - start) + "ms");
+			
 			long start2 = System.currentTimeMillis();
-			ConstituentParserCKYLoosePCNF p2nf = new ConstituentParserCKYLoosePCNF(pcfg, pruneThreshold, secondPrune,
+			ConstituentParserCKYLoosePCNF pcfgParser = new ConstituentParserCKYLoosePCNF(pcfg, pruneThreshold, secondPrune,
 					prior);
-			ConstituentParser parser = new ConstituentParserLatentSimple(p2nf, gLatent);
+			ConstituentParser parser = new ConstituentParserLatentSimple(pcfgParser, gLatent);
 			EvaluatorLatentSimple evaluator = new EvaluatorLatentSimple(parser);
 			evaluator.setMeasure(measure);
 			ObjectStream<ConstituentTree> sampleStream = new ConstituentTreeStream(
@@ -103,6 +104,7 @@ public class CrossValidatorLatentSimple
 				i++;
 			}
 		}
+		
 		try
 		{
 			ObjectStream<String> sentenceStream = new PlainTextByTreeStream(
