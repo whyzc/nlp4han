@@ -161,23 +161,11 @@ public class TreeBank
 			{
 				tempPreRule = g.getRule(tempPreRule);
 				for (short i = 0; i < innerScores.length; i++)
-				{
 					innerScores[i] = tempPreRule.getScore(i);
-				}
 			}
 			else
-			{
 				throw new Error("不包含该preRule");
-			}
-			// else// for parse
-			// {// UNK
-			// System.out.println("解析是遇到UNK");
-			// double[] tag2UNKScores = g.getTag2UNKScores(tree.getLabel().getSymbol());
-			// for (int i = 0; i < innerScores.length; i++)
-			// {
-			// innerScores[i] = tag2UNKScores[i];
-			// }
-			// }
+
 			// 预终结符号的内向概率不用缩放，最小为e^-30
 			tree.getAnnotation().setInnerScores(innerScores);
 			tree.getAnnotation().setInnerScale(0);
@@ -213,16 +201,7 @@ public class TreeBank
 					tree.getAnnotation().setInnerScale(newScale);
 				}
 				else
-				{
-					// innerScores = new Double[length];
-					// for (int i = 0; i < innerScores.length; i++)
-					// {
-					// innerScores[i] = 0.0;
-					// }
-					// tree.getLabel().setInnerScores(innerScores);
-					// tree.getLabel().setInnerScale(0);
 					System.err.println("Attention:grammar don't contains  uRule ");
-				}
 				break;
 			case 2:
 				BinaryRule tempBRule = new BinaryRule(tree.getAnnotation().getSymbol(),
@@ -257,16 +236,7 @@ public class TreeBank
 					tree.getAnnotation().setInnerScale(newScale);
 				}
 				else
-				{
-					// innerScores = new Double[length];
-					// for (int i = 0; i < innerScores.length; i++)
-					// {
-					// innerScores[i] = 0.0;
-					// }
-					// tree.getLabel().setInnerScores(innerScores);
-					// tree.getLabel().setInnerScale(0);
 					throw new Error("Attention :grammar don't contains the bRule ");
-				}
 				break;
 			default:
 				throw new Error("Error tree: more than two children.");
@@ -283,16 +253,18 @@ public class TreeBank
 	{
 		if (tree == null)
 			return;
+		
 		calculateOuterScoreHelper(g, tree, tree);
 	}
 
 	private static void calculateOuterScoreHelper(Grammar g, AnnotationTreeNode treeRoot, AnnotationTreeNode treeNode)
 	{
-
 		if (treeNode == null)
 			return;
+		
 		if (treeNode.isLeaf())
 			return;
+		
 		// 计算根节点的外向概率
 		if (treeNode == treeRoot)
 		{
@@ -330,9 +302,7 @@ public class TreeBank
 					treeNode.getAnnotation().setOuterScale(newScale);
 				}
 				else
-				{
 					throw new Error("Error grammar: don't contains  uRule :" + tempUnaryRule.toString());
-				}
 
 				break;
 			case 2:
@@ -392,19 +362,16 @@ public class TreeBank
 					treeNode.getAnnotation().setOuterScale(newScale);
 				}
 				else
-				{
 					throw new Error("Error grammar: don't contains  bRule :" + tempBRule.toString());
-				}
 
 				break;
 			default:
 				throw new Error("error tree:more than two children.");
 			}
 		}
+		
 		for (AnnotationTreeNode childNode : treeNode.getChildren())
-		{
 			calculateOuterScoreHelper(g, treeRoot, childNode);
-		}
 	}
 
 	public void calIOScore(Grammar g)
