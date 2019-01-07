@@ -13,7 +13,7 @@ import com.lc.nlp4han.constituent.pcfg.UncompatibleGrammar;
  */
 public class ConstituentParserParent implements ConstituentParser
 {
-	private ConstituentParserCKYLoosePCNF p2nf;
+	private ConstituentParserCKYLoosePCNF pcfgParser;
 
 	public ConstituentParserParent(Grammar gPLAdded) throws UncompatibleGrammar
 	{
@@ -24,15 +24,17 @@ public class ConstituentParserParent implements ConstituentParser
 			boolean prior) throws UncompatibleGrammar
 	{
 		PCFG pcfg = gPLAdded.getPCFG();
-		p2nf = new ConstituentParserCKYLoosePCNF(pcfg, pruneThreshold, secondPrune, prior);
+		pcfgParser = new ConstituentParserCKYLoosePCNF(pcfg, pruneThreshold, secondPrune, prior);
 	}
 
 	@Override
 	public ConstituentTree parse(String[] words, String[] poses)
 	{
 		ConstituentTree[] allTree = parse(words, poses, 1);
+		
 		if (allTree != null && allTree[0] != null)
 			return allTree[0];
+		
 		return null;
 	}
 
@@ -40,7 +42,8 @@ public class ConstituentParserParent implements ConstituentParser
 	public ConstituentTree[] parse(String[] words, String[] poses, int k)
 	{
 		ArrayList<ConstituentTree> trees = new ArrayList<>();
-		for (ConstituentTree tree : p2nf.parse(words, poses, k))
+		ConstituentTree[] result = pcfgParser.parse(words, poses, k);
+		for (ConstituentTree tree : result)
 		{
 			if (tree != null)
 			{
@@ -49,6 +52,7 @@ public class ConstituentParserParent implements ConstituentParser
 				trees.add(tree);
 			}
 		}
+		
 		if (trees.size() != 0)
 			return trees.toArray(new ConstituentTree[trees.size()]);
 		else

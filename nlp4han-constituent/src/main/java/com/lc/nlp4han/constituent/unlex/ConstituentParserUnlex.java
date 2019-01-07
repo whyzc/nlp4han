@@ -46,6 +46,7 @@ public class ConstituentParserUnlex implements ConstituentParser
 					subPre = originalPre;
 				else// 新添加的，以往没有else时对于句子包含没有被分裂的tag时会直接导致该句子解析不了。
 					subPre = originalPre + "_" + subPreterminal;
+				
 				pcfg.addNonTerminal(subPre);
 				PRule pRule = new PRule(1.0, subPre, originalPre);
 				pcfg.add(pRule);
@@ -60,8 +61,10 @@ public class ConstituentParserUnlex implements ConstituentParser
 	public ConstituentTree parse(String[] words, String[] poses)
 	{
 		ConstituentTree[] allTree = parse(words, poses, 1);
+		
 		if (allTree != null && allTree[0] != null)
 			return allTree[0];
+		
 		return null;
 	}
 
@@ -83,6 +86,7 @@ public class ConstituentParserUnlex implements ConstituentParser
 				trees.add(tree);
 			}
 		}
+		
 		if (trees.size() != 0)
 			return trees.toArray(new ConstituentTree[trees.size()]);
 		else
@@ -102,18 +106,16 @@ public class ConstituentParserUnlex implements ConstituentParser
 		{
 			ArrayList<TreeNode> children = new ArrayList<TreeNode>(tree.getChild(0).getChildren());
 			for (TreeNode child : children)
-			{
 				child.setParent(tree);
-			}
+			
 			tree.setChildren(children);
 		}
 		else
 		{
 			for (TreeNode subTree : tree.getChildren())
-			{
 				removeOriginalTag(subTree);
-			}
 		}
+		
 		return tree;
 	}
 	

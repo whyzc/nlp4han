@@ -32,7 +32,7 @@ public class TreeProbTool
 			TreeNode tree = TreeBinarization.binarize(BracketExpUtil.generateTree(
 					"(ROOT(FRAG(NN 新华社)(NR 上海)(NT 二月)(NT 十日)(NN 电)(PU （)(NN 记者)(NR 谢金虎)(PU 、)(NR 张持坚)(PU ）)))"));
 			
-			AnnotationTreeNode theTree = grammar.convert2AnnotationTreeNode(tree);
+			AnnotationTreeNode theTree = grammar.toAnnotationTreeNode(tree);
 			double score = computeProb(grammar, theTree);
 			
 			System.out.println("logS:" + score);

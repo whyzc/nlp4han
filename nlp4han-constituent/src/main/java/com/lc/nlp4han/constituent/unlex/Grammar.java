@@ -704,7 +704,7 @@ public class Grammar implements GrammarWritable
 	 * @param tree
 	 * @return
 	 */
-	public AnnotationTreeNode convert2AnnotationTreeNode(TreeNode tree)
+	public AnnotationTreeNode toAnnotationTreeNode(TreeNode tree)
 	{
 		return AnnotationTreeNode.getInstance(tree, nonterminalTable);
 	}
