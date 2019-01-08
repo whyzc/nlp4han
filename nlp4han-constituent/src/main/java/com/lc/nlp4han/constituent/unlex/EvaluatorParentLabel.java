@@ -19,15 +19,14 @@ import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 
 /**
+ * 带父节点标记的PCFG解析评价
+ * 
  * @author 王宁
  * 
  */
-public class EvaluatorParentLabelAdded extends Evaluator<ConstituentTree>
+public class EvaluatorParentLabel extends Evaluator<ConstituentTree>
 {
-	/**
-	 * 句法分析模型得到一颗句法树
-	 */
-	private ConstituentParser cky;
+	private ConstituentParser parser;
 
 	/**
 	 * 句法树中的短语分析评估
@@ -47,14 +46,14 @@ public class EvaluatorParentLabelAdded extends Evaluator<ConstituentTree>
 		this.measure = measure;
 	}
 
-	public EvaluatorParentLabelAdded(ConstituentParser cky)
+	public EvaluatorParentLabel(ConstituentParser cky)
 	{
-		this.cky = cky;
+		this.parser = cky;
 	}
 
-	public EvaluatorParentLabelAdded(PCFG p2nf, double pruneThreshold, boolean secondPrune, boolean prior) throws UncompatibleGrammar
+	public EvaluatorParentLabel(PCFG p2nf, double pruneThreshold, boolean secondPrune, boolean prior) throws UncompatibleGrammar
 	{
-		this.cky = new ConstituentParserCKYLoosePCNF(p2nf, pruneThreshold, secondPrune, prior);
+		this.parser = new ConstituentParserCKYLoosePCNF(p2nf, pruneThreshold, secondPrune, prior);
 	}
 
 	@Override
@@ -76,7 +75,7 @@ public class EvaluatorParentLabelAdded extends Evaluator<ConstituentTree>
 
 		long start = System.currentTimeMillis();
 
-		ConstituentTree treePre = cky.parse(words1, poses1);
+		ConstituentTree treePre = parser.parse(words1, poses1);
 		long thisTime = System.currentTimeMillis() - start;
 		totalTime += thisTime;
 		count++;
@@ -108,7 +107,7 @@ public class EvaluatorParentLabelAdded extends Evaluator<ConstituentTree>
 
 	private static void usage()
 	{
-		System.out.println(EvaluatorParentLabelAdded.class.getName() + "\n"
+		System.out.println(EvaluatorParentLabel.class.getName() + "\n"
 				+ "-train <trainFile> -gold <goldFile> [-trainEncoding <trainEncoding>] [-goldEncoding <trainEncoding>] [-em <emIterations>]");
 	}
 
@@ -118,7 +117,7 @@ public class EvaluatorParentLabelAdded extends Evaluator<ConstituentTree>
 		long start = System.currentTimeMillis();
 		Grammar g = GrammarExtractorParentTool.getGrammar(trainF, trainEn, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
 		long end = System.currentTimeMillis();
-		EvaluatorParentLabelAdded evaluator = new EvaluatorParentLabelAdded(g.getPCFG(), pruneThreshold, secondPrune,
+		EvaluatorParentLabel evaluator = new EvaluatorParentLabel(g.getPCFG(), pruneThreshold, secondPrune,
 				prior);
 		ConstituentMeasure measure = new ConstituentMeasure();
 		evaluator.setMeasure(measure);
