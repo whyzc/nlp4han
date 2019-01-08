@@ -32,12 +32,10 @@ public class CrossValidatorUnlexTool
 			TreeBank treeBank = new TreeBank();
 			String expression;
 			while ((expression = trainingSampleStream.read()) != null)
-			{
 				treeBank.addTree(expression, false);
-			}
 			
 			GrammarExtractor gExtractor = new GrammarExtractor();
-			Grammar gLatent = gExtractor.extractGrammarLatentAnnotation(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD,
+			Grammar gLatent = gExtractor.extractLatentGrammar(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD,
 					SMCycle, EMIterations, mergeRate, smooth);
 			
 			System.out.println("训练学习时间：" + (System.currentTimeMillis() - start) + "ms");
@@ -56,9 +54,7 @@ public class CrossValidatorUnlexTool
 			totalTime += (System.currentTimeMillis() - start);
 
 			System.out.println(measure);
-			gLatent = null;
-			treeBank = null;
-			gExtractor = null;
+
 			run++;
 		}
 		

@@ -15,7 +15,7 @@ public class GrammarExtractorParentTool
 	public static Grammar getGrammar(String trainFilePath, String encoding, int rareWordThreshold) throws IOException
 	{
 		GrammarExtractor gExtractor = new GrammarExtractor();
-		return gExtractor.extractGrammarPLabelAdded(trainFilePath, encoding, rareWordThreshold);
+		return gExtractor.extractGrammarParentLabel(trainFilePath, encoding, rareWordThreshold);
 	}
 
 	public static void main(String[] args)

@@ -37,11 +37,11 @@ public class CrossValidatorLatentSimple
 			}
 			
 			GrammarExtractor gExtractor = new GrammarExtractor();
-			Grammar g = gExtractor.extractGrammarLatentAnnotation(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD, 0, 50,
+			Grammar g = gExtractor.extractLatentGrammar(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD, 0, 50,
 					0.5, 0.01);
 			PCFG pcfg = g.getPCFG();
 			GrammarExtractor gExtractor2 = new GrammarExtractor();
-			Grammar gLatent = gExtractor2.extractGrammarLatentAnnotation(treeBank2, Lexicon.DEFAULT_RAREWORD_THRESHOLD,
+			Grammar gLatent = gExtractor2.extractLatentGrammar(treeBank2, Lexicon.DEFAULT_RAREWORD_THRESHOLD,
 					1, 50, 0.5, 0.01);
 			System.out.println("训练学习时间：" + (System.currentTimeMillis() - start) + "ms");
 			

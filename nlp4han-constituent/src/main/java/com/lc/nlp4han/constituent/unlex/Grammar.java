@@ -24,7 +24,7 @@ import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 import com.lc.nlp4han.ml.util.PlainTextByLineStream;
 
 /**
- * 表示由树库得到的语法
+ * 带隐藏标记的PCFG文法
  * 
  * @author 王宁
  * 

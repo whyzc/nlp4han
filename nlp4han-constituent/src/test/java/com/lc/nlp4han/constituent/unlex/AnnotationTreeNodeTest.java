@@ -34,7 +34,7 @@ public class AnnotationTreeNodeTest
 			treeBank.addTree(sentences[i], addParentLabel);
 		}
 		GrammarExtractor gExtractor = new GrammarExtractor();
-		Grammar g = gExtractor.extractGrammarLatentAnnotation(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD, 0, 50, 0.5,
+		Grammar g = gExtractor.extractLatentGrammar(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD, 0, 50, 0.5,
 				0.01);
 		GrammarSpliter.splitGrammar(g, treeBank);
 		for (AnnotationTreeNode tree : treeBank.getTreeBank())

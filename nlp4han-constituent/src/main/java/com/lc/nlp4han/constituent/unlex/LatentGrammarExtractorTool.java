@@ -23,7 +23,7 @@ public class LatentGrammarExtractorTool
 		}
 		else
 		{
-			return gExtractor.extractGrammarLatentAnnotation(treeBankPath, encoding, rareWordThreshold, SMCycle,
+			return gExtractor.extractLatentGrammar(treeBankPath, encoding, rareWordThreshold, SMCycle,
 					EMIterations, mergeRate, smooth);
 		}
 	}

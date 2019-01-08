@@ -12,7 +12,7 @@ import java.util.Random;
 import java.util.Set;
 
 /**
- * 得到语法
+ * 隐PCFG文法提取器
  * 
  * @author 王宁
  * 
@@ -20,26 +20,30 @@ import java.util.Set;
 public class GrammarExtractor
 {
 	public static Random random = new Random(0);
+	
 	public TreeBank treeBank;
 	public HashSet<String> dictionary;
 	public List<Short> preterminal;// 词性标注对应的整数
+	
 	public HashMap<PreterminalRule, Integer>[] preRuleBySameHeadCount;// 长度与preterminal相同
 	public HashMap<BinaryRule, Integer>[] bRuleBySameHeadCount;// 数组下标表示nonterminal对应的整数
 	public HashMap<UnaryRule, Integer>[] uRuleBySameHeadCount;// 数组下标表示nonterminal对应的整数
+	
 	public int[] numOfSameHeadRule;
 	public int rareWordThreshold;
+	
 	public HashMap<String, Double> wordCount;
 	public RuleCounter ruleCounter;
 
-	public Grammar extractGrammarLatentAnnotation(String treeBankPath, String encoding, int rareWordThreshold,
+	public Grammar extractLatentGrammar(String treeBankPath, String encoding, int rareWordThreshold,
 			int SMCycle, int EMIterations, double mergeRate, double smooth) throws IOException
 	{
 
 		TreeBank treeBank = new TreeBank(treeBankPath, false, encoding);
-		return extractGrammarLatentAnnotation(treeBank, rareWordThreshold, SMCycle, EMIterations, mergeRate, smooth);
+		return extractLatentGrammar(treeBank, rareWordThreshold, SMCycle, EMIterations, mergeRate, smooth);
 	}
 
-	public Grammar extractGrammarLatentAnnotation(TreeBank treeBank, int rareWordThreshold, int SMCycle,
+	public Grammar extractLatentGrammar(TreeBank treeBank, int rareWordThreshold, int SMCycle,
 			int EMIterations, double mergeRate, double smooth)
 	{
 		this.treeBank = treeBank;
@@ -54,20 +58,21 @@ public class GrammarExtractor
 		return g;
 	}
 
-	public Grammar extractGrammarPLabelAdded(String treeBankPath, String encoding, int rareWordThreshold)
+	public Grammar extractGrammarParentLabel(String treeBankPath, String encoding, int rareWordThreshold)
 			throws IOException
 	{
-
 		TreeBank treeBank = new TreeBank(treeBankPath, true, encoding);
-		return extractGrammarPLabelAdded(treeBank, rareWordThreshold);
-
+		
+		return extractGrammarParentLabel(treeBank, rareWordThreshold);
 	}
 
-	public Grammar extractGrammarPLabelAdded(TreeBank treeBank, int rareWordThreshold)
+	public Grammar extractGrammarParentLabel(TreeBank treeBank, int rareWordThreshold)
 	{
 		this.treeBank = treeBank;
 		this.rareWordThreshold = rareWordThreshold;
+		
 		initGrammarExtractor();
+		
 		return tallyInitialGrammar();
 	}
 
@@ -92,10 +97,7 @@ public class GrammarExtractor
 		int allRareWord = 0;
 
 		for (HashMap<BinaryRule, Integer> map : this.bRuleBySameHeadCount)
-		{
 			allBRule.putAll(map);
-
-		}
 		
 		for (HashMap<PreterminalRule, Integer> map : this.preRuleBySameHeadCount)
 		{
@@ -112,18 +114,15 @@ public class GrammarExtractor
 						flag = true;
 					}
 					else
-					{
 						rareWordCount.set(rareWordCount.size() - 1, rareWordCount.get(rareWordCount.size() - 1) + 1);
-					}
+					
 					allRareWord++;
 				}
 			}
 		}
 		
 		for (HashMap<UnaryRule, Integer> map : this.uRuleBySameHeadCount)
-		{
 			allURule.putAll(map);
-		}
 		
 		for (Map.Entry<String, Double> entry : wordCount.entrySet())
 		{
@@ -139,9 +138,7 @@ public class GrammarExtractor
 		
 		double[][] subTag2UNKScores = new double[intialG.getNumSymbol()][1];
 		for (double[] arr : subTag2UNKScores)
-		{
 			arr[0] = 1;
-		}
 		
 		intialG.setSubTag2UNKScores(subTag2UNKScores);
 		
@@ -156,21 +153,15 @@ public class GrammarExtractor
 		preRuleBySameHeadCount = new HashMap[preterminal.size()];
 		
 		for (int i = 0; i < preterminal.size(); i++)
-		{
 			preRuleBySameHeadCount[i] = new HashMap<PreterminalRule, Integer>();
-		}
 		
 		bRuleBySameHeadCount = new HashMap[treeBank.getNonterminalTable().getNumSymbol()];
 		for (int i = 0; i < treeBank.getNonterminalTable().getNumSymbol(); i++)
-		{
 			bRuleBySameHeadCount[i] = new HashMap<BinaryRule, Integer>();
-		}
 		
 		uRuleBySameHeadCount = new HashMap[treeBank.getNonterminalTable().getNumSymbol()];
 		for (int i = 0; i < treeBank.getNonterminalTable().getNumSymbol(); i++)
-		{
 			uRuleBySameHeadCount[i] = new HashMap<UnaryRule, Integer>();
-		}
 		
 		numOfSameHeadRule = new int[this.treeBank.getNonterminalTable().getNumSymbol()];
 		wordCount = new HashMap<>();
@@ -243,13 +234,9 @@ public class GrammarExtractor
 						}
 
 						if (wordCount.containsKey(child))
-						{
 							wordCount.put(child, wordCount.get(child) + 1);
-						}
 						else
-						{
 							wordCount.put(child, 1.0);
-						}
 					}
 				}
 
@@ -423,13 +410,9 @@ public class GrammarExtractor
 			for (short i = 0; i < pNumSub; i++)
 			{
 				if (ruleCounter.sameParentRulesCounter.get(bRule.parent)[i] != 0.0)
-				{
 					denominator = ruleCounter.sameParentRulesCounter.get(bRule.parent)[i];
-				}
 				else
-				{
 					throw new Error("sameParentRulesCounter计算错误。");
-				}
 				
 				for (short j = 0; j < lCNumSub; j++)
 				{
@@ -437,9 +420,7 @@ public class GrammarExtractor
 					{
 						newScore = ruleCounter.bRuleCounter.get(bRule)[i][j][k] / denominator;
 						if (newScore < Rule.ruleThres)
-						{
 							newScore = 0.0;
-						}
 
 						bRule.setScore(i, j, k, newScore);
 					}
@@ -455,21 +436,16 @@ public class GrammarExtractor
 			for (short i = 0; i < pNumSub; i++)
 			{
 				if (ruleCounter.sameParentRulesCounter.get(uRule.parent)[i] != 0.0)
-				{
 					denominator = ruleCounter.sameParentRulesCounter.get(uRule.parent)[i];
-				}
 				else
-				{
 					throw new Error("sameParentRulesCounter计算错误。");
-				}
 				
 				for (short j = 0; j < cNumSub; j++)
 				{
 					newScore = ruleCounter.uRuleCounter.get(uRule)[i][j] / denominator;
 					if (newScore < Rule.ruleThres)
-					{
 						newScore = 0.0;
-					}
+
 					uRule.setScore(i, j, newScore);
 				}
 			}
@@ -481,19 +457,14 @@ public class GrammarExtractor
 			for (short i = 0; i < pNumSub; i++)
 			{
 				if (ruleCounter.sameParentRulesCounter.get(preRule.parent)[i] != 0.0)
-				{
 					denominator = ruleCounter.sameParentRulesCounter.get(preRule.parent)[i];
-				}
 				else
-				{
 					throw new Error("sameParentRulesCounter计算错误。");
-				}
 				
 				newScore = ruleCounter.preRuleCounter.get(preRule)[i] / denominator;
 				if (newScore < Rule.preRulethres)
-				{
 					newScore = 0.0;
-				}
+
 				preRule.setScore(i, newScore);
 			}
 		}
@@ -526,88 +497,6 @@ public class GrammarExtractor
 		return subTag2UNKScores;
 	}
 
-	// 另一种归一化方式
-	// public static void normalizeBAndURule(Grammar g)
-	// {
-	// HashMap<Short, Double[]> sameHeadRuleScoreSum = new HashMap<Short,
-	// Double[]>();
-	// for (Map.Entry<Short, HashMap<BinaryRule, BinaryRule>> entry :
-	// g.getbRuleBySameHead().entrySet())
-	// {
-	// Double[] ruleScoreSum = new Double[g.getNumSubSymbol(entry.getKey())];
-	// sameHeadRuleScoreSum.put(entry.getKey(), ruleScoreSum);
-	// for (Map.Entry<BinaryRule, BinaryRule> innerEntry :
-	// entry.getValue().entrySet())
-	// {
-	// for (short i = 0; i < ruleScoreSum.length; i++)
-	// {
-	// if (ruleScoreSum[i] == null)
-	// {
-	// ruleScoreSum[i] = 0.0;
-	// }
-	// ruleScoreSum[i] += innerEntry.getKey().getParent_i_ScoceSum(i);
-	// }
-	// }
-	// }
-	//
-	// for (Map.Entry<Short, HashMap<UnaryRule, UnaryRule>> entry :
-	// g.getuRuleBySameHead().entrySet())
-	// {
-	// Double[] ruleScoreSum;
-	// if (!sameHeadRuleScoreSum.containsKey(entry.getKey()))
-	// {
-	// sameHeadRuleScoreSum.put(entry.getKey(), new
-	// Double[g.getNumSubSymbol(entry.getKey())]);
-	// }
-	// ruleScoreSum = sameHeadRuleScoreSum.get(entry.getKey());
-	// for (Map.Entry<UnaryRule, UnaryRule> innerEntry :
-	// entry.getValue().entrySet())
-	// {
-	// for (short i = 0; i < ruleScoreSum.length; i++)
-	// {
-	// if (ruleScoreSum[i] == null)
-	// {
-	// ruleScoreSum[i] = 0.0;
-	// }
-	// ruleScoreSum[i] += innerEntry.getKey().getParent_i_ScoceSum(i);
-	// }
-	// }
-	// }
-	//
-	// for (BinaryRule bRule : g.getbRules())
-	// {
-	// short nSubParent = g.getNumSubSymbol(bRule.getParent());
-	// for (short subP = 0; subP < nSubParent; subP++)
-	// {
-	// double tag_iScoreSum = sameHeadRuleScoreSum.get(bRule.getParent())[subP];
-	// short nSubLC = g.getNumSubSymbol(bRule.getLeftChild());
-	// for (short subLC = 0; subLC < nSubLC; subLC++)
-	// {
-	// short nSubRC = g.getNumSubSymbol(bRule.getRightChild());
-	// for (short subRC = 0; subRC < nSubRC; subRC++)
-	// {
-	// double score = bRule.getScore(subP, subLC, subRC);
-	// bRule.setScore(subP, subLC, subRC, score / tag_iScoreSum);
-	// }
-	// }
-	// }
-	// }
-	// for (UnaryRule uRule : g.getuRules())
-	// {
-	// short nSubParent = g.getNumSubSymbol(uRule.getParent());
-	// for (short subP = 0; subP < nSubParent; subP++)
-	// {
-	// double tag_iScoreSum = sameHeadRuleScoreSum.get(uRule.getParent())[subP];
-	// short nSubC = g.getNumSubSymbol(uRule.getChild());
-	// for (short subC = 0; subC < nSubC; subC++)
-	// {
-	// double score = uRule.getScore(subP, subC);
-	// uRule.setScore(subP, subC, score / tag_iScoreSum);
-	// }
-	// }
-	// }
-	// }
-
 	public static void normalizeBAndURule(Grammar g)
 	{
 		HashMap<Short, Double[]> sameHeadRuleScoreSum = new HashMap<Short, Double[]>();
@@ -624,9 +513,8 @@ public class GrammarExtractor
 						for (short i = 0; i < ruleScoreSum.length; i++)
 						{
 							if (ruleScoreSum[i] == null)
-							{
 								ruleScoreSum[i] = 0.0;
-							}
+
 							ruleScoreSum[i] += bRule.getParent_i_ScoceSum(i);
 						}
 					}
@@ -638,9 +526,8 @@ public class GrammarExtractor
 						for (short i = 0; i < ruleScoreSum.length; i++)
 						{
 							if (ruleScoreSum[i] == null)
-							{
 								ruleScoreSum[i] = 0.0;
-							}
+
 							ruleScoreSum[i] += uRule.getParent_i_ScoceSum(i);
 						}
 					}
@@ -690,9 +577,7 @@ public class GrammarExtractor
 			short parent = preRule.parent;
 			short nSubP = g.getNumSubSymbol(parent);
 			if (!sameHeadPRuleScoreSum.containsKey(parent))
-			{
 				sameHeadPRuleScoreSum.put(parent, new Double[nSubP]);
-			}
 
 			for (short i = 0; i < nSubP; i++)
 			{
@@ -701,9 +586,8 @@ public class GrammarExtractor
 				{
 					BigDecimal tag_iScoreSum = BigDecimal.valueOf(0.0);
 					for (PreterminalRule theRule : g.getPreRuleSetBySameHead(parent))
-					{
 						tag_iScoreSum = tag_iScoreSum.add(BigDecimal.valueOf(theRule.getScore(i)));
-					}
+
 					sameHeadPRuleScoreSum.get(preRule.parent)[i] = tag_iScoreSum.doubleValue();
 					sameHeadScoreSum = tag_iScoreSum.doubleValue();
 				}
@@ -856,8 +740,6 @@ public class GrammarExtractor
 			throw new Error("error tree:more than 2 children.");
 
 		for (AnnotationTreeNode child : tree.getChildren())
-		{
 			refreshRuleCountExpectation(g, root, child);
-		}
 	}
 }

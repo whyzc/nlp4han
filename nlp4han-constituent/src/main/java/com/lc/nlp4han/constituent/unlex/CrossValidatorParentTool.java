@@ -36,7 +36,7 @@ public class CrossValidatorParentTool
 			while ((expression = trainingSampleStream.read()) != null)
 				treeBank.addTree(expression, true);
 			GrammarExtractor gExtractor = new GrammarExtractor();
-			Grammar g = gExtractor.extractGrammarPLabelAdded(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
+			Grammar g = gExtractor.extractGrammarParentLabel(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
 			PCFG pcfg = g.getPCFG();
 			System.out.println("训练学习时间：" + (System.currentTimeMillis() - start) + "ms");
 			
