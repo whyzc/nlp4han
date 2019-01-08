@@ -98,7 +98,7 @@ public class LexPCFG implements GrammarWritable
 	}
 
 	/**
-	 * 得到P（H|P,(pos,word)）的概率/可以用于计算单元规则的概率
+	 * 得到P（H|P,(t,w)）的概率/可以用于计算单元规则的概率
 	 * 
 	 * @return
 	 */

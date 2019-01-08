@@ -32,7 +32,7 @@ public class Edge implements Comparable<Edge>
   
     //边是否接受stop概率
 	private boolean stop = false;
-	private double pro =-Double.MAX_VALUE;
+	private double prob =-Double.MAX_VALUE;
   
 	private ArrayList<Edge> children = null;
 
@@ -52,7 +52,7 @@ public class Edge implements Comparable<Edge>
 		this.lc = lc;
 		this.rc = rc;
 		this.stop = stop;
-		this.pro = pro;
+		this.prob = pro;
 		this.children = children;
 	}
 
@@ -71,7 +71,7 @@ public class Edge implements Comparable<Edge>
 		this.coor = coor;
 		this.pu = pu;
 		this.stop = stop;
-		this.pro = pro;
+		this.prob = pro;
 		this.children = children;
 	}
 
@@ -287,14 +287,14 @@ public class Edge implements Comparable<Edge>
 		this.stop = stop;
 	}
 
-	public double getPro()
+	public double getProb()
 	{
-		return pro;
+		return prob;
 	}
 
-	public void setPro(double pro)
+	public void setProb(double pro)
 	{
-		this.pro = pro;
+		this.prob = pro;
 	}
 
 	public ArrayList<Edge> getChildren()
@@ -331,7 +331,7 @@ public class Edge implements Comparable<Edge>
 	public String toString()
 	{
 		return "Edge [label=" + label + ", headLabel=" + headLabel + ", headWord=" + headWord + ", headPOS=" + headPOS
-				+ ", start=" + start + ", end=" + end + ", lc=" + lc + ", rc=" + rc + ", stop=" + stop + ", pro=" + pro
+				+ ", start=" + start + ", end=" + end + ", lc=" + lc + ", rc=" + rc + ", stop=" + stop + ", pro=" + prob
 				+ "]";
 	}
 

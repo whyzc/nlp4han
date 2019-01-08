@@ -78,7 +78,7 @@ public class Chart2Results
 		for (Edge edge : node.getEdgeMap().keySet())
 		{
 			if (edge.getLabel().equals("ROOT") && edge.isStop() && edge.getLc().equals(distance)
-					&& edge.getRc().equals(distance) && edge.getPro() > bestEdge.getPro())
+					&& edge.getRc().equals(distance) && edge.getProb() > bestEdge.getProb())
 			{
 				bestEdge = edge;
 			}
