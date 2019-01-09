@@ -1,7 +1,8 @@
 package com.lc.nlp4han.chunk.svm;
 
 import java.io.IOException;
-import com.lc.nlp4han.chunk.svm.libsvm.svm;
+import java.io.InputStream;
+
 import com.lc.nlp4han.chunk.svm.libsvm.svm_model;
 
 public class ChunkerLibSVM extends ChunkerSVM
@@ -24,7 +25,7 @@ public class ChunkerLibSVM extends ChunkerSVM
 	@Override
 	public void setModel(String modelPath) throws IOException
 	{
-		this.model = svm.svm_load_model(modelPath);
+		this.model = ModelLoadingUtil.loadLibSVMModelFromDisk(modelPath);
 	}
 
 	@Override
@@ -37,5 +38,11 @@ public class ChunkerLibSVM extends ChunkerSVM
 	public Object getModel()
 	{
 		return this.model;
+	}
+
+	@Override
+	public void setModel(InputStream input) throws IOException
+	{
+		this.model = ModelLoadingUtil.loadLibSVMModel(input);
 	}
 }

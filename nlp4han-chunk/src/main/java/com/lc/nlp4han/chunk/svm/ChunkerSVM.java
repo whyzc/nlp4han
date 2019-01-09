@@ -3,6 +3,7 @@ package com.lc.nlp4han.chunk.svm;
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,6 +95,13 @@ public abstract class ChunkerSVM implements Chunker
 	 * @throws IOException 
 	 */
 	public abstract void setModel(String modelPath) throws IOException;
+	
+	
+	/**
+	 * 根据输入流，设置model
+	 * @param input
+	 */
+	public abstract void setModel(InputStream input) throws IOException;
 
 	@Override
 	public Chunk[] parse(String sentence)
