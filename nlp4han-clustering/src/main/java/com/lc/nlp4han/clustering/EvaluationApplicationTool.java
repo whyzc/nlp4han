@@ -1,5 +1,6 @@
 package com.lc.nlp4han.clustering;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -72,7 +73,7 @@ public class EvaluationApplicationTool
 		return result;
 	}
 	
-	public static void main(String[] args)
+	public static void main(String[] args) throws IOException
 	{
 		long startTime = System.currentTimeMillis();
 		

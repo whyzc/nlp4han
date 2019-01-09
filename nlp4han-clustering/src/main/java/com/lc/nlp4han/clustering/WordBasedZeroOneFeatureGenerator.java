@@ -18,6 +18,7 @@ import com.lc.nlp4han.util.CharTypeUtil;
 
 /**
  * 该特征生成器是基于分词，用于生成key为词，value为0或1的特征
+ * 
  * @author 杨智超
  *
  */
@@ -25,11 +26,11 @@ public class WordBasedZeroOneFeatureGenerator implements FeatureGenerator
 {
 	private Set<String> stopWords = new HashSet<String>();
 	private Map<String, Count> textsInfo = new HashMap<String, Count>();
-	
+
 	@Override
 	public void init(List<Text> texts)
 	{
-		for (int i=0 ; i<texts.size() ; i++)
+		for (int i = 0; i < texts.size(); i++)
 		{
 			Text t = texts.get(i);
 			Map<String, Integer> m = getWords(t);
@@ -45,19 +46,19 @@ public class WordBasedZeroOneFeatureGenerator implements FeatureGenerator
 				}
 				else
 				{
-					Count c= new Count(e.getValue(), 1);
+					Count c = new Count(e.getValue(), 1);
 					textsInfo.put(key, c);
 				}
 			}
 		}
 		textsInfo = pruning(textsInfo);
 	}
-	
+
 	private <T> Map<String, T> pruning(Map<String, T> words)
 	{
 		Map<String, T> result = new HashMap<String, T>();
 		Set<Entry<String, T>> es = words.entrySet();
-		
+
 		for (Entry<String, T> e : es)
 		{
 			if (isPruned(e.getKey()))
@@ -65,13 +66,15 @@ public class WordBasedZeroOneFeatureGenerator implements FeatureGenerator
 			else
 				result.put(e.getKey(), e.getValue());
 		}
-		
+
 		return result;
 	}
-	
+
 	/**
 	 * 对文本进行分词
-	 * @param text 待分词的文本
+	 * 
+	 * @param text
+	 *            待分词的文本
 	 * @return 所有词条及其个数
 	 */
 	private Map<String, Integer> getWords(Text text)
@@ -82,9 +85,9 @@ public class WordBasedZeroOneFeatureGenerator implements FeatureGenerator
 		try
 		{
 			segmenter = WordSegFactory.getWordSegmenter();
-			words = segmenter.segment(text.getContent());  //分词
-			
-			for (int i=0 ; i<words.length ; i++)  //统计各词的个数
+			words = segmenter.segment(text.getContent()); // 分词
+
+			for (int i = 0; i < words.length; i++) // 统计各词的个数
 			{
 				if (fm.containsKey(words[i]))
 				{
@@ -97,12 +100,13 @@ public class WordBasedZeroOneFeatureGenerator implements FeatureGenerator
 					fm.put(words[i], 1);
 				}
 			}
-			
-		} catch (IOException e)
+
+		}
+		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
-		
+
 		return fm;
 	}
 
@@ -110,10 +114,10 @@ public class WordBasedZeroOneFeatureGenerator implements FeatureGenerator
 	public List<Feature> getFeatures(Text text)
 	{
 		List<Feature> result = new ArrayList<Feature>();
-		
+
 		WordSegmenter segmenter;
 		String[] words = null;
-		
+
 		try
 		{
 			segmenter = WordSegFactory.getWordSegmenter();
@@ -123,15 +127,15 @@ public class WordBasedZeroOneFeatureGenerator implements FeatureGenerator
 		{
 			e.printStackTrace();
 		}
-		
-		HashSet<String> tempSet = new HashSet<String>();  // 用于去重
-		
-		for (int i=0 ; i<words.length ; i++)
+
+		HashSet<String> tempSet = new HashSet<String>(); // 用于去重
+
+		for (int i = 0; i < words.length; i++)
 		{
 			if (!tempSet.contains(words[i]))
 			{
 				tempSet.add(words[i]);
-				
+
 				if (!isPruned(words[i]))
 				{
 					Feature f = new Feature(words[i], 1.0);
@@ -139,18 +143,17 @@ public class WordBasedZeroOneFeatureGenerator implements FeatureGenerator
 				}
 			}
 		}
-		
+
 		return result;
 	}
 
-	
 	private boolean isPruned(String word)
 	{
 		if (CharTypeUtil.isChinesePunctuation(word))
 			return true;
 		if (isStopWord(word))
 			return true;
-		for (int i=0 ; i<word.length() ; i++)
+		for (int i = 0; i < word.length(); i++)
 		{
 			if (isChinese(word.charAt(i)))
 				return false;
@@ -159,24 +162,26 @@ public class WordBasedZeroOneFeatureGenerator implements FeatureGenerator
 		}
 		return true;
 	}
-	
-	private boolean isChinese(char c) {
-	    Character.UnicodeBlock ub = Character.UnicodeBlock.of(c);
-	    if (ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS  
-                || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A  
-                || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B  
-                || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_C//jdk1.7  
-                || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_D//jdk1.7  
-                || ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS  
-                || ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT) {  
-            return true;  
-        }
-	    return false;
+
+	private boolean isChinese(char c)
+	{
+		Character.UnicodeBlock ub = Character.UnicodeBlock.of(c);
+		if (ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
+				|| ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
+				|| ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B
+				|| ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_C// jdk1.7
+				|| ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_D// jdk1.7
+				|| ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
+				|| ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT)
+		{
+			return true;
+		}
+		return false;
 	}
-	
+
 	private boolean isStopWord(String word)
 	{
-		if (stopWords.size()<1)
+		if (stopWords.size() < 1)
 			loadStopWordList("停用词.txt", "utf-8");
 		if (stopWords.contains(word))
 			return true;
@@ -192,7 +197,7 @@ public class WordBasedZeroOneFeatureGenerator implements FeatureGenerator
 		{
 			br = new BufferedReader(new InputStreamReader(is, encoding));
 			String tmp = null;
-			while ((tmp=br.readLine()) != null)
+			while ((tmp = br.readLine()) != null)
 			{
 				stopWords.add(tmp);
 			}
@@ -202,13 +207,13 @@ public class WordBasedZeroOneFeatureGenerator implements FeatureGenerator
 		{
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	@Override
 	public boolean isInitialized()
 	{
-		if (textsInfo == null || textsInfo.size()<1)
+		if (textsInfo == null || textsInfo.size() < 1)
 			return false;
 		else
 			return true;

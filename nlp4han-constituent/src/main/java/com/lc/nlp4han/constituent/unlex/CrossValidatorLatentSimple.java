@@ -4,26 +4,21 @@ import java.io.File;
 import java.io.IOException;
 
 import com.lc.nlp4han.constituent.ConstituentMeasure;
+import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.PlainTextByTreeStream;
+import com.lc.nlp4han.constituent.pcfg.ConstituentParserCKYLoosePCNF;
 import com.lc.nlp4han.constituent.pcfg.ConstituentTreeStream;
 import com.lc.nlp4han.constituent.pcfg.PCFG;
 import com.lc.nlp4han.ml.util.CrossValidationPartitioner;
 import com.lc.nlp4han.ml.util.FileInputStreamFactory;
 import com.lc.nlp4han.ml.util.ObjectStream;
 
-/**
- * 交叉验证类
- * 
- * @author 王宁
- */
-public class CrossValidatorParentLabelAdded
+public class CrossValidatorLatentSimple
 {
-
 	public void evaluate(ObjectStream<String> sentenceStream, int nFolds, ConstituentMeasure measure,
 			double pruneThreshold, boolean secondPrune, boolean prior) throws IOException
 	{
-
 		CrossValidationPartitioner<String> partitioner = new CrossValidationPartitioner<String>(sentenceStream, nFolds);
 		int run = 1;
 		double totalTime = 0;
@@ -33,18 +28,28 @@ public class CrossValidatorParentLabelAdded
 			long start = System.currentTimeMillis();
 			CrossValidationPartitioner.TrainingSampleStream<String> trainingSampleStream = partitioner.next();
 			TreeBank treeBank = new TreeBank();
+			TreeBank treeBank2 = new TreeBank();
 			String expression;
 			while ((expression = trainingSampleStream.read()) != null)
 			{
-				treeBank.addTree(expression, true);
+				treeBank.addTree(expression, false);
+				treeBank2.addTree(expression, false);
 			}
+			
 			GrammarExtractor gExtractor = new GrammarExtractor();
-			Grammar g = gExtractor.extractGrammarPLabelAdded(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
+			Grammar g = gExtractor.extractLatentGrammar(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD, 0, 50,
+					0.5, 0.01);
 			PCFG pcfg = g.getPCFG();
+			GrammarExtractor gExtractor2 = new GrammarExtractor();
+			Grammar gLatent = gExtractor2.extractLatentGrammar(treeBank2, Lexicon.DEFAULT_RAREWORD_THRESHOLD,
+					1, 50, 0.5, 0.01);
 			System.out.println("训练学习时间：" + (System.currentTimeMillis() - start) + "ms");
+			
 			long start2 = System.currentTimeMillis();
-			EvaluatorParentLabelAdded evaluator = new EvaluatorParentLabelAdded(pcfg, pruneThreshold, secondPrune,
+			ConstituentParserCKYLoosePCNF pcfgParser = new ConstituentParserCKYLoosePCNF(pcfg, pruneThreshold, secondPrune,
 					prior);
+			ConstituentParser parser = new ConstituentParserLatentSimple(pcfgParser, gLatent);
+			EvaluatorLatentSimple evaluator = new EvaluatorLatentSimple(parser);
 			evaluator.setMeasure(measure);
 			ObjectStream<ConstituentTree> sampleStream = new ConstituentTreeStream(
 					trainingSampleStream.getTestSampleStream());
@@ -64,7 +69,7 @@ public class CrossValidatorParentLabelAdded
 
 	private static void usage()
 	{
-		System.out.println(CrossValidatorParentLabelAdded.class.getName()
+		System.out.println(CrossValidatorLatentSimple.class.getName()
 				+ " -train <corpusFile>  [-encoding <encoding>] [-folds <nFolds>] ");
 	}
 
@@ -99,13 +104,13 @@ public class CrossValidatorParentLabelAdded
 				i++;
 			}
 		}
+		
 		try
 		{
 			ObjectStream<String> sentenceStream = new PlainTextByTreeStream(
 					new FileInputStreamFactory(new File(corpusFile)), encoding);
-
 			ConstituentMeasure measure = new ConstituentMeasure();
-			CrossValidatorParentLabelAdded crossValidator = new CrossValidatorParentLabelAdded();
+			CrossValidatorLatentSimple crossValidator = new CrossValidatorLatentSimple();
 			crossValidator.evaluate(sentenceStream, folds, measure, pruneThreshold, secondPrune, prior);
 		}
 		catch (IOException e)

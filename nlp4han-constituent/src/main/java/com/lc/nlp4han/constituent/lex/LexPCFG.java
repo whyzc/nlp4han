@@ -1,11 +1,8 @@
 package com.lc.nlp4han.constituent.lex;
 
-import java.io.BufferedReader;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -28,12 +25,14 @@ public class LexPCFG implements GrammarWritable
 	private HashSet<String> posSet = new HashSet<String>();
 
 	// 词性标注和词，以及数目
-	private HashMap<pos2Word, Integer> wordMap = new HashMap<pos2Word, Integer>();
+	private HashMap<WordPOS, Integer> wordMap = new HashMap<WordPOS, Integer>();
+
 	// 词在训练集中的pos集合
 	private HashMap<String, HashSet<String>> posesOfWord = new HashMap<String, HashSet<String>>();
 
 	// P(H|P,t,w)）相关的统计数据
 	private HashMap<OccurenceCollins, RuleAmountsInfo> headGenMap = new HashMap<OccurenceCollins, RuleAmountsInfo>();
+
 	private HashMap<OccurenceCollins, HashSet<String>> parentList = new HashMap<OccurenceCollins, HashSet<String>>();
 
 	// 用于生成SidesChild(包含其中心word和pos)相关统计数据
@@ -49,7 +48,7 @@ public class LexPCFG implements GrammarWritable
 	{
 	}
 
-	public LexPCFG(String startSymbol, HashSet<String> posSet, HashMap<pos2Word, Integer> wordMap,
+	public LexPCFG(String startSymbol, HashSet<String> posSet, HashMap<WordPOS, Integer> wordMap,
 			HashMap<String, HashSet<String>> posesOfWord, HashMap<OccurenceCollins, RuleAmountsInfo> headGenMap,
 			HashMap<OccurenceCollins, HashSet<String>> parentList,
 			HashMap<OccurenceCollins, RuleAmountsInfo> sidesGenMap,
@@ -68,104 +67,6 @@ public class LexPCFG implements GrammarWritable
 	}
 
 	/**
-	 * 从输入流中读取模型
-	 * @param in
-	 * @param encoding
-	 * @throws IOException
-	 */
-	public void readGrammar(InputStream in, String encoding) throws IOException {
-		BufferedReader buffer = new BufferedReader(new InputStreamReader(in, encoding));
-		String str = buffer.readLine().trim();
-		if (str.equals("--起始符--"))
-		{
-			setStartSymbol(buffer.readLine().trim());
-		}
-		buffer.readLine();
-
-		str = buffer.readLine().trim();
-		while (!str.equals("--POS-Word集--"))
-		{// 添加词性标注集
-			posSet.add(str);
-			str = buffer.readLine().trim();
-		}
-
-		str=buffer.readLine().trim();
-		while (!str.equals("--生成头结点的规则集--"))
-		{// POS-Word集
-			String[] strs = str.split(" ");
-			wordMap.put(new pos2Word(strs[0], strs[1]), Integer.parseInt(strs[2]));
-			str = buffer.readLine().trim();	
-		}
-
-		str=buffer.readLine().trim();
-		while (!str.equals("--头结点向上延伸的标记集--"))
-		{// 生成头结点的规则集
-			String[] strs = str.split(" ");
-			int amount = Integer.parseInt(strs[strs.length - 2]);
-			int sort = Integer.parseInt(strs[strs.length - 1]);
-			headGenMap.put(new OccurenceHeadChild(strs), new RuleAmountsInfo(amount, sort));
-			str = buffer.readLine();
-		}
-
-		str=buffer.readLine().trim();
-		while (!str.equals("--生成两侧孩子的规则集--"))
-		{// 头结点向上延伸的标记集
-			String[] strs = str.split(" ");
-			HashSet<String> set = new HashSet<String>();
-			for (int i = 4; i < strs.length; i++)
-			{
-				set.add(strs[i]);
-			}
-			parentList.put(new OccurenceHeadChild(strs), set);
-			str = buffer.readLine();
-		}
-
-		str=buffer.readLine().trim();
-		while (!str.equals("--生成两侧Stop的规则集--"))
-		{// 生成两侧孩子的规则集
-			String[] strs = str.split(" ");
-			int amount = Integer.parseInt(strs[strs.length - 2]);
-			int subtypesAmount = Integer.parseInt(strs[strs.length - 1]);
-			sidesGenMap.put(new OccurenceSides(strs), new RuleAmountsInfo(amount, subtypesAmount));
-			str = buffer.readLine();
-		}
-
-		str=buffer.readLine().trim();
-		while (!str.equals("--特殊规则集--"))
-		{// 生成两侧Stop的规则集
-			String[] strs = str.split(" ");
-			int amount = 1;
-			amount = Integer.parseInt(strs[strs.length - 2]);
-			int sort = Integer.parseInt(strs[strs.length - 1]);
-			stopGenMap.put(new OccurenceStop(strs), new RuleAmountsInfo(amount, sort));
-			str = buffer.readLine();
-		}
-
-		str=buffer.readLine().trim();
-		while (str != null&&!str.equals("完"))
-		{// 特殊规则集
-			String[] strs = str.split(" ");
-			int amount = Integer.parseInt(strs[strs.length - 2]);
-			int sort = Integer.parseInt(strs[strs.length - 1]);
-			specialGenMap.put(new OccurenceSpecialCase(strs), new RuleAmountsInfo(amount, sort));
-			str = buffer.readLine();
-		}
-		buffer.close();
-	}
-	/**
-	 * 从流中读取数据
-	 * 
-	 * @param in
-	 * @param encoding
-	 * @throws IOException
-	 */
-	public LexPCFG(InputStream in, String encoding) throws IOException
-	{
-		readGrammar(in,encoding);
-		
-	}
-
-	/**
 	 * 得到词性标注集合
 	 * 
 	 * @return
@@ -181,7 +82,7 @@ public class LexPCFG implements GrammarWritable
 	 * @param word
 	 * @return
 	 */
-	public HashSet<String> getposSetByword(String word)
+	public HashSet<String> getPosSetByword(String word)
 	{
 		return posesOfWord.get(word);
 	}
@@ -197,13 +98,13 @@ public class LexPCFG implements GrammarWritable
 	}
 
 	/**
-	 * 得到P（H|P,(pos,word)）的概率/可以用于计算单元规则的概率
+	 * 得到P（H|P,(t,w)）的概率/可以用于计算单元规则的概率
 	 * 
 	 * @return
 	 */
-	public double getProForGenerateHead(OccurenceHeadChild rhcg)
+	public double getProbForGenerateHead(OccurenceHeadChild rhcg)
 	{
-		return getProOfBackOff(rhcg, headGenMap, "head");
+		return getProbOfBackOff(rhcg, headGenMap, "head");
 	}
 
 	/**
@@ -212,9 +113,9 @@ public class LexPCFG implements GrammarWritable
 	 * @param rsg
 	 * @return
 	 */
-	public double getProForGenerateStop(OccurenceStop rsg)
+	public double getProbForGenerateStop(OccurenceStop rsg)
 	{
-		return getProOfBackOff(rsg, stopGenMap, "stop");
+		return getProbOfBackOff(rsg, stopGenMap, "stop");
 	}
 
 	/**
@@ -223,7 +124,7 @@ public class LexPCFG implements GrammarWritable
 	 * @param sidesRule
 	 * @return
 	 */
-	public double getProForGenerateSides(OccurenceSides sr)
+	public double getProbForGenerateSides(OccurenceSides sr)
 	{
 		// 需要进行平滑运算将其分为两部分
 		String parentLabel = sr.getParentLabel();// 父节点的非终结符标记
@@ -242,7 +143,7 @@ public class LexPCFG implements GrammarWritable
 				sideHeadPOS, null, coor, pu, distance);
 		OccurenceSides rule2 = new OccurenceSides(headLabel, parentLabel, headPOS, headWord, direction, sideLabel,
 				sideHeadPOS, sideHeadWord, coor, pu, distance);
-		return getProOfBackOff(rule1, sidesGenMap, "1side") * getProOfBackOff(rule2, sidesGenMap, "2side");
+		return getProbOfBackOff(rule1, sidesGenMap, "1side") * getProbOfBackOff(rule2, sidesGenMap, "2side");
 	}
 
 	/**
@@ -252,9 +153,9 @@ public class LexPCFG implements GrammarWritable
 	 * @param specialRule
 	 * @return
 	 */
-	public double getProForSpecialCase(OccurenceSpecialCase specialRule)
+	public double getProbForSpecialCase(OccurenceSpecialCase specialRule)
 	{
-		return getProOfBackOff(specialRule, specialGenMap, "special");
+		return getProbOfBackOff(specialRule, specialGenMap, "special");
 	}
 
 	/**
@@ -264,17 +165,17 @@ public class LexPCFG implements GrammarWritable
 	 * @param map
 	 * @return
 	 */
-	private double getProOfBackOff(OccurenceCollins rule, HashMap<OccurenceCollins, RuleAmountsInfo> map, String type)
+	private double getProbOfBackOff(OccurenceCollins rule, HashMap<OccurenceCollins, RuleAmountsInfo> map, String type)
 	{
 		double e1, e2, e3, w1, w2;
 		e3 = 0;
 
-		double[] pw1 = getProAndWeight(rule, map, type);
+		double[] pw1 = getProbAndWeight(rule, map, type);
 		e1 = pw1[1];
 		w1 = pw1[0];
 
 		rule.setHeadWord(null);
-		double[] pw2 = getProAndWeight(rule, map, type);
+		double[] pw2 = getProbAndWeight(rule, map, type);
 		e2 = pw2[1];
 		w2 = pw2[0];
 
@@ -282,12 +183,12 @@ public class LexPCFG implements GrammarWritable
 		if (type.equals("2side"))
 		{
 			OccurenceSides rs = (OccurenceSides) rule;
-			double i = 0.02;//未登录词的平滑值
-			e3 = getProForWord(rs, i);
+			double i = 0.02;// 未登录词的平滑值
+			e3 = getProbForWord(rs, i);
 		}
 		else
 		{
-			double[] pw3 = getProAndWeight(rule, map, type);
+			double[] pw3 = getProbAndWeight(rule, map, type);
 			e3 = pw3[1];
 		}
 
@@ -305,17 +206,17 @@ public class LexPCFG implements GrammarWritable
 	 * 
 	 * @return
 	 */
-	private double getProForWord(OccurenceSides rs, double count)
+	private double getProbForWord(OccurenceSides rs, double count)
 	{
 		double e3 = 0;
-		pos2Word wop = new pos2Word(rs.getSideHeadWord(), rs.getSideHeadPOS());
+		WordPOS wop = new WordPOS(rs.getSideHeadWord(), rs.getSideHeadPOS());
 		if (wordMap.keySet().contains(wop))
 		{
 			count = wordMap.get(wop);
 		}
-		if (wordMap.containsKey(new pos2Word(null, rs.getSideHeadPOS())))
+		if (wordMap.containsKey(new WordPOS(null, rs.getSideHeadPOS())))
 		{
-			e3 = count / wordMap.get(new pos2Word(null, rs.getSideHeadPOS()));
+			e3 = count / wordMap.get(new WordPOS(null, rs.getSideHeadPOS()));
 		}
 		return e3;
 	}
@@ -325,7 +226,7 @@ public class LexPCFG implements GrammarWritable
 	 * 
 	 * @return
 	 */
-	private double[] getProAndWeight(OccurenceCollins rhcg, HashMap<OccurenceCollins, RuleAmountsInfo> map, String type)
+	private double[] getProbAndWeight(OccurenceCollins rhcg, HashMap<OccurenceCollins, RuleAmountsInfo> map, String type)
 	{
 		int x, u, y;
 		double[] pw = new double[2];
@@ -416,12 +317,12 @@ public class LexPCFG implements GrammarWritable
 		StartSymbol = startSymbol;
 	}
 
-	public int getPOS2WordAmount(pos2Word pw)
+	public int getPOS2WordAmount(WordPOS pw)
 	{
 		return wordMap.get(pw);
 	}
 
-	public void setWordMap(HashMap<pos2Word, Integer> wordMap)
+	public void setWordMap(HashMap<WordPOS, Integer> wordMap)
 	{
 		this.wordMap = wordMap;
 	}
@@ -505,9 +406,9 @@ public class LexPCFG implements GrammarWritable
 			stb.append(itr1.next() + '\n');
 		}
 
-		Set<pos2Word> wap = wordMap.keySet();
+		Set<WordPOS> wap = wordMap.keySet();
 		stb.append("--POS-Word集--" + '\n');
-		for (pos2Word wap1 : wap)
+		for (WordPOS wap1 : wap)
 		{
 			stb.append(wap1.toString() + " " + wordMap.get(wap1) + '\n');
 		}
@@ -556,7 +457,7 @@ public class LexPCFG implements GrammarWritable
 			OccurenceHeadChild rule1 = (OccurenceHeadChild) rule;
 			stb.append(rule1.toString() + " " + specialGenMap.get(rule1).toString() + '\n');
 		}
-		stb.append("完" );
+		stb.append("完");
 		return stb.toString();
 	}
 
@@ -669,9 +570,9 @@ public class LexPCFG implements GrammarWritable
 			out.writeUTF(itr1.next());
 		}
 
-		Set<pos2Word> wap = wordMap.keySet();
+		Set<WordPOS> wap = wordMap.keySet();
 		out.writeUTF("--POS-Word集--");
-		for (pos2Word wap1 : wap)
+		for (WordPOS wap1 : wap)
 		{
 			out.writeUTF(wap1.toString() + " " + wordMap.get(wap1));
 		}
@@ -749,7 +650,7 @@ public class LexPCFG implements GrammarWritable
 		while (!str.equals("--生成头结点的规则集--"))
 		{// POS-Word集
 			String[] strs = str.split(" ");
-			wordMap.put(new pos2Word(strs[0], strs[1]), Integer.parseInt(strs[2]));
+			wordMap.put(new WordPOS(strs[0], strs[1]), Integer.parseInt(strs[2]));
 
 			str = in.readUTF().trim();
 		}

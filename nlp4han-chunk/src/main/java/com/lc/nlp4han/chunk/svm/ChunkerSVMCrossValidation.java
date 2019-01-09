@@ -48,7 +48,7 @@ public class ChunkerSVMCrossValidation
 	 * @throws IOException
 	 * @throws InvalidInputDataException
 	 */
-	public void evaluate(ObjectStream<AbstractChunkAnalysisSample> sampleStream, int nFolds, ChunkerSVM me,
+	public void evaluate(ObjectStream<AbstractChunkAnalysisSample> sampleStream, int nFolds, ChunkerSVM chunker,
 			ChunkAnalysisContextGenerator contextGenerator, AbstractChunkAnalysisMeasure measure, Properties properties)
 			throws IOException, InvalidInputDataException
 	{
@@ -71,15 +71,15 @@ public class ChunkerSVMCrossValidation
 			trainingSampleStream.reset();
 			measure.setDictionary(dict);
 
-			me.setContextgenerator(contextGenerator);
-			me.setLabel(label);
+			chunker.setContextgenerator(contextGenerator);
+			chunker.setLabel(label);
+			
 			long start = System.currentTimeMillis();
-			me.train(trainingSampleStream, args, contextGenerator);
-			me.setModel(modelPath);
+			chunker.train(trainingSampleStream, args, contextGenerator);		
 			System.out.println("训练时间： " + (System.currentTimeMillis() - start));
 
-			ChunkerSVMEvaluator evaluator = new ChunkerSVMEvaluator(me, measure);
-
+			chunker.setModel(modelPath);
+			ChunkerSVMEvaluator evaluator = new ChunkerSVMEvaluator(chunker, measure);
 			evaluator.setMeasure(measure);
 
 			start = System.currentTimeMillis();

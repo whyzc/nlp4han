@@ -9,6 +9,10 @@ import com.lc.nlp4han.chunk.svm.liblinear.Model;
 import com.lc.nlp4han.chunk.svm.liblinear.PredictLinear;
 import com.lc.nlp4han.chunk.svm.liblinear.Train;
 
+/**
+ * 基于SVMLinear的组块分析器
+ *
+ */
 public class ChunkerLinearSVM extends ChunkerSVM
 {
 	Model model = null;
@@ -22,7 +26,7 @@ public class ChunkerLinearSVM extends ChunkerSVM
 	}
 
 	@Override
-	public void train(String[] arg)
+	public void train(String[] arg) throws IOException
 	{
 		try
 		{
@@ -30,21 +34,14 @@ public class ChunkerLinearSVM extends ChunkerSVM
 		}
 		catch (IOException | InvalidInputDataException e)
 		{
-			e.printStackTrace();
+			throw new IOException(e);
 		}
 	}
 
 	@Override
-	public void setModel(String modelPath)
+	public void setModel(String modelPath) throws IOException
 	{
-		try
-		{
-			this.model = Linear.loadModel(new File(modelPath));
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		this.model = Linear.loadModel(new File(modelPath));
 	}
 
 	@Override

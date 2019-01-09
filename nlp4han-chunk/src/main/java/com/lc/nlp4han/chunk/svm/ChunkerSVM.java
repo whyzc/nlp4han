@@ -1,7 +1,6 @@
 package com.lc.nlp4han.chunk.svm;
 
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -26,9 +25,9 @@ import com.lc.nlp4han.ml.util.ObjectStream;
  */
 public abstract class ChunkerSVM implements Chunker
 {
-	private ConversionInformation ci = null;
+	private SVMFeatureLabelInfo ci = null;
+	
 	private ChunkAnalysisContextGenerator contextgenerator;
-	private Object model;
 	private String label;
 
 	public ChunkerSVM()
@@ -43,30 +42,24 @@ public abstract class ChunkerSVM implements Chunker
 		this.label = label;
 	}
 
-	public ChunkerSVM(ChunkAnalysisContextGenerator contextgenerator, String filePath, String encoding, String label)
+	public ChunkerSVM(ChunkAnalysisContextGenerator contextgenerator, String filePath, String encoding, String label) throws IOException
 	{
 		this(contextgenerator, label);
 
-		ci = new ConversionInformation(filePath, encoding);
+		ci = new SVMFeatureLabelInfo(filePath, encoding);
 
 	}
 
-	public void setModel(Object model)
-	{
-		this.model = model;
-	}
+	public abstract void setModel(Object model);
 
-	public Object getModel()
-	{
-		return this.model;
-	}
+	public abstract Object getModel();
 
 	/**
 	 * 设置数据转换信息SVMStandardInput
 	 * 
 	 * @param ssi
 	 */
-	public void setSVMStandardInput(ConversionInformation ci)
+	public void setSVMStandardInput(SVMFeatureLabelInfo ci)
 	{
 		this.ci = ci;
 	}
@@ -75,11 +68,12 @@ public abstract class ChunkerSVM implements Chunker
 	 * 读取组块文件，生成数据转换信息
 	 * 
 	 * @param filePath
+	 * @throws IOException 
 	 */
-	public void setSVMStandardInput(String filePath)
+	public void setSVMStandardInput(String filePath) throws IOException
 	{
 
-		this.ci = new ConversionInformation(filePath, "utf-8");
+		this.ci = new SVMFeatureLabelInfo(filePath, "utf-8");
 
 	}
 
@@ -97,8 +91,9 @@ public abstract class ChunkerSVM implements Chunker
 	 * 根据模型路径，加载model
 	 * 
 	 * @param modelPath
+	 * @throws IOException 
 	 */
-	public abstract void setModel(String modelPath);
+	public abstract void setModel(String modelPath) throws IOException;
 
 	@Override
 	public Chunk[] parse(String sentence)
@@ -154,8 +149,8 @@ public abstract class ChunkerSVM implements Chunker
 		{
 			String[] context = contextgenerator.getContext(i, words, chunkTags, poses);
 
-			line = "1 " + SVMSampleUtil.oneSample(context, ci); // <label> <index1>:<value1> <index2>:<value2>
-																// ...；预测时，label可以为任意值
+			line = "1 " + SVMSampleUtil.toSVMSample(context, ci); // <label> <index1>:<value1> <index2>:<value2>
+																	// ...；预测时，label可以为任意值
 
 			String tag = predict(line, getModel());
 			chunkTags[i] = tag;
@@ -192,7 +187,7 @@ public abstract class ChunkerSVM implements Chunker
 	private String transform(String v)
 	{
 		int t = str2int(v);
-		String result = ci.getClassificationLabel(t);
+		String result = ci.getClassLabel(t);
 		return result;
 	}
 
@@ -216,17 +211,21 @@ public abstract class ChunkerSVM implements Chunker
 	public void train(ObjectStream<AbstractChunkAnalysisSample> sampleStream, String[] arg,
 			ChunkAnalysisContextGenerator contextGen) throws IOException, InvalidInputDataException
 	{
-		generateTrainDatum(sampleStream, arg, contextGen);
+		generateSVMSamples(sampleStream, arg, contextGen);
+
 		train(arg);
 	}
 
-	private void generateTrainDatum(ObjectStream<AbstractChunkAnalysisSample> sampleStream, String[] arg,
+	private void generateSVMSamples(ObjectStream<AbstractChunkAnalysisSample> sampleStream, String[] arg,
 			ChunkAnalysisContextGenerator contextGen) throws RuntimeException, IOException
 	{
 		ObjectStream<Event> es = new ChunkerWordPosSampleEvent(sampleStream, contextGen);
-		init(es);
+		
+		this.ci = new SVMFeatureLabelInfo(es);
+
 		es.reset();
-		String[] input = SVMSampleUtil.samples(es, ci);
+		String[] input = SVMSampleUtil.toSVMSamples(es, ci);
+
 		saveFile(arg[arg.length - 2], input, "utf-8");
 	}
 
@@ -234,55 +233,23 @@ public abstract class ChunkerSVM implements Chunker
 	 * 根据训练参数进行训练
 	 * 
 	 * @param arg
+	 * @throws IOException 
 	 */
-	public abstract void train(String[] arg);
+	public abstract void train(String[] arg) throws IOException;
 
-	/**
-	 * 根据事件流生成数据转换信息
-	 * 
-	 * @param es
-	 */
-	private void init(ObjectStream<Event> es)
-	{
-		this.ci = new ConversionInformation(es);
-	}
-
-	private void saveFile(String saveFilePath, String[] datum, String encoding)
+	private void saveFile(String saveFilePath, String[] datum, String encoding) throws IOException
 	{
 		BufferedWriter bw = null;
-		try
-		{
-			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(saveFilePath), encoding));
-			for (int i = 0; i < datum.length; i++)
-			{
-				bw.write(datum[i]);
-				bw.write("\n");
-			}
 
-			bw.flush();
-			bw.close();
-		}
-		catch (FileNotFoundException e)
+		bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(saveFilePath), encoding));
+		for (int i = 0; i < datum.length; i++)
 		{
-			e.printStackTrace();
+			bw.write(datum[i]);
+			bw.write("\n");
 		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		finally
-		{
-			try
-			{
-				if (null != bw)
-				{
-					bw.close();
-				}
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-		}
+
+		bw.flush();
+		bw.close();
+
 	}
 }

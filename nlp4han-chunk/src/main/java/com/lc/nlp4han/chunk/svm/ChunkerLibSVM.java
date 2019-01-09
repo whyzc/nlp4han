@@ -16,29 +16,15 @@ public class ChunkerLibSVM extends ChunkerSVM
 	}
 
 	@Override
-	public void train(String[] arg)
+	public void train(String[] arg) throws IOException
 	{
-		try
-		{
-			svm_train.main(arg);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		svm_train.main(arg);
 	}
 
 	@Override
-	public void setModel(String modelPath)
+	public void setModel(String modelPath) throws IOException
 	{
-		try
-		{
-			this.model = svm.svm_load_model(modelPath);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		this.model = svm.svm_load_model(modelPath);
 	}
 
 	@Override

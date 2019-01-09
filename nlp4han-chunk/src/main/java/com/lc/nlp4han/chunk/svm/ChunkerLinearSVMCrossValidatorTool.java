@@ -56,7 +56,7 @@ public class ChunkerLinearSVMCrossValidatorTool
 	public static void main(String[] args) throws IOException, InvalidInputDataException
 	{
 		int folds = 10;
-		String scheme = "BIOE";
+		String scheme = "BIEO";
 		String encoding = "UTF-8";
 		String corpusFile = null;
 		List<String> trainArgsList = new ArrayList<String>();
@@ -152,8 +152,8 @@ public class ChunkerLinearSVMCrossValidatorTool
 			System.exit(1);
 		}
 
-		trainArgsList.add(corpusFile + ".svm.cv");
-		trainArgsList.add(corpusFile + ".model.cv");
+		trainArgsList.add(corpusFile + ".svm.cv"); // 临时样本文件
+		trainArgsList.add(corpusFile + ".model.cv"); // 临时模型文件
 
 		String[] trainArgs = trainArgsList.toArray(new String[trainArgsList.size()]);
 
@@ -183,10 +183,14 @@ public class ChunkerLinearSVMCrossValidatorTool
 		Properties p = SVMSampleUtil.getDefaultConf();
 		ChunkAnalysisContextGenerator contextGen = new ChunkerWordPosContextGeneratorConf(p);
 		ChunkerSVMCrossValidation crossValidator = new ChunkerSVMCrossValidation(trainArgs);
-		ChunkerLinearSVM me = new ChunkerLinearSVM();
-		crossValidator.evaluate(sampleStream, folds, me, contextGen, measure, p);
+		ChunkerLinearSVM chunker = new ChunkerLinearSVM();
+		
+		// 评价
+		crossValidator.evaluate(sampleStream, folds, chunker, contextGen, measure, p);
 
 		sampleStream.close();
+		
+		// 删除临时文件
 		deleteFile(trainArgs[trainArgs.length - 1]);
 		deleteFile(trainArgs[trainArgs.length - 2]);
 	}

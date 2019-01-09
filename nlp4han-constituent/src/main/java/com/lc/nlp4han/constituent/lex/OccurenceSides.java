@@ -1,20 +1,24 @@
 package com.lc.nlp4han.constituent.lex;
+
 /**
  * 用于存储生成中心节点两侧的数据
+ * 
  * @author qyl
  *
  */
-public class OccurenceSides extends  OccurenceHeadChild
+public class OccurenceSides extends OccurenceHeadChild
 {
-	private int direction = 0;//头结点为0,左侧为1，右侧为2
-	private String sideLabel = null;//所求孩子节点的标记
-	private String sideHeadPOS=null;//所求孩子节点的中心词词标记
+	private int direction = 0;// 头结点为0,左侧为1，右侧为2
+	
+	private String sideLabel = null;// 所求孩子节点的标记
+	private String sideHeadPOS = null;// 所求孩子节点的中心词词标记
 	private String sideHeadWord;// 所求的孩子节点的中心词
-	private boolean  coor=false;//并列结构
-	private boolean  pu=false;//标点符号，由于只保留了顿号所以我们可以把它当做并列结构
-	private Distance distance=new Distance();//距离度量
 	
+	private boolean coor = false;// 并列结构
+	private boolean pu = false;// 标点符号，由于只保留了顿号所以我们可以把它当做并列结构
 	
+	private Distance distance = new Distance();// 距离度量
+
 	public OccurenceSides(String[] strs)
 	{
 		super(strs);
@@ -28,7 +32,7 @@ public class OccurenceSides extends  OccurenceHeadChild
 	}
 
 	public OccurenceSides(String headLabel, String parentLabel, String headPOS, String headWord, int direction,
-			String sideLabel, String sideHeadPOS, String sideHeadWord, boolean coor, boolean  pu, Distance distance)
+			String sideLabel, String sideHeadPOS, String sideHeadWord, boolean coor, boolean pu, Distance distance)
 	{
 		super(headLabel, parentLabel, headPOS, headWord);
 		this.direction = direction;
@@ -39,7 +43,7 @@ public class OccurenceSides extends  OccurenceHeadChild
 		this.pu = pu;
 		this.distance = distance;
 	}
-    
+
 	public int getDirection()
 	{
 		return direction;
@@ -175,6 +179,16 @@ public class OccurenceSides extends  OccurenceHeadChild
 	@Override
 	public String toString()
 	{
-		return super.toString()+" "+direction+" "+sideLabel+" "+sideHeadPOS+" "+ sideHeadWord+" "+coor+" "+pu+" "+distance;
+		return super.toString() + " " + direction + " " + sideLabel + " " + sideHeadPOS + " " + sideHeadWord + " "
+				+ coor + " " + pu + " " + distance;
 	}
+
+	@Override
+	public String toReadableString()
+	{
+		return super.toReadableString() + ", dir=" + direction + ", Li=" + sideLabel + ", ti=" + sideHeadPOS + ", wi=" + sideHeadWord + ", corr="
+		+ coor + ", pu=" + pu+ ", zerolen=" + distance.isAdjacency()
+		+ ", verb=" + distance.isCrossVerb();
+	}	
+	
 }

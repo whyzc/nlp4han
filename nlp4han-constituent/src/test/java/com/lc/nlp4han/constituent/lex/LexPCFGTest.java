@@ -226,7 +226,7 @@ public class LexPCFGTest
 		String headWord = "c";
 		String parentLabel = "NPB";
 		OccurenceHeadChild rhcg = new OccurenceHeadChild(headLabel, parentLabel, headPos, headWord);
-		Double pro1 = lexpcfg.getProForGenerateHead(rhcg);
+		Double pro1 = lexpcfg.getProbForGenerateHead(rhcg);
 		double e1 = 1.0;
 		double w1 = 1.0 / (1 + 5 * 1);
 		double e2 = 1.0;
@@ -244,7 +244,7 @@ public class LexPCFGTest
 		Distance rdistance = new Distance(true, false);
 		OccurenceStop lrsg = new OccurenceStop(headLabel, parentLabel, headPos, headWord, 1, true, ldistance);
 		OccurenceStop rrsg = new OccurenceStop(headLabel, parentLabel, headPos, headWord, 2, true, rdistance);
-		pro1 = lexpcfg.getProForGenerateStop(lrsg)* lexpcfg.getProForGenerateStop(rrsg);
+		pro1 = lexpcfg.getProbForGenerateStop(lrsg)* lexpcfg.getProbForGenerateStop(rrsg);
 		pro = 0.5;
 		Assert.assertTrue(pro1 == pro);
 
@@ -262,7 +262,7 @@ public class LexPCFGTest
 		Distance distance = new Distance(false, true);
 		OccurenceSides rsg = new OccurenceSides(headLabel, parentLabel, headPos, headWord, direction, sideLabel,
 				sideHeadPos, sideHeadWord, coor, pu, distance);
-		pro1 = lexpcfg.getProForGenerateSides(rsg);
+		pro1 = lexpcfg.getProbForGenerateSides(rsg);
 		pro = 0.7011316872427983;
 		Assert.assertTrue(pro1 == pro);
 	}

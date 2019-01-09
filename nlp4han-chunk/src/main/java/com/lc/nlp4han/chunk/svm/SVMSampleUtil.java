@@ -100,7 +100,7 @@ public class SVMSampleUtil
 	 *            转换信息
 	 * @return SVM样本
 	 */
-	public static String oneSample(String[] features, ConversionInformation ci)
+	public static String toSVMSample(String[] features, SVMFeatureLabelInfo ci)
 	{
 		StringBuilder intInput = new StringBuilder();
 
@@ -133,16 +133,16 @@ public class SVMSampleUtil
 	 *            转换信息
 	 * @return SVM样本
 	 */
-	public static String oneSample(Event event, ConversionInformation ci)
+	public static String toSVMSample(Event event, SVMFeatureLabelInfo ci)
 	{
 		StringBuilder result = new StringBuilder();
 		String[] contexts = event.getContext();
 		if (event != null)
 		{
-			int label = ci.getClassificationValue(event.getOutcome());
+			int label = ci.getClassIndex(event.getOutcome());
 			result.append(label);
 
-			String str = oneSample(contexts, ci);
+			String str = toSVMSample(contexts, ci);
 			result.append(" " + str);
 		}
 		return result.toString();
@@ -156,24 +156,18 @@ public class SVMSampleUtil
 	 * @param ci
 	 *            转换信息
 	 * @return SVM输入样本
+	 * @throws IOException 
 	 */
-	public static String[] samples(ObjectStream<Event> es, ConversionInformation ci)
+	public static String[] toSVMSamples(ObjectStream<Event> es, SVMFeatureLabelInfo ci) throws IOException
 	{
 		List<String> inputList = new ArrayList<String>();
 
 		Event temp = null;
 
-		try
+		while ((temp = es.read()) != null)
 		{
-			while ((temp = es.read()) != null)
-			{
-				String sample = oneSample(temp, ci);
-				inputList.add(sample);
-			}
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
+			String sample = toSVMSample(temp, ci);
+			inputList.add(sample);
 		}
 
 		String[] input = new String[inputList.size()];
@@ -211,22 +205,22 @@ public class SVMSampleUtil
 	 * @return 转换信息类
 	 * @throws IOException
 	 */
-	public static ConversionInformation conversion(String filePath, String encoding, String scheme,
-			Properties properties, String saveFilePath) throws IOException
+	public static SVMFeatureLabelInfo convert(String filePath, String encoding, String scheme, Properties properties,
+			String saveFilePath) throws IOException
 	{
 		ObjectStream<Event> es = getEventStream(filePath, encoding, scheme, properties);
 
-		ConversionInformation tfi = new ConversionInformation(es);
+		SVMFeatureLabelInfo tfi = new SVMFeatureLabelInfo(es);
 
 		es.reset();
 
-		String[] input = samples(es, tfi);
+		String[] input = toSVMSamples(es, tfi);
 
 		es.close();
 
 		saveFile(saveFilePath, input, "utf-8");
 
-		tfi.serialization(saveFilePath + ".info", "utf-8");
+		tfi.write(saveFilePath + ".info", "utf-8");
 
 		return tfi;
 	}
@@ -245,11 +239,12 @@ public class SVMSampleUtil
 	 * @return 转换信息类
 	 * @throws IOException
 	 */
-	public static ConversionInformation conversion(String filePath, String encoding, String scheme, String saveFilePath)
+	public static SVMFeatureLabelInfo convert(String filePath, String encoding, String scheme, String saveFilePath)
 			throws IOException
 	{
 		Properties properties = getDefaultConf();
-		return conversion(filePath, encoding, scheme, properties, saveFilePath);
+		
+		return convert(filePath, encoding, scheme, properties, saveFilePath);
 	}
 
 	/**
@@ -260,11 +255,13 @@ public class SVMSampleUtil
 	 * @return 转换信息类
 	 * @throws IOException
 	 */
-	public static ConversionInformation conversion(String[] args) throws IOException
+	public static SVMFeatureLabelInfo convert(String[] args) throws IOException
 	{
 		String[] params = parseArgs(args);
+		
 		Properties featureConf = getDefaultConf();
-		ConversionInformation ci = conversion(params[0], params[1], params[2], featureConf, params[3]);
+		SVMFeatureLabelInfo ci = convert(params[0], params[1], params[2], featureConf, params[3]);
+		
 		return ci;
 	}
 

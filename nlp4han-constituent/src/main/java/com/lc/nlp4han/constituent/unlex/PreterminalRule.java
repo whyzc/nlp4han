@@ -40,7 +40,7 @@ public class PreterminalRule extends Rule
 	@Override
 	public void split()
 	{
-		Random random = Grammar.random;
+		Random random = GrammarExtractor.random;
 		boolean randomPerturbation = false;// preRule分裂不添加随机扰动
 		// split father
 		int pNumSubSymbol = scores.size();
@@ -152,11 +152,6 @@ public class PreterminalRule extends Rule
 		scores.set(subP, score);
 	}
 
-	public void setScores(ArrayList<Double> scores)
-	{
-		this.scores = scores;
-	}
-
 	@Override
 	boolean withIn(HashSet<? extends Rule> rules)
 	{
@@ -177,8 +172,10 @@ public class PreterminalRule extends Rule
 				parentStr = g.symbolStrValue(parent);
 			else
 				parentStr = g.symbolStrValue(parent) + "_" + i;
+			
 			String childStr = word;
 			String str = parentStr + " -> " + childStr + " " + scores.get(i);
+			
 			strs[i] = str;
 		}
 		return strs;

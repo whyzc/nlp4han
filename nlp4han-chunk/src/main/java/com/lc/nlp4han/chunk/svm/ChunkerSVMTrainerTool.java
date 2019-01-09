@@ -35,17 +35,20 @@ public class ChunkerSVMTrainerTool
 	public static void main(String[] args) throws IOException, InvalidInputDataException
 	{
 		long startTime = System.currentTimeMillis();
-		Map<String, String[]> as = decompositionArgs(args);
+		Map<String, String[]> as = decomposeArgs(args);
 
 		String[] inputArgs = as.get("input");
-		ConversionInformation ci = SVMSampleUtil.conversion(inputArgs);
+		
+		// 将语料转换成svm格式，并将转换后的样本写到文件
+		SVMFeatureLabelInfo ci = SVMSampleUtil.convert(inputArgs);
 
-		System.out.println("类别总数：" + ci.getClassificationLabelNumber());
-		System.out.println("样本总数：" + ci.getTotalSamplesNumber());
+		System.out.println("类别总数：" + ci.getClassesNumber());
+		System.out.println("样本总数：" + ci.getSamplesNumber());
 		System.out.println("特征总数：" + ci.getFeaturesNumber());
 
 		String[] trainArgs = as.get("train");
 
+		// 训练并写出模型
 		svm_train.main(trainArgs);
 
 		long endTime = System.currentTimeMillis();
@@ -55,7 +58,7 @@ public class ChunkerSVMTrainerTool
 	/**
 	 * 分解参数
 	 */
-	private static Map<String, String[]> decompositionArgs(String[] args)
+	private static Map<String, String[]> decomposeArgs(String[] args)
 	{
 		Map<String, String[]> result = new HashMap<>();
 		List<String> standardInputArgs = new ArrayList<String>();

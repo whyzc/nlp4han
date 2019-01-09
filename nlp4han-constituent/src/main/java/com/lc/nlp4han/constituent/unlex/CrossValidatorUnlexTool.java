@@ -14,7 +14,7 @@ import com.lc.nlp4han.ml.util.ObjectStream;
 /**
  * @author 王宁
  */
-public class CrossValidatorLatentAnnotation_Viterbi
+public class CrossValidatorUnlexTool
 {
 	public void evaluate(ObjectStream<String> sentenceStream, int nFolds, ConstituentMeasure measure, int SMCycle,
 			double mergeRate, int EMIterations, double smooth, double pruneThreshold, boolean secondPrune,
@@ -32,20 +32,18 @@ public class CrossValidatorLatentAnnotation_Viterbi
 			TreeBank treeBank = new TreeBank();
 			String expression;
 			while ((expression = trainingSampleStream.read()) != null)
-			{
 				treeBank.addTree(expression, false);
-			}
 			
 			GrammarExtractor gExtractor = new GrammarExtractor();
-			Grammar gLatent = gExtractor.extractGrammarLatentAnnotation(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD,
+			Grammar gLatent = gExtractor.extractLatentGrammar(treeBank, Lexicon.DEFAULT_RAREWORD_THRESHOLD,
 					SMCycle, EMIterations, mergeRate, smooth);
 			
 			System.out.println("训练学习时间：" + (System.currentTimeMillis() - start) + "ms");
 			
 			long start2 = System.currentTimeMillis();
-			ConstituentParserLatentAnnotation_Viterbi parser = new ConstituentParserLatentAnnotation_Viterbi(gLatent,
+			ConstituentParserUnlex parser = new ConstituentParserUnlex(gLatent,
 					pruneThreshold, secondPrune, prior);
-			EvaluatorLatentAnnotation_Viterbi evaluator = new EvaluatorLatentAnnotation_Viterbi(parser);
+			EvaluatorUnlex evaluator = new EvaluatorUnlex(parser);
 			evaluator.setMeasure(measure);
 			ObjectStream<ConstituentTree> sampleStream = new ConstituentTreeStream(
 					trainingSampleStream.getTestSampleStream());
@@ -56,9 +54,7 @@ public class CrossValidatorLatentAnnotation_Viterbi
 			totalTime += (System.currentTimeMillis() - start);
 
 			System.out.println(measure);
-			gLatent = null;
-			treeBank = null;
-			gExtractor = null;
+
 			run++;
 		}
 		
@@ -67,7 +63,7 @@ public class CrossValidatorLatentAnnotation_Viterbi
 
 	private static void usage()
 	{
-		System.out.println(CrossValidatorLatentAnnotation_Viterbi.class.getName()
+		System.out.println(CrossValidatorUnlexTool.class.getName()
 				+ " -train <corpusFile> [-sm <SMCycle>] [-em<EMIterations>] [-merge <mergeRate>] [-smooth <smoothRate>] [-encoding <encoding>] [-folds <nFolds>] ");
 	}
 
@@ -133,7 +129,7 @@ public class CrossValidatorLatentAnnotation_Viterbi
 			
 			ConstituentMeasure measure = new ConstituentMeasure();
 			
-			CrossValidatorLatentAnnotation_Viterbi crossValidator = new CrossValidatorLatentAnnotation_Viterbi();
+			CrossValidatorUnlexTool crossValidator = new CrossValidatorUnlexTool();
 			
 			crossValidator.evaluate(sentenceStream, folds, measure, SMCycle, mergeRate, EMIterations, smoothRate,
 					pruneThreshold, secondPrune, prior);

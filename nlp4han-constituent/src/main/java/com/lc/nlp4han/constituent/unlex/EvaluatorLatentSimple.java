@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.lc.nlp4han.constituent.ConstituentMeasure;
+import com.lc.nlp4han.constituent.ConstituentParser;
 import com.lc.nlp4han.constituent.ConstituentTree;
 import com.lc.nlp4han.constituent.TreeNode;
 import com.lc.nlp4han.constituent.TreeNodeUtil;
@@ -22,12 +23,12 @@ import com.lc.nlp4han.ml.util.ObjectStream;
  * @author 王宁
  * 
  */
-public class EvaluatorLatentAnnotation_foolish extends Evaluator<ConstituentTree>
+public class EvaluatorLatentSimple extends Evaluator<ConstituentTree>
 {
 	/**
 	 * 句法分析模型得到一颗句法树z
 	 */
-	private ConstituentParserLatentAnnotation parser;
+	private ConstituentParser parser;
 
 	/**
 	 * 句法树中的短语分析评估
@@ -47,7 +48,7 @@ public class EvaluatorLatentAnnotation_foolish extends Evaluator<ConstituentTree
 		this.measure = measure;
 	}
 
-	public EvaluatorLatentAnnotation_foolish(ConstituentParserLatentAnnotation parser)
+	public EvaluatorLatentSimple(ConstituentParser parser)
 	{
 		this.parser = parser;
 	}
@@ -100,7 +101,7 @@ public class EvaluatorLatentAnnotation_foolish extends Evaluator<ConstituentTree
 
 	private static void usage()
 	{
-		System.out.println(EvaluatorLatentAnnotation_foolish.class.getName() + "\n"
+		System.out.println(EvaluatorLatentSimple.class.getName() + "\n"
 				+ "-train <trainFile> -gold <goldFile> [-smooth <smoothRate>] [-trainEncoding <trainEncoding>] [-goldEncoding <trainEncoding>] [-em <emIterations>]");
 	}
 
@@ -108,18 +109,18 @@ public class EvaluatorLatentAnnotation_foolish extends Evaluator<ConstituentTree
 			double smoothRate, double pruneThreshold, boolean secondPrune, boolean prior) throws IOException
 	{
 		long start = System.currentTimeMillis();
-		Grammar baseline = GrammarExtractorToolLatentAnnotation.getGrammar(0, 0, 0, smoothRate,
-				Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF, trainEn);
+		Grammar baseline = LatentGrammarExtractorTool.getGrammar(trainF, trainEn, 0, 0,
+				0, smoothRate, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
 		PCFG pcfg = baseline.getPCFG();
-		Grammar gLatentAnntation = GrammarExtractorToolLatentAnnotation.getGrammar(1, 0.5, iterations, smoothRate,
-				Lexicon.DEFAULT_RAREWORD_THRESHOLD, trainF, trainEn);
+		Grammar gLatentAnntation = LatentGrammarExtractorTool.getGrammar(trainF, trainEn, 1, 0.5,
+				iterations, smoothRate, Lexicon.DEFAULT_RAREWORD_THRESHOLD);
 
 		long end = System.currentTimeMillis();
 		ConstituentParserCKYLoosePCNF p2nf = new ConstituentParserCKYLoosePCNF(pcfg, pruneThreshold, secondPrune,
 				prior);
-		ConstituentParserLatentAnnotation parser = new ConstituentParserLatentAnnotation_foolish(p2nf,
+		ConstituentParser parser = new ConstituentParserLatentSimple(p2nf,
 				gLatentAnntation);
-		EvaluatorLatentAnnotation_foolish evaluator = new EvaluatorLatentAnnotation_foolish(parser);
+		EvaluatorLatentSimple evaluator = new EvaluatorLatentSimple(parser);
 		ConstituentMeasure measure = new ConstituentMeasure();
 		evaluator.setMeasure(measure);
 		ObjectStream<String> treeStream = new PlainTextByTreeStream(new FileInputStreamFactory(new File(goldF)),
