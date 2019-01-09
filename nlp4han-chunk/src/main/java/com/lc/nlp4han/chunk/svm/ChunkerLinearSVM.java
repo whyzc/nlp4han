@@ -1,10 +1,9 @@
 package com.lc.nlp4han.chunk.svm;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import com.lc.nlp4han.chunk.svm.liblinear.InvalidInputDataException;
-import com.lc.nlp4han.chunk.svm.liblinear.Linear;
 import com.lc.nlp4han.chunk.svm.liblinear.Model;
 import com.lc.nlp4han.chunk.svm.liblinear.PredictLinear;
 import com.lc.nlp4han.chunk.svm.liblinear.Train;
@@ -41,7 +40,7 @@ public class ChunkerLinearSVM extends ChunkerSVM
 	@Override
 	public void setModel(String modelPath) throws IOException
 	{
-		this.model = Linear.loadModel(new File(modelPath));
+		this.model = ModelLoadingUtil.loadLinearSVMModelFromDisk(modelPath);
 	}
 
 	@Override
@@ -54,5 +53,11 @@ public class ChunkerLinearSVM extends ChunkerSVM
 	public Object getModel()
 	{
 		return this.model;
+	}
+
+	@Override
+	public void setModel(InputStream input) throws IOException
+	{
+		this.model = ModelLoadingUtil.loadLinearSVMModel(input);
 	}
 }
