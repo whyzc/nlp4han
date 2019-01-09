@@ -164,7 +164,17 @@ public class TreeBank
 					innerScores[i] = tempPreRule.getScore(i);
 			}
 			else
-				throw new Error("不包含该preRule");
+			{
+				/*
+				 * 以下for循环在TreeProbTool中调用该方法时可能会时用到，当使用词性标注解析句子但是出现未登录词的时候else会执行，
+				 * 此时计算内向概率只是比较所有解析的可能的句子中概率最大的那个，所以将该规则tag_i->unk设置为1。
+				 **/
+				for (int i = 0; i < length; i++)
+				{
+					innerScores[i] = 1.0;
+				}
+				// System.err.println("不包含该preRule");
+			}
 
 			// 预终结符号的内向概率不用缩放，最小为e^-30
 			tree.getAnnotation().setInnerScores(innerScores);
@@ -201,7 +211,7 @@ public class TreeBank
 					tree.getAnnotation().setInnerScale(newScale);
 				}
 				else
-					System.err.println("Attention:grammar don't contains  uRule ");
+					throw new Error("Attention:grammar don't contains  uRule ");
 				break;
 			case 2:
 				BinaryRule tempBRule = new BinaryRule(tree.getAnnotation().getSymbol(),
