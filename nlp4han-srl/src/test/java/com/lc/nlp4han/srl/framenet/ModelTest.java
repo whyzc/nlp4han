@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import com.lc.nlp4han.srl.framenet.Event4Classify;
 import com.lc.nlp4han.srl.framenet.Event4Recognize;
-import com.lc.nlp4han.srl.framenet.ModelExtractor;
 import com.lc.nlp4han.srl.framenet.SRLModel;
 
 /**
@@ -55,7 +54,7 @@ public class ModelTest
         	list.add(sentence);
         }
         
-		model=new ModelExtractor().generateModel(list);
+//		model=new ModelExtractor().generateModel(list);
 		
 		
 		headWord=" ";
