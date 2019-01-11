@@ -1,24 +1,10 @@
 package com.lc.nlp4han.clustering;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
 public class JaccardCoefficientBasedDistanceCalculator extends DistanceCalculator
 {
-
-	@Override
-	public void init(FeatureGenerator fg)
-	{
-
-	}
-
-	@Override
-	public void init(Collection<Feature> fg)
-	{
-
-	}
-
 	@Override
 	public double getDistance(Sample s1, Sample s2)
 	{

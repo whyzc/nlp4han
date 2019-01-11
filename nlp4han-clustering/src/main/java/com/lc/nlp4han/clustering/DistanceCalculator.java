@@ -4,8 +4,14 @@ import java.util.Collection;
 
 public abstract class DistanceCalculator
 {
-	public abstract void init(FeatureGenerator fg);
-	public abstract void init(Collection<Feature> fg);
+	public void init(FeatureGenerator fg)
+	{
+	}
+	
+	public void init(Collection<Feature> fg)
+	{	
+	}
+	
 	public abstract double getDistance(Sample s1, Sample s2);
 	
 	
@@ -15,6 +21,7 @@ public abstract class DistanceCalculator
 		{
 			throw new RuntimeException("参数错误！");
 		}
+		
 		Sample s1 = t1.getSample();
 		Sample s2 = t2.getSample();
 		
@@ -27,6 +34,7 @@ public abstract class DistanceCalculator
 		{
 			throw new RuntimeException("参数错误！");
 		}
+		
 		Sample s2 = g1.getCenter();
 		return getDistance(t1.getSample(), s2);
 	}
