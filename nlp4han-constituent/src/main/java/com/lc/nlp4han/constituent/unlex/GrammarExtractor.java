@@ -51,7 +51,7 @@ public class GrammarExtractor
 		
 		initGrammarExtractor();
 		
-		Grammar g = tallyInitialGrammar();
+		Grammar g = calcInitialGrammar();
 		
 		train(g, treeBank, SMCycle, mergeRate, EMIterations, smooth);
 		
@@ -73,16 +73,20 @@ public class GrammarExtractor
 		
 		initGrammarExtractor();
 		
-		return tallyInitialGrammar();
+		return calcInitialGrammar();
 	}
 
 	/**
 	 * 
 	 * @return 初始语法
 	 */
-	private Grammar tallyInitialGrammar()
+	private Grammar calcInitialGrammar()
 	{
-		tallyInitialGRuleCount();
+		// 规则计数
+		calcInitialGRuleCount();
+		
+		// 计算文法初始概率
+		calcInitalRuleScores();
 		
 		HashSet<BinaryRule> bRules;
 		HashSet<UnaryRule> uRules;
@@ -167,7 +171,7 @@ public class GrammarExtractor
 		wordCount = new HashMap<>();
 	}
 
-	private void tallyInitialGRuleCount()
+	private void calcInitialGRuleCount()
 	{
 		ArrayDeque<AnnotationTreeNode> queue = new ArrayDeque<AnnotationTreeNode>();
 		for (AnnotationTreeNode tree : treeBank.getTreeBank())
@@ -249,11 +253,11 @@ public class GrammarExtractor
 			}
 		}
 		
-		calculateInitalRuleScores();
+//		calcInitalRuleScores();
 	}
 
 	// 计算初始文法的概率
-	public void calculateInitalRuleScores()
+	public void calcInitalRuleScores()
 	{
 		for (HashMap<BinaryRule, Integer> map : bRuleBySameHeadCount)
 		{

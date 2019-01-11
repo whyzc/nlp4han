@@ -117,7 +117,7 @@ public class Group
 		return result;
 	}
 	
-	public int getMembersNumber()
+	public int size()
 	{
 		if (members != null)
 			return members.size();

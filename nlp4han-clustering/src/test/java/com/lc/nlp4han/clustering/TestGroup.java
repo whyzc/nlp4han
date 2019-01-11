@@ -19,7 +19,7 @@ public class TestGroup
 		Text t = new Text("aa");
 		g1.addMember(t);
 		
-		assertEquals(1, g1.getMembersNumber());
+		assertEquals(1, g1.size());
 	}
 	
 	@Test
@@ -55,7 +55,7 @@ public class TestGroup
 		
 		g1.merge(g2);
 		
-		assertEquals(2, g1.getMembersNumber());
+		assertEquals(2, g1.size());
 		assertTrue(g1.containsText(t2));
 	}
 	
@@ -95,7 +95,7 @@ public class TestGroup
 		
 		g.clear();
 		
-		assertEquals(0, g.getMembersNumber());
+		assertEquals(0, g.size());
 	}
 	
 }
