@@ -300,9 +300,9 @@ public class GrammarExtractor
 	// 以下是语法训练
 	public Grammar train(Grammar g, TreeBank treeBank, int SMCycle, double mergeRate, int EMIterations, double smooth)
 	{
-		treeBank.calIOScore(g);
+		treeBank.calcIOScore(g);
 		
-		double totalLSS = treeBank.calLogTreeBankSentenceSocre();
+		double totalLSS = treeBank.calcLogTreeBankSentenceSocre();
 		System.out.println("训练前树库似然值：" + totalLSS);
 		
 		System.out.println("SMCycle: " + SMCycle);
@@ -349,35 +349,35 @@ public class GrammarExtractor
 		if (iterations > 0)
 		{
 			double totalLSS = 0;
-			treeBank.calIOScore(g);
-			totalLSS = treeBank.calLogTreeBankSentenceSocre();
+			treeBank.calcIOScore(g);
+			totalLSS = treeBank.calcLogTreeBankSentenceSocre();
 			System.out.println("EM算法开始前树库的log似然值：" + totalLSS);
 			double t1, t2, t3, t4;
 			for (int i = 0; i < iterations; i++)
 			{
 
 				t1 = System.currentTimeMillis();
-				calRuleExpectation(g, treeBank);// 重新计算规则的期望， EStep完成。
+				calcRuleExpectation(g, treeBank);// 重新计算规则的期望， EStep完成。
 
 				t2 = System.currentTimeMillis();
 				recalculateRuleScore(g);// 刷新规则概率，MSetp完成。
 
 				t3 = System.currentTimeMillis();
-				treeBank.calIOScore(g);// 刷新树库上节点内外向概率
+				treeBank.calcIOScore(g);// 刷新树库上节点内外向概率
 				t4 = System.currentTimeMillis();
 
-				totalLSS = treeBank.calLogTreeBankSentenceSocre();
+				totalLSS = treeBank.calcLogTreeBankSentenceSocre();
 				System.out.println("第" + (i + 1) + "次EM迭代后树库的Log似然值：" + totalLSS + "………………calExpT:" + (t2 - t1) + "ms"
 						+ ",calRuleST:" + (t3 - t2) + "ms" + ",calIOST:" + (t4 - t3) + "ms");
 			}
-			calRuleExpectation(g, treeBank);
+			calcRuleExpectation(g, treeBank);
 			System.out.println("EM算法结束。");
 			System.out.println("EM算法结束后树库的log似然值：" + totalLSS);
 		}
 
 	}
 
-	public void calRuleExpectation(Grammar g, TreeBank treeBank)
+	public void calcRuleExpectation(Grammar g, TreeBank treeBank)
 	{
 		// int count = 0;
 		// double start = System.currentTimeMillis();
@@ -474,7 +474,7 @@ public class GrammarExtractor
 		}
 	}
 
-	public double[][] calTag2UNKScores(Grammar g)
+	public double[][] calcTag2UNKScores(Grammar g)
 	{
 		double[][] subTag2UNKScores = new double[g.getNumSymbol()][];
 		for (int tag = 0; tag < g.getNumSymbol(); tag++)
