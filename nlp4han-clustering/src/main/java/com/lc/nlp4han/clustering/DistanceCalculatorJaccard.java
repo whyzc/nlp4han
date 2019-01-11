@@ -3,7 +3,8 @@ package com.lc.nlp4han.clustering;
 import java.util.Iterator;
 import java.util.Set;
 
-public class JaccardCoefficientBasedDistanceCalculator extends DistanceCalculator
+// 基于Jaccard系数的距离计算
+public class DistanceCalculatorJaccard extends DistanceCalculator
 {
 	@Override
 	public double getDistance(Sample s1, Sample s2)

@@ -6,7 +6,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-public class SpaceVectorBasedDistanceCalculator extends DistanceCalculator
+// 基于向量空间模型的距离计算
+public class DistanceCalculatorVSM extends DistanceCalculator
 {
 	private Map<String, Integer> vectorInfo = null;
 

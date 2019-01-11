@@ -36,7 +36,7 @@ public class TestSpaceVectorBasedDistanceCalculator
 		FeatureGenerator fg = new WordBasedZeroOneFeatureGenerator();
 		fg.init(ts);
 		
-		DistanceCalculator dis = new SpaceVectorBasedDistanceCalculator();
+		DistanceCalculator dis = new DistanceCalculatorVSM();
 		dis.init(fg);
 		double d = dis.getDistance(s1, s2);
 		
@@ -71,7 +71,7 @@ public class TestSpaceVectorBasedDistanceCalculator
 		FeatureGenerator fg = new WordBasedZeroOneFeatureGenerator();
 		fg.init(ts);
 		
-		DistanceCalculator dis = new SpaceVectorBasedDistanceCalculator();
+		DistanceCalculator dis = new DistanceCalculatorVSM();
 		dis.init(fg);
 		double d = dis.getDistance(s1, s2);
 		

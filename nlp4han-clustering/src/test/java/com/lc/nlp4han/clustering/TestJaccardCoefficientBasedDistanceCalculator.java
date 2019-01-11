@@ -25,7 +25,7 @@ public class TestJaccardCoefficientBasedDistanceCalculator
 		Sample s2 = new Sample(fs2);
 		
 		
-		DistanceCalculator dis = new JaccardCoefficientBasedDistanceCalculator();
+		DistanceCalculator dis = new DistanceCalculatorJaccard();
 		double d = dis.getDistance(s1, s2);  // 距离 = 1-Jaccard系数
 		
 		assertEquals(0.8, d, 0.001);

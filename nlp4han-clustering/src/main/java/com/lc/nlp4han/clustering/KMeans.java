@@ -2,6 +2,7 @@ package com.lc.nlp4han.clustering;
 
 import java.util.List;
 
+// KMeans扁平聚类
 public class KMeans
 {
 	private static final int TIMES = 5000;
@@ -15,7 +16,7 @@ public class KMeans
 		if (!fg.isInitialized())
 			fg.init(texts);
 
-		DistanceCalculator distance = new JaccardCoefficientBasedDistanceCalculator();
+		DistanceCalculator distCalc = new DistanceCalculatorJaccard();
 
 		for (int i = 0; i < texts.size(); i++)
 		{
@@ -24,7 +25,7 @@ public class KMeans
 			t.setSample(s);
 		}
 
-		DistanceRecode dr = new DistanceRecode(texts, distance);
+		DistanceRecode dr = new DistanceRecode(texts, distCalc);
 
 		UpdateGroupCenter ugc = new PAMUpateGroupCenter(dr);
 
@@ -41,7 +42,7 @@ public class KMeans
 
 			for (int j = 0; j < texts.size(); j++)
 			{
-				int index = minDistanceGroup(texts.get(j), groups, distance);
+				int index = minDistanceGroup(texts.get(j), groups, distCalc);
 				groups.get(index).addMember(texts.get(j));
 			}
 
