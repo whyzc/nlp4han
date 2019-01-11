@@ -126,7 +126,7 @@ public class TreeBank
 	 * 
 	 * @return 整个树库的log似然值
 	 */
-	public double calLogTreeBankSentenceSocre()
+	public double calcLogTreeBankSentenceSocre()
 	{
 		double totalLSS = 0;
 		for (AnnotationTreeNode root : treeBank)
@@ -384,7 +384,7 @@ public class TreeBank
 			calculateOuterScoreHelper(g, treeRoot, childNode);
 	}
 
-	public void calIOScore(Grammar g)
+	public void calcIOScore(Grammar g)
 	{
 		for (AnnotationTreeNode tree : treeBank)
 		{
