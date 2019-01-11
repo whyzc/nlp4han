@@ -57,13 +57,14 @@ public class KMeans
 		return groups;
 	}
 
-	private static int minDistanceGroup(Text t, List<Group> grps, DistanceCalculator d)
+	// 和文本最近的簇
+	private static int minDistanceGroup(Text t, List<Group> groups, DistanceCalculator d)
 	{
 		double min = Double.POSITIVE_INFINITY;
 		int index = -1;
-		for (int i = 0; i < grps.size(); i++)
+		for (int i = 0; i < groups.size(); i++)
 		{
-			double distance = d.getDistance(t, grps.get(i));
+			double distance = d.getDistance(t, groups.get(i));
 			if (distance < min)
 			{
 				min = distance;
@@ -71,7 +72,7 @@ public class KMeans
 			}
 			else if (distance == 0)
 			{
-				if (grps.get(i).getMembersNumber() < grps.get(index).getMembersNumber())
+				if (groups.get(i).size() < groups.get(index).size())
 				{
 					index = i;
 				}

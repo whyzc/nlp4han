@@ -161,34 +161,34 @@ public class LexPCFG implements GrammarWritable
 	/**
 	 * 通过回退模型得到概率
 	 * 
-	 * @param rule
+	 * @param occur
 	 * @param map
 	 * @return
 	 */
-	private double getProbOfBackOff(OccurenceCollins rule, HashMap<OccurenceCollins, RuleAmountsInfo> map, String type)
+	private double getProbOfBackOff(OccurenceCollins occur, HashMap<OccurenceCollins, RuleAmountsInfo> map, String type)
 	{
 		double e1, e2, e3, w1, w2;
 		e3 = 0;
 
-		double[] pw1 = getProbAndWeight(rule, map, type);
+		double[] pw1 = getProbAndWeight(occur, map, type);
 		e1 = pw1[1];
 		w1 = pw1[0];
 
-		rule.setHeadWord(null);
-		double[] pw2 = getProbAndWeight(rule, map, type);
+		occur.setHeadWord(null);
+		double[] pw2 = getProbAndWeight(occur, map, type);
 		e2 = pw2[1];
 		w2 = pw2[0];
 
-		rule.setHeadPOS(null);
+		occur.setHeadPOS(null);
 		if (type.equals("2side"))
 		{
-			OccurenceSides rs = (OccurenceSides) rule;
+			OccurenceSides rs = (OccurenceSides) occur;
 			double i = 0.02;// 未登录词的平滑值
 			e3 = getProbForWord(rs, i);
 		}
 		else
 		{
-			double[] pw3 = getProbAndWeight(rule, map, type);
+			double[] pw3 = getProbAndWeight(occur, map, type);
 			e3 = pw3[1];
 		}
 
@@ -211,13 +211,10 @@ public class LexPCFG implements GrammarWritable
 		double e3 = 0;
 		WordPOS wop = new WordPOS(rs.getSideHeadWord(), rs.getSideHeadPOS());
 		if (wordMap.keySet().contains(wop))
-		{
 			count = wordMap.get(wop);
-		}
 		if (wordMap.containsKey(new WordPOS(null, rs.getSideHeadPOS())))
-		{
 			e3 = count / wordMap.get(new WordPOS(null, rs.getSideHeadPOS()));
-		}
+
 		return e3;
 	}
 
@@ -226,36 +223,38 @@ public class LexPCFG implements GrammarWritable
 	 * 
 	 * @return
 	 */
-	private double[] getProbAndWeight(OccurenceCollins rhcg, HashMap<OccurenceCollins, RuleAmountsInfo> map, String type)
+	private double[] getProbAndWeight(OccurenceCollins occur, HashMap<OccurenceCollins, RuleAmountsInfo> map, String type)
 	{
 		int x, u, y;
 		double[] pw = new double[2];
 		y = 0;
-		if (map.get(rhcg) == null)
+		if (map.get(occur) == null)
 		{
 			pw[1] = 0;
 		}
 		else
 		{
-			x = map.get(rhcg).getAmount();
+			x = map.get(occur).getAmount();
 			switch (type)
 			{
 			case "head":
-				OccurenceHeadChild rhcg1 = (OccurenceHeadChild) rhcg;
+				OccurenceHeadChild rhcg1 = (OccurenceHeadChild) occur;
 				rhcg1 = new OccurenceHeadChild(null, rhcg1.getParentLabel(), rhcg1.getHeadPOS(), rhcg1.getHeadWord());
 				y = map.get(rhcg1).getAmount();
 				u = map.get(rhcg1).getSubtypeAmount();
 				break;
+				
 			case "1side":
-				OccurenceSides rsg1 = (OccurenceSides) rhcg;
+				OccurenceSides rsg1 = (OccurenceSides) occur;
 				rsg1 = new OccurenceSides(rsg1.getHeadLabel(), rsg1.getParentLabel(), rsg1.getHeadPOS(),
 						rsg1.getHeadWord(), rsg1.getDirection(), null, null, rsg1.getSideHeadWord(), rsg1.isCoor(),
 						rsg1.isPu(), rsg1.getDistance());
 				y = map.get(rsg1).getAmount();
 				u = map.get(rsg1).getSubtypeAmount();
 				break;
+				
 			case "2side":
-				OccurenceSides rsg2 = (OccurenceSides) rhcg;
+				OccurenceSides rsg2 = (OccurenceSides) occur;
 				rsg2 = new OccurenceSides(rsg2.getHeadLabel(), rsg2.getParentLabel(), rsg2.getHeadPOS(),
 						rsg2.getHeadWord(), rsg2.getDirection(), rsg2.getSideLabel(), rsg2.getSideHeadPOS(), null,
 						rsg2.isCoor(), rsg2.isPu(), rsg2.getDistance());
@@ -264,44 +263,43 @@ public class LexPCFG implements GrammarWritable
 				y = map.get(rsg2).getAmount() * 1 / 2;
 				u = map.get(rsg2).getSubtypeAmount();
 				break;
+				
 			case "stop":
 				y = 0;
-				OccurenceStop rsg3 = (OccurenceStop) rhcg;
+				OccurenceStop rsg3 = (OccurenceStop) occur;
 				rsg3 = new OccurenceStop(rsg3.getHeadLabel(), rsg3.getParentLabel(), rsg3.getHeadPOS(),
 						rsg3.getHeadWord(), rsg3.getDirection(), true, rsg3.getDistance());
 				if (map.containsKey(rsg3))
-				{
 					y += map.get(rsg3).getAmount();
-				}
+
 				rsg3.setStop(false);
 				// 加第二次是因为stop只有两个子类，true和false
 				if (map.containsKey(rsg3))
-				{
 					y += map.get(rsg3).getAmount();
-				}
+
 				u = 2;
 				break;
+				
 			case "special":
-				OccurenceSpecialCase rsg4 = (OccurenceSpecialCase) rhcg;
+				OccurenceSpecialCase rsg4 = (OccurenceSpecialCase) occur;
 				rsg4 = new OccurenceSpecialCase(rsg4.getParentLabel(), null, null, rsg4.getLeftLabel(),
 						rsg4.getRightLabel(), rsg4.getLheadWord(), rsg4.getRheadWord(), rsg4.getLheadPOS(),
 						rsg4.getRheadPOS());
 				y = map.get(rsg4).getAmount();
 				u = map.get(rsg4).getSubtypeAmount();
 				break;
+				
 			default:
 				y = 0;
 				u = 0;
 			}
+			
 			// 若果分母为零，则回退模型的权重值位零
 			if (y == 0)
-			{
 				pw[0] = 0;
-			}
 			else
-			{
 				pw[0] = 1.0 * y / (y + 5 * u);
-			}
+
 			pw[1] = 1.0 * x / y;
 		}
 		return pw;
