@@ -5,7 +5,7 @@ import java.util.List;
 public class CorefResolver
 {
 	private List<Sieve> sieves;
-	private MentionExtractor extractor;
+	private MentionGenerator extractor;
 
 	public CorefResolver(List<Sieve> sieves)
 	{
@@ -14,8 +14,8 @@ public class CorefResolver
 	
 	public List<CorefCluster> coreferent(Document doc)
 	{
-		MentionExtractor extractor = new GrammaticalRoleBasedMentionExtractor(); // 实体提取器，可嵌套多层提取器
-		doc = extractor.ectract(doc); // 对文本提取实体，实体会存储Document类内
+		MentionGenerator generator = new GrammaticalRoleBasedMentionGenerator(); // 实体提取器，可嵌套多层提取器
+		doc = generator.generate(doc); // 对文本提取实体，实体会存储Document类内
 		return null;
 	}
 }
