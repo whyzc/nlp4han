@@ -14,12 +14,16 @@ public class TestMentionGenerator
 		String content = "小明正在打球。他没去上课。";
 		Document doc = new Document(content);
 		
-		MentionGenerator extractor = new GrammaticalRoleBasedMentionGenerator(); // 实体提取器，可嵌套多层提取器
-		doc = extractor.generate(doc); // 对文本提取实体，实体会存储Document类内
+		MentionGenerator generator = new GrammaticalRoleBasedMentionGenerator(); // 实体提取器，可嵌套多层提取器
+		doc = generator.generate(doc); // 对文本提取实体，实体会存储Document类内
 		
 		List<List<Mention>> ms = doc.getMentions();
 		
 		assertEquals(2, ms.size());
+		
+		assertEquals("小明", ms.get(0).get(0).getHead());
+		assertEquals("他", ms.get(1).get(0).getHead());
+		
 	}
 	
 }

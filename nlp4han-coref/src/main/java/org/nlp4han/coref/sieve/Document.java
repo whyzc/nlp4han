@@ -31,8 +31,52 @@ public class Document
 
 	public List<List<Mention>> getMentions()
 	{
-		// TODO Auto-generated method stub
 		return mentionsBySentences;
 	}
 	
+	public void setMentions(List<List<Mention>> mentions)
+	{
+		this.mentionsBySentences = mentions;
+	}
+
+	public List<List<Entity>> getEntities()
+	{
+		return entitiesBySentences;
+	}
+
+	public void setEntities(List<List<Entity>> entities)
+	{
+		this.entitiesBySentences = entities;
+	}
+
+	public List<TreeNode> getTrees()
+	{
+		return trees;
+	}
+
+	public void setTrees(List<TreeNode> trees)
+	{
+		this.trees = trees;
+	}
+
+	public String getContent()
+	{
+		return content;
+	}
+
+	public void setContent(String content)
+	{
+		this.content = content;
+	}
+
+	public List<CorefCluster> getCorefClusters()
+	{
+		return corefClusters;
+	}
+
+	public void setCorefClusters(List<CorefCluster> corefClusters)
+	{
+		this.corefClusters = corefClusters;
+	}
+
 }
