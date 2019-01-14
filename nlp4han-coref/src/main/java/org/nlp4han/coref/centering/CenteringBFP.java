@@ -511,7 +511,7 @@ public class CenteringBFP implements AnaphoraResolution
 		GrammaticalRoleBasedMentionGenerator grbmg = new GrammaticalRoleBasedMentionGenerator();
 		doc = grbmg.generate(doc);
 		
-		List<List<Mention>> eou = doc.getMentions();
+		List<List<Mention>> eou = doc.getMentionsBySentences();
 
 		List<List<Mention>> newMentions = run(eou, sentences);
 		List<AnaphoraResult> result = analysisResult(eou, newMentions, sentences);

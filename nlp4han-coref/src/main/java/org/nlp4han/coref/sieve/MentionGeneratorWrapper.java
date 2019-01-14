@@ -14,18 +14,18 @@ public class MentionGeneratorWrapper implements MentionGenerator
 	
 	public void addMentions(Document doc, List<List<Mention>> mentions) 
 	{
-		if (doc.getMentions() != null && doc.getMentions().size() != mentions.size())
+		if (doc.getMentionsBySentences() != null && doc.getMentionsBySentences().size() != mentions.size())
 		{
 			throw new RuntimeException("参数错误！");
 		}
 		
-		if (doc.getMentions() == null)
+		if (doc.getMentionsBySentences() == null)
 		{
 			doc.setMentions(mentions);
 		}
 		else
 		{
-			List<List<Mention>> ms = doc.getMentions();
+			List<List<Mention>> ms = doc.getMentionsBySentences();
 			
 			for (int i=0 ; i<ms.size() ; i++)
 			{

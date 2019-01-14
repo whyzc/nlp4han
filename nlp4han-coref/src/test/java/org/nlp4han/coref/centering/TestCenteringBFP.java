@@ -179,7 +179,7 @@ public class TestCenteringBFP
 		doc.setTrees(trees);
 		
 		GrammaticalRoleBasedMentionGenerator mg = new GrammaticalRoleBasedMentionGenerator();
-		List<List<Mention>> mentions = mg.generate(doc).getMentions();
+		List<List<Mention>> mentions = mg.generate(doc).getMentionsBySentences();
 		
 		List<Mention> e1 = mentions.get(0);
 		List<Mention> e2 = mentions.get(1);
@@ -222,7 +222,7 @@ public class TestCenteringBFP
 		doc.setTrees(trees);
 		
 		GrammaticalRoleBasedMentionGenerator mg = new GrammaticalRoleBasedMentionGenerator();
-		List<List<Mention>> mentions = mg.generate(doc).getMentions();
+		List<List<Mention>> mentions = mg.generate(doc).getMentionsBySentences();
 		
 		//e1:小明，汽车
 		List<Mention> e1 = mentions.get(0);
@@ -279,7 +279,7 @@ public class TestCenteringBFP
 		doc.setTrees(trees);
 		
 		GrammaticalRoleBasedMentionGenerator mg = new GrammaticalRoleBasedMentionGenerator();
-		List<List<Mention>> mentions = mg.generate(doc).getMentions();
+		List<List<Mention>> mentions = mg.generate(doc).getMentionsBySentences();
 		
 		//e1:小明，汽车
 		List<Mention> e1 = mentions.get(0);

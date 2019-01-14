@@ -30,7 +30,7 @@ public class TestGrammaticalRoleBasedMentionGenerator
 		doc.setTrees(trees);
 
 		GrammaticalRoleBasedMentionGenerator mg = new GrammaticalRoleBasedMentionGenerator();
-		List<List<Mention>> mentions = mg.generate(doc).getMentions();
+		List<List<Mention>> mentions = mg.generate(doc).getMentionsBySentences();
 		
 		assertEquals(3, mentions.get(0).size());
 		
@@ -65,7 +65,7 @@ public class TestGrammaticalRoleBasedMentionGenerator
 		doc.setTrees(trees);
 
 		GrammaticalRoleBasedMentionGenerator mg = new GrammaticalRoleBasedMentionGenerator();
-		List<List<Mention>> mentions = mg.generate(doc).getMentions();
+		List<List<Mention>> mentions = mg.generate(doc).getMentionsBySentences();
 		
 		assertEquals(4, mentions.get(0).size());
 		

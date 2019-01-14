@@ -62,7 +62,7 @@ public class Center
 					anaphorMentions.add(newMentions.get(i));
 			}
 
-			List<Mention> es = MentionUtil.sort(anaphorMentions);
+			List<Mention> es = MentionUtil.GrammaticalRoleBasedSort(anaphorMentions);
 			if (es != null && es.size() > 0)
 				Cb = es.get(0);
 			else
@@ -95,7 +95,7 @@ public class Center
 	{
 		if (Cf == null || Cf.size() < 1)
 			throw new RuntimeException("Cf错误");
-		List<Mention> e = MentionUtil.sort(mentions);
+		List<Mention> e = MentionUtil.GrammaticalRoleBasedSort(mentions);
 		int index = mentions.indexOf(e.get(0));
 		Cp = newMentions.get(index);
 	}

@@ -12,6 +12,7 @@ public class Document
 	
 	private List<CorefCluster> corefClusters;
 	private List<List<Mention>> mentionsBySentences;
+	private List<Mention> mentions;
 	private List<List<Entity>> entitiesBySentences;
 	
 	public Document()
@@ -29,9 +30,14 @@ public class Document
 		// TODO Auto-generated constructor stub
 	}
 
-	public List<List<Mention>> getMentions()
+	public List<List<Mention>> getMentionsBySentences()
 	{
 		return mentionsBySentences;
+	}
+	
+	public List<Mention> getMentions()
+	{
+		return mentions;
 	}
 	
 	public void setMentions(List<List<Mention>> mentions)

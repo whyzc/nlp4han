@@ -10,8 +10,27 @@ import org.nlp4han.coref.sieve.Mention;
 public class MentionUtil
 {
 	/**
-	 * 将实体集进行排序，此处按照语法角色的优先级进行排序
+	 * 将Mention集进行排序，此处按照语法角色的优先级进行排序
 	 * 
+	 * @param mentions
+	 * @return
+	 */
+	public static List<Mention> GrammaticalRoleBasedSort(List<Mention> mentions)
+	{
+		if (mentions != null && mentions.size() > 0)
+		{
+			List<Mention> result = new ArrayList<Mention>();
+			result.addAll(mentions);
+			Collections.sort(result, new GrammaticalRoleBasedMentionComparator());
+			if (result.size() != mentions.size())
+				throw new RuntimeException("结果错误！");
+			return result;
+		}
+		return null;
+	}
+	
+	/**
+	 * 将Mention集进行排序，此处按照Mention的位置进行排序
 	 * @param mentions
 	 * @return
 	 */
@@ -21,15 +40,15 @@ public class MentionUtil
 		{
 			List<Mention> result = new ArrayList<Mention>();
 			result.addAll(mentions);
-			Collections.sort(result, new MentionComparator());
+			Collections.sort(result, new LocationBasedMentionComparator());
 			if (result.size() != mentions.size())
 				throw new RuntimeException("结果错误！");
 			return result;
 		}
 		return null;
-	}
+	} 
 	
-	private static class MentionComparator implements Comparator<Mention>
+	private static class GrammaticalRoleBasedMentionComparator implements Comparator<Mention>
 	{
 		@Override
 		public int compare(Mention arg0, Mention arg1)
@@ -59,6 +78,22 @@ public class MentionUtil
 				}
 				return s1 - s2;
 			}
+		}
+
+	}
+	
+	private static class LocationBasedMentionComparator implements Comparator<Mention>
+	{
+		@Override
+		public int compare(Mention arg0, Mention arg1)
+		{
+			
+			if (arg0.getSentenceIndex() != arg1.getSentenceIndex())
+				return arg0.getSentenceIndex() - arg1.getSentenceIndex();
+			else if (arg0.getHeadIndex() != arg1.getHeadIndex())
+				return arg0.getHeadIndex() - arg1.getHeadIndex();
+			else
+				return arg0.getMentionID() - arg1.getMentionID();
 		}
 
 	}
